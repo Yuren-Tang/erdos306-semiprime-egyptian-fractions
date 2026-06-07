@@ -1391,3 +1391,625 @@ This suggests a two-regime proof:
 2. **Moderate/high pair energy:** let the energy term $e^{\varepsilon T}$ pay the relevant choices.
 
 The remaining challenge is to make this compatible with the global energy budget, because pair energies are distributed over many label pairs.
+
+---
+
+# 27. Star cheap-degree bound from the short label list
+
+There is a stronger local fact than the two-fibre container, and it uses the shortness of the base list directly.
+
+Fix a labelled set
+
+$$
+\Gamma_0=\{(p,m_p):p\in A_0\}\subset P\times\mathcal L.
+$$
+
+Fix a candidate vertex $q\in P$ and a candidate label $m'\in\mathcal L$. For a threshold $\tau$, say that $p\in A_0$ is $\tau$-cheap to $(q,m')$ if
+
+$$
+|H_{pq}^{m_p,m'}|\le\tau.
+$$
+
+Then there exists an integer $n$ such that
+
+$$
+|n|\le\tau,\qquad n\equiv m'\pmod q,\qquad n\equiv m_p\pmod p.
+$$
+
+The number of possible $n$ is
+
+$$
+\ll 1+\frac{\tau}{X}.
+$$
+
+For a fixed such $n$, count possible $p$. Since every label in $\mathcal L$ has the form
+
+$$
+m=m_0+p_0t
+$$
+
+with $t$ in an interval of length $s=|\mathcal L|$, the condition $p\mid n-m_p$ implies
+
+$$
+p\mid n-m_0-p_0t
+$$
+
+for some admissible $t$. For each fixed $t$, the integer $n-m_0-p_0t$ has size $\ll B_{\rm list}+\tau$, so it has at most
+
+$$
+\ll L_X
+$$
+
+prime divisors in $[X,2X]$. Summing over $t$ gives
+
+$$
+\#\{p\in P:\ p\mid n-m_p\}
+\ll sL_X.
+$$
+
+Therefore
+
+$$
+\#\{p\in A_0:\ |H_{pq}^{m_p,m'}|\le\tau\}
+\ll
+\left(1+\frac{\tau}{X}\right)sL_X.
+$$
+
+Call this quantity
+
+$$
+D_\tau
+:=
+C\left(1+\frac{\tau}{X}\right)sL_X.
+$$
+
+This bound is uniform in:
+
+- the previously chosen labelled set $\Gamma_0$;
+- the candidate vertex $q$;
+- the candidate label $m'$.
+
+This is stronger than the previous cheap-neighborhood bound when the previous set is large.
+
+---
+
+# 28. Star lower bound for adding a new fibre
+
+Let $\Gamma_0$ be a previously chosen labelled set of size
+
+$$
+U=|\Gamma_0|.
+$$
+
+For a candidate labelled vertex $(q,m')$, its cross energy to $\Gamma_0$ is
+
+$$
+d_{\Gamma_0}^{m'}(q)
+=
+\sum_{(p,m_p)\in\Gamma_0}
+\left(\frac{H_{pq}^{m_p,m'}}{pq}\right)^2.
+$$
+
+By the star cheap-degree bound, at most $D_\tau$ terms have
+
+$$
+|H_{pq}^{m_p,m'}|\le\tau.
+$$
+
+All other terms contribute at least $\tau^2/X^4$. Hence
+
+$$
+d_{\Gamma_0}^{m'}(q)
+\ge
+(U-D_\tau)_+\frac{\tau^2}{X^4}.
+$$
+
+Choose $\tau$ so that
+
+$$
+D_\tau\le U/2.
+$$
+
+For instance, if $U\gg sL_X$, we may take
+
+$$
+\tau\asymp \frac{UX}{sL_X}
+$$
+
+up to the natural cap $\tau\le X^2$. Then
+
+$$
+d_{\Gamma_0}^{m'}(q)
+\gg
+U\frac{\tau^2}{X^4}
+\asymp
+\frac{U^3}{s^2L_X^2X^2}.
+$$
+
+Thus every vertex in the next fibre pays at least
+
+$$
+\lambda(U)
+:=
+c\frac{U^3}{s^2L_X^2X^2}
+$$
+
+energy to the previously chosen labelled set, as long as $sL_X\ll U\ll sL_XX$ and $\tau\le X^2$. If the formula gives $\tau>X^2$, then the trivial cap gives instead a lower bound $\gg U$.
+
+This is exactly the kind of estimate missing from the pure pairwise divisor-energy approach: it uses the short list to prevent one new vertex from being cheap to too many previously labelled vertices.
+
+---
+
+# 29. Sequential entropy-energy estimate from the star bound
+
+Order substantial fibres arbitrarily, and let $U_j$ be the total number of vertices in earlier fibres before choosing the $j$-th fibre.
+
+If the $j$-th fibre has size $v_j$, then Section 28 gives cross energy at least
+
+$$
+v_j\lambda(U_j)
+\asymp
+v_j\frac{U_j^3}{s^2L_X^2X^2}
+$$
+
+whenever $U_j\gg sL_X$.
+
+The entropy of choosing this fibre is at most
+
+$$
+\binom{N}{v_j}
+\le
+\exp\left(v_j\log\frac{eN}{v_j}\right).
+$$
+
+Hence this step is energy-paid if
+
+$$
+\frac{U_j^3}{s^2L_X^2X^2}
+\gg
+\log\frac{eN}{v_j}.
+$$
+
+Once
+
+$$
+U_j
+\gg
+\left(s^2L_X^2X^2\log N\right)^{1/3},
+$$
+
+all later fibres are paid automatically by the star bound.
+
+So the only remaining initial segment to handle is before the accumulated previous mass reaches
+
+$$
+U_\ast
+:=
+\left(s^2L_X^2X^2\log N\right)^{1/3}.
+$$
+
+The entropy of choosing this initial segment is at most roughly
+
+$$
+U_\ast\log N.
+$$
+
+If this is $\ll \varepsilon R$, then SBEE closes.
+
+Using
+
+$$
+s\ll \log X\sqrt R,
+$$
+
+we get
+
+$$
+U_\ast
+\ll
+X^{2/3} R^{1/3}(\log X)^{O(1)}.
+$$
+
+Thus the initial entropy is
+
+$$
+\ll
+X^{2/3}R^{1/3}(\log X)^{O(1)}.
+$$
+
+This is absorbed by $\varepsilon R$ provided
+
+$$
+R\gg X(\log X)^{O(1)}.
+$$
+
+Therefore:
+
+- for large $R$, the star-bound sequential argument plausibly closes SBEE;
+- for small $R\ll X\operatorname{polylog}X$, the threshold $U_\ast$ may exceed the available energy budget, and one needs a sharper argument.
+
+This is a substantial reduction: the difficult SBEE range may now be only
+
+$$
+R\lesssim X\operatorname{polylog}X.
+$$
+
+But in that range the short list size is
+
+$$
+s\ll X^{1/2}\operatorname{polylog}X,
+$$
+
+and the number of substantial classes is correspondingly limited. The next task is to combine this with the two-fibre container from Sections 25-26.
+
+---
+
+# 30. Star-energy integral and the critical window
+
+The star lower bound also gives a deterministic energy lower bound for any non-dominant substantial configuration.
+
+Let $W$ be the number of vertices lying in substantial non-dominant fibres. In SBEE we may assume
+
+$$
+W\ge \rho N.
+$$
+
+Expose these vertices one by one in any order that respects their final labels. When $U$ vertices have already been exposed, Section 28 gives the next vertex cost at least
+
+$$
+c\frac{(U-C sL_X)_+^3}{s^2L_X^2X^2}.
+$$
+
+Therefore the total substantial cross energy satisfies
+
+$$
+S_{\rm sub}
+\gg
+\frac1{s^2L_X^2X^2}
+\int_0^W (U-C sL_X)_+^3\,dU.
+$$
+
+If
+
+$$
+sL_X\le c_\rho N,
+$$
+
+then, since $W\ge\rho N$,
+
+$$
+S_{\rm sub}
+\gg_\rho
+\frac{N^4}{s^2L_X^2X^2}.
+$$
+
+Using
+
+$$
+N\asymp \frac{X}{\log X},
+\qquad
+s\ll \log X\sqrt R,
+$$
+
+we obtain
+
+$$
+S_{\rm sub}
+\gg
+\frac{X^2}{R(\log X)^{O(1)}}.
+$$
+
+Thus any configuration with $Q_P(a)\le R$ must satisfy
+
+$$
+R
+\gg
+\frac{X}{(\log X)^{O(1)}}.
+$$
+
+So the non-dominant substantial case is impossible in the genuinely small-energy range
+
+$$
+R\ll X/(\log X)^C
+$$
+
+for a sufficiently large fixed $C$.
+
+On the other hand, Section 29 suggests that once
+
+$$
+R\gg X(\log X)^C,
+$$
+
+the sequential star-bound entropy can be absorbed by $e^{\varepsilon R}$.
+
+Therefore the hard range is plausibly only the logarithmic critical window
+
+$$
+X/(\log X)^C
+\lesssim
+R
+\lesssim
+X(\log X)^C.
+$$
+
+This is a major narrowing. In this window
+
+$$
+s\ll X^{1/2}(\log X)^{O(1)},
+$$
+
+and substantial non-dominant configurations must have:
+
+1. positive substantial mass $\rho N$;
+2. no near-dominant fibre;
+3. energy $S_{\rm sub}\asymp X$ up to logarithms;
+4. label list length about at most $X^{1/2}$ up to logarithms.
+
+The next step should target exactly this critical window. The two-fibre container from Section 25 and the star-degree bound from Section 27 are both naturally scaled for this regime.
+
+---
+
+# 31. Critical-window obstruction to the naive star strategy
+
+In the critical window, the largest substantial fibre has size at least
+
+$$
+u_{\max}\ge \frac{\rho N}{s}
+\gg
+X^{1/2}(\log X)^{-O(1)}.
+$$
+
+Let $G$ be such a largest fibre. Although $G$ is not dense enough for Irving majority correction, it is large enough to seed the two-fibre container.
+
+For any other fibre $B$ of size $v$, the two-fibre container with $A=G$ says:
+
+$$
+B\subset N_\tau(G)\cup E_B,
+\qquad
+|E_B|\le \frac{T_{G,B}X^4}{\tau^2u_{\max}}.
+$$
+
+Choose
+
+$$
+\tau\asymp X
+$$
+
+in the critical window. Then
+
+$$
+M_\tau
+=
+\frac{B_{\rm list}+\tau}{X}
+\ll
+X^{1/2}(\log X)^{O(1)}
+\asymp s(\log X)^{O(1)}.
+$$
+
+The cheap neighborhood has size
+
+$$
+|N_\tau(G)|
+\ll
+s^2u_{\max}(\log X)^{O(1)}.
+$$
+
+Since $u_{\max}\ge N/s$, this may still be as large as $sN$, hence trivial. So the two-fibre container with only the largest fibre is not enough.
+
+The improvement must come from using **many previous fibres simultaneously**, via the star bound:
+
+for a candidate vertex to be cheap to the whole previous labelled set, it must be cheap to at most
+
+$$
+D_\tau\ll sL_X
+$$
+
+of the previous vertices. Once the previous mass is $\gg sL_X$, most previous edges are expensive.
+
+Thus a tempting critical-window strategy would be:
+
+1. choose an initial seed of total size about $sL_X$;
+2. count that seed crudely;
+3. use the star lower bound to force energy for all remaining substantial vertices;
+4. refine the seed count using two-fibre containers if crude seed entropy is too large.
+
+However this is too optimistic.
+
+The seed size $sL_X$ only ensures that new vertices have a positive star-energy lower bound. To pay the entropy of choosing a new labelled vertex from about $Ns$ possibilities, we need
+
+$$
+\lambda(U)
+\gg
+\log(Ns),
+$$
+
+where
+
+$$
+\lambda(U)
+\asymp
+\frac{U^3}{s^2L_X^2X^2}.
+$$
+
+Thus the real entropy-paying threshold is
+
+$$
+U_\ast
+\asymp
+\left(s^2L_X^2X^2\log(Ns)\right)^{1/3}.
+$$
+
+In the critical window $R\asymp X(\log X)^{O(1)}$, we have
+
+$$
+s\asymp X^{1/2}(\log X)^{O(1)},
+$$
+
+so
+
+$$
+U_\ast
+\asymp
+X(\log X)^{O(1)},
+$$
+
+which is comparable to, or larger than, the whole block size $N\asymp X/\log X$.
+
+Therefore the naive star strategy does **not** close the critical window. What it does prove is still useful:
+
+1. very small $R$ is impossible by the star-energy integral;
+2. very large $R$ is entropy-paid;
+3. the remaining critical window requires a sharper counting mechanism.
+
+In that window, one cannot pay entropy vertex-by-vertex. One must exploit correlations between the choices: low energy forces many vertices simultaneously to lie in structured cheap-incidence sets.
+
+This brings the focus back to the two-fibre / multi-fibre container, but now with a better understanding:
+
+- star bounds rule out too many cheap incidences to an already large labelled set;
+- two-fibre containers describe the structure of a fibre with low energy to another fibre;
+- the missing piece is a **multi-fibre seed container** that counts the initial segment up to size about $U_\ast$ more efficiently than crude entropy.
+
+This is the current precise bottleneck.
+
+---
+
+# 32. New target: multi-fibre seed container
+
+The remaining problem can be isolated as follows.
+
+In the critical window, define
+
+$$
+U_\ast
+=
+\left(s^2L_X^2X^2\log(Ns)\right)^{1/3}.
+$$
+
+The star bound pays entropy only after the exposed substantial mass exceeds $U_\ast$. Therefore we need to count possible initial labelled seeds
+
+$$
+\Gamma_{\rm seed}\subset P\times\mathcal L,
+\qquad
+|\Gamma_{\rm seed}|\le U_\ast,
+$$
+
+under the assumption that this seed is part of a global non-dominant substantial configuration with low internal energy.
+
+Crude entropy gives
+
+$$
+\log \#\Gamma_{\rm seed}
+\lesssim
+U_\ast\log(Ns),
+$$
+
+which is too large in the critical window.
+
+The needed statement is:
+
+**Seed container target.**  
+For every $\varepsilon>0$, the number of possible low-energy labelled seeds of size up to $U_\ast$ is at most
+
+$$
+\exp\{\varepsilon R\}
+$$
+
+after accounting for their internal cross energy.
+
+Equivalently, among the first $U_\ast$ substantial vertices, low energy must already impose enough two-fibre cheap-incidence structure to beat crude entropy.
+
+---
+
+# 33. Why a seed should already have structure
+
+Suppose a seed has fibres of sizes $n_1,\ldots,n_t$ and total size $U\le U_\ast$. Its internal seed cross energy is at least, by divisor-energy,
+
+$$
+S_{\rm seed}
+\gg
+\sum_{\alpha\ne\beta}
+n_\alpha n_\beta
+\min\left(1,\frac{n_\alpha^2n_\beta^2}{X^4L_X^4}\right).
+$$
+
+This lower bound alone is too weak in the medium-fibre regime. But if the seed is low energy, then for many pairs of fibres $(A_\alpha,A_\beta)$, one of the following must hold:
+
+1. their pair energy is not especially low, and can be charged directly;
+2. one fibre lies mostly inside a cheap-neighborhood container of the other;
+3. both fibres are part of a larger cheap-incidence cluster.
+
+Thus the seed should decompose into clusters generated by iterated cheap-neighborhoods.
+
+For labels $m\ne m'$ and threshold $\tau$, the cheap-neighborhood operation has branching factor roughly
+
+$$
+M_\tau^2
+\asymp
+\left(\frac{B_{\rm list}+\tau}{X}\right)^2.
+$$
+
+In the critical window, for $\tau\asymp X$,
+
+$$
+M_\tau^2\asymp s^2(\log X)^{O(1)}.
+$$
+
+This is large for one step, but iterated cheap neighborhoods must also satisfy different label equations
+
+$$
+p\alpha-q\beta=p_0(t'-t).
+$$
+
+A plausible route is to show that a long cheap-incidence chain has far fewer choices than the product of one-step branching factors, because consecutive linear equations constrain the intermediate primes and label differences.
+
+This suggests a path-counting lemma.
+
+---
+
+# 34. Candidate path-counting lemma
+
+Fix a sequence of labels
+
+$$
+t_0,t_1,\ldots,t_\ell
+$$
+
+and primes
+
+$$
+p_0',p_1',\ldots,p_\ell'\in P
+$$
+
+such that each consecutive edge is $\tau$-cheap:
+
+$$
+|H_{p_{i-1}'p_i'}^{m_{t_{i-1}},m_{t_i}}|\le\tau.
+$$
+
+Then there exist integers $\alpha_i,\beta_i$ with
+
+$$
+p_{i-1}'\alpha_i-p_i'\beta_i
+=
+p_0(t_i-t_{i-1}),
+\qquad
+|\alpha_i|,|\beta_i|\ll M_\tau.
+$$
+
+For fixed labels and auxiliary variables, the primes satisfy a chain of linear fractional relations. The hope is that the number of possible prime paths of length $\ell$ is
+
+$$
+\ll
+N\cdot M_\tau^{O(\ell)}
+$$
+
+with an exponent strictly smaller than the naive $2\ell$, or with strong collision constraints when the path branches.
+
+If such a path-counting lemma exists, then cheap-incidence clusters have small entropy, and the seed container may close.
+
+This is now the most concrete mathematical subproblem:
+
+> Count connected components in the graph generated by cheap edges across labels, using the linear equations from the base-list structure.
+
+It may be easier than a full hypergraph container and more faithful to the arithmetic structure.
