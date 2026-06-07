@@ -3795,3 +3795,587 @@ The arithmetic part has reached the correct size. The remaining question is pure
 > Can a near-saturated bucket core $\mathcal B$ of size $M^2$ be exposed from a fingerprint of entropy $o_\rho(R)$, rather than chosen from all $\binom{2\tau}{M^2}$ possibilities?
 
 This is now the most precise current form of the final condition.
+
+---
+
+# 63. A fingerprint lemma for one bucket core
+
+The near-saturated bucket-core problem has a purely combinatorial sublemma.
+
+Let $G=(U,\mathcal B,E)$ be the incidence graph between a set $U$ of labelled vertices and a bucket core $\mathcal B$. Assume:
+
+1. every $u\in U$ has degree at most $M$;
+2. every bucket $b\in\mathcal B$ has degree at least $k$;
+3. the total incidence satisfies
+   $$
+   |E|\asymp |\mathcal B|k.
+   $$
+
+Then there is a fingerprint
+
+$$
+F\subset U
+$$
+
+with
+
+$$
+|F|\ll \frac{|U|}{k}
+$$
+
+such that the bucket neighbourhood
+
+$$
+\mathcal B(F)=N(F)
+$$
+
+carries a positive proportion of all incidences:
+
+$$
+e(U,\mathcal B(F))
+\gg
+e(U,\mathcal B).
+$$
+
+**Proof.** Choose each vertex of $U$ independently with probability $c/k$, where $c>0$ is a sufficiently small absolute constant. Then
+
+$$
+\mathbb E|F|=\frac{c|U|}{k}.
+$$
+
+For a bucket $b$ of degree at least $k$,
+
+$$
+\mathbb P(b\in N(F))
+\ge
+1-\left(1-\frac ck\right)^k
+\ge
+c'
+$$
+
+for an absolute $c'>0$. Therefore
+
+$$
+\mathbb E\,e(U,N(F))
+=
+\sum_{b\in\mathcal B}\deg(b)\mathbb P(b\in N(F))
+\ge
+c' e(U,\mathcal B).
+$$
+
+After discarding an exceptional outcome if necessary, there is a choice of $F$ with both
+
+$$
+|F|\ll\frac{|U|}{k}
+$$
+
+and
+
+$$
+e(U,N(F))\gg e(U,\mathcal B).
+$$
+
+This proves the lemma.
+
+In the near-saturated SBEE core, one has heuristically
+
+$$
+|U|\asymp N,\qquad k\asymp D=sL_X,\qquad M\asymp\frac{N}{D}.
+$$
+
+Thus
+
+$$
+|F|\ll \frac{N}{D}\asymp M.
+$$
+
+This is exactly the right scale: the core $\mathcal B$ has size about $M^2$, but it can be exposed by only $O(M)$ labelled vertices.
+
+---
+
+# 64. From fingerprint to residual container
+
+Let $F$ be the fingerprint from Section 63 and put
+
+$$
+\mathcal B_F=N(F).
+$$
+
+Since each labelled vertex has at most $O(M)$ buckets,
+
+$$
+|\mathcal B_F|\ll |F|M.
+$$
+
+In the near-saturated case $|F|\ll M$, hence
+
+$$
+|\mathcal B_F|\ll M^2.
+$$
+
+The fingerprint lemma says that a positive proportion of the original core incidences land in $\mathcal B_F$. Dyadically pigeonhole the vertices again. There is a subfamily
+
+$$
+U_F\subset U
+$$
+
+and a threshold $h_F\gg M$ up to constants, in the saturated case, such that
+
+$$
+U_F\subset\mathcal V_{h_F}(\mathcal B_F)
+$$
+
+and $U_F$ carries a positive proportion of the core mass.
+
+By the marked dual large-sieve lemma,
+
+$$
+|U_F|
+\le
+|\mathcal V_{h_F}(\mathcal B_F)|
+\ll
+\frac{|\mathcal B_F|N+|\mathcal B_F|^2}{h_F^2}.
+$$
+
+With
+
+$$
+|\mathcal B_F|\ll M^2,\qquad h_F\asymp M,
+$$
+
+this becomes
+
+$$
+|U_F|\ll N+M^2.
+$$
+
+Thus a positive chunk of the dangerous labelled vertices is covered by a residual container generated from only $O(M)$ fingerprint vertices.
+
+Iterating this argument covers the near-saturated core by containers generated from total fingerprint size
+
+$$
+O(M\log N)
+$$
+
+if one insists on deterministic full coverage, and plausibly $O_\delta(M)$ if one allows a fixed uncovered proportion to be paid by the complementary energy at each stage.
+
+This is a major improvement over arbitrary bucket-core enumeration:
+
+$$
+\log\binom{2\tau}{M^2}
+\asymp
+M^2\log\frac{\tau}{M^2}
+$$
+
+is replaced by roughly
+
+$$
+M\log(Ns)
+$$
+
+per exposed core.
+
+---
+
+# 65. Updated proof route for BCE
+
+The preceding two sections suggest that BCE may be provable by the following deterministic-probabilistic container algorithm.
+
+For each dyadic $\tau$:
+
+1. extract a dangerous bucket layer $(\mathcal B_k,\Gamma_{k,h})$ as in Section 61;
+2. if $k$ or $h$ is not near-saturated, charge the deficit through the layer-cake energy;
+3. if $k\asymp D$ and $h\asymp M$, apply the fingerprint lemma to choose $F$ with $|F|\ll M$;
+4. replace the arbitrary bucket core by the generated core $\mathcal B_F=N(F)$;
+5. cover the corresponding vertex chunk by the residual container $\mathcal V_{cM}(\mathcal B_F)$ using Section 58;
+6. iterate on the uncovered part.
+
+The only quantitative point still to check is the entropy budget:
+
+$$
+M\log(Ns)
+\stackrel{?}{\ll_\varepsilon}
+\varepsilon R_{\rm forced}
+$$
+
+after summing over dyadic thresholds, profiles, and iterations.
+
+This is much smaller than the previous missing budget
+
+$$
+M^2\log\frac{\tau}{M^2},
+$$
+
+so the sign is now genuinely positive. The remaining work is no longer to invent a new analytic number theory theorem; it is to close the energy-accounting inequality for the fingerprint iterations.
+
+In other words, the final condition has been narrowed again:
+
+> **FIE, fingerprint iteration entropy.** The iterative exposure scheme above has total encoding entropy $o_\varepsilon(R)$ in every non-dominant substantial SBEE profile.
+
+The chain is now:
+
+$$
+\text{FIE}
+\Longrightarrow
+\text{BCE}
+\Longrightarrow
+\text{transversal bucket collision lemma}
+\Longrightarrow
+\text{SBEE}.
+$$
+
+Sections 58, 61, and 63 are unconditional components toward this chain.
+
+---
+
+# 66. Entropy budget check for the saturated regime
+
+Now check the scale of the remaining FIE entropy.
+
+Let
+
+$$
+W=|\Gamma|\asymp_\rho N,
+\qquad
+D=sL_X.
+$$
+
+In the hard saturated regime,
+
+$$
+M\asymp \frac{W}{D}.
+$$
+
+The bucket-capacity lower bound from Section 47 becomes effective at threshold
+
+$$
+\tau\asymp MX\asymp \frac{WX}{D}.
+$$
+
+At a fixed small constant fraction of this threshold, the cheap-pair capacity is still bounded away from all cross pairs, so the layer-cake energy forced at this scale is
+
+$$
+R_{\rm cap}
+\asymp_\rho
+\frac{W^2\tau^2}{X^4}
+\asymp_\rho
+\frac{W^4}{D^2X^2}.
+$$
+
+The fingerprint exposure from Sections 63--64 costs, per saturated core,
+
+$$
+E_{\rm fp}
+\ll
+M\log(Ns)
+\asymp
+\frac{W}{D}\log(Ns).
+$$
+
+Thus
+
+$$
+\frac{E_{\rm fp}}{R_{\rm cap}}
+\ll_\rho
+\frac{D X^2\log(Ns)}{W^3}.
+$$
+
+Using
+
+$$
+W\asymp N\asymp \frac{X}{\log X}
+$$
+
+gives
+
+$$
+\frac{E_{\rm fp}}{R_{\rm cap}}
+\ll_\rho
+\frac{D(\log X)^3\log(Ns)}{X}
+\ll
+\frac{D(\log X)^4}{X}.
+$$
+
+Therefore the **fingerprint/core-generation entropy** is absorbed by the forced bucket-capacity energy whenever
+
+$$
+D=sL_X=o\left(\frac{X}{(\log X)^4}\right).
+$$
+
+This includes the critical range
+
+$$
+s\asymp X^{1/2}\operatorname{polylog}X.
+$$
+
+If instead
+
+$$
+D\gg \frac{X}{(\log X)^4},
+$$
+
+then the label list is already enormous. Since
+
+$$
+s\ll \log X\sqrt R,
+$$
+
+we get
+
+$$
+R\gg \frac{s^2}{(\log X)^2}
+\gg
+\frac{X^2}{L_X^2(\log X)^{10}}.
+$$
+
+This is much larger than the crude entropy
+
+$$
+N\log s\ll X
+$$
+
+for large $X$, so the large-list regime is already paid without delicate bucket containers.
+
+Hence the fingerprint-generation budget appears to close in all relevant regimes, up to harmless powers of $\log X$ from dyadic thresholds, profiles, and iteration. Those logarithms can be absorbed by replacing the displayed $(\log X)^4$ margin with a larger fixed power in the large-list split.
+
+This is a strong positive sign, but it is not yet the whole FIE proof. The estimate above pays for generating the bucket core from a fingerprint. It does **not** automatically pay for freely choosing an arbitrary large subset of the residual container
+
+$$
+\mathcal V_{cM}(\mathcal B_F),
+$$
+
+whose size may still be $O(N)$ in the critical range.
+
+The next formal task is to write the iteration carefully:
+
+1. define the saturated-core extraction at each dyadic threshold;
+2. apply the fingerprint lemma to cover a fixed positive fraction of the remaining saturated incidence mass;
+3. avoid an $O(N)$ free-choice entropy inside the residual containers, either by recursively exposing further fingerprints or by proving a high-common-neighbour container bound relative to the fingerprint;
+4. charge the discarded/non-saturated part by layer-cake energy;
+5. sum the fingerprint and residual-container entropies over iterations and profiles using the estimate above.
+
+So FIE has been narrowed, but not eliminated.
+
+---
+
+# 67. The remaining residual-container issue
+
+The residual container supplied by Section 58 has size
+
+$$
+|\mathcal V_{cM}(\mathcal B_F)|\ll N+M^2.
+$$
+
+In the critical range, this can be as large as $O(N)$. Counting arbitrary transversals inside a set of $O(N)$ labelled vertices costs
+
+$$
+\exp(O(N)),
+$$
+
+which may be too large compared with
+
+$$
+R_{\rm cap}
+\asymp
+\frac{W^4}{D^2X^2}
+$$
+
+when $D$ is around $X^{1/2}\operatorname{polylog}X$.
+
+Thus the next genuine obstacle is:
+
+> Once a fingerprint $F$ has generated $\mathcal B_F=N(F)$, prove that low-energy residual choices inside $\mathcal V_{cM}(\mathcal B_F)$ are not arbitrary.
+
+There are two plausible ways to do this.
+
+## 67.1 Recursive exposure
+
+Apply the same bucket-core extraction to the residual set inside $\mathcal V_{cM}(\mathcal B_F)$. If the residual choices still have high collision, expose another fingerprint. If not, the layer-cake complement pays.
+
+This would make the container algorithm self-similar:
+
+$$
+\Gamma
+\leadsto
+F_1,\mathcal B_{F_1},\Gamma_1
+\leadsto
+F_2,\mathcal B_{F_2},\Gamma_2
+\leadsto
+\cdots.
+$$
+
+The required estimate is that the total fingerprint size remains
+
+$$
+o(R_{\rm cap}/\log(Ns)).
+$$
+
+## 67.2 High common-neighbour bound
+
+Keep the incidence with the fingerprint itself, not just with its bucket union.
+
+A vertex $v$ lying in $\mathcal V_{cM}(\mathcal B_F)$ has at least $cM$ bucket incidences with the union of bucket sets from $F$. Since two labelled vertices have at most one common bucket when $2\tau<X^2$, this says that $v$ is $\tau$-cheap to many members of $F$, up to bounded multiplicity.
+
+So one should prove a common-neighbour estimate of the form
+
+$$
+\#\{v:v\text{ is }\tau\text{-cheap to at least }cM\text{ vertices of }F\}
+\ll
+o(N)
+\text{energy-paid structured exceptions}.
+$$
+
+This would replace the crude residual container size $O(N)$ by a genuinely small or low-entropy set.
+
+The high-common-neighbour estimate is now the sharpest local form of the remaining problem. It uses the same cheap-edge equation
+
+$$
+p\alpha-q\beta=p_0(t'-t),
+$$
+
+but with many fixed seed equations imposed simultaneously.
+
+---
+
+# 68. Recursive exposure scale
+
+The residual-container issue can be attacked by recursion rather than by one-shot counting.
+
+Suppose at some stage the remaining non-dominant substantial mass is
+
+$$
+W_j.
+$$
+
+Keep
+
+$$
+D=sL_X
+$$
+
+fixed for the dyadic profile. In the saturated regime for this residual mass,
+
+$$
+M_j\asymp \frac{W_j}{D}.
+$$
+
+The fingerprint needed at this stage has size
+
+$$
+\ll M_j,
+$$
+
+so its entropy is
+
+$$
+E_j
+\ll
+\frac{W_j}{D}\log(Ns).
+$$
+
+The bucket-capacity energy available at this residual scale is
+
+$$
+R_j
+\asymp_\rho
+\frac{W_j^4}{D^2X^2}.
+$$
+
+Thus
+
+$$
+\frac{E_j}{R_j}
+\ll_\rho
+\frac{D X^2\log(Ns)}{W_j^3}.
+$$
+
+Define the recursive stopping mass
+
+$$
+W_\ast
+=
+\left(DX^2\log(Ns)\right)^{1/3}.
+$$
+
+For every stage with
+
+$$
+W_j\gg W_\ast,
+$$
+
+the fingerprint entropy is a small fraction of the energy forced at that same scale. Since each successful exposure covers a fixed positive proportion of the saturated incidence mass, the total fingerprint entropy over a geometric iteration down to $W_\ast$ is controlled by the sum of the corresponding $R_j$.
+
+At the stopping scale, encode the remaining seed crudely. Its entropy is
+
+$$
+E_\ast
+\ll
+W_\ast\log(Ns)
+\asymp
+\left(DX^2\log(Ns)\right)^{1/3}\log(Ns).
+$$
+
+Compare this with the initial saturated energy at $W\asymp N$:
+
+$$
+R_0
+\asymp
+\frac{N^4}{D^2X^2}
+\asymp
+\frac{X^2}{D^2(\log X)^4}.
+$$
+
+Thus
+
+$$
+E_\ast\ll o(R_0)
+$$
+
+provided
+
+$$
+D\ll \frac{X^{4/7}}{(\log X)^C}
+$$
+
+for a sufficiently large fixed $C$ absorbing the dyadic and iteration logarithms.
+
+If
+
+$$
+D\gg \frac{X^{4/7}}{(\log X)^C},
+$$
+
+then the label list is already large. Since $D=sL_X$ and
+
+$$
+s\ll\log X\sqrt R,
+$$
+
+the base-list relation gives
+
+$$
+R
+\gg
+\frac{D^2}{L_X^2(\log X)^2}
+\gg
+\frac{X^{8/7}}{L_X^2(\log X)^{2+2C}},
+$$
+
+which dominates the crude entropy $N\log s\ll X$ for large $X$.
+
+Therefore the recursive exposure scale appears to cover both:
+
+1. the genuine short-list saturated regime $D\ll X^{4/7}/(\log X)^C$;
+2. the large-list regime, paid directly by the base-list lower bound for $R$.
+
+This substantially weakens the remaining FIE task. The high-common-neighbour estimate from Section 67 may not be necessary if the recursive exposure can be formalized with clean loss accounting.
+
+The remaining formal bookkeeping is:
+
+- define the residual mass $W_j$ and energy ledger after each exposure;
+- prove that non-saturated layers at stage $j$ contribute enough layer-cake energy to pay their entropy;
+- prove that saturated layers allow a fingerprint covering a fixed positive fraction of residual incidence mass;
+- stop at $W_\ast$ and pay the residual seed crudely;
+- sum over dyadic $\tau$, dyadic class-size profiles, and short lists.
+
+At this point the route is no longer searching for a new external theorem. It is a finite, though delicate, container proof.
