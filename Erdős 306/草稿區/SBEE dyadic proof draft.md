@@ -4547,3 +4547,332 @@ Still open:
 - summing the dyadic logarithmic losses without damaging the $X^{4/7}$ split.
 
 This is no longer a search problem. It is now a proof-engineering problem inside one custom container argument.
+
+---
+
+# 71. Lemma A, bucket-side non-saturation
+
+One part of Lemma A is already a clean deterministic estimate.
+
+Let the residual transversal have mass
+
+$$
+W=|\Gamma|.
+$$
+
+Set
+
+$$
+D=sL_X,
+\qquad
+M=\frac{W}{D},
+\qquad
+\tau=c_0MX
+$$
+
+with $c_0>0$ a sufficiently small constant. Assume
+
+$$
+2\tau<X^2.
+$$
+
+Let
+
+$$
+\Omega(n)=\Omega_\Gamma(n).
+$$
+
+The total bucket incidence satisfies
+
+$$
+\sum_{|n|\le\tau}\Omega(n)
+\ll
+WM.
+$$
+
+If all buckets are non-saturated in the sense that
+
+$$
+\Omega(n)\le \kappa D
+$$
+
+for every $n$, then
+
+$$
+C_\Gamma(\tau)
+\le
+\sum_{|n|\le\tau}\binom{\Omega(n)}2
+\ll
+\kappa D\sum_{|n|\le\tau}\Omega(n)
+\ll
+\kappa WDM
+\asymp
+\kappa W^2.
+$$
+
+Choose $\kappa=\kappa(\rho)>0$ small enough. Since the non-dominant substantial condition gives
+
+$$
+P_\Gamma\gg_\rho W^2
+$$
+
+cross-label pairs, the number of cross pairs not $\tau$-cheap is
+
+$$
+P_\Gamma-C_\Gamma(\tau)
+\gg_\rho W^2.
+$$
+
+Each such pair contributes at least
+
+$$
+\frac{\tau^2}{X^4}
+\asymp
+\frac{M^2}{X^2}
+$$
+
+to the cross energy. Hence
+
+$$
+S_\Gamma
+\gg_\rho
+W^2\frac{M^2}{X^2}
+=
+\frac{W^4}{D^2X^2}.
+$$
+
+This proves the bucket-side non-saturation case of Lemma A.
+
+Consequently, any low-energy residual configuration at scale
+
+$$
+\frac{W^4}{D^2X^2}
+$$
+
+must have bucket layers with occupancy
+
+$$
+k\gg_\rho D.
+$$
+
+So the only remaining part of Lemma A is not bucket occupancy. It is the vertex-side issue: high-occupancy buckets may exist, but the incidences might be spread so that no large set of vertices has degree $\asymp M$ into a generated bucket core.
+
+---
+
+# 72. Lemma A, vertex-side non-saturation
+
+The vertex-side alternative can also be made deterministic.
+
+Keep the notation of Section 71. Dyadically decompose bucket occupancies:
+
+$$
+\mathcal B_k=\{n:k\le\Omega(n)<2k\}.
+$$
+
+Let
+
+$$
+I_k
+=
+\sum_{n\in\mathcal B_k}\Omega(n)
+=
+\sum_{v\in\Gamma}d_k(v),
+$$
+
+where
+
+$$
+d_k(v)=\#\{n\in\mathcal B_k:v\text{ is incident to }n\}.
+$$
+
+The cheap-pair contribution of this layer is
+
+$$
+C_k
+\ll
+kI_k.
+$$
+
+Split the layers into two types.
+
+## 72.1 Low bucket occupancy
+
+If
+
+$$
+k\le \delta D,
+$$
+
+then
+
+$$
+C_k\ll \delta D I_k.
+$$
+
+After summing over such layers and using
+
+$$
+\sum_k I_k\ll WM,
+$$
+
+their total contribution is
+
+$$
+\ll \delta DWM
+\asymp
+\delta W^2.
+$$
+
+## 72.2 High bucket occupancy but low vertex incidence
+
+Now assume
+
+$$
+k>\delta D.
+$$
+
+If this layer has no vertex-side saturation, meaning
+
+$$
+d_k(v)\le \delta M
+$$
+
+for every $v\in\Gamma$, then
+
+$$
+I_k=\sum_{v\in\Gamma}d_k(v)\le \delta WM.
+$$
+
+Since always $k\ll D$, this gives
+
+$$
+C_k\ll kI_k\ll \delta DWM\asymp\delta W^2.
+$$
+
+There are only $O(\log D)$ dyadic layers. Taking
+
+$$
+\delta\ll_\rho \frac1{\log D}
+$$
+
+shows:
+
+> If $C_\Gamma(\tau)$ is a positive $\rho$-proportion of $W^2$, then there exists a dyadic layer $\mathcal B_k$ and a dyadic vertex-degree layer $\Gamma_{k,h}$ with
+> $$
+> k\gg_\rho \frac{D}{\log D},
+> \qquad
+> h\gg_\rho \frac{M}{\log D},
+> $$
+> and this core carries a positive logarithmic proportion of the cheap-pair mass.
+
+The logarithmic losses are harmless for the $X^{4/7}/(\log X)^C$ split in Section 68.
+
+Thus Lemma A is essentially proved, modulo recording the exact constants and dyadic logarithms.
+
+The remaining hard bookkeeping is now Lemma C, residual descent after one fingerprint exposure.
+
+---
+
+# 73. Lemma C route: balanced peeling instead of one residual set
+
+The residual descent should be formulated as a branching recurrence, not as a single shrinking container.
+
+Suppose the saturated exposure step produces a fingerprint $F$ whose generated bucket core captures a vertex set
+
+$$
+U_F\subset\Gamma
+$$
+
+with
+
+$$
+|U_F|\ge \theta W
+$$
+
+for some fixed $\theta=\theta(\rho)>0$. It is not necessary that the complement $\Gamma\setminus U_F$ itself be the only residual object. Instead choose a subchunk
+
+$$
+U_1\subset U_F,
+\qquad
+|U_1|=\lfloor \theta W/2\rfloor,
+$$
+
+and put
+
+$$
+U_2=\Gamma\setminus U_1.
+$$
+
+For an upper bound, one may count all possible such pairs by recursively counting $U_1$ and $U_2$ as two smaller residual transversals. This overcounts, but overcounting is harmless in a container estimate.
+
+The point is that the energy scale is quartic in the mass:
+
+$$
+R_{\rm cap}(W,D)
+=
+c_\rho\frac{W^4}{D^2X^2}.
+$$
+
+If
+
+$$
+W_1=\theta W/2,
+\qquad
+W_2=W-W_1,
+$$
+
+then
+
+$$
+W_1^4+W_2^4
+\le
+(1-c_\theta)W^4
+$$
+
+for some $c_\theta>0$. Hence
+
+$$
+R_{\rm cap}(W_1,D)+R_{\rm cap}(W_2,D)
+\le
+(1-c_\theta)R_{\rm cap}(W,D).
+$$
+
+This convexity gap is precisely what pays the fingerprint entropy at the parent node, because Section 68 gives
+
+$$
+|F|\log(Ns)
+\ll
+\eta R_{\rm cap}(W,D)
+$$
+
+whenever $W\gg W_\ast$.
+
+Thus Lemma C can be replaced by the following recursive counting statement.
+
+**Balanced peeling lemma.**  
+At residual mass $W\gg W_\ast$, either:
+
+1. the non-saturated layer-cake deficit contributes $\gg R_{\rm cap}(W,D)$ energy; or
+2. there is a fingerprint $F$ with entropy $o(R_{\rm cap}(W,D))$ and a captured set $U_F$ of size at least $\theta W$, so that the counting problem branches into two subproblems of masses
+   $$
+   W_1=\lfloor \theta W/2\rfloor,
+   \qquad
+   W_2=W-W_1,
+   $$
+   whose total capacity scale is smaller by a fixed factor.
+
+Iterating this recurrence gives a finite binary tree. The total fingerprint entropy is controlled by the sum of convexity gaps in
+
+$$
+W^4.
+$$
+
+Leaves have mass at most $W_\ast$ and are paid by the terminal seed bound.
+
+This avoids the problematic step of counting arbitrary subsets inside one $O(N)$ residual container. The subsets are counted recursively, and the quartic energy scale supplies the entropy gap.
+
+The proof still needs to record one technical point: the captured set $U_F$ must be large in vertex mass, not merely in incidence mass. But this follows from the maximum degree bound $d(v)\le M$:
+
+if the generated core captures $\gg WM$ incidences, then it captures at least $\gg W$ vertices.
+
+So Lemma C now looks reachable.
