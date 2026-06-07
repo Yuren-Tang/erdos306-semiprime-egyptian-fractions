@@ -4789,7 +4789,7 @@ $$
 |U_F|\ge \theta W
 $$
 
-for some fixed $\theta=\theta(\rho)>0$. It is not necessary that the complement $\Gamma\setminus U_F$ itself be the only residual object. Instead choose a subchunk
+where $\theta$ is at least a negative fixed power of $\log X$ after dyadic pigeonholing. It is not necessary that the complement $\Gamma\setminus U_F$ itself be the only residual object. Instead choose a subchunk
 
 $$
 U_1\subset U_F,
@@ -4859,7 +4859,7 @@ At residual mass $W\gg W_\ast$, either:
    \qquad
    W_2=W-W_1,
    $$
-   whose total capacity scale is smaller by a fixed factor.
+   whose total capacity scale is smaller by the convexity gap associated to $\theta$.
 
 Iterating this recurrence gives a finite binary tree. The total fingerprint entropy is controlled by the sum of convexity gaps in
 
@@ -4876,3 +4876,117 @@ The proof still needs to record one technical point: the captured set $U_F$ must
 if the generated core captures $\gg WM$ incidences, then it captures at least $\gg W$ vertices.
 
 So Lemma C now looks reachable.
+
+---
+
+# 74. Logarithmic correction to balanced peeling
+
+The balanced peeling statement in Section 73 should be softened slightly.
+
+Because the saturated core is obtained by dyadic pigeonholing over bucket layers and vertex-degree layers, the captured incidence mass may lose logarithmic factors. Thus the exposed set should be expected to have size
+
+$$
+|U_F|\ge \theta W,
+\qquad
+\theta\asymp \frac{c_\rho}{(\log X)^A},
+$$
+
+for some fixed absolute $A$, rather than fixed $\theta>0$.
+
+This is still sufficient. If one peels
+
+$$
+W_1=\lfloor \theta W/2\rfloor,
+\qquad
+W_2=W-W_1,
+$$
+
+then
+
+$$
+W_1^4+W_2^4
+\le
+\left(1-c\theta\right)W^4
+$$
+
+for an absolute $c>0$ and all sufficiently small $\theta$.
+
+Therefore the convexity gap at mass $W$ is
+
+$$
+\Delta_{\rm conv}(W)
+\asymp
+\theta\frac{W^4}{D^2X^2}.
+$$
+
+The parent fingerprint entropy is
+
+$$
+E_{\rm fp}(W)
+\ll
+\frac{W}{D}\log(Ns).
+$$
+
+Thus it is enough that
+
+$$
+\frac{W}{D}\log(Ns)
+\ll
+\eta\theta\frac{W^4}{D^2X^2},
+$$
+
+or
+
+$$
+W^3
+\gg_\eta
+\frac{D X^2\log(Ns)}{\theta}.
+$$
+
+The corrected stopping mass is therefore
+
+$$
+W_\ast
+=
+\left(\frac{DX^2\log(Ns)}{\theta}\right)^{1/3}.
+$$
+
+Since
+
+$$
+\theta^{-1}\ll(\log X)^A,
+$$
+
+this only changes the previous $W_\ast$ by a fixed power of $\log X$.
+
+The terminal entropy becomes
+
+$$
+E_\ast
+\ll
+\left(DX^2\log(Ns)(\log X)^A\right)^{1/3}\log(Ns).
+$$
+
+Comparing again with
+
+$$
+R_0\asymp \frac{X^2}{D^2(\log X)^4}
+$$
+
+gives the same power split
+
+$$
+D\ll \frac{X^{4/7}}{(\log X)^{C_A}}
+$$
+
+with a larger fixed logarithmic exponent $C_A$.
+
+Hence the dyadic losses do not damage the route. They only require the large-list threshold to be written as
+
+$$
+D\le X^{4/7}(\log X)^{-C}
+$$
+
+with $C$ chosen after all dyadic and iteration losses are fixed.
+
+This correction should replace the fixed-$\theta$ language in any final proof of FIE.

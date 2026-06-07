@@ -186,7 +186,7 @@ $$
 
 should pay the residual entropy in the true short-list range, while larger $sL_X$ is already crude-entropy-paid by the base-list lower bound.
 
-In the scratch file this is now organized as Proposition FIE with four finite bookkeeping lemmas: non-saturated deficit, saturated one-step exposure, residual descent, and terminal seed encoding. The non-saturated deficit is now essentially proved up to dyadic logarithmic constants, and the saturated exposure and terminal seed parts are essentially in place. The residual descent is now routed through balanced peeling: expose a fingerprint, peel off a fixed positive-mass captured chunk, recurse on the chunk and its complement, and use the convexity gap in the quartic scale $W^4/(s^2L_X^2X^2)$ to pay the parent fingerprint entropy.
+In the scratch file this is now organized as Proposition FIE with four finite bookkeeping lemmas: non-saturated deficit, saturated one-step exposure, residual descent, and terminal seed encoding. The non-saturated deficit is now essentially proved up to dyadic logarithmic constants, and the saturated exposure and terminal seed parts are essentially in place. The residual descent is now routed through balanced peeling: expose a fingerprint, peel off a captured chunk of size $W/(\log X)^{O(1)}$, recurse on the chunk and its complement, and use the resulting convexity gap in the quartic scale $W^4/(s^2L_X^2X^2)$ to pay the parent fingerprint entropy. The logarithmic loss only changes the large-list split by a fixed power of $\log X$.
 
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
