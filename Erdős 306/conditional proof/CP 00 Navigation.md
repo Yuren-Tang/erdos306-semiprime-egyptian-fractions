@@ -1,0 +1,35 @@
+# Conditional proof navigation
+
+This folder is the cleaned conditional proof package. The old notes remain useful as scratch history, but the intended reading order is now:
+
+1. [[CP 01 Conditional theorem]]  
+   Main theorem, hypotheses, and the conditional proof of the squarefree-denominator result.
+2. [[CP 02 The single remaining condition]]  
+   The only unfinished mathematical input, stated as a precise dyadic energy-entropy condition.
+3. [[CP 03 Lemma bank]]  
+   Decoupled lemmas used by the main proof: Irving pruning, divisor-energy, edge construction, lattice span, global partition.
+4. [[SBEE dyadic proof draft]]  
+   Working draft area for attacking the single remaining condition.
+
+Older source notes:
+
+- [[整理後證明結構]]
+- [[Proof draft]]
+- [[結構]]
+- [[Cross-label divisor-energy lemma]]
+- [[Ivring-good pruning lemma]]
+- [[Irving quote]]
+- [[ordinary diagonal counting lemma]]
+- [[edge-set architecture]]
+- [[mass tuning]]
+- [[lattice statement]]
+- [[single-block counting theorem skeleton]]
+
+External source now present in the vault:
+
+- [[kloost_paper2]]
+
+Current status:
+
+Conditional on [[CP 02 The single remaining condition|SBEE]], the proof is organized as a complete proof of the theorem. The theorem statement is squarefree-denominator only; the older unrestricted rational statement should not be used.
+
