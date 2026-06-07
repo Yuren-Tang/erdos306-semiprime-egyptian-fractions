@@ -3382,3 +3382,416 @@ The structured-container contribution should consist of transversals with much s
 If this structured large-sieve lemma is available, then the layer-cake formula from Section 52 should give SBEE.
 
 This is the most promising current formulation of the final mathematical task.
+
+---
+
+# 57. Narrow literature verdict
+
+The existing tools are relevant, but the missing estimate is not an off-the-shelf theorem.
+
+Useful references:
+
+- [Gallagher, *A larger sieve*](https://eudml.org/doc/205009), Acta Arithmetica 18 (1971), 77--81.
+- [Saxton--Thomason, *Hypergraph containers*](https://arxiv.org/abs/1204.6595).
+- [Balogh--Morris--Samotij, *The method of hypergraph containers*](https://arxiv.org/abs/1801.04584).
+- [Green--Harper, *Inverse questions for the large sieve*](https://arxiv.org/abs/1311.6176).
+
+The verdict is:
+
+1. Gallagher's larger sieve controls sets of integers occupying few residue classes modulo many primes. Our buckets instead mark one special residue class modulo each prime and ask for unusually many incidences with that marked class. This is closer to a **dual marked-residue large sieve** than to the usual larger sieve.
+2. Inverse large-sieve philosophy is relevant: extremizers should have algebraic/additive structure. But the structure here is not simply a small set of integers with few residues; it is the graph of a label function $t(p)$ through residues $m_0+p_0t(p)\pmod p$.
+3. Hypergraph containers are the right language for the counting step, but the arithmetic co-degree estimates needed by a black-box container theorem are exactly the estimates still to be proved.
+
+So the correct decision is to use the tools as a template, not as citations that close the proof. The next useful move is to prove the special dual marked-residue estimate available from the fact that all moduli are primes in one dyadic block.
+
+---
+
+# 58. A marked dual large-sieve lemma
+
+Here is a deterministic estimate that does use the special bucket geometry.
+
+Let
+
+$$
+P\subset[X,2X]
+$$
+
+be a set of primes, and remove the base prime $p_0$ from $P$ if it lies in the block. This loses only one vertex. Assume the label interval $\mathcal T$ has length
+
+$$
+s<X.
+$$
+
+For a bucket set
+
+$$
+\mathcal B\subset[-\tau,\tau]\cap\mathbb Z
+$$
+
+define
+
+$$
+d_{\mathcal B}(p,t)
+=
+\#\{n\in\mathcal B:n\equiv m_0+p_0t\pmod p\}.
+$$
+
+Assume also
+
+$$
+2\tau<X^2.
+$$
+
+Then
+
+$$
+\sum_{p\in P\setminus\{p_0\}}\sum_{t\in\mathcal T}
+d_{\mathcal B}(p,t)^2
+\le
+|\mathcal B|\,|P|
++|\mathcal B|^2.
+$$
+
+**Proof.** Expanding the left side counts quadruples
+
+$$
+(n,n',p,t)
+$$
+
+with $n,n'\in\mathcal B$ and
+
+$$
+n\equiv n'\equiv m_0+p_0t\pmod p.
+$$
+
+If $n=n'$, then for each $p\ne p_0$ the congruence
+
+$$
+p_0t\equiv n-m_0\pmod p
+$$
+
+has at most one solution $t\in\mathcal T$, because $p_0$ is invertible modulo $p$ and $|\mathcal T|<p$. Thus the diagonal contributes at most $|\mathcal B||P|$.
+
+If $n\ne n'$, then $p\mid n-n'$. Since
+
+$$
+|n-n'|\le2\tau<X^2,
+$$
+
+the integer $n-n'$ has at most one prime divisor in $[X,2X]$. For that prime, the same injectivity gives at most one label $t$. Hence the off-diagonal contribution is at most $|\mathcal B|^2$.
+
+This proves the estimate.
+
+Consequently, for any threshold $h\ge1$,
+
+$$
+\#\{(p,t):d_{\mathcal B}(p,t)\ge h\}
+\le
+\frac{|\mathcal B|\,|P|+|\mathcal B|^2}{h^2}.
+$$
+
+This is the first place where the bucket approach gains something real: a bucket core $\mathcal B$ with large repeated incidence cannot support many marked labelled vertices unless those vertices lie in a small candidate container.
+
+---
+
+# 59. What the marked dual lemma does and does not prove
+
+Write
+
+$$
+M_\tau=1+\frac{\tau}{X}.
+$$
+
+Each labelled vertex has at most $O(M_\tau)$ bucket incidences. If a bucket core $\mathcal B$ of size $K$ catches at least $h$ incidences from a labelled vertex, then that vertex lies in the container
+
+$$
+\mathcal V_h(\mathcal B)
+=
+\{(p,t):d_{\mathcal B}(p,t)\ge h\},
+$$
+
+whose size is bounded by
+
+$$
+|\mathcal V_h(\mathcal B)|
+\ll
+\frac{KN+K^2}{h^2}.
+$$
+
+In the saturated critical picture one expects roughly
+
+$$
+h\asymp M_\tau,\qquad K\asymp M_\tau^2.
+$$
+
+Then
+
+$$
+|\mathcal V_h(\mathcal B)|
+\ll
+N+M_\tau^2.
+$$
+
+This is a large saving relative to the full labelled universe of size $Ns$: it removes most of the label entropy. This is positive.
+
+However, it does not by itself finish SBEE. If one had to enumerate arbitrary bucket cores $\mathcal B$, the entropy
+
+$$
+\log\binom{2\tau+1}{K}
+\asymp
+K\log\frac{\tau}{K}
+$$
+
+could still be too large in the critical window. Therefore the missing combinatorial step is not another large-sieve inequality. It is an **exposure/fingerprint lemma** saying that the bucket cores needed for high collision are generated from a small part of the transversal, rather than chosen arbitrarily.
+
+This matches the container philosophy exactly: the arithmetic lemma supplies small residual containers once a bucket core is known; the remaining task is to build the bucket core with low fingerprint entropy.
+
+---
+
+# 60. Sharper remaining condition: bucket-core exposure
+
+The SBEE gap can now be narrowed further.
+
+**Bucket-core exposure condition, BCE.**  
+Fix a threshold $\tau$ with $2\tau<X^2$ and a non-dominant labelled transversal $\Gamma$. If the cheap-pair count
+
+$$
+C_\Gamma(\tau)
+$$
+
+is close to the crude bucket-capacity upper bound, then there is a container exposure algorithm producing:
+
+1. a fingerprint $F\subset\Gamma$;
+2. a controlled family of bucket cores $\mathcal B_1,\ldots,\mathcal B_J$ generated from $F$;
+3. thresholds $h_1,\ldots,h_J$;
+4. residual labelled containers
+   $$
+   \mathcal V_{h_j}(\mathcal B_j)
+   =
+   \{(p,t):d_{\mathcal B_j}(p,t)\ge h_j\},
+   $$
+
+such that:
+
+$$
+\Gamma
+\subset
+F\cup\bigcup_{j\le J}\mathcal V_{h_j}(\mathcal B_j)\cup E_{\rm paid},
+$$
+
+where $E_{\rm paid}$ is charged by the complementary energy, and the total encoding entropy of
+
+$$
+F,\quad \mathcal B_1,\ldots,\mathcal B_J,\quad E_{\rm paid}
+$$
+
+is at most an arbitrarily small multiple of the energy already forced by thresholds away from the cheap region.
+
+Together with the marked dual large-sieve lemma, BCE would imply the transversal bucket collision lemma from Section 53, hence SBEE.
+
+This is sharper than the previous statement of the missing part:
+
+- the arithmetic input is now an explicit proved lemma, Section 58;
+- generic large sieve/larger sieve is no longer the bottleneck;
+- the only remaining unknown is a container-style exposure lemma for high bucket collision.
+
+This is a positive sign. We have moved from "prove a mysterious structured large sieve" to "prove a bucket-core fingerprint lemma, using the marked dual large-sieve estimate as the residual container bound."
+
+---
+
+# 61. Bucket-core extraction
+
+The exposure condition can be localized by an elementary dyadic decomposition.
+
+Fix $\tau$ with $2\tau<X^2$, and put
+
+$$
+M=M_\tau=1+\frac{\tau}{X}.
+$$
+
+For a transversal $\Gamma$, write
+
+$$
+\Omega(n)=\Omega_\Gamma(n)
+$$
+
+and
+
+$$
+C=C_\Gamma(\tau)
+\le
+\sum_{|n|\le\tau}\binom{\Omega(n)}2.
+$$
+
+Let $D$ be the crude bucket-occupancy bound
+
+$$
+D\asymp sL_X.
+$$
+
+For dyadic $k\le D$, define the bucket layer
+
+$$
+\mathcal B_k
+=
+\{n:k\le\Omega(n)<2k\}.
+$$
+
+Then
+
+$$
+C
+\ll
+\sum_{k\le D} k^2|\mathcal B_k|.
+$$
+
+Hence for some dyadic $k$,
+
+$$
+k^2|\mathcal B_k|
+\gg
+\frac{C}{\log D}.
+$$
+
+Let
+
+$$
+K=|\mathcal B_k|,
+\qquad
+I=Kk.
+$$
+
+Here $I$ is the incidence mass of this bucket layer, up to absolute constants. For each labelled vertex $v=(p,t)\in\Gamma$, define
+
+$$
+d_k(v)
+=
+\#\{n\in\mathcal B_k:n\equiv m_0+p_0t\pmod p\}.
+$$
+
+Then
+
+$$
+\sum_{v\in\Gamma}d_k(v)\asymp I.
+$$
+
+Dyadically decompose the vertices by $h\le M$:
+
+$$
+\Gamma_{k,h}
+=
+\{v\in\Gamma:h\le d_k(v)<2h\}.
+$$
+
+For some dyadic $h$,
+
+$$
+h|\Gamma_{k,h}|
+\gg
+\frac{I}{\log M}.
+$$
+
+Moreover
+
+$$
+\Gamma_{k,h}\subset
+\mathcal V_h(\mathcal B_k),
+$$
+
+so by Section 58,
+
+$$
+|\Gamma_{k,h}|
+\le
+|\mathcal V_h(\mathcal B_k)|
+\ll
+\frac{KN+K^2}{h^2}.
+$$
+
+Combining the last two estimates gives the necessary condition
+
+$$
+\frac{Kk}{h\log M}
+\ll
+\frac{KN+K^2}{h^2},
+$$
+
+or
+
+$$
+kh
+\ll
+(N+K)\log M.
+$$
+
+This inequality is a useful diagnostic. A high-collision layer must fit simultaneously into:
+
+1. the bucket-side lower bound $k^2K\gg C/\log D$;
+2. the vertex-incidence lower bound $h|\Gamma_{k,h}|\gg Kk/\log M$;
+3. the marked dual large-sieve upper bound $|\Gamma_{k,h}|\ll(KN+K^2)/h^2$.
+
+Thus every dangerous configuration has a localized core
+
+$$
+(\mathcal B_k,\Gamma_{k,h},k,h)
+$$
+
+with explicit numerical constraints.
+
+---
+
+# 62. The genuinely hard regime after extraction
+
+The extraction lemma also identifies when the remaining container problem is nontrivial.
+
+If $k$ is substantially below the crude bucket capacity $D$, then
+
+$$
+C\ll k\,|\Gamma|M
+$$
+
+is already below the worst-case cheap-pair count, and the complementary layer-cake energy improves.
+
+If $h$ is substantially below $M$, then the high-collision bucket layer is spread thinly across vertices. Such vertices cannot keep all their bucket incidences cheap across many thresholds, so again the layer-cake complement should pay after summing over $\tau$.
+
+The hard regime is therefore the near-saturated one:
+
+$$
+k\asymp D,
+\qquad
+h\asymp M,
+\qquad
+K\asymp \frac{C}{D^2}.
+$$
+
+In the critical picture where $C$ is comparable to $N^2$, this gives
+
+$$
+K\asymp \frac{N^2}{s^2L_X^2}.
+$$
+
+Since the crude deterministic argument becomes sharp when
+
+$$
+M\asymp \frac{N}{sL_X},
+$$
+
+one gets
+
+$$
+K\asymp M^2.
+$$
+
+This explains exactly why Section 58 gives the right scale:
+
+$$
+|\mathcal V_M(\mathcal B)|
+\ll
+N+M^2.
+$$
+
+The arithmetic part has reached the correct size. The remaining question is purely container-theoretic:
+
+> Can a near-saturated bucket core $\mathcal B$ of size $M^2$ be exposed from a fingerprint of entropy $o_\rho(R)$, rather than chosen from all $\binom{2\tau}{M^2}$ possibilities?
+
+This is now the most precise current form of the final condition.

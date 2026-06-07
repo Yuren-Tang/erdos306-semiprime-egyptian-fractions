@@ -151,6 +151,27 @@ It says that the cross-label divisor-energy mechanism pays for:
 - dyadic class-size bookkeeping;
 - the remaining tiny labels and residues, without pretending that a non-dominant largest class is already dense enough for Irving majority correction.
 
+## 3.1 Current refined bottleneck
+
+The working scratch file [[SBEE dyadic proof draft]] currently narrows the internal SBEE bottleneck further.
+
+The arithmetic large-sieve-looking part is reduced to a deterministic marked dual estimate: for a bucket core $\mathcal B$ and incidence threshold $h$, the candidate labelled vertices satisfying
+
+$$
+d_{\mathcal B}(p,t)\ge h
+$$
+
+lie in a container of size
+
+$$
+\ll
+\frac{|\mathcal B|N+|\mathcal B|^2}{h^2}.
+$$
+
+Thus the remaining unproved subcondition is the bucket-core exposure/fingerprint step: near-saturated high-collision bucket cores should be generated from low-entropy fingerprints, rather than enumerated as arbitrary subsets of the bucket interval.
+
+For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
+
 ---
 
 # 4. Consequence used downstream
