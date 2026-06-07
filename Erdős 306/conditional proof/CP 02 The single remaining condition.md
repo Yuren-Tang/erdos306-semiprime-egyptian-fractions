@@ -142,7 +142,9 @@ This equivalence uses the intended energy accounting
 S_{\rm sub}(C_\bullet)+T_{\rm exc}(a)\ll Q_P(a)\le R.
 \]
 
-This is the exact missing step. It says that the cross-label divisor-energy lower bound pays for:
+This is the exact missing step. It should be read as a **single-block weighted counting/container statement**, not merely as the pointwise pairwise divisor-energy lower bound. The pairwise lower bound is one input, but the condition also needs to count how many labelled vertex partitions can keep all cross-label weights small.
+
+It says that the cross-label divisor-energy mechanism pays for:
 
 - the choice of substantial labels;
 - the choice of substantial vertex classes;

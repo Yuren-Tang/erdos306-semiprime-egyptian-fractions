@@ -320,3 +320,166 @@ U_0=X^{3/4}L_X.
 
 The balanced-class calculation in Section 8 should decide which one gives the cleanest proof.
 
+---
+
+# 10. Audit: pairwise energy alone is not enough
+
+The first serious check shows that the naive inequality
+
+$$
+\sum_{\alpha\ne\beta}
+n_\alpha n_\beta
+\min\left(1,\frac{n_\alpha^2n_\beta^2}{X^4L_X^4}\right)
+\gg
+\sum_\alpha n_\alpha\log\frac{N}{n_\alpha}
+$$
+
+cannot be the whole proof at the bottom and middle class scales.
+
+Consider the balanced profile
+
+$$
+t\asymp N/u,\qquad n_\alpha\asymp u.
+$$
+
+The available pointwise divisor-energy lower bound gives only
+
+$$
+S_{\rm div}(u)
+\asymp
+N^2\min\left(1,\frac{u^4}{X^4L_X^4}\right).
+$$
+
+The corresponding partition entropy is roughly
+
+$$
+H(u)\asymp N\log(N/u).
+$$
+
+Since $N\asymp X/\log X$, divisor-energy alone dominates entropy only once
+
+$$
+u^4 \gtrsim X^3(\log X)L_X^4\log(N/u),
+$$
+
+so morally
+
+$$
+u\gtrsim X^{3/4}\cdot \text{logs}.
+$$
+
+Therefore the current cross-label divisor-energy lemma is strong enough for genuinely large classes, but not for all classes merely satisfying
+
+$$
+u\ge C_0L_X.
+$$
+
+This means SBEE should be attacked as a **counting/container statement**, not as a direct deterministic profile inequality.
+
+The missing extra information is not visible in the crude lower bound. For small or medium classes, low total energy forces the selected pairs
+
+$$
+(p,q)\in C_m\times C_{m'}
+$$
+
+to lie in a sparse weighted incidence structure where
+
+$$
+|H_{pq}^{m,m'}|
+$$
+
+is unusually small. The divisor bound controls the number of such low-weight edges, but to pay entropy we must count vertex-labelled configurations with small weighted edge boundary. This is closer to a weighted graph container or Peierls counting problem inside one block.
+
+---
+
+# 11. Better formulation of the SBEE attack
+
+For fixed short label list $\mathcal L$, form the labelled vertex set
+
+$$
+\Omega=P\times\mathcal L.
+$$
+
+For two distinct labels $m\ne m'$, define a weighted bipartite graph between $P\times\{m\}$ and $P\times\{m'\}$ by
+
+$$
+w_{m,m'}(p,q)
+=
+\left(\frac{H_{pq}^{m,m'}}{pq}\right)^2.
+$$
+
+A labelled assignment corresponds to choosing exactly one label above each prime:
+
+$$
+\Gamma=\{(p,m(p)):p\in P\}\subset\Omega.
+$$
+
+The substantial non-dominant part has no label fibre of size $(1-\rho)N$ and has many occupied fibres. Its cross energy is
+
+$$
+S_{\rm sub}(\Gamma)
+=
+\sum_{\substack{p\ne q\\m(p)\ne m(q)}}
+w_{m(p),m(q)}(p,q),
+$$
+
+up to tiny/exception bookkeeping.
+
+So the desired SBEE can be recast as:
+
+> Count transversals $\Gamma\subset P\times\mathcal L$ with no dominant fibre and small weighted cross energy.
+
+The cross-label divisor-energy lemma gives a weighted supersaturation statement for every pair of occupied fibres:
+
+$$
+\sum_{p\in A,q\in B}w_{m,m'}(p,q)
+\gg
+|A||B|
+\min\left(1,\frac{|A|^2|B|^2}{X^4L_X^4}\right).
+$$
+
+But a container proof should also use the stronger distributional statement:
+
+$$
+\#\{(p,q)\in A\times B:w_{m,m'}(p,q)\le \tau^2/X^4\}
+\ll
+\tau L_X^2+(|A|+|B|)L_X.
+$$
+
+This controls not only the average energy but the number of low-cost incidences available to an adversarial partition.
+
+---
+
+# 12. Possible container route
+
+For a threshold $\tau$, call a cross-label edge cheap if
+
+$$
+|H_{pq}^{m,m'}|\le \tau.
+$$
+
+The divisor bound gives
+
+$$
+e_{\rm cheap}(A,B)
+\ll
+\tau L_X^2+(|A|+|B|)L_X.
+$$
+
+If $A,B$ are both medium sized and $\tau$ is much smaller than $|A||B|/L_X^2$, then most cross edges are expensive. Hence a low-energy configuration must arrange that for most cross-label pairs, selected vertices have very few expensive incidences. This should force one of:
+
+1. a dominant fibre;
+2. many vertices becoming exceptions;
+3. a small container for the allowed labelled transversals.
+
+The next step is to make this quantitative by choosing a dyadic energy threshold $\tau_j$ depending on class sizes $u,v$ and proving a container bound of the schematic form
+
+$$
+\#\{\Gamma:\ S_{\rm sub}(\Gamma)\le T,\ \text{profile fixed}\}
+\le
+\exp(O_\varepsilon(T)+o(N)).
+$$
+
+The $o(N)$ term must either be absorbed by the exception ledger or shown to be $O_\varepsilon(R)$ under $Q_P\le R$.
+
+This is the actual heart of SBEE.
