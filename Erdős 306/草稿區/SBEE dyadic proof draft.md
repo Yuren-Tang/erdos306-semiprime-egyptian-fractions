@@ -3198,3 +3198,187 @@ Inputs available for proving it:
 5. the transversal condition allows only one label per prime.
 
 This is now a sharply isolated mathematical problem. It is stronger and cleaner than the original SBEE wording, and it directly targets the only place where the logarithmic gap remains.
+
+---
+
+# 54. External-tool scan
+
+A narrow scan of existing tools suggests the following.
+
+## 54.1 Graph / hypergraph containers
+
+The relevant container lineage is:
+
+- Kleitman--Winston / Sapozhenko graph containers for independent sets;
+- Saxton--Thomason and Balogh--Morris--Samotij hypergraph containers;
+- later algorithmic and partition-container variants.
+
+These tools provide useful language:
+
+- fingerprints;
+- containers;
+- max-degree exposure algorithms;
+- locally dense graphs;
+- partition containers for coloured/transversal objects.
+
+But the fit is not automatic. Our family is not simply an independent-set family in a fixed graph. It is a family of labelled transversals with a weighted objective
+
+$$
+S_\Gamma
+=
+\sum w_{m(p),m(q)}(p,q),
+$$
+
+and the low-energy condition is soft rather than forbidden. A direct hypergraph-container theorem would require building hyperedges for "too many expensive pairs" or "too many bucket collisions", and the co-degree hypotheses would essentially restate the hard arithmetic part.
+
+Conclusion: container theory is good scaffolding, but not a black-box solution.
+
+## 54.2 Large sieve / larger sieve
+
+The bucket formulation looks closer to large-sieve language. For a labelled transversal, each prime $p$ selects one residue class
+
+$$
+r_p=m_0+p_0t(p)\pmod p.
+$$
+
+Bucket occupancy is
+
+$$
+\Omega_\Gamma(n)
+=
+\#\{p:n\equiv r_p\pmod p\}.
+$$
+
+This is exactly a "one selected residue class modulo each prime" incidence problem.
+
+However, a generic large-sieve second moment for arbitrary selected residue classes seems to give roughly
+
+$$
+\sum_{|n|\le\tau}\Omega_\Gamma(n)^2
+\lesssim
+\tau\left(\sum_{p\in P}\frac1p\right)^2
++X\sum_{p\in P}1
+$$
+
+up to logarithmic normalization. In our range this is about
+
+$$
+\frac{\tau}{(\log X)^2}
++\frac{X^2}{\log X},
+$$
+
+which still has the same logarithmic loss that we already see in the crude bucket argument.
+
+Conclusion: a generic large sieve is probably not enough. We need exploit the special form
+
+$$
+r_p=m_0+p_0t(p),
+$$
+
+where $t(p)$ is a low-entropy label function arising from a short list and substantial fibres.
+
+## 54.3 What the scan changes
+
+The existing tools suggest the right proof style:
+
+1. use a graph-container/fingerprint exposure algorithm;
+2. expose high bucket-degree or high collision vertices;
+3. use an arithmetic second-moment / large-sieve-like input;
+4. show that extremizers of the generic large-sieve bound are incompatible with non-dominant substantial fibres.
+
+So the next target is not a standard theorem citation, but a custom "large-sieve with structured residues" lemma.
+
+---
+
+# 55. Generic large-sieve barrier
+
+Let $P_\Gamma$ be the selected primes in a transversal, and write
+
+$$
+r_p=m_0+p_0t(p).
+$$
+
+For an interval $I=[-\tau,\tau]$, define
+
+$$
+\Omega(n)=\sum_{p\in P_\Gamma}1_{n\equiv r_p\pmod p}.
+$$
+
+Expanding,
+
+$$
+\sum_{n\in I}\Omega(n)^2
+=
+\sum_{p,q\in P_\Gamma}
+\#\{n\in I:n\equiv r_p\pmod p,\ n\equiv r_q\pmod q\}.
+$$
+
+The diagonal contributes
+
+$$
+\sum_p\left(\frac{\tau}{p}+O(1)\right)
+\ll
+\frac{\tau}{\log X}+N.
+$$
+
+For $p\ne q$, CRT gives one residue class modulo $pq$, so the contribution is
+
+$$
+\frac{\tau}{pq}+O(1_{\text{small representative exists}}).
+$$
+
+The main term over all pairs is
+
+$$
+\tau\left(\sum_p\frac1p\right)^2
+\asymp
+\frac{\tau}{(\log X)^2}.
+$$
+
+The dangerous term is the $O(1)$ part: it is precisely the cheap-pair count. A black-box large sieve can bound its average, but only at the scale
+
+$$
+\ll XN
+\asymp
+\frac{X^2}{\log X},
+$$
+
+which is one logarithm larger than the natural cross-pair scale
+
+$$
+N^2\asymp \frac{X^2}{(\log X)^2}.
+$$
+
+This explains why generic large sieve cannot close the proof.
+
+The special structure must save this last logarithm.
+
+---
+
+# 56. Structured-residue large sieve target
+
+The missing arithmetic lemma can now be stated in a sharper way.
+
+Let $t:P'\to\mathcal T$ be a label function on $P'\subset P$, where $\mathcal T$ is a short interval and no value of $t$ has near-dominant fibre. Define residues
+
+$$
+r_p=m_0+p_0t(p)\pmod p.
+$$
+
+For $\tau$ in the critical range, prove a collision estimate of the form
+
+$$
+\sum_{|n|\le\tau}
+\left(
+\sum_{p\in P'}1_{n\equiv r_p\pmod p}
+\right)^2
+\le
+o_\rho(1)N^2
++\text{structured-container contribution}.
+$$
+
+The structured-container contribution should consist of transversals with much smaller entropy, for example those for which $t(p)$ is nearly constant on a large subset or lies in a small number of bucket-generated clusters.
+
+If this structured large-sieve lemma is available, then the layer-cake formula from Section 52 should give SBEE.
+
+This is the most promising current formulation of the final mathematical task.
