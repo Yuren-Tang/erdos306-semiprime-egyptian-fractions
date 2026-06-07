@@ -120,11 +120,11 @@ Fix \(R\ge1\), a short label list \(\mathcal L\) arising from the base-list cons
 4. the union of substantial classes has size at least \(\rho N\);
 5. the substantial class sizes lie in the prescribed dyadic profile.
 
-Move all tiny classes and uncovered vertices into an exception ledger. Let \(T_{\rm exc}(a)\) denote the total Irving-good exception cost assigned to those vertices in the single-block proof; concretely, each exception vertex is charged by its interactions with a positive-density conforming reference class, so one exception in a block of size \(N\) costs \(\gg N\), while its encoding entropy is \(O(\log X+\log s)\).
+Tiny classes and uncovered vertices are included in this counting problem. They may be encoded separately, but in the non-dominant case they should **not** be assumed to be paid by Irving-good majority correction unless a genuinely near-dominant reference class is present. Thus let \(T_{\rm aux}(a)\) denote whatever additional weighted cross-energy or container cost is assigned to tiny/uncovered data inside the non-dominant counting argument.
 
 Then, for every \(T\ge0\), the number of such assignments with
 \[
-S_{\rm sub}(C_\bullet)+T_{\rm exc}(a)\le T
+S_{\rm sub}(C_\bullet)+T_{\rm aux}(a)\le T
 \]
 is at most
 \[
@@ -139,7 +139,7 @@ e^{\varepsilon R}.
 \]
 This equivalence uses the intended energy accounting
 \[
-S_{\rm sub}(C_\bullet)+T_{\rm exc}(a)\ll Q_P(a)\le R.
+S_{\rm sub}(C_\bullet)+T_{\rm aux}(a)\ll Q_P(a)\le R.
 \]
 
 This is the exact missing step. It should be read as a **single-block weighted counting/container statement**, not merely as the pointwise pairwise divisor-energy lower bound. The pairwise lower bound is one input, but the condition also needs to count how many labelled vertex partitions can keep all cross-label weights small.
@@ -149,7 +149,7 @@ It says that the cross-label divisor-energy mechanism pays for:
 - the choice of substantial labels;
 - the choice of substantial vertex classes;
 - dyadic class-size bookkeeping;
-- the remaining tiny labels and residues, after they are moved into the exception accounting.
+- the remaining tiny labels and residues, without pretending that a non-dominant largest class is already dense enough for Irving majority correction.
 
 ---
 
@@ -175,7 +175,7 @@ More precisely, every low-energy assignment can be encoded by:
    \]
 2. an exception set and its residues, whose encoding entropy is paid by internal energy.
 
-The dominant-label case follows from Irving-good majority correction. The non-dominant tiny case is paid by exception cost. The only nontrivial remaining non-dominant substantial case is exactly Condition SBEE.
+The dominant-label case follows from Irving-good majority correction. The non-dominant case in which almost all covered vertices lie in tiny classes forces the short list \(\mathcal L\) to be so large that \(R\) is already large enough to pay the crude entropy. The only nontrivial remaining case is the non-dominant substantial case, exactly Condition SBEE.
 
 ---
 

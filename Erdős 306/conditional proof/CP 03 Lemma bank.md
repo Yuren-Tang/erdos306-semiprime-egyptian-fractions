@@ -213,7 +213,11 @@ covering all but energy-paid vertices. If one label is dominant, Irving-good maj
 \[
 |m|\ll X\log X\sqrt R\asymp \sqrt R/\sigma_P.
 \]
-If no dominant label exists but tiny classes carry the disturbance, the same majority correction pays for the tiny vertices as exceptions. If substantial non-dominant classes carry positive mass, SBEE gives the required \(e^{\varepsilon R}\) bound after summing all dyadic class profiles. These cases are exhaustive.
+If no dominant label exists and tiny classes carry almost all covered vertices, then
+\[
+N\ll L_X|\mathcal L|\ll L_X\log X\sqrt R,
+\]
+so \(R\) is already polynomially larger than \(N\); the crude entropy of choosing labels and vertices is absorbed by \(e^{\varepsilon R}\). If substantial non-dominant classes carry positive mass, SBEE gives the required \(e^{\varepsilon R}\) bound after summing all dyadic class profiles. These cases are exhaustive.
 
 ---
 

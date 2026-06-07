@@ -483,3 +483,380 @@ $$
 The $o(N)$ term must either be absorbed by the exception ledger or shown to be $O_\varepsilon(R)$ under $Q_P\le R$.
 
 This is the actual heart of SBEE.
+
+---
+
+# 13. Proposed subcondition CEC
+
+The next useful reduction is to isolate a purely combinatorial statement.
+
+Fix:
+
+- a prime block $P\subset[X,2X]$;
+- a short label list $\mathcal L$ with $s=|\mathcal L|$;
+- weights
+  $$
+  w_{m,m'}(p,q)
+  =
+  \left(\frac{H_{pq}^{m,m'}}{pq}\right)^2
+  \qquad(m\ne m');
+  $$
+- a transversal $\Gamma=\{(p,m(p)):p\in P\}$.
+
+Let
+
+$$
+S(\Gamma)
+=
+\sum_{\substack{p\ne q\\m(p)\ne m(q)}}
+w_{m(p),m(q)}(p,q).
+$$
+
+Call $\Gamma$ $\rho$-non-dominant if no label fibre has size $\ge(1-\rho)N$.
+
+**CEC, Cheap-Edge Container target.**  
+For every $\varepsilon>0$ and fixed $\rho>0$, the number of $\rho$-non-dominant transversals $\Gamma$ with
+
+$$
+S(\Gamma)\le T
+$$
+
+is at most
+
+$$
+\exp\{\varepsilon T+O_\varepsilon(R_{\rm base})\}
+$$
+
+after removing vertices in tiny fibres to the exception ledger. Here $R_{\rm base}$ denotes the internal energy already spent in producing the base list.
+
+If CEC is proved uniformly for all short lists arising from the base construction, then SBEE follows.
+
+The advantage of CEC is that it separates the problem into:
+
+1. geometric/arithmetic input: divisor bounds for cheap edges;
+2. combinatorial output: containers for low-weight labelled transversals;
+3. exception ledger: tiny/uncovered vertices.
+
+---
+
+# 14. Cheap-edge incidence bound to feed CEC
+
+For $m\ne m'$ and $\tau\le X^2$, define
+
+$$
+G_{m,m'}(\tau)
+=
+\{(p,q)\in P^2:\ |H_{pq}^{m,m'}|\le \tau\}.
+$$
+
+The divisor argument gives, for all $A,B\subset P$,
+
+$$
+e_{G_{m,m'}(\tau)}(A,B)
+\ll
+\tau L_X^2+(|A|+|B|)L_X.
+$$
+
+This is stronger than a global edge count because it is uniform in $A,B$. It says every induced bipartite subgraph of the cheap-edge graph is sparse unless $\tau$ is comparable to $|A||B|/L_X^2$.
+
+Consequences worth proving:
+
+## 14.1 No large bicliques of very cheap edges
+
+If $A,B$ satisfy
+
+$$
+|A||B|\gg \tau L_X^2+(|A|+|B|)L_X,
+$$
+
+then $A\times B$ cannot be mostly $\tau$-cheap. Thus any assignment with $A=C_m$, $B=C_{m'}$ and low pair energy must pay either:
+
+- many expensive edges, or
+- entropy through the small number of possible cheap neighborhoods.
+
+## 14.2 Degree form
+
+For a fixed $A\subset P$, the number of $q$ with many cheap neighbors in $A$ is small. Indeed, if
+
+$$
+d_A(q)=|\{p\in A:(p,q)\in G_{m,m'}(\tau)\}|,
+$$
+
+then
+
+$$
+\#\{q:d_A(q)\ge D\}
+\ll
+\frac{\tau L_X^2+|A|L_X}{D}
++\frac{L_X}{D}|B|
+$$
+
+after applying the induced bound with this exceptional set as $B$.
+
+This may be the route to containers: high cheap-degree vertices are few; low cheap-degree vertices cannot support large opposite fibres without producing expensive energy.
+
+---
+
+# 15. Candidate proof skeleton for CEC
+
+For each ordered label pair $(m,m')$ and each dyadic threshold $\tau$, split cross pairs into:
+
+$$
+|H_{pq}^{m,m'}|\le \tau
+\quad\text{and}\quad
+|H_{pq}^{m,m'}|>\tau.
+$$
+
+If $S(\Gamma)\le T$, then the number of expensive cross pairs for this threshold is at most
+
+$$
+\ll \frac{T X^4}{\tau^2}.
+$$
+
+Therefore, except for a set of pairs whose entropy should be paid by $T$, most cross pairs must lie in the sparse cheap-edge graphs $G_{m,m'}(\tau)$.
+
+The container plan:
+
+1. Pick $\tau$ as a function of the profile, probably
+   $$
+   \tau\asymp \frac{|C_m||C_{m'}|}{L_X^2}
+   $$
+   at each dyadic level.
+2. Use the degree form in Section 14.2 to show that once one fibre is chosen, the opposite fibre is confined to a small container plus an expensive exception set.
+3. Iterate over labels in decreasing fibre size.
+4. Charge every expensive exception to $T$.
+5. Sum containers over all dyadic profiles.
+
+This would turn the weak pointwise lower bound into an entropy-sensitive counting proof.
+
+---
+
+# 16. Two-fibre counting as the atomic lemma
+
+Before proving CEC for all labels, isolate the two-label problem.
+
+Fix two distinct labels $m\ne m'$ and write
+
+$$
+w(p,q)=
+\left(\frac{H_{pq}^{m,m'}}{pq}\right)^2.
+$$
+
+For $A,B\subset P$, define
+
+$$
+E(A,B)=\sum_{p\in A,q\in B}w(p,q).
+$$
+
+The divisor-energy lemma gives the supersaturation lower bound
+
+$$
+E(A,B)
+\gg
+uv\min\left(1,\frac{u^2v^2}{X^4L_X^4}\right),
+\qquad
+u=|A|,\quad v=|B|.
+$$
+
+But for counting we need a stronger statement.
+
+**Two-fibre counting target.**  
+For fixed $m\ne m'$ and dyadic sizes $u,v$, estimate
+
+$$
+\mathcal N_{m,m'}(u,v;T)
+=
+\#\{(A,B): |A|=u,\ |B|=v,\ E(A,B)\le T\}.
+$$
+
+The target form is
+
+$$
+\mathcal N_{m,m'}(u,v;T)
+\le
+\exp\{O_\varepsilon(T)+{\rm lower\ order}(u,v)\},
+$$
+
+where the lower order term must be absorbable in one of:
+
+1. the exception ledger;
+2. the energy from interactions with other fibres;
+3. $O_\varepsilon(R)$ after summing dyadic profiles.
+
+This target is more honest than trying to force the pointwise lower bound to dominate
+
+$$
+\binom Nu\binom Nv.
+$$
+
+---
+
+# 17. Quantile formulation for two-fibre counting
+
+For fixed $A$, define weighted degrees
+
+$$
+d_A(q)=\sum_{p\in A}w(p,q).
+$$
+
+For any $B$ of size $v$,
+
+$$
+E(A,B)=\sum_{q\in B}d_A(q).
+$$
+
+The divisor-energy lemma applied to arbitrary $B$ implies a quantile lower bound:
+
+$$
+\sum_{q\in B}d_A(q)
+\gg
+uv\min\left(1,\frac{u^2v^2}{X^4L_X^4}\right)
+$$
+
+for every substantial $B$.
+
+Equivalently, if $d_A^{(1)}\le d_A^{(2)}\le\cdots$ are the ordered degrees, then
+
+$$
+\sum_{j\le v}d_A^{(j)}
+\gg
+uv\min\left(1,\frac{u^2v^2}{X^4L_X^4}\right).
+$$
+
+This is a useful upgrade: it says not merely that one chosen $B$ has energy, but that low-degree choices for $B$ are limited.
+
+Potential counting lemma:
+
+If every $v$-set has total degree at least $\Lambda(u,v)$, then the number of $v$-sets with total degree at most $T$ should be bounded using the degree sequence by
+
+$$
+\#\{B:|B|=v,\ \sum_{q\in B}d_A(q)\le T\}
+\le
+\exp\{O(v)\}\exp\{O(T/\lambda)\}
+$$
+
+where $\lambda$ is a typical quantile scale. This is still crude, but it gives a way to make the entropy depend on low-degree structure rather than on $\binom Nv$.
+
+Need prove an actual combinatorial bound here. This may be the right immediate subproblem.
+
+---
+
+# 18. Largest-fibre strategy, corrected
+
+Let $G$ be the largest label fibre, $g=|G|$.
+
+## Case A: $g\ge (1-\rho_0)N$
+
+This is the genuine majority case. If $\rho_0$ is smaller than the Irving-good constant loss, every vertex outside $G$ is nonconforming relative to a dense reference class. Irving-good majority correction gives cost
+
+$$
+\gg N
+$$
+
+per outside vertex.
+
+Entropy per outside vertex is at most
+
+$$
+O(\log X+\log s).
+$$
+
+Thus for large $X$, this case is paid without divisor-energy. This suggests that the hard case is only:
+
+$$
+g<(1-\rho_0)N.
+$$
+
+This is exactly why the dominant threshold in the single-block theorem must be chosen close to $1$, not merely positive density.
+
+## Case B: $g<(1-\rho_0)N$
+
+This includes both:
+
+1. several positive-density fibres;
+2. many medium/small fibres.
+
+In this entire range, Irving-good majority correction is **not** directly legal for a single exceptional vertex, because the reference set is not dense enough. The full Irving estimate gives
+
+$$
+\sum_{p\in P}\left\|\frac{d\bar p}{q}\right\|^2\gg N,
+$$
+
+but passing to a subset $G$ loses as much as
+
+$$
+|P\setminus G|/4,
+$$
+
+so a positive-density $G$ is not enough unless its density is very close to $1$.
+
+Thus the true hard case is all non-near-dominant configurations. If substantial fibres carry at least $\rho N$ vertices and no fibre is near-dominant, then
+
+$$
+\sum_{\alpha\ne\beta}n_\alpha n_\beta
+\gg_\rho N^2.
+$$
+
+This is the genuine multi-fibre case. Here no single fibre can act as a majority reference. The correct tool must be CEC/two-fibre counting rather than Irving correction.
+
+This case is now the narrowed core of SBEE.
+
+---
+
+# 19. Tiny-only non-dominant case is not hard
+
+Suppose no dominant label exists, but substantial classes do **not** carry positive mass. Then most covered vertices lie in tiny classes:
+
+$$
+|C_m|<C_0L_X.
+$$
+
+Since the number of labels is
+
+$$
+s=|\mathcal L|\ll 1+\log X\sqrt R,
+$$
+
+the total number of vertices that can lie in tiny classes is at most
+
+$$
+\ll L_Xs
+\ll L_X(1+\log X\sqrt R).
+$$
+
+If this is $\gg N$, then
+
+$$
+\sqrt R
+\gg
+\frac{N}{L_X\log X},
+$$
+
+so
+
+$$
+R
+\gg
+\frac{N^2}{L_X^2(\log X)^2}
+\asymp
+\frac{X^2}{L_X^2(\log X)^4}.
+$$
+
+This is much larger than the crude entropy scale
+
+$$
+N\log s+N
+\ll
+X
+$$
+
+for large $X$. Hence the entire tiny-only non-dominant case is absorbed by $e^{\varepsilon R}$ without Irving majority correction.
+
+Conclusion:
+
+SBEE may legitimately assume that substantial classes carry at least $\rho N$ vertices. The remaining hard case is:
+
+1. no near-dominant class;
+2. substantial classes carry positive mass;
+3. no dense reference set is available;
+4. one must use labelled weighted-container counting.
