@@ -186,6 +186,8 @@ $$
 
 should pay the residual entropy in the true short-list range, while larger $sL_X$ is already crude-entropy-paid by the base-list lower bound.
 
+In the scratch file this is now organized as Proposition FIE with four finite bookkeeping lemmas: non-saturated deficit, saturated one-step exposure, residual descent, and terminal seed encoding. The saturated exposure and terminal seed parts are essentially in place; the precise non-saturated layer-cake deficit and residual descent statements remain to be written.
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---

@@ -4379,3 +4379,171 @@ The remaining formal bookkeeping is:
 - sum over dyadic $\tau$, dyadic class-size profiles, and short lists.
 
 At this point the route is no longer searching for a new external theorem. It is a finite, though delicate, container proof.
+
+---
+
+# 69. Formal FIE statement to prove next
+
+The next pass should turn the preceding scale analysis into the following proposition.
+
+**Proposition FIE, recursive fingerprint entropy.**  
+Fix a dyadic substantial profile and a short list of size $s$. Put
+
+$$
+D=sL_X.
+$$
+
+After the large-list split
+
+$$
+D\gg \frac{X^{4/7}}{(\log X)^C},
+$$
+
+which is paid crudely by the base-list lower bound for $R$, assume
+
+$$
+D\le \frac{X^{4/7}}{(\log X)^C}.
+$$
+
+Let $\Gamma$ be a non-dominant substantial residual transversal of mass
+
+$$
+W\asymp_\rho N.
+$$
+
+Let
+
+$$
+R_{\rm cap}(W,D)
+=
+c_\rho\frac{W^4}{D^2X^2}
+$$
+
+be the bucket-capacity energy scale. Then the family of residual transversals whose cross energy is below this scale can be covered by containers with total encoding entropy
+
+$$
+o_\rho(R_{\rm cap}(W,D))
+$$
+
+plus terminal seed entropy
+
+$$
+O(W_\ast\log(Ns)),
+\qquad
+W_\ast=(DX^2\log(Ns))^{1/3}.
+$$
+
+Moreover,
+
+$$
+W_\ast\log(Ns)
+=
+o_\rho(R_{\rm cap}(N,D))
+$$
+
+in the above short-list range. Therefore the total entropy is
+
+$$
+o_\rho(R_{\rm cap}(N,D)).
+$$
+
+This proposition would imply FIE after summing dyadic thresholds and profiles, provided the non-saturated alternatives are charged by the layer-cake energy ledger.
+
+## 69.1 Ingredients already available
+
+The proof may use:
+
+1. Section 58, marked dual large-sieve lemma;
+2. Section 61, bucket-core extraction;
+3. Section 63, one-core fingerprint lemma;
+4. Section 68, recursive stopping scale.
+
+These are unconditional at the level of the scratch argument.
+
+## 69.2 Remaining bookkeeping lemmas
+
+The proposition reduces to four finite lemmas.
+
+**Lemma A, non-saturated deficit.**  
+If, at residual mass $W_j$, every bucket layer has either
+
+$$
+k\le cD
+$$
+
+or every vertex layer has
+
+$$
+h\le cM_j,
+\qquad
+M_j=W_j/D,
+$$
+
+then the layer-cake complement contributes at least
+
+$$
+\gg_\rho
+\frac{W_j^4}{D^2X^2}
+$$
+
+energy, up to dyadic logarithmic losses.
+
+**Lemma B, saturated one-step exposure.**  
+If a saturated layer exists, then there is a fingerprint
+
+$$
+F_j
+$$
+
+with
+
+$$
+|F_j|\ll M_j
+$$
+
+whose generated bucket core covers a fixed positive proportion of the saturated incidence mass.
+
+**Lemma C, residual descent.**  
+After exposing $F_j$, either the residual mass drops by a fixed factor
+
+$$
+W_{j+1}\le (1-c)W_j,
+$$
+
+or the part not captured by the generated core contributes the same scale of layer-cake energy.
+
+**Lemma D, terminal seed.**  
+When
+
+$$
+W_j\le W_\ast,
+$$
+
+the remaining residual choices can be encoded crudely with entropy
+
+$$
+O(W_\ast\log(Ns)).
+$$
+
+Lemmas B and D are essentially proved above. Lemmas A and C are the two pieces that still need to be written without handwaving.
+
+---
+
+# 70. Current assessment
+
+The path is now positive but not closed.
+
+Positive:
+
+- the arithmetic obstruction has been replaced by the marked dual large-sieve lemma;
+- arbitrary bucket-core entropy has been replaced by fingerprint entropy;
+- the fingerprint entropy has the right scale;
+- recursive exposure gives a plausible way to avoid the $O(N)$ residual-container entropy.
+
+Still open:
+
+- the exact layer-cake deficit inequality for non-saturated layers;
+- the precise residual descent lemma after one fingerprint exposure;
+- summing the dyadic logarithmic losses without damaging the $X^{4/7}$ split.
+
+This is no longer a search problem. It is now a proof-engineering problem inside one custom container argument.
