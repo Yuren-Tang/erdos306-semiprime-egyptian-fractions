@@ -860,3 +860,534 @@ SBEE may legitimately assume that substantial classes carry at least $\rho N$ ve
 2. substantial classes carry positive mass;
 3. no dense reference set is available;
 4. one must use labelled weighted-container counting.
+
+---
+
+# 20. Degree-quantile lemma for one opposite fibre
+
+This is the first genuinely useful counting primitive.
+
+Fix two distinct labels $m\ne m'$. Fix $A\subset P$ with
+
+$$
+|A|=u\ge C_0L_X.
+$$
+
+For $q\in P$, define the weighted degree from $q$ to $A$ by
+
+$$
+d_A(q)
+=
+\sum_{p\in A}
+\left(\frac{H_{pq}^{m,m'}}{pq}\right)^2.
+$$
+
+Let
+
+$$
+d_A^{(1)}\le d_A^{(2)}\le\cdots\le d_A^{(N)}
+$$
+
+be the increasing rearrangement of these degrees.
+
+Because the cross-label divisor-energy lemma applies to every subset $B\subset P$ of size $v\ge C_0L_X$, we get
+
+$$
+\sum_{j\le v}d_A^{(j)}
+\gg
+uv\min\left(1,\frac{u^2v^2}{X^4L_X^4}\right).
+$$
+
+In the unsaturated range
+
+$$
+v\le \frac{X^2L_X^2}{u},
+$$
+
+this gives
+
+$$
+\sum_{j\le v}d_A^{(j)}
+\gg
+\frac{u^3v^3}{X^4L_X^4}.
+$$
+
+Since the degrees are increasing, for $k\ge 2C_0L_X$,
+
+$$
+d_A^{(k)}
+\ge
+\frac1k\sum_{j\le k}d_A^{(j)}
+\gg
+\frac{u^3k^2}{X^4L_X^4}
+$$
+
+up to harmless constants in the same unsaturated range.
+
+Thus the low-degree counting function satisfies
+
+$$
+\#\{q:d_A(q)\le \lambda\}
+\ll
+C_0L_X+
+\frac{X^2L_X^2}{u^{3/2}}\lambda^{1/2}
+$$
+
+for $\lambda\ll u$.
+
+This is much stronger than the raw divisor-energy lower bound: it says that, relative to a fixed substantial fibre $A$, low-energy choices for the opposite fibre live in a small degree container.
+
+---
+
+# 21. Chernoff count for choosing the opposite fibre
+
+For fixed $A$ and target size $v$, define
+
+$$
+\mathcal B_A(v;T)
+=
+\{B\subset P:|B|=v,\ \sum_{q\in B}d_A(q)\le T\}.
+$$
+
+For any $\beta>0$,
+
+$$
+|\mathcal B_A(v;T)|
+\le
+e^{\beta T}
+\prod_{q\in P}(1+e^{-\beta d_A(q)}).
+$$
+
+Using the degree quantile estimate from Section 20,
+
+$$
+\sum_{q\in P}e^{-\beta d_A(q)}
+\ll
+L_X+
+\int_0^\infty
+\exp\left(
+-c\beta\frac{u^3t^2}{X^4L_X^4}
+\right)\,dt
++Ne^{-c\beta u}.
+$$
+
+Hence
+
+$$
+\sum_{q\in P}e^{-\beta d_A(q)}
+\ll
+L_X+
+\frac{X^2L_X^2}{u^{3/2}\beta^{1/2}}
++Ne^{-c\beta u}.
+$$
+
+Therefore
+
+$$
+|\mathcal B_A(v;T)|
+\le
+\exp\left(
+\beta T
++C L_X
++C\frac{X^2L_X^2}{u^{3/2}\beta^{1/2}}
++CN e^{-c\beta u}
+\right).
+$$
+
+Optimizing the first two main terms gives roughly
+
+$$
+\log |\mathcal B_A(v;T)|
+\ll
+L_X+
+\left(\frac{X^2L_X^2}{u^{3/2}}\right)^{2/3}T^{1/3}
+$$
+
+provided $\beta u\gg\log N$ so that the saturated tail is negligible.
+
+This is not yet SBEE, because it counts $B$ after $A$ has been fixed and ignores the entropy of choosing $A$. But it is the right kind of estimate: the entropy now depends sublinearly on the energy budget $T$, and improves rapidly when $u$ is large.
+
+---
+
+# 22. How this could feed multi-label counting
+
+The sequential plan is:
+
+1. Order label fibres by decreasing size.
+2. Choose the largest fibre by crude entropy.
+3. For each next fibre $B$, count choices using the weighted degrees to the already chosen larger fibres.
+
+If the already chosen union is a single large fibre, Section 21 applies directly with $u$ equal to that fibre size. If the already chosen union has several labels, define
+
+$$
+d_{\rm prev}^{m'}(q)
+=
+\sum_{m\in\mathcal L_{\rm prev}}
+\sum_{p\in C_m}
+\left(\frac{H_{pq}^{m,m'}}{pq}\right)^2.
+$$
+
+For every candidate fibre $B$ of label $m'$, its cross energy to previous fibres is
+
+$$
+\sum_{q\in B}d_{\rm prev}^{m'}(q).
+$$
+
+The needed extension of Section 20 is a quantile lower bound for $d_{\rm prev}^{m'}$ in terms of the previous profile:
+
+$$
+\sum_{j\le v}(d_{\rm prev}^{m'})^{(j)}
+\gg
+\sum_{m\in\mathcal L_{\rm prev}}
+u_m v
+\min\left(1,\frac{u_m^2v^2}{X^4L_X^4}\right).
+$$
+
+This follows by applying divisor-energy to each previous fibre and summing. The difficulty is that if all previous fibres are small, the right side involves $\sum u_m^3$, not $(\sum u_m)^3$.
+
+Thus the next mathematical task is to find an ordering or grouping that keeps
+
+$$
+\sum_{\rm previous}u_m^3
+$$
+
+large enough at each step, or else proves that a profile with small $\sum u_m^3$ already has such many fibres that the total pair energy/container entropy works globally.
+
+---
+
+# 23. Extra structure from the base list
+
+One arithmetic feature has not yet been used in the container discussion.
+
+The labels in the base list all satisfy
+
+$$
+m\equiv a_{p_0}\pmod {p_0}.
+$$
+
+Therefore, for two labels $m\ne m'$,
+
+$$
+D=m'-m
+$$
+
+is a nonzero multiple of the base prime $p_0\asymp X$:
+
+$$
+D=p_0 r,
+\qquad
+|r|\ll \log X\sqrt R.
+$$
+
+Cheap edges between labels $m,m'$ can be written more explicitly. If
+
+$$
+|H_{pq}^{m,m'}|\le \tau,
+$$
+
+then there is an integer $n$ with
+
+$$
+|n|\le\tau,\qquad
+n=m+p\alpha=m'+q\beta
+$$
+
+for some integers $\alpha,\beta$. Hence
+
+$$
+p\alpha-q\beta=D.
+$$
+
+The ranges are
+
+$$
+|\alpha|,|\beta|
+\ll
+\frac{B+\tau}{X}.
+$$
+
+Thus the cheap-edge graph is contained in the set of prime solutions to
+
+$$
+p\alpha-q\beta=p_0r
+$$
+
+with $p,q\sim X$ and relatively short $\alpha,\beta$ ranges.
+
+This may improve the raw divisor bound
+
+$$
+e_{\rm cheap}(A,B)\ll \tau L_X^2+(|A|+|B|)L_X
+$$
+
+in the ranges relevant to SBEE. In particular, when $\tau<X^2$ and $B$ is not too large, the auxiliary variables have length
+
+$$
+M_\tau\asymp \frac{B+\tau}{X}.
+$$
+
+Counting cheap incidences becomes closer to a bilinear linear-equation problem than to an arbitrary sparse graph.
+
+Potential use:
+
+1. If $M_\tau$ is small, cheap neighborhoods have strong additive structure.
+2. A vertex $p$ cannot have large cheap degree to many labels unless many equations
+   $$
+   p\alpha-q\beta=p_0r
+   $$
+   hold with small $\alpha,\beta,r$.
+3. This could provide the missing entropy saving for medium fibres, where the crude divisor-energy bound is too weak.
+
+This should be checked before committing fully to an abstract container proof.
+
+---
+
+# 24. Functional decomposition of cheap graphs
+
+Continue with two labels
+
+$$
+m=m_0+t p_0,\qquad m'=m_0+t'p_0,
+$$
+
+so
+
+$$
+D=m'-m=p_0r,\qquad r=t'-t.
+$$
+
+For a threshold $\tau$, every $\tau$-cheap edge satisfies
+
+$$
+p\alpha-q\beta=p_0r,
+\qquad
+|\alpha|,|\beta|\ll M_\tau:=\frac{B+\tau}{X}.
+$$
+
+For fixed nonzero $\alpha,\beta,r$, the equation determines $q$ from $p$:
+
+$$
+q=\frac{p\alpha-p_0r}{\beta}.
+$$
+
+Thus, for fixed $(\alpha,\beta,r)$, the corresponding cheap edges form a partial matching / partial graph of a function from $p$ to $q$. In particular, between arbitrary subsets $A,B\subset P$ it contributes at most
+
+$$
+\min(|A|,|B|)
+$$
+
+edges.
+
+Therefore the whole $\tau$-cheap graph also satisfies the functional bound
+
+$$
+e_{\rm cheap}(A,B)
+\ll
+M_\tau^2\min(|A|,|B|)
+$$
+
+for a fixed label pair. Here the number of possible $(\alpha,\beta)$ is $O(M_\tau^2)$; $r$ is fixed once the two labels are fixed.
+
+We now have two independent cheap-edge bounds:
+
+$$
+e_{\rm cheap}(A,B)
+\ll
+\tau L_X^2+(|A|+|B|)L_X
+$$
+
+and
+
+$$
+e_{\rm cheap}(A,B)
+\ll
+\left(\frac{B+\tau}{X}\right)^2\min(|A|,|B|).
+$$
+
+The first is strong for large $\tau$ because it is essentially divisor-counting by the small representative $n$.
+
+The second is strong when $M_\tau$ is small, i.e. when
+
+$$
+\tau\ll X
+$$
+
+or when $B$ is still small relative to $X$.
+
+The hope is to combine them in the container proof:
+
+$$
+e_{\rm cheap}(A,B)
+\ll
+\min\left\{
+\tau L_X^2+(|A|+|B|)L_X,\,
+\left(\frac{B+\tau}{X}\right)^2\min(|A|,|B|)
+\right\}.
+$$
+
+This may improve the medium-fibre regime where the pure divisor-energy quantile is too weak.
+
+Important caveat: if $\beta=0$ or $\alpha=0$, the equation degenerates. These correspond to $n=m'$ or $n=m$ special terms already handled by the divisor-exception part. They contribute only
+
+$$
+O((|A|+|B|)L_X)
+$$
+
+and can be kept in the cheap-edge exceptional ledger.
+
+---
+
+# 25. A concrete two-fibre container lemma
+
+Fix labels $m\ne m'$ and a threshold $\tau$. Let $G_\tau=G_{m,m'}(\tau)$ be the cheap-edge graph
+
+$$
+G_\tau=\{(p,q): |H_{pq}^{m,m'}|\le \tau\}.
+$$
+
+For $A\subset P$, define its cheap neighborhood
+
+$$
+N_\tau(A)=\{q\in P:\exists p\in A,\ (p,q)\in G_\tau\}.
+$$
+
+By the functional decomposition in Section 24, ignoring the already controlled degenerate special terms,
+
+$$
+|N_\tau(A)|
+\ll
+M_\tau^2|A|,
+\qquad
+M_\tau=\frac{B+\tau}{X}.
+$$
+
+Now suppose $B\subset P$ and
+
+$$
+E(A,B)=
+\sum_{p\in A,q\in B}
+\left(\frac{H_{pq}^{m,m'}}{pq}\right)^2
+\le T.
+$$
+
+Every pair $(p,q)\notin G_\tau$ contributes at least
+
+$$
+\frac{\tau^2}{X^4}
+$$
+
+to the energy. Hence the number of non-cheap pairs in $A\times B$ is at most
+
+$$
+\frac{T X^4}{\tau^2}.
+$$
+
+If $q\notin N_\tau(A)$, then all $|A|$ pairs $(p,q)$ are non-cheap. Therefore
+
+$$
+|B\setminus N_\tau(A)|
+\le
+\frac{T X^4}{\tau^2|A|}.
+$$
+
+Thus we have a genuine container:
+
+$$
+B\subset N_\tau(A)\cup E_B,
+\qquad
+|E_B|\le \frac{T X^4}{\tau^2|A|},
+$$
+
+with
+
+$$
+|N_\tau(A)|\ll \left(\frac{B+\tau}{X}\right)^2|A|.
+$$
+
+For fixed $A$, $u=|A|$, $v=|B|$, this gives the counting bound
+
+$$
+\#\{B:|B|=v,\ E(A,B)\le T\}
+\le
+\sum_{r\le T X^4/(\tau^2u)}
+\binom{N}{r}
+\binom{C M_\tau^2u}{v-r}.
+$$
+
+This is the most concrete two-fibre container found so far.
+
+---
+
+# 26. Optimizing the two-fibre container
+
+The bound in Section 25 has two costs:
+
+1. container size:
+   $$
+   C M_\tau^2u
+   =
+   C\left(\frac{B+\tau}{X}\right)^2u;
+   $$
+2. exception size:
+   $$
+   r_\tau
+   =
+   \frac{T X^4}{\tau^2u}.
+   $$
+
+If $\tau\gg B$, these become
+
+$$
+{\rm container}\sim \frac{\tau^2}{X^2}u,
+\qquad
+r_\tau\sim \frac{T X^4}{\tau^2u}.
+$$
+
+Their product is roughly
+
+$$
+({\rm container})\cdot r_\tau
+\sim
+T X^2,
+$$
+
+so increasing $\tau$ makes the container larger but the exception set smaller.
+
+To make the container comparable to $v$, choose
+
+$$
+\frac{\tau^2}{X^2}u\asymp v,
+\qquad
+\tau\asymp X\sqrt{\frac vu}.
+$$
+
+Then
+
+$$
+r_\tau
+\asymp
+\frac{T X^2}{v}.
+$$
+
+This is useful if
+
+$$
+T\ll \frac{v^2}{X^2},
+$$
+
+because then only a small fraction of $B$ lies outside the cheap container.
+
+For balanced fibres $u=v$, this threshold is $\tau\asymp X$ and
+
+$$
+r_\tau\asymp \frac{T X^2}{u}.
+$$
+
+Thus the functional container is strongest in the very-low-energy regime. In higher-energy regimes, $e^{\varepsilon T}$ may itself pay more of the entropy.
+
+This suggests a two-regime proof:
+
+1. **Very low pair energy:** use the cheap-neighborhood container.
+2. **Moderate/high pair energy:** let the energy term $e^{\varepsilon T}$ pay the relevant choices.
+
+The remaining challenge is to make this compatible with the global energy budget, because pair energies are distributed over many label pairs.
