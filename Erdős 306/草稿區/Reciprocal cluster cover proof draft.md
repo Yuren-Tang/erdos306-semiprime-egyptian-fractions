@@ -62,6 +62,12 @@ Aristotle has produced no-sorry Lean files for:
      $q_i x_i-q_4x_4=p\,a_i$;
    - proves the divisibility and modular residue forms;
    - packages the three local CRT congruences as `CRTProductHit`.
+7. `ValidCRTLattice.lean`:
+   - formalizes valid CRT hits, not just bare CRT congruence hits;
+   - proves the bridge between four-seed line witnesses and valid hits in both
+     directions;
+   - proves the homogeneous lattice and scaling/ray properties;
+   - defines primitive CRT rays and proves the basic scaling obstruction.
 
 This means the purely finite infrastructure is no longer the main risk.
 
@@ -1023,3 +1029,288 @@ The next HA task should be a larger interface package:
 
 This lets HA thicken the entire algebraic and lattice interface, while the
 remaining human-side theorem is the primitive valid CRT concentration bound.
+
+---
+
+# 23. Reference anchor cannot be dropped
+
+The latest Aristotle run closes the valid but **unanchored** lattice interface.
+This revealed a further correction.
+
+The original reciprocal cluster is not just an arbitrary line through four seed
+point sets. Its intercept has the special form
+
+$$
+c=q_\ast x_\ast,
+\qquad
+0<|x_\ast|\le M_\tau.
+$$
+
+Equivalently, the line must also pass through the reference seed point. The
+true equations are
+
+$$
+q_i x_i-q_\ast x_\ast=p\,y_i
+\qquad(1\le i\le4).
+$$
+
+When we normalize by the fourth seed, putting
+
+$$
+a_i=y_i-y_4
+\qquad(1\le i\le3),
+$$
+
+we get the valid base equations
+
+$$
+q_i x_i-q_4x_4=p\,a_i
+\qquad(1\le i\le3),
+$$
+
+but we must also keep the reference-anchor equation
+
+$$
+q_4x_4-q_\ast x_\ast=p\,y_4.
+$$
+
+Dropping this last equation gives a necessary condition, not an equivalent
+cluster condition.
+
+This also fixes the heuristic count. The unanchored valid lattice has constant
+expected count at the central scale. The anchored lattice has volume heuristic
+
+$$
+X\left(M_\tau\left(\frac{M_\tau}{X}\right)^4\right)
+=
+\frac{M_\tau^5}{X^3}.
+$$
+
+At $M_\tau\asymp X^{1/2}$ this is
+
+$$
+X^{-1/2},
+$$
+
+which matches the original global singular-sparsity calculation.
+
+A small numerical check supports this: once the reference anchor is enforced,
+random dyadic samples at $X=500,\ldots,10000$ usually have no hits; the rare
+hits appear as a single sign pair.
+
+---
+
+# 24. Anchored primitive lattice
+
+The exact lattice target should therefore be the anchored lattice
+
+$$
+L_p^{\mathrm{anch}}(q_\ast;T)
+=
+\left\{
+(x_\ast,x_1,x_2,x_3,x_4,y_4,a_1,a_2,a_3):
+\begin{array}{l}
+q_i x_i-q_4x_4=p\,a_i,\quad 1\le i\le3,\\
+q_4x_4-q_\ast x_\ast=p\,y_4
+\end{array}
+\right\}.
+$$
+
+All variables are short, the $x$-coordinates are nonzero, and for distinct seed
+primes the difference variables $a_i$ and $y_4$ are automatically nonzero in the
+legal short range.
+
+The final local theorem should be:
+
+**Reference-anchored primitive lattice concentration.**
+For non-structured
+
+$$
+(q_\ast,q_1,q_2,q_3,q_4),
+\qquad
+q_\ast,q_i\sim X,
+$$
+
+the number of primitive rays in
+
+$$
+L_p^{\mathrm{anch}}(q_\ast;T)
+$$
+
+meeting the short box, summed over residual primes $p\sim X$, is
+$O((\log X)^C)$, with enough slack for the HA finite cover pipeline.
+
+This is stronger and more faithful than the unanchored primitive-ray theorem.
+It is now the best current statement of the remaining arithmetic problem.
+
+---
+
+# 25. Next HA direction
+
+The next Aristotle task should formalize the anchored interface:
+
+1. define the anchored cluster witness with reference seed $q_\ast$;
+2. define the anchored normalized lattice with variables
+   $(x_\ast,x_1,x_2,x_3,x_4,y_4,a_1,a_2,a_3)$;
+3. prove the bidirectional bridge between the two formulations;
+4. prove anchored hit implies the existing unanchored `ValidCRTProductHit`;
+5. prove the four local CRT congruences, including the reference congruence
+   modulo $q_4$;
+6. prove homogeneous scaling and primitive-ray bookkeeping for the anchored
+   lattice.
+
+This is a good larger HA task: it is all exact algebra and logic, while the
+remaining theorem is the anchored primitive concentration estimate.
+
+---
+
+# 26. Anchored short-dilate form
+
+The anchored condition has a simpler direct form.
+
+For fixed
+
+$$
+T=\{q_1,q_2,q_3,q_4\}
+$$
+
+and reference $q_\ast$, define
+
+$$
+C_p^{\mathrm{anch}}(T)
+=
+\#\left\{
+x_\ast:
+0<|x_\ast|\le M_\tau,\
+\forall i\ \exists\,0<|x_i|\le M_\tau,\
+q_i x_i\equiv q_\ast x_\ast\pmod p
+\right\}.
+$$
+
+Equivalently,
+
+$$
+x_i
+\equiv
+q_\ast q_i^{-1}x_\ast
+\pmod p
+$$
+
+and $x_i$ must be represented by a nonzero integer in the short interval.
+
+Then the anchored cluster codegree is bounded by
+
+$$
+\operatorname{codeg}_{q_\ast}(T)
+\le
+\sum_{p\sim X} C_p^{\mathrm{anch}}(T).
+$$
+
+At the central scale, the random model gives
+
+$$
+C_p^{\mathrm{anch}}(T)
+\approx
+M_\tau\left(\frac{M_\tau}{X}\right)^4
+=
+X^{-3/2},
+$$
+
+so after summing over $p\sim X$ the expected count is $X^{-1/2}$.
+
+This is the cleanest current formulation:
+
+**Anchored short-dilate concentration theorem.**
+For non-structured
+
+$$
+(q_\ast,q_1,q_2,q_3,q_4),
+$$
+
+one has
+
+$$
+\sum_{p\sim X} C_p^{\mathrm{anch}}(T)
+\ll(\log X)^C.
+$$
+
+This theorem immediately implies the required reciprocal-cluster codegree
+bound.
+
+---
+
+# 27. Anchored gcd-energy form
+
+The same condition can be written as a short gcd-energy count. A solution is a
+short vector
+
+$$
+\mathbf x=(x_\ast,x_1,x_2,x_3,x_4)
+$$
+
+such that a residual prime $p\sim X$ divides every
+
+$$
+n_i=q_i x_i-q_\ast x_\ast
+\qquad(1\le i\le4).
+$$
+
+Since
+
+$$
+|n_i|\ll XM_\tau,
+$$
+
+and $M_\tau<X$, the integer $\gcd(n_1,n_2,n_3,n_4)$ has at most one prime
+divisor in $[X,2X]$ up to harmless endpoint constants.
+
+Thus the same theorem is:
+
+**Anchored primitive gcd-energy theorem.**
+For non-structured seed primes,
+
+$$
+\#\left\{
+\text{primitive short }\mathbf x:
+\exists p\sim X,
+p\mid q_i x_i-q_\ast x_\ast\ (1\le i\le4)
+\right\}
+\ll(\log X)^C.
+$$
+
+If a common large prime exists, write
+
+$$
+q_i x_i-q_\ast x_\ast=p\,y_i.
+$$
+
+Eliminating $p$ between $i$ and $j$ gives the factorable relation
+
+$$
+q_i x_i y_j
+-q_j x_j y_i
+q_\ast x_\ast (y_i-y_j)
+=0.
+$$
+
+All coefficients have factorable size $O(M_\tau^2)$. Hence failure of the
+anchored gcd-energy theorem should force many short factorable ternary
+relations among the seed primes. This is the likely structured exception.
+
+---
+
+# 28. Current proof avenues
+
+There are now two plausible proof routes for the remaining arithmetic theorem:
+
+1. **Short-dilate large sieve.** Bound the sum of
+   $C_p^{\mathrm{anch}}(T)$ directly as an intersection of four modular dilates
+   of a short interval.
+2. **Primitive gcd energy.** Count primitive short vectors for which
+   $\gcd_i(q_i x_i-q_\ast x_\ast)$ has a prime divisor in $[X,2X]$, and show
+   that many such vectors force a low-entropy family of factorable ternary
+   relations.
+
+The first route is cleaner if a suitable large-sieve or modular-interval tool
+exists. The second route is more bespoke but exposes the structured exception
+explicitly.

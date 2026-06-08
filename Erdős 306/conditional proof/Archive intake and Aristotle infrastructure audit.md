@@ -82,6 +82,10 @@ The useful formal components are:
   four-seed CRT product interface: base-difference equations, divisibility and
   modular residue forms, inverse witnesses, three local CRT congruences, and
   the paper-facing `CRTProductHit` bridge.
+- `ValidCRTLattice.lean`, from the subsequent Aristotle run, upgrades bare CRT
+  hits to valid quotient hits, proves the bridge with four-seed line witnesses,
+  formalizes the homogeneous lattice and scaling/ray properties, and defines
+  primitive CRT rays with basic scaling obstruction lemmas.
 
 This supports the current scratch sections around marked dual counting, fingerprint exposure, first-level containers, repeated exposure budget, common-neighbour mass, and low-mode rank-one rigidity.
 

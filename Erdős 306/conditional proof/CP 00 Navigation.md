@@ -42,6 +42,7 @@ Archive and formalization audits:
 - [[HA cluster line incidence prompt]]
 - [[HA reciprocal CRT product interface prompt]]
 - [[HA valid CRT lattice interface prompt]]
+- [[HA anchored CRT lattice interface prompt]]
 
 External source now present in the vault:
 

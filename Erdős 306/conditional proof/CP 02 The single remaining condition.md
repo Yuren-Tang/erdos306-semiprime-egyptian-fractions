@@ -433,6 +433,18 @@ q_i x_i-q_4x_4=p\,a_i
 $$
 The remaining estimate is therefore a primitive-ray concentration bound for
 these lattices, summed over residual primes $p\sim X$.
+One must also keep the reference anchor: the original reciprocal cluster has
+intercept $q_\ast x_\ast$, so after using $q_4$ as a base the full normalized
+system includes
+$$
+q_4x_4-q_\ast x_\ast=p\,y_4
+$$
+in addition to
+$$
+q_i x_i-q_4x_4=p\,a_i.
+$$
+The final target is therefore the reference-anchored primitive lattice
+concentration theorem, not the unanchored product-hit theorem.
 
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
