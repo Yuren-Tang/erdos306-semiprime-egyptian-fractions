@@ -128,7 +128,60 @@ $$
 e(G_\Gamma(\mathcal C_0,\mathcal C_1))\ge |\Gamma|h_0h_1.
 $$
 
-## Goal 3: optional dense rectangle lower bound
+## Goal 3: generated core gives many seed neighbours
+
+This goal is also high priority if feasible.
+
+Define the seed-neighbour set:
+
+```lean
+def seedNeighbours
+    (Inc : V → B → Prop) [DecidableRel Inc]
+    (Buckets : Finset B) (F : Finset V) (v : V) : Finset V :=
+  F.filter (fun f => ∃ b ∈ Buckets, Inc v b ∧ Inc f b)
+```
+
+Use the existing `generatedBuckets` definition from `BucketContainer.lean`, or
+redefine it if needed:
+
+```lean
+def generatedBuckets
+    (Inc : V → B → Prop) [DecidableRel Inc]
+    (F : Finset V) (Buckets : Finset B) : Finset B :=
+  Buckets.filter (fun b => ∃ f ∈ F, Inc f b)
+```
+
+Prove:
+
+```lean
+theorem highDeg_generatedCore_le_seedNeighbours
+    {V B : Type*} [DecidableEq V] [DecidableEq B]
+    (Inc : V → B → Prop) [DecidableRel Inc]
+    (Buckets : Finset B) (F : Finset V) (v : V) (h : ℕ)
+    (hdeg : h ≤ ((generatedBuckets Inc F Buckets).filter (fun b => Inc v b)).card)
+    (huniq : ∀ f ∈ F, ∀ b₁ ∈ Buckets, ∀ b₂ ∈ Buckets,
+      Inc v b₁ → Inc f b₁ → Inc v b₂ → Inc f b₂ → b₁ = b₂) :
+    h ≤ (seedNeighbours Inc Buckets F v).card
+```
+
+Proof idea:
+
+Each bucket in `generatedBuckets Inc F Buckets` incident to `v` has at least one
+seed `f ∈ F` incident to it. Choose one such seed. The uniqueness hypothesis says
+the same seed cannot be assigned to two distinct buckets, because that would make
+`v` and `f` share two buckets. Therefore the number of seed neighbours is at
+least the number of generated-core buckets incident to `v`, and hence at least
+`h`.
+
+This theorem formalizes the paper-side implication:
+
+$$
+v\in A_h(N(F))
+\Longrightarrow
+\#\{f\in F:v\sim_\tau f\}\ge h.
+$$
+
+## Goal 4: optional dense rectangle lower bound
 
 If practical, add a theorem connecting edge density to ordered rectangle count in a bipartite graph. A division-free or real-valued version is acceptable.
 
@@ -147,19 +200,20 @@ Then prove a convexity-style lower bound of the form:
 if |E| ≥ δ |X||Y|, then rectangleCount Adj X Y is large.
 ```
 
-Do not get stuck on sharp constants. A clean lemma with extra hypotheses, natural-number floors, or rational/real density variables is fine. If this is too much for Lean in one run, leave it out and complete Goals 1 and 2 with no `sorry`.
+Do not get stuck on sharp constants. A clean lemma with extra hypotheses, natural-number floors, or rational/real density variables is fine. If this is too much for Lean in one run, leave it out and complete Goals 1--3 with no `sorry`.
 
 ## Expected result
 
 - `RequestProject/TwoCoreBookkeeping.lean` compiles with no `sorry`.
-- Goals 1 and 2 are the priority.
-- Goal 3 is optional.
+- Goals 1 and 2 are mandatory.
+- Goal 3 is strongly preferred.
+- Goal 4 is optional.
 - Please include a short summary explaining how these theorems support the paper-side statement:
 
 $$
 \text{persistent second saturation}
 \Longrightarrow
-\text{dense two-core bucket-pair graph}.
+\text{dense two-core bucket-pair graph and many seed common-neighbours}.
 $$
 
 Again: do not introduce SBEE as an axiom and do not work on Fourier positivity. This is purely finite incidence bookkeeping.

@@ -120,8 +120,15 @@ $$
 
 If a second saturated generated core persists, the residual vertices determine
 a polylog-dense two-core graph between the two bucket cores. The remaining
-paper-side step is therefore a two-core rectangle inverse: bucket rectangles
-must either be energy-paid or force rank-one / near-dominant structure.
+paper-side step is therefore a seed-generated two-core inverse: bucket
+rectangles must either be energy-paid or force rank-one / near-dominant
+structure, and the proof must remember that the cores have the form
+$\mathcal C_i=N(F_i)$ for fingerprints $F_i$.
+
+Equivalently, persistent saturation gives many residual vertices that are
+cheap to many seed vertices in two fingerprints. The two-core rectangle graph is
+the finite counting shadow of this two-fingerprint common-neighbour structure,
+not the whole inverse problem by itself.
 
 This is the current precise subcondition behind the route
 $$
@@ -151,11 +158,11 @@ For the proof attempt, work on the sharper internal target:
 
 $$
 \boxed{
-\text{two-core rectangle inverse inside ambient-sensitive FIE}
+\text{two-fingerprint common-neighbour inverse inside ambient-sensitive FIE}
 }
 $$
 
 The Lean/Aristotle infrastructure can support the finite pieces, especially the
-new-bucket capacity and two-core density bookkeeping. The remaining step is
-still a paper-side mathematical proof tying the bucket-rectangle inverse to the
-SBEE counting ledger.
+new-bucket capacity, seed-neighbour, and two-core density bookkeeping. The
+remaining step is still a paper-side mathematical proof tying the generated
+bucket-rectangle inverse to the SBEE counting ledger.
