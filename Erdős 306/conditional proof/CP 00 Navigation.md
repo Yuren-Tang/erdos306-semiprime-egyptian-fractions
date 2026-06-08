@@ -41,6 +41,7 @@ Archive and formalization audits:
 - [[HA adaptive cluster selection prompt]]
 - [[HA cluster line incidence prompt]]
 - [[HA reciprocal CRT product interface prompt]]
+- [[HA valid CRT lattice interface prompt]]
 
 External source now present in the vault:
 

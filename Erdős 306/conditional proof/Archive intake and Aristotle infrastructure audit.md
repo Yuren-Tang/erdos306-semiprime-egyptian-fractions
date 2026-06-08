@@ -78,6 +78,10 @@ The useful formal components are:
   algebraic bridge from reciprocal-cluster congruences to integer line
   incidence, including the three-point determinant identity and the three- and
   four-point factorable relations.
+- `ReciprocalCRTProduct.lean`, from the subsequent Aristotle run, proves the
+  four-seed CRT product interface: base-difference equations, divisibility and
+  modular residue forms, inverse witnesses, three local CRT congruences, and
+  the paper-facing `CRTProductHit` bridge.
 
 This supports the current scratch sections around marked dual counting, fingerprint exposure, first-level containers, repeated exposure budget, common-neighbour mass, and low-mode rank-one rigidity.
 

@@ -420,6 +420,19 @@ Thus the final arithmetic endpoint is a CRT product concentration estimate
 modulo $Q=q_1q_2q_3$: a short interval in $x_4$ times a reciprocal CRT box in
 $(a_1,a_2,a_3)$ should not concentrate inside $[X,2X]\pmod Q$, unless the seed
 quadruple is in a low-entropy rational family.
+The product-hit statement must be made in its valid quotient form: after
+choosing $p,x_4,a_1,a_2,a_3$, the quotients
+$$
+x_i=\frac{p\,a_i+q_4x_4}{q_i}
+$$
+must also be nonzero and $\ll M_\tau$. Equivalently, for fixed $p$ the short
+variables lie in the homogeneous lattice
+$$
+q_i x_i-q_4x_4=p\,a_i
+\qquad(1\le i\le3).
+$$
+The remaining estimate is therefore a primitive-ray concentration bound for
+these lattices, summed over residual primes $p\sim X$.
 
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 

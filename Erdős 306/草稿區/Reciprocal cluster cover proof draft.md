@@ -56,6 +56,12 @@ Aristotle has produced no-sorry Lean files for:
    - proves the three- and four-point factorable relations;
    - packages paper-language aliases for same-line seed triples and factorable
      relations.
+6. `ReciprocalCRTProduct.lean`:
+   - formalizes the four-seed line witness;
+   - proves the base-difference identities
+     $q_i x_i-q_4x_4=p\,a_i$;
+   - proves the divisibility and modular residue forms;
+   - packages the three local CRT congruences as `CRTProductHit`.
 
 This means the purely finite infrastructure is no longer the main risk.
 
@@ -904,3 +910,116 @@ reciprocal-cluster covering step.
 
 Compared with the previous short gcd-energy statement, this is sharper because
 it uses all four seeds at once and exposes the exact CRT product structure.
+
+---
+
+# 20. Valid CRT hits, not only product hits
+
+The latest Aristotle run closes the algebraic bridge to local CRT product hits.
+This exposed an important correction: a bare `CRTProductHit` is a necessary
+condition, not yet the exact cluster-witness condition.
+
+Given
+
+$$
+p\,a_i\equiv -q_4x_4\pmod {q_i},
+$$
+
+one must also define
+
+$$
+x_i=\frac{p\,a_i+q_4x_4}{q_i}
+$$
+
+and require
+
+$$
+0<|x_i|\le M_\tau.
+$$
+
+Thus the correct endpoint is a **valid CRT product hit**:
+
+$$
+\begin{aligned}
+&0<|x_4|,|a_i|,|x_i|\le M_\tau,\\
+&q_i x_i-q_4x_4=p\,a_i
+\qquad(1\le i\le3),\\
+&p\in[X,2X].
+\end{aligned}
+$$
+
+This matters. A quick finite experiment showed that the bare CRT condition has
+large false-positive families, for instance near the diagonal $p=q_4$. In that
+case the short residue choice can give $a_i=-x_4$, but then
+
+$$
+x_i=\frac{q_4(-x_4)+q_4x_4}{q_i}=0,
+$$
+
+which is not a legal singular witness.
+
+After enforcing $0<|x_i|\le M_\tau$, random dyadic tests at
+$X=200,\ldots,20000$ gave non-diagonal counts of size $0,2,4,6$ in typical
+samples, consistent with the expected $O(1)$ or polylogarithmic bound.
+
+This is a useful warning: the arithmetic theorem should not be stated only for
+the product set $x\mathcal B_T$. It should be stated for valid quotient hits,
+or else the product-set theorem must explicitly exclude and charge the invalid
+quotient fibres.
+
+---
+
+# 21. Homogeneous lattice and primitive rays
+
+For fixed $p$, a valid hit is a short integer point in the homogeneous lattice
+
+$$
+L_p(T)
+=
+\left\{
+(x_4,x_1,x_2,x_3,a_1,a_2,a_3):
+q_i x_i-q_4x_4=p\,a_i,\ 1\le i\le3
+\right\}.
+$$
+
+The equations are homogeneous in the short variables. Hence if
+
+$$
+(x_4,x_1,x_2,x_3,a_1,a_2,a_3)
+$$
+
+is a valid hit for $p$, then any integer multiple $\lambda$ is another hit as
+long as all coordinates stay within the short box and remain nonzero.
+
+This explains the small multiplicities seen in the experiments: hits often
+come in sign pairs and sometimes in short scalar progressions, for example
+primitive vector plus its double.
+
+Therefore the next endpoint should count primitive rays:
+
+**Primitive valid CRT concentration.**
+For non-structured seed primes $q_1,q_2,q_3,q_4$, the number of primitive rays
+in $L_p(T)$ meeting the short box, summed over residual primes $p\sim X$, is
+$O((\log X)^C)$. The nonprimitive multiples then cost at most a divisor-type
+factor, provided very small primitive rays are charged as structured
+exceptions.
+
+This is now a sharper and safer target than the bare product-concentration
+statement.
+
+---
+
+# 22. New HA direction
+
+The next HA task should be a larger interface package:
+
+1. define valid CRT product hits with the quotient variables $x_i$;
+2. prove equivalence between four-seed line witnesses and valid CRT hits;
+3. prove valid CRT hits imply `CRTProductHit`;
+4. define the homogeneous lattice predicate $L_p(T)$;
+5. prove the integer-scaling/ray property;
+6. optionally define primitive hits by absence of a common divisor and prove
+   basic monotonicity under scaling.
+
+This lets HA thicken the entire algebraic and lattice interface, while the
+remaining human-side theorem is the primitive valid CRT concentration bound.
