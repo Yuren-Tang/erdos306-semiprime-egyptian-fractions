@@ -199,7 +199,7 @@ $$
 
 The present scale check shows that the fingerprint/core-generation entropy is smaller than the bucket-capacity energy by a factor $\ll sL_X(\log X)^4/X$ in the saturated short-list regime, while the complementary large-list regime is already paid by the base-list lower bound on $R$. The remaining FIE issue is the residual-container entropy: after a fingerprint generates a bucket core, one must still show that low-energy choices inside the resulting candidate container are recursively exposed with their reduced ambient universe recorded. A one-parameter peeling tree is not enough, because many terminal leaves would otherwise contribute total entropy of order $W\log(Ns)$.
 
-Thus the current scratch formulation uses states $(W,Y)$, where $W$ is residual mass and $Y$ is the current ambient universe size, and the potential
+Thus the current scratch formulation, now isolated in [[Ambient-sensitive FIE proof draft]], uses states $(W,Y)$, where $W$ is residual mass and $Y$ is the current ambient universe size, and the potential
 
 $$
 \mathcal P(W,Y)

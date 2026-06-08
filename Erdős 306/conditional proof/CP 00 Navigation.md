@@ -12,6 +12,8 @@ This folder is the cleaned conditional proof package. The old notes remain usefu
    Working draft area for attacking the single remaining condition.
 5. [[Archive intake and Aristotle infrastructure audit]]
    Audit of the newly imported archive, the decoded webarchive, and the second Aristotle infrastructure package.
+6. [[Ambient-sensitive FIE proof draft]]
+   Focused current scratch note for the final FIE entropy-saving route.
 
 Older source notes:
 
@@ -31,6 +33,7 @@ Archive and formalization audits:
 
 - [[Archive intake and Aristotle infrastructure audit]]
 - [[HA followup prompt]]
+- [[HA ambient FIE prompt]]
 
 External source now present in the vault:
 
