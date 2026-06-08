@@ -192,7 +192,16 @@ same affine slice differ by a short homogeneous kernel. Thus if no such kernel
 exists, each residual prime contributes at most one witness pattern. The final
 local bottleneck is therefore the seed singularity lemma: short homogeneous
 kernels must occur only in a low-entropy seed family, or force the rank-one /
-near-dominant structural exit.
+near-dominant structural exit. One non-reference seed is not enough, because
+ordinary Dirichlet approximation can create short kernels around
+$M_\tau\asymp X^{1/2}$. The DRC extraction must keep enough seeds so that
+
+$$
+M_\tau^{1+1/k}\ll X(\log X)^{-C}
+$$
+
+for the number $k$ of non-reference seeds used in the simultaneous kernel
+condition.
 
 This is the current precise subcondition behind the route
 $$

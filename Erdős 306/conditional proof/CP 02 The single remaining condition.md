@@ -340,7 +340,15 @@ short box, their difference is such a short homogeneous kernel. Hence, in the
 absence of a short kernel, each residual prime $p$ has at most one candidate
 witness pattern and therefore no residual polylogarithmic label multiplicity.
 The final local lemma is the corresponding seed singularity bound for short
-kernel vectors.
+kernel vectors. The number $k$ of non-reference seeds must be chosen large
+enough that simultaneous short approximation is sparse, for instance
+
+$$
+M_\tau^{1+1/k}\ll X(\log X)^{-C}.
+$$
+
+This is why the next DRC step should extract several seed neighbours, not merely
+one.
 
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 

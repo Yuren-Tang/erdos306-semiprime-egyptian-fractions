@@ -1747,8 +1747,14 @@ The polylog-compression bottleneck can now be stated as:
 
 **Seed singularity lemma.**
 Let $S=\{f_\ast,f_1,\ldots,f_k\}$ be a bounded seed tuple with $k\ge2$ and
-$M_\tau<X^{1-o(1)}$. For all but a low-entropy family of seed tuples and
-residual primes $p\sim X$, the homogeneous kernel
+$M_\tau<X^{1-o(1)}$. Assume moreover that $k$ is chosen so that
+
+$$
+M_\tau^{1+1/k}\ll X(\log X)^{-C}.
+$$
+
+For all but a low-entropy family of seed tuples and residual primes $p\sim X$,
+the homogeneous kernel
 
 $$
 q_i x_i-q_\ast x_\ast\equiv0\pmod p
@@ -1763,3 +1769,14 @@ tuples are charged to the structured exception ledger.
 This is now the smallest local statement I see. It is no longer a general
 container lemma; it is a short-coefficient rational parametrization problem for
 prime tuples.
+
+The condition on $k$ is not cosmetic. For $k=1$, Dirichlet approximation can
+often produce a nonzero short solution to
+
+$$
+q_1x_1\equiv q_\ast x_\ast\pmod p
+$$
+
+when $M_\tau\asymp X^{1/2}$. Thus one non-reference seed is not enough. The
+two-sided DRC extraction should choose enough seed vertices that the simultaneous
+short-approximation regime is genuinely sparse.
