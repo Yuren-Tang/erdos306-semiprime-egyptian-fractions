@@ -59,6 +59,10 @@ The useful formal components are:
   finite implications needed after persistent second saturation: new-bucket
   capacity for one generated core, the two-core edge lower bound, and the fact
   that high degree into a generated core gives many seed neighbours.
+- `SeededWitnessMatrix.lean`, from the later Aristotle run, proves the
+  two-sided dependent-random-choice averaging lemma, packages witness matrices
+  and zero mixed defect as additive rank one, and formalizes row differences and
+  the common-divisor predicate used in the seed singularity reduction.
 
 This supports the current scratch sections around marked dual counting, fingerprint exposure, first-level containers, repeated exposure budget, common-neighbour mass, and low-mode rank-one rigidity.
 
@@ -197,11 +201,41 @@ ordinary Dirichlet approximation can create short kernels around
 $M_\tau\asymp X^{1/2}$. The DRC extraction must keep enough seeds so that
 
 $$
-M_\tau^{1+1/k}\ll X(\log X)^{-C}
+M_\tau^{k+1}\ll X^{k-1}(\log X)^{-C}
 $$
 
 for the number $k$ of non-reference seeds used in the simultaneous kernel
-condition.
+condition. In the central case this means $k>3$, so four non-reference seeds are
+enough up to logarithmic slack. The direct seed-singularity count is
+
+$$
+\#\{\text{singular seed prime tuples}\}
+\ll
+N^2M_\tau^{k+1}(\log X)^{O(1)},
+$$
+
+because after fixing $p,q_\ast,x_\ast$, each seed prime $q_i$ lies in one residue
+class modulo $p$ for each short $x_i$. This is small compared with the free
+count $N^{k+1}$ under the displayed condition. This proves global sparsity of
+singular seed tuples, not yet the full fixed-configuration statement.
+
+The remaining packaging step is a good-seed selection lemma: either the
+fingerprint pool contains a seed tuple outside the sparse singular-tuple
+hypergraph, or the pool is itself trapped in a low-entropy structured container.
+
+The singular hypergraph has extra arithmetic structure: for fixed reference
+seed $q_\ast$, residual prime $p$, and short coefficient $x_\ast$, bad seed
+primes lie in a reciprocal cluster
+
+$$
+\mathcal A(p,q_\ast,x_\ast)
+=
+\{q\sim X:q\equiv q_\ast x_\ast x^{-1}\pmod p,\ |x|\ll M_\tau\},
+$$
+
+with $|\mathcal A|\ll M_\tau$. The selection problem is therefore a
+container/covering statement for these reciprocal clusters, not an arbitrary
+sparse hypergraph problem.
 
 This is the current precise subcondition behind the route
 $$
@@ -231,7 +265,7 @@ For the proof attempt, work on the sharper internal target:
 
 $$
 \boxed{
-\text{seed singularity lemma}
+\text{reciprocal-cluster covering for singular seeds}
 }
 $$
 
@@ -242,4 +276,5 @@ bucket-rectangle / witness-defect inverse to the SBEE counting ledger; in its
 most concrete form, this is the regular affine-lattice count plus the
 short-kernel structured entropy bound. The regular count has reduced to
 uniqueness per residual prime; the singular short-kernel family is the part that
-still needs proof.
+still needs proof, now in the form of a reciprocal-cluster
+selection/structure lemma.

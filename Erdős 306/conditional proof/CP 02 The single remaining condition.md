@@ -325,8 +325,9 @@ q_i b_i-q_\ast b_\ast+p_0(u_i-u_\ast)\equiv0\pmod p
 \right\}.
 $$
 
-The regular determinant-size estimate for these codimension-$k$ slices should
-give the needed saving. The singular alternative is a short homogeneous kernel
+A determinant-size lattice count gives the right heuristic for these
+codimension-$k$ slices. The actual regular side is simpler: the singular
+alternative is a short homogeneous kernel
 
 $$
 q_i x_i-q_\ast x_\ast\equiv0\pmod p,
@@ -344,11 +345,52 @@ kernel vectors. The number $k$ of non-reference seeds must be chosen large
 enough that simultaneous short approximation is sparse, for instance
 
 $$
-M_\tau^{1+1/k}\ll X(\log X)^{-C}.
+M_\tau^{k+1}\ll X^{k-1}(\log X)^{-C}.
 $$
 
 This is why the next DRC step should extract several seed neighbours, not merely
-one.
+one. In the central case $M_\tau\asymp X^{1/2}$, four non-reference seeds are
+enough up to fixed logarithmic slack.
+
+The direct count is as follows. For fixed $p,q_\ast,x_\ast$, each seed prime
+$q_i$ satisfying a short homogeneous kernel must lie in one residue class modulo
+$p$ for each short $x_i$:
+
+$$
+q_i\equiv q_\ast x_\ast x_i^{-1}\pmod p.
+$$
+
+Since $q_i\in[X,2X]$ and $p\sim X$, this gives only $O(M_\tau)$ choices for each
+seed coordinate. Hence singular seed prime tuples are bounded by
+
+$$
+\ll N^2M_\tau^{k+1}(\log X)^{O(1)}
+$$
+
+instead of the free count $N^{k+1}$. This is the current candidate proof of the
+global sparsity of singular seed tuples, modulo diagonal, zero-star, and
+label-bookkeeping exceptions.
+
+The remaining local packaging step is a good-seed selection lemma: either the
+fingerprint pool contains a seed tuple outside the sparse singular-tuple
+hypergraph, or the pool is concentrated in a low-entropy structured container.
+
+More concretely, for fixed reference seed $q_\ast$ the singular hypergraph is
+contained in a union of complete $k$-graphs on reciprocal clusters
+
+$$
+\mathcal A(p,q_\ast,x_\ast)
+=
+\left\{
+q\sim X:
+q\equiv q_\ast x_\ast x^{-1}\pmod p,\quad |x|\ll M_\tau
+\right\},
+$$
+
+each of size $\ll M_\tau$. Thus the final packaging problem is a
+container/covering statement for these reciprocal clusters: either the seed pool
+contains a good tuple, or it is efficiently covered by low-entropy reciprocal
+clusters.
 
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 

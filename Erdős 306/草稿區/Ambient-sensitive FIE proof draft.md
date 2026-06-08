@@ -1750,7 +1750,7 @@ Let $S=\{f_\ast,f_1,\ldots,f_k\}$ be a bounded seed tuple with $k\ge2$ and
 $M_\tau<X^{1-o(1)}$. Assume moreover that $k$ is chosen so that
 
 $$
-M_\tau^{1+1/k}\ll X(\log X)^{-C}.
+M_\tau^{k+1}\ll X^{k-1}(\log X)^{-C}.
 $$
 
 For all but a low-entropy family of seed tuples and residual primes $p\sim X$,
@@ -1766,9 +1766,10 @@ Consequently the affine slice for each regular $p$ has at most one point, so
 the residual ambient has $O(1)$ label multiplicity per prime. The singular seed
 tuples are charged to the structured exception ledger.
 
-This is now the smallest local statement I see. It is no longer a general
-container lemma; it is a short-coefficient rational parametrization problem for
-prime tuples.
+This is the arithmetic core of the remaining local statement. It is no longer a
+general container lemma; it is a short-coefficient rational parametrization
+problem for prime tuples, followed by the selection/covering step in Sections
+22--23.
 
 The condition on $k$ is not cosmetic. For $k=1$, Dirichlet approximation can
 often produce a nonzero short solution to
@@ -1778,5 +1779,319 @@ q_1x_1\equiv q_\ast x_\ast\pmod p
 $$
 
 when $M_\tau\asymp X^{1/2}$. Thus one non-reference seed is not enough. The
-two-sided DRC extraction should choose enough seed vertices that the simultaneous
-short-approximation regime is genuinely sparse.
+two-sided DRC extraction should choose enough seed vertices that the family of
+seed tuples admitting simultaneous short kernels has lower entropy than the
+free seed-tuple family.
+
+In the central case $M_\tau\asymp X^{1/2}$, the displayed condition is
+
+$$
+X^{(k+1)/2}\ll X^{k-1}(\log X)^{-C},
+$$
+
+so one needs
+
+$$
+k>3.
+$$
+
+Thus four non-reference seeds are enough at the central scale, up to fixed
+logarithmic slack.
+
+## 21.3 Direct entropy count for singular seed tuples
+
+Here is the promised entropy count.
+
+Ignore the labels $u_i$ for the moment; for a bounded seed tuple they contribute
+only fixed powers of the current polylog ambient. Count the prime parts
+
+$$
+(q_\ast,q_1,\ldots,q_k).
+$$
+
+For a singular tuple there are
+
+$$
+p\sim X,\qquad q_\ast\sim X,\qquad 0<|x_\ast|\le 2M_\tau
+$$
+
+and, for each $i$,
+
+$$
+0<|x_i|\le2M_\tau,\qquad |y_i|\ll M_\tau,
+$$
+
+such that
+
+$$
+q_i x_i-q_\ast x_\ast=p\,y_i.
+$$
+
+For fixed
+
+$$
+p,\ q_\ast,\ x_\ast,\ x_i,\ y_i,
+$$
+
+the prime $q_i$ is determined:
+
+$$
+q_i=\frac{q_\ast x_\ast+p\,y_i}{x_i}.
+$$
+
+Therefore, for fixed $(p,q_\ast,x_\ast)$, there are at most
+
+$$
+O(M_\tau^2)^k
+$$
+
+raw coefficient choices, and hence at most that many seed prime tuples. This is
+too crude by one power of $M_\tau$ per seed. A sharper count uses the congruence
+form: for fixed $(p,q_\ast,x_\ast)$ and fixed $x_i$, the prime $q_i$ must lie in
+one residue class modulo $p$:
+
+$$
+q_i\equiv q_\ast x_\ast x_i^{-1}\pmod p.
+$$
+
+Since $q_i\in[X,2X]$ and $p\sim X$, each residue class contributes $O(1)$
+possible integers, hence $O(1)$ possible primes. Thus each seed coordinate has
+only
+
+$$
+O(M_\tau)
+$$
+
+choices, not $O(M_\tau^2)$.
+
+The number of singular prime seed tuples, averaged over seed tuples and residual
+primes, is therefore bounded by
+
+$$
+\ll
+N^2 M_\tau^{k+1}(\log X)^{O(1)},
+$$
+
+where $N\asymp X/\log X$ accounts for $p$ and $q_\ast$, and $M_\tau$ accounts for
+$x_\ast$.
+
+By contrast, a free seed prime tuple has entropy
+
+$$
+\asymp N^{k+1}.
+$$
+
+Thus singular seed tuples save a factor
+
+$$
+\frac{N^{k+1}}{N^2M_\tau^{k+1}}
+\asymp
+\frac{X^{k-1}}{M_\tau^{k+1}}(\log X)^{-O(1)}.
+$$
+
+This is a genuine logarithmic or power saving precisely under
+
+$$
+M_\tau^{k+1}\ll X^{k-1}(\log X)^{-C}.
+$$
+
+This proves that singular seed tuples are sparse on average in the full prime
+universe. It does **not** by itself finish the fixed-configuration argument,
+because the DRC seed tuple is chosen from a fingerprint pool $F$. It remains
+possible, a priori, that a special fingerprint pool contains mostly singular
+tuples.
+
+Thus the seed singularity lemma is reduced to a selection/structure statement:
+
+1. either the available fingerprint pool contains at least one seed tuple that
+   is regular for all but a negligible set of residual primes;
+2. or the pool is concentrated inside the sparse singular-tuple hypergraph and
+   is therefore a low-entropy / rank-one structured exception.
+
+The prime-coordinate count above supplies the global sparsity input for this
+selection lemma. The remaining issues are:
+
+1. the diagonal exceptions $p=q_\ast$ or $p=q_i$, which are $O(1)$ per seed tuple
+   and should be absorbed by the already finite seed/fingerprint ledger;
+2. zero-star cases $D_v(f)=0$, already marked as seed-neighbour capacity
+   exceptions;
+3. polylog label choices for the bounded seed tuple;
+4. checking that the DRC seed tuple is sampled from the residual fingerprint
+   pool in a way compatible with charging a low-entropy seed family.
+
+The fourth point is the only remaining combinatorial issue. It is much smaller
+than the original FIE problem: it is a bounded-uniformity hypergraph selection
+problem on the fingerprint pool, with the singular tuples already globally
+sparse.
+
+---
+
+# 22. Selection form of the remaining singular case
+
+The current endpoint is therefore the following statement.
+
+**Good-seed selection lemma.**
+Let $F$ be a fingerprint pool of size $\asymp M$ and let $\mathcal H_{\rm sing}$
+be the $k$-uniform hypergraph of seed tuples that admit many singular residual
+primes. Suppose the global singular-tuple count satisfies
+
+$$
+|\mathcal H_{\rm sing}|
+\ll
+N^2M_\tau^{k+1}(\log X)^{O(1)}.
+$$
+
+Then either:
+
+1. $F^k$ contains a tuple outside $\mathcal H_{\rm sing}$, giving a good seed
+   tuple and hence regular uniqueness per residual prime; or
+2. $F$ is contained in a low-entropy container generated by the sparse hypergraph
+   $\mathcal H_{\rm sing}$.
+
+The second alternative should correspond to the structured exception already
+allowed in the SBEE ledger.
+
+At this point the proof route is:
+
+$$
+\text{HA finite incidence}
+\Longrightarrow
+\text{two-sided DRC}
+\Longrightarrow
+\text{seeded witness matrix}
+\Longrightarrow
+\text{singular tuple sparsity}
+\Longrightarrow
+\text{good-seed selection or structured exception}.
+$$
+
+The first three arrows are now formalized or formalization-ready. The fourth is
+the direct arithmetic count above. The fifth is the remaining local
+combinatorial packaging step.
+
+---
+
+# 23. Singular hypergraph as reciprocal-progression clusters
+
+The sparse hypergraph $\mathcal H_{\rm sing}$ has additional structure.
+
+Fix the reference seed
+
+$$
+f_\ast=(q_\ast,u_\ast)
+$$
+
+and a residual prime $p\sim X$. For a nonzero short reference coefficient
+
+$$
+0<|x_\ast|\le 2M_\tau,
+$$
+
+define the reciprocal cluster
+
+$$
+\mathcal A(p,q_\ast,x_\ast)
+=
+\left\{
+q\in[X,2X]\cap\mathbb P:
+\exists\,0<|x|\le2M_\tau,\quad
+q x\equiv q_\ast x_\ast\pmod p
+\right\}.
+$$
+
+Equivalently,
+
+$$
+q\equiv q_\ast x_\ast x^{-1}\pmod p
+$$
+
+for some short $x$. Since $p\sim X$ and $q\in[X,2X]$, each short $x$ gives
+$O(1)$ possible primes $q$. Hence
+
+$$
+|\mathcal A(p,q_\ast,x_\ast)|
+\ll M_\tau.
+$$
+
+A non-reference seed tuple $(q_1,\ldots,q_k)$ is singular for this
+$(p,q_\ast,x_\ast)$ only if
+
+$$
+q_i\in\mathcal A(p,q_\ast,x_\ast)
+\qquad(1\le i\le k).
+$$
+
+Thus the singular hypergraph is contained in a union of complete $k$-uniform
+hypergraphs on reciprocal clusters:
+
+$$
+\mathcal H_{\rm sing}(q_\ast)
+\subset
+\bigcup_{p,x_\ast}
+\mathcal A(p,q_\ast,x_\ast)^k.
+$$
+
+This is stronger than mere global sparsity.
+
+The remaining selection problem becomes:
+
+**Reciprocal-cluster selection lemma.**
+Let $F$ be the available seed pool. Either:
+
+1. there is a $k$-tuple in $F^k$ not contained in any cluster
+   $\mathcal A(p,q_\ast,x_\ast)$, giving a good seed tuple; or
+2. $F$ is efficiently covered by a small number of reciprocal clusters, in which
+   case $F$ has low entropy / arithmetic structure.
+
+The second alternative is plausible because each cluster is parametrized by
+only
+
+$$
+(p,x_\ast)
+$$
+
+and then each element of the cluster is parametrized by a short $x$. Encoding a
+fingerprint inside one cluster costs roughly
+
+$$
+|F|\log M_\tau
+$$
+
+instead of
+
+$$
+|F|\log N.
+$$
+
+At the central scale $M_\tau\asymp N^{1/2}$, this gives a saving
+
+$$
+\frac12 |F|\log N
+$$
+
+before logarithmic losses, enough for the bounded seed-selection step.
+
+The only way this cluster-cover argument could fail is if many reciprocal
+clusters have large mutual intersections and together cover a large unstructured
+pool. Such large intersections should themselves impose equations
+
+$$
+q_\ast x_\ast x^{-1}
+\equiv
+q_\ast x_\ast' (x')^{-1}
+\pmod p
+$$
+
+or the analogous equation for two different residual primes. These are again
+short-coefficient rational relations, hence part of the same structured
+exception ledger.
+
+This is now a very concrete final local problem:
+
+$$
+\boxed{
+\text{container/covering for reciprocal clusters}
+}
+$$
+
+It is finite and arithmetic, but no longer Fourier-analytic.
