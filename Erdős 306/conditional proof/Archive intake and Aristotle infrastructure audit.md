@@ -98,6 +98,8 @@ $$
 
 Terminal leaves are then paid by telescoping decrease of the entropy term $W\log(eY/W)$, while the complementary large-list range is paid by the base-list lower bound on $R$. The final form must be a genuine saving statement: the cumulative ambient entropy drops must reduce the initial crude entropy $N\log s$ to $o(R)$, except in regimes already paid by forced energy.
 
+The newest refinement separates this into a first-capture saving and a residual polylog-ambient compression problem. First capture removes the main $N\log D$ entropy. The remaining local task is to remove the $N\log\log X$ entropy left when the ambient has size $N(\log X)^K$.
+
 This is the current precise subcondition behind the route
 $$
 \mathrm{FIE}\Longrightarrow \mathrm{BCE}\Longrightarrow \mathrm{SBEE}.

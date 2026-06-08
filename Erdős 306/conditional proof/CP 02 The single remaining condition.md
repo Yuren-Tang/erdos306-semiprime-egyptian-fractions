@@ -231,6 +231,13 @@ In the scratch file this is now organized as Proposition FIE with four bookkeepi
 
 The logarithmic loss only changes the large-list split by a fixed power of $\log X$. This ambient-sensitive formulation is the current sharp version of the one remaining internal proof task.
 
+The focused draft further refines this into two nested savings:
+
+1. **First-capture ambient saving**, which removes the main $N\log D$ label-list entropy in the large-list side of the central range.
+2. **Polylog-ambient compression**, still to be proved, which must remove the remaining $N\log\log X$ entropy after the ambient has been reduced to $N(\log X)^K$.
+
+The second point is now the sharpest local bottleneck inside FIE. It is smaller than SBEE, but it is still a genuine mathematical step rather than a purely formal bookkeeping issue.
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---

@@ -375,3 +375,222 @@ The only remaining delicate points are:
 3. summing dyadic profiles and logarithmic losses.
 
 This note should be the active working file for the next pass.
+
+---
+
+# 8. Critical audit: the leftover polylog ambient entropy
+
+The first-capture saving pays the main label-list entropy
+
+$$
+N\log D
+$$
+
+in the ambient-saving range. But after first capture the branch ambient is only known to be
+
+$$
+Y_1\ll N(\log X)^K
+$$
+
+in the critical case $D\asymp N^{1/2}$, for some fixed $K$.
+
+Crude counting inside this ambient leaves
+
+$$
+H(N,Y_1)
+\ll
+N\log\log X.
+$$
+
+This is not automatically harmless.
+
+Indeed the base-list lower bound gives only
+
+$$
+R
+\gg
+\frac{D^2}{L_X^2(\log X)^2}.
+$$
+
+At the central scale
+
+$$
+D\asymp N^{1/2},
+$$
+
+this is roughly
+
+$$
+R\gg \frac{N}{(\log X)^{O(1)}},
+$$
+
+which is smaller than $N\log\log X$.
+
+Thus the first-capture argument is a major saving, but not the full SBEE proof. The remaining logarithmic entropy must be removed by an additional argument.
+
+This is an important correction to the optimistic reading of Section 6.
+
+---
+
+# 9. Second-stage target: polylog-ambient compression
+
+After first capture, the residual branch has ambient size
+
+$$
+Y\le N(\log X)^K.
+$$
+
+Equivalently, each prime has only polylogarithmically many possible labels on average. The remaining entropy is
+
+$$
+O(N\log\log X).
+$$
+
+The next required lemma is:
+
+**Polylog-ambient compression lemma.**
+In a non-dominant substantial residual state with
+
+$$
+W\asymp N,
+\qquad
+Y\le N(\log X)^K,
+$$
+
+either:
+
+1. the non-saturated energy ledger contributes at least
+   $$
+   \gg N\log\log X;
+   $$
+2. or a further saturated exposure step reduces the average label multiplicity from $(\log X)^K$ to $(\log X)^{K-\kappa}$ for some $\kappa>0$;
+3. or the residual becomes structurally near-dominant / rank-one and exits the non-dominant substantial SBEE case.
+
+Iterating this lemma $O_K(1)$ times would reduce the ambient entropy from
+
+$$
+N\log\log X
+$$
+
+to $O(N)$ or less. A final sharper version must reduce it to $o(R)$ in the central range, so either the last step needs a stronger structural conclusion or the energy ledger must improve once the average label multiplicity is bounded.
+
+This is now the honest local problem:
+
+$$
+\boxed{
+\text{polylog-ambient compression after first capture}
+}
+$$
+
+It is much smaller than the original SBEE because:
+
+- the large label-list entropy has already been removed;
+- all finite exposure tools are available;
+- the ambient has only polylogarithmic multiplicity per prime;
+- rank-one rigidity is available for coherent low-defect rectangles.
+
+But it is still a real mathematical step.
+
+---
+
+# 10. Revised status
+
+The route now has two nested savings:
+
+1. **First-capture saving:** removes the main $N\log D$ entropy when $D$ is large.
+2. **Polylog-ambient compression:** still needed to remove the leftover $N\log\log X$ entropy in the central range.
+
+This means the signs are still positive, but the proof is not yet down to a purely formal bookkeeping lemma.
+
+The next mathematical work should focus on Section 9, not on further global restructuring.
+
+---
+
+# 11. Possible route for polylog-ambient compression
+
+Suppose after first capture we are in a branch with
+
+$$
+Y\le N(\log X)^K.
+$$
+
+Write the effective average label multiplicity as
+
+$$
+L_{\rm eff}=\frac YN\le(\log X)^K,
+$$
+
+and set the effective bucket profile size
+
+$$
+D_{\rm eff}=L_{\rm eff}L_X.
+$$
+
+Since $D_{\rm eff}$ is only polylogarithmic, the non-saturated deficit scale becomes very large:
+
+$$
+R_{\rm cap}^{\rm eff}(N,D_{\rm eff})
+\asymp
+\frac{N^4}{D_{\rm eff}^2X^2}
+\asymp
+\frac{X^2}{D_{\rm eff}^2(\log X)^4}.
+$$
+
+For fixed $K$, this is much larger than
+
+$$
+N\log\log X
+$$
+
+once the logarithmic constants are ordered correctly. Therefore, in the polylog-ambient state:
+
+- non-saturation immediately pays the remaining entropy;
+- only deeply saturated configurations need to be counted.
+
+In the saturated case, the relevant typical degree is
+
+$$
+M_{\rm eff}=\frac{W}{D_{\rm eff}}.
+$$
+
+Thus a fingerprint has size roughly
+
+$$
+|F|\ll \frac{W}{D_{\rm eff}}(\log X)^B.
+$$
+
+For $W\asymp N$ and $D_{\rm eff}=(\log X)^{K+O(1)}$, this is
+
+$$
+|F|\ll \frac{N}{(\log X)^{K-O(B)}}.
+$$
+
+If $K$ is chosen much larger than all fingerprint and dyadic loss exponents, then the entropy of one such fingerprint is
+
+$$
+|F|\log Y
+\ll
+\frac{N}{(\log X)^{K-O(B)}}\log X
+=
+o(R)
+$$
+
+in the central range.
+
+This suggests the following compression mechanism.
+
+**Polylog saturated compression principle.**
+In a residual state with $Y\le N(\log X)^K$, either non-saturation pays the remaining entropy, or a saturated fingerprint of size $N/(\log X)^{K-O(1)}$ determines a positive polylogarithmic fraction of the remaining choices. Iterating this for $O((\log X)^{O(1)})$ rounds has total fingerprint entropy $o(R)$ if $K$ was initially chosen large enough.
+
+The point is that the first-capture step should leave not just an arbitrary polylog ambient, but a polylog ambient with an exponent $K$ that we are free to make large by reserving logarithmic slack in the earlier thresholds.
+
+This may remove the $N\log\log X$ residue without needing a new analytic estimate.
+
+The proof still needs a precise finite statement:
+
+1. define $D_{\rm eff}$ for a non-product ambient container;
+2. show the non-saturated deficit lemma still applies with $D_{\rm eff}$ replacing the original $D$;
+3. show saturated fingerprints can be iterated without losing the container structure;
+4. bound the total number of rounds by the repeated-exposure budget.
+
+This is a good candidate for the next paper-side proof block.
