@@ -130,6 +130,30 @@ cheap to many seed vertices in two fingerprints. The two-core rectangle graph is
 the finite counting shadow of this two-fingerprint common-neighbour structure,
 not the whole inverse problem by itself.
 
+The active draft now phrases the missing framework as a seeded witness-matrix
+inverse. After fixing bounded seed tuples by a two-sided dependent-random-choice
+extraction, each residual--seed cheap edge has a unique short witness
+
+$$
+n_{v,f}=m_t+p\alpha_{v,f}=m_u+q\beta_{v,f}.
+$$
+
+The matrix $(n_{v,f})$ has mixed defects
+
+$$
+\Delta(v,v';f,f')
+=
+n_{v,f}-n_{v,f'}-n_{v',f}+n_{v',f'}.
+$$
+
+Zero mixed defect gives additive rank one by the Lean-formalized rigidity
+lemma. The remaining arithmetic task is to show that nonzero mixed defects are
+energy-paid in the SBEE ledger, using the short bilinear equation
+
+$$
+p\alpha-q\beta=p_0(u-t).
+$$
+
 This is the current precise subcondition behind the route
 $$
 \mathrm{FIE}\Longrightarrow \mathrm{BCE}\Longrightarrow \mathrm{SBEE}.
@@ -158,11 +182,11 @@ For the proof attempt, work on the sharper internal target:
 
 $$
 \boxed{
-\text{two-fingerprint common-neighbour inverse inside ambient-sensitive FIE}
+\text{seeded witness-matrix inverse inside ambient-sensitive FIE}
 }
 $$
 
 The Lean/Aristotle infrastructure can support the finite pieces, especially the
 new-bucket capacity, seed-neighbour, and two-core density bookkeeping. The
 remaining step is still a paper-side mathematical proof tying the generated
-bucket-rectangle inverse to the SBEE counting ledger.
+bucket-rectangle / witness-defect inverse to the SBEE counting ledger.

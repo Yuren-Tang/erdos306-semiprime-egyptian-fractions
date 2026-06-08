@@ -269,6 +269,32 @@ inside $A_h(N(F_i))$ is cheap to at least $h$ distinct seed vertices of $F_i$.
 Thus the actual arithmetic input is a two-fingerprint common-neighbour inverse;
 the two-core rectangle graph is its finite counting shadow.
 
+The focused draft now packages this as a seeded witness-matrix inverse. A
+two-sided dependent-random-choice extraction fixes bounded seed tuples
+$S_0,S_1$ while preserving a large polylogarithmic common residual
+neighbourhood. For every residual vertex $v=(p,t)$ and seed $f=(q,u)$, the
+cheap edge has a unique short bucket witness
+
+$$
+n_{v,f}=m_t+p\alpha_{v,f}=m_u+q\beta_{v,f},
+$$
+
+or
+
+$$
+p\alpha_{v,f}-q\beta_{v,f}=p_0(u-t).
+$$
+
+The remaining arithmetic lemma is that nonzero mixed defects
+
+$$
+n_{v,f}-n_{v,f'}-n_{v',f}+n_{v',f'}
+$$
+
+must produce enough energy, unless a large submatrix has zero mixed defect and
+hence additive rank one. This is now the sharpest local form of the
+polylog-ambient compression problem.
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---
