@@ -108,6 +108,11 @@ The useful formal components are:
   primitive five-coordinate rays agree up to global sign, assuming Bezout
   certificates. This confirms that fixed-$p$ multiplicity is no longer the main
   arithmetic obstacle; the live problem is the residual-prime shell count.
+- `ResidualPrimeShellCRT.lean`, from the next Aristotle report, formalizes the
+  six-variable CRT shell: anchored hits produce CRT interval hits, divisibility
+  data reconstructs the normalized anchored lattice once the anchor equation is
+  supplied, zero denominators are excluded in the short coprime range, and the
+  fixed-height residual-prime shell bound is packaged as a formal endpoint.
 - `LatticeSpan.lean`, `SemiprimeInfinity.lean`, and `BernoulliFourier.lean`,
   from the broad overview Aristotle run, formalize useful peripheral
   infrastructure: the lattice-span gcd lemma, existence of fresh semiprimes,

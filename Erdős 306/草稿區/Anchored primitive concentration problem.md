@@ -559,7 +559,186 @@ hidden.
 
 ---
 
-# 8. Immediate sublemmas
+# 8. Split-star form and correlation target
+
+The six-variable CRT interval hit has an exact integer interpretation. From
+
+$$
+p\equiv -q_4x_4a_i^{-1}\pmod {q_i}
+$$
+
+and
+
+$$
+p\equiv -q_0x_0y_4^{-1}\pmod {q_4},
+$$
+
+define reconstructed coordinates
+
+$$
+x_i=\frac{pa_i+q_4x_4}{q_i}\qquad(1\le i\le3),
+$$
+
+and
+
+$$
+z_4=\frac{py_4+q_0x_0}{q_4}.
+$$
+
+Since $p,q_i,q_4\asymp X$ and all six input variables have height $H$, these
+reconstructed coordinates have height $O(H)$. Thus a six-variable interval hit
+is the same as a **split anchored star**
+
+$$
+pa_i=q_i x_i-q_4x_4\qquad(1\le i\le3),
+$$
+
+and
+
+$$
+py_4=q_4z_4-q_0x_0.
+$$
+
+The original anchored ray is the diagonal subcase $z_4=x_4$. The split form is
+larger, but it is algebraically cleaner.
+
+Eliminating $p$ between the $i$-th spoke and the anchor spoke gives
+
+$$
+y_4(q_i x_i-q_4x_4)
+=
+a_i(q_4z_4-q_0x_0),
+$$
+
+or
+
+$$
+q_i(x_i y_4)
++q_0(x_0a_i)
+-q_4(x_4y_4+z_4a_i)
+=0.
+$$
+
+So every split-star hit gives three short factorable ternary relations among
+
+$$
+q_0,\ q_4,\ q_i.
+$$
+
+This is a more precise structured-exception mechanism than the earlier
+five-$x$ gcd-energy language.
+
+There is also a useful analytic decomposition. For a height shell $H$, define
+
+$$
+A_{04}(p)
+=
+\#\left\{
+(x_0,y_4):
+0<|x_0|,|y_4|\le H,\
+p y_4+q_0x_0\equiv0\pmod {q_4}
+\right\},
+$$
+
+and
+
+$$
+B_{123}(p)
+=
+\#\left\{
+(x_4,a_1,a_2,a_3):
+0<|x_4|,|a_i|\le H,\
+p a_i+q_4x_4\equiv0\pmod {q_i}\ (1\le i\le3)
+\right\}.
+$$
+
+Then the six-variable interval count is exactly
+
+$$
+N_H(q_0,\ldots,q_4)
+=
+\sum_{p\in[X,2X]\cap\mathbb Z}
+A_{04}(p)B_{123}(p),
+$$
+
+with primality of $p$ irrelevant for an upper bound.
+
+Heuristically,
+
+$$
+\sum_p A_{04}(p)\asymp H^2,
+\qquad
+\sum_p B_{123}(p)\asymp \frac{H^4}{X^2},
+$$
+
+and the expected correlation is
+
+$$
+N_H\asymp \frac{H^6}{X^3}.
+$$
+
+The next genuine theorem is therefore not just a pointwise CRT statement, but a
+short-ratio correlation bound:
+
+$$
+\sum_{p\in[X,2X]}A_{04}(p)B_{123}(p)
+\ll
+(\log X)^C\left(1+\frac{H^6}{X^3}\right),
+$$
+
+unless the seed tuple has low-height rational structure.
+
+This target has the right diagnostic behaviour. Large fibres of $A_{04}$ mean
+that $p/q_0$ has many short representatives modulo $q_4$. Large fibres of
+$B_{123}$ mean that the same $p/q_4$ has simultaneous short representatives
+modulo $q_1,q_2,q_3$ with a common numerator $x_4$. Persistent correlation
+between these two events is exactly the structure that should feed the
+factorable ternary-relation ledger above.
+
+The $A_{04}$ side by itself is already close to harmless. If two pairs
+$(x_0,y_4)$ and $(x_0',y_4')$ represent the same residue $p$, then
+
+$$
+p y_4+q_0x_0\equiv0\pmod {q_4},
+\qquad
+p y_4'+q_0x_0'\equiv0\pmod {q_4}
+$$
+
+imply
+
+$$
+q_4\mid x_0y_4'-x_0'y_4.
+$$
+
+In the strict range $2H^2<q_4$, this forces
+
+$$
+x_0y_4'=x_0'y_4,
+$$
+
+so the collision is only a scalar collision of one rational number. Hence
+
+$$
+\sum_{r\bmod q_4}A_{04}(r)^2\ll H^2\log H
+$$
+
+by the standard count of scalar multiples of primitive pairs. In the
+logarithmically enlarged range, the same determinant quotient
+
+$$
+\frac{x_0y_4'-x_0'y_4}{q_4}
+$$
+
+is only polylogarithmically large and should be charged to the same structured
+determinant ledger used for fixed-$p$ fibres.
+
+Thus the truly new arithmetic difficulty is the three-modulus common-numerator
+side $B_{123}$ and its correlation with $A_{04}$, not a generic failure of
+short rational representation on the anchor side.
+
+---
+
+# 9. Immediate sublemmas
 
 The next proof should try to establish:
 
@@ -582,18 +761,32 @@ The next proof should try to establish:
    (x_0,x_4,y_4,a_1,a_2,a_3)
    $$
    whose CRT residue lies in $[X,2X]$.
-4. **Small-height exception lemma.** A primitive ray with height
+4. **Split-star factorable shell lemma.** A six-variable CRT interval hit
+   reconstructs a short split anchored star and hence three short factorable
+   ternary relations
+   $$
+   q_i(x_i y_4)+q_0(x_0a_i)-q_4(x_4y_4+z_4a_i)=0.
+   $$
+5. **Correlation inverse lemma.** The short-ratio correlation
+   $$
+   \sum_p A_{04}(p)B_{123}(p)
+   $$
+   is polylogarithmic unless these factorable ternary relations occupy a
+   low-entropy structured family.
+6. **Small-height exception lemma.** A primitive ray with height
    $H<M(\log X)^{-C}$ puts the seed tuple inside an explicitly encodable
    family
    $$
    q_i=\frac{q_0x_0+p\,y_i}{x_i}.
    $$
-5. **Many-rays inverse lemma.** Many primitive rays of comparable height force
+7. **Many-rays inverse lemma.** Many primitive rays of comparable height force
    many factorable ternary relations; these relations imply low entropy unless
    the seed tuple is already near the rank-one / near-dominant exit.
 
 The first item has now been handed to Aristotle and closed. The second item is
 also closed by `PrimitiveProjectiveNormalization.lean`, modulo importing the
-new package into the workspace. The third item is the next useful Aristotle
-interface task. The fourth and fifth are the real paper-side arithmetic tasks,
-with the fifth now best attacked through the six-variable CRT interval form.
+new package into the workspace. The third item is closed in the latest
+Aristotle report via `ResidualPrimeShellCRT.lean`, modulo importing the package.
+The fourth item is the next useful exact-algebra interface. The fifth, sixth,
+and seventh are the real paper-side arithmetic tasks, with the fifth now the
+sharpest target.

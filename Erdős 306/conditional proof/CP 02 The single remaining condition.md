@@ -540,6 +540,40 @@ The expected count in a height shell is $H^6/X^3$, which is polylogarithmic at
 the central scale. This is the sharpest current formulation of the last
 arithmetic input.
 
+A still more operational form is the short-ratio correlation estimate
+
+$$
+\sum_{p\in[X,2X]} A_{04}(p)B_{123}(p)
+\ll
+(\log X)^C\left(1+\frac{H^6}{X^3}\right),
+$$
+
+where
+
+$$
+A_{04}(p)
+=
+\#\{(x_\ast,y_4):p y_4+q_\ast x_\ast\equiv0\pmod {q_4}\},
+$$
+
+and
+
+$$
+B_{123}(p)
+=
+\#\{(x_4,a_1,a_2,a_3):
+p a_i+q_4x_4\equiv0\pmod {q_i}\ (1\le i\le3)\}.
+$$
+
+Persistent failure of this estimate should force the factorable ternary
+relations
+
+$$
+q_i(x_i y_4)+q_\ast(x_\ast a_i)-q_4(x_4y_4+z_4a_i)=0,
+$$
+
+which are now the concrete structured-exception language.
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---

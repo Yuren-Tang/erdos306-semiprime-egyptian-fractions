@@ -1633,3 +1633,37 @@ $$
 
 which is polylogarithmic at $H\le X^{1/2}(\log X)^A$. This is now the most
 concrete form of the residual-prime shell problem.
+
+The same count decomposes as a correlation of two short-ratio representation
+functions:
+
+$$
+N_H
+=
+\sum_{p\in[X,2X]}A_{\ast4}(p)B_{123}(p),
+$$
+
+where $A_{\ast4}$ counts short pairs $(x_\ast,y_4)$ with
+
+$$
+p y_4+q_\ast x_\ast\equiv0\pmod {q_4},
+$$
+
+and $B_{123}$ counts short quadruples $(x_4,a_1,a_2,a_3)$ with
+
+$$
+p a_i+q_4x_4\equiv0\pmod {q_i}
+\qquad(1\le i\le3).
+$$
+
+This is likely the right proof interface. The desired estimate is a correlation
+bound
+
+$$
+\sum_p A_{\ast4}(p)B_{123}(p)
+\ll
+(\log X)^C\left(1+\frac{H^6}{X^3}\right),
+$$
+
+unless the split-star factorable relations occupy a low-entropy structured
+family.

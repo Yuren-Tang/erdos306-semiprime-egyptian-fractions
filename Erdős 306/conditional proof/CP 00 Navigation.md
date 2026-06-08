@@ -50,6 +50,7 @@ Archive and formalization audits:
 - [[HA anchored determinant rank prompt]]
 - [[HA primitive projective normalization prompt]]
 - [[HA residual prime shell CRT prompt]]
+- [[HA split star correlation prompt]]
 
 External source now present in the vault:
 
