@@ -74,6 +74,10 @@ The useful formal components are:
   gives the cluster-cover bound, or high codegree gives a large cluster-subset
   incidence ledger. It also proves the cardinal upper bound for this incidence
   in terms of cluster intersections.
+- `ClusterLineIncidence.lean`, from the subsequent Aristotle run, proves the
+  algebraic bridge from reciprocal-cluster congruences to integer line
+  incidence, including the three-point determinant identity and the three- and
+  four-point factorable relations.
 
 This supports the current scratch sections around marked dual counting, fingerprint exposure, first-level containers, repeated exposure budget, common-neighbour mass, and low-mode rank-one rigidity.
 

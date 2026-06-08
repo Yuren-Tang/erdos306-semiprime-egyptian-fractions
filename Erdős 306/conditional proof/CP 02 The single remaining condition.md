@@ -406,6 +406,20 @@ $$
 Thus the remaining inverse statement is that many such rich lines force many
 short factorable collinearity relations, hence a low-entropy rational seed
 structure.
+Using four total seed primes, this can be sharpened further. If $q_4$ is used
+as a base and $a_i=y_i-y_4$, then
+$$
+q_i x_i-q_4x_4=p\,a_i
+\qquad(1\le i\le3),
+$$
+so
+$$
+p\equiv -q_4x_4a_i^{-1}\pmod {q_i}.
+$$
+Thus the final arithmetic endpoint is a CRT product concentration estimate
+modulo $Q=q_1q_2q_3$: a short interval in $x_4$ times a reciprocal CRT box in
+$(a_1,a_2,a_3)$ should not concentrate inside $[X,2X]\pmod Q$, unless the seed
+quadruple is in a low-entropy rational family.
 
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 

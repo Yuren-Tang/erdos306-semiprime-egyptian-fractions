@@ -40,6 +40,7 @@ Archive and formalization audits:
 - [[HA cluster cover bookkeeping prompt]]
 - [[HA adaptive cluster selection prompt]]
 - [[HA cluster line incidence prompt]]
+- [[HA reciprocal CRT product interface prompt]]
 
 External source now present in the vault:
 

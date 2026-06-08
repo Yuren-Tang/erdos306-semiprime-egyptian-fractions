@@ -50,6 +50,12 @@ Aristotle has produced no-sorry Lean files for:
      \#\{T\subset F\cap\mathcal A:|T|=m\};
      $$
    - proves the cardinal upper bound by cluster intersections.
+5. `ClusterLineIncidence.lean`:
+   - formalizes reciprocal-cluster incidence as integer line incidence;
+   - proves the three-point determinant identity;
+   - proves the three- and four-point factorable relations;
+   - packages paper-language aliases for same-line seed triples and factorable
+     relations.
 
 This means the purely finite infrastructure is no longer the main risk.
 
@@ -682,3 +688,219 @@ The route now has four layers:
 
 The remaining uncertainty is concentrated in layer 4. Layer 2 is algebraic, and
 layer 3 is exact determinant bookkeeping.
+
+---
+
+# 16. Are we merely deferring?
+
+This is a real risk, so it should be monitored explicitly.
+
+The reductions so far are not all of the same type:
+
+- `TwoCoreBookkeeping`, `SeededWitnessMatrix`, `ClusterCoverBookkeeping`,
+  `AdaptiveClusterSelection`, and `ClusterLineIncidence` close finite or
+  algebraic plumbing. They remove places where a hidden logical gap could live.
+- The current open step is not another formal-plumbing lemma. It is an
+  arithmetic estimate or inverse theorem.
+
+So the honest status is:
+
+$$
+\text{finite logic closed}
+\quad+\quad
+\text{algebraic translations closed}
+\quad+\quad
+\boxed{\text{one arithmetic concentration theorem open}}.
+$$
+
+If future work only renames the boxed theorem, that would be deferral. The next
+step must therefore either prove the concentration theorem, find a usable
+known theorem, or identify a genuine obstruction.
+
+---
+
+# 17. Four-seed CRT product concentration
+
+The four-seed case gives the sharpest current formulation.
+
+Fix
+
+$$
+T=\{q_1,q_2,q_3,q_4\},
+\qquad
+q_i\sim X
+$$
+
+and suppose one reciprocal-cluster line
+
+$$
+z=p\,y+c,
+\qquad
+c=q_\ast x_\ast,
+$$
+
+meets all four point sets $P_{q_i}$. Thus
+
+$$
+q_i x_i=p\,y_i+c
+\qquad(1\le i\le4)
+$$
+
+with all $x_i,y_i$ short. Use $q_4$ as the base and put
+
+$$
+a_i=y_i-y_4
+\qquad(1\le i\le3).
+$$
+
+Subtracting the fourth equation gives
+
+$$
+q_i x_i-q_4x_4=p\,a_i
+\qquad(1\le i\le3).
+$$
+
+If $a_i=0$, then $q_i x_i=q_4x_4$, impossible for distinct primes
+$q_i,q_4$ when $0<|x_i|,|x_4|<X$. Hence $a_i\ne0$ and $a_i$ is invertible
+modulo $q_i$.
+
+Therefore
+
+$$
+p
+\equiv
+-q_4x_4a_i^{-1}
+\pmod {q_i}
+\qquad(1\le i\le3).
+$$
+
+Let
+
+$$
+Q=q_1q_2q_3.
+$$
+
+For each short quadruple
+
+$$
+(x_4,a_1,a_2,a_3),
+\qquad
+0<|x_4|,|a_i|\ll M_\tau,
+$$
+
+CRT gives at most one residue class
+
+$$
+p\equiv x_4 B(a_1,a_2,a_3)\pmod Q,
+$$
+
+where $B$ is the CRT combination of the three reciprocal residues
+
+$$
+-q_4a_i^{-1}\pmod {q_i}.
+$$
+
+Since $Q\asymp X^3$ and $p$ is required to lie in an interval $I=[X,2X]$ of
+length $\asymp X$, the expected number of hits is
+
+$$
+\#\{x_4,a_1,a_2,a_3\}\frac{|I|}{Q}
+\asymp
+\frac{M_\tau^4X}{X^3}.
+$$
+
+At the central scale $M_\tau\asymp X^{1/2}$ this is
+
+$$
+O(1).
+$$
+
+Thus the actual four-seed codegree target is:
+
+**Four-seed CRT concentration bound.**
+For non-structured seed primes $q_1,q_2,q_3,q_4$,
+
+$$
+\#\left\{
+(x,a_1,a_2,a_3):
+0<|x|,|a_i|\ll M_\tau,\
+xB(a_1,a_2,a_3)\bmod Q\in[X,2X]
+\right\}
+\ll(\log X)^C.
+$$
+
+This is no longer a vague inverse problem. It is an interval-product
+concentration estimate modulo the squarefree composite modulus
+$Q=q_1q_2q_3$.
+
+High codegree means that the product of a short interval in $x$ with the CRT
+reciprocal box
+
+$$
+\mathcal B_T
+=
+\{B(a_1,a_2,a_3):0<|a_i|\ll M_\tau\}
+\subset\mathbb Z/Q\mathbb Z
+$$
+
+has abnormal concentration in the short interval $[X,2X]$ modulo $Q$.
+
+This is now the precise sharp point.
+
+---
+
+# 18. Why four seeds matter
+
+The same CRT count explains why two or three seeds are not enough.
+
+With $r$ non-base seeds, the modulus is about $X^r$, while the raw variable
+volume is
+
+$$
+X\,M_\tau^{r+1}
+$$
+
+including the residual interval length $X$. At $M_\tau\asymp X^{1/2}$, the
+expected count is
+
+$$
+\frac{X\,M_\tau^{r+1}}{X^r}
+=
+X^{1+(r+1)/2-r}
+=
+X^{(3-r)/2}.
+$$
+
+Thus:
+
+- $r=2$ gives expected size $X^{1/2}$, too large;
+- $r=3$ gives expected size $O(1)$;
+- equivalently, one needs four total seed primes in the cluster-codegree test.
+
+This matches the earlier condition $k>3$ from the global singular-tuple count,
+but now it appears from a local CRT product calculation.
+
+---
+
+# 19. New arithmetic endpoint
+
+The next non-formal theorem should be stated as:
+
+**Reciprocal CRT Product Inverse Theorem.**
+Let $q_1,q_2,q_3,q_4\sim X$ be distinct seed primes and
+$M\le X^{1/2}(\log X)^A$. Define $Q=q_1q_2q_3$ and
+$\mathcal B_T$ as above. Then either
+
+$$
+\#\{(x,B):0<|x|\le M,\ B\in\mathcal B_T,\ xB\bmod Q\in[X,2X]\}
+\ll(\log X)^C,
+$$
+
+or the quadruple $(q_1,q_2,q_3,q_4)$ lies in a low-entropy rational structured
+family compatible with the FIE exception ledger.
+
+This theorem would combine with the HA finite pipeline to finish the
+reciprocal-cluster covering step.
+
+Compared with the previous short gcd-energy statement, this is sharper because
+it uses all four seeds at once and exposes the exact CRT product structure.
