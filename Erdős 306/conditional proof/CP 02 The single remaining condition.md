@@ -153,7 +153,26 @@ It says that the cross-label divisor-energy mechanism pays for:
 
 ## 3.1 Current refined bottleneck
 
-The working scratch file [[SBEE dyadic proof draft]] currently narrows the internal SBEE bottleneck further.
+The working scratch file [[SBEE dyadic proof draft]] and the second Aristotle package now narrow the internal SBEE bottleneck further.
+
+Several finite-combinatorial inputs in the bucket route have been formalized in Lean, outside the main conditional theorem package:
+
+- Fisher counting / marked dual large-sieve:
+  $$
+  \sum_{p,t}\binom{d_{\mathcal B}(p,t)}2\le \binom{|\mathcal B|}2.
+  $$
+- Greedy fingerprint exposure: a fingerprint of size $r$ captures at least an $r/|U|$ fraction of incidence mass.
+- Generated-core and high-multiplicity container bounds:
+  $$
+  |\mathcal V_h(\mathcal B)|\,h(h-1)\ll |\mathcal B|^2.
+  $$
+- Repeated exposure budget:
+  $$
+  |\mathrm{Idx}|\,m\le |U|M.
+  $$
+- Common-neighbour mass and rank-one rectangle-defect aliases.
+
+Thus the remaining bottleneck is no longer the first-level finite exposure lemma itself. It is the recursive and arithmetic use of that exposure inside the non-dominant substantial SBEE counting problem.
 
 The arithmetic large-sieve-looking part is reduced to a deterministic marked dual estimate: for a bucket core $\mathcal B$ and incidence threshold $h$, the candidate labelled vertices satisfying
 
@@ -168,7 +187,7 @@ $$
 \frac{|\mathcal B|N+|\mathcal B|^2}{h^2}.
 $$
 
-Thus the remaining unproved subcondition is the bucket-core exposure/fingerprint step: near-saturated high-collision bucket cores should be generated from low-entropy fingerprints, rather than enumerated as arbitrary subsets of the bucket interval. The current scratch reduction sharpens this once more to a fingerprint-iteration entropy check:
+The current scratch reduction sharpens the remaining subcondition to a fingerprint-iteration entropy check:
 
 $$
 \text{FIE}
@@ -178,15 +197,31 @@ $$
 \text{SBEE}.
 $$
 
-The present scale check shows that the fingerprint/core-generation entropy is smaller than the bucket-capacity energy by a factor $\ll sL_X(\log X)^4/X$ in the saturated short-list regime, while the complementary large-list regime is already paid by the base-list lower bound on $R$. The remaining FIE issue is the residual-container entropy: after a fingerprint generates a bucket core, one must still show that low-energy choices inside the resulting $O(N)$-sized candidate container are recursively exposed or else paid by a high-common-neighbour estimate. The current scratch calculation suggests that recursive exposure down to mass
+The present scale check shows that the fingerprint/core-generation entropy is smaller than the bucket-capacity energy by a factor $\ll sL_X(\log X)^4/X$ in the saturated short-list regime, while the complementary large-list regime is already paid by the base-list lower bound on $R$. The remaining FIE issue is the residual-container entropy: after a fingerprint generates a bucket core, one must still show that low-energy choices inside the resulting $O(N)$-sized candidate container are recursively exposed or else paid at the terminal scale. The current scratch calculation suggests that recursive exposure down to mass
 
 $$
-W_\ast=(sL_XX^2\log(Ns))^{1/3}
+W_\ast=
+\left(sL_XX^2\log(Ns)(\log X)^A\right)^{1/3}
 $$
 
 should pay the residual entropy in the true short-list range, while larger $sL_X$ is already crude-entropy-paid by the base-list lower bound.
 
-In the scratch file this is now organized as Proposition FIE with four finite bookkeeping lemmas: non-saturated deficit, saturated one-step exposure, residual descent, and terminal seed encoding. The non-saturated deficit is now essentially proved up to dyadic logarithmic constants, and the saturated exposure and terminal seed parts are essentially in place. The residual descent is now routed through balanced peeling: expose a fingerprint, peel off a captured chunk of size $W/(\log X)^{O(1)}$, recurse on the chunk and its complement, and use the resulting convexity gap in the quartic scale $W^4/(s^2L_X^2X^2)$ to pay the parent fingerprint entropy. The logarithmic loss only changes the large-list split by a fixed power of $\log X$.
+In the scratch file this is now organized as Proposition FIE with four bookkeeping lemmas: non-saturated deficit, saturated one-step exposure, residual descent, and terminal seed encoding. The non-saturated deficit is essentially proved up to dyadic logarithmic constants. The saturated one-step exposure is now supported by the Lean-formalized fingerprint/container infrastructure. The remaining paper proof is the log-corrected residual descent:
+
+1. expose a fingerprint;
+2. capture a chunk of size
+   $$
+   \theta W,\qquad \theta\ge(\log X)^{-A};
+   $$
+3. recurse on a peeled subchunk and its complement;
+4. use the convexity gap in the quartic scale
+   $$
+   R_{\rm cap}(W,D)\asymp\frac{W^4}{D^2X^2},
+   \qquad D=sL_X,
+   $$
+   to pay the parent fingerprint entropy.
+
+The logarithmic loss only changes the large-list split by a fixed power of $\log X$.
 
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 

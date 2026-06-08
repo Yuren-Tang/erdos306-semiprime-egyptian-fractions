@@ -10,6 +10,8 @@ This folder is the cleaned conditional proof package. The old notes remain usefu
    Decoupled lemmas used by the main proof: Irving pruning, divisor-energy, edge construction, lattice span, global partition.
 4. [[SBEE dyadic proof draft]]  
    Working draft area for attacking the single remaining condition.
+5. [[Archive intake and Aristotle infrastructure audit]]
+   Audit of the newly imported archive, the decoded webarchive, and the second Aristotle infrastructure package.
 
 Older source notes:
 
@@ -25,6 +27,11 @@ Older source notes:
 - [[lattice statement]]
 - [[single-block counting theorem skeleton]]
 
+Archive and formalization audits:
+
+- [[Archive intake and Aristotle infrastructure audit]]
+- [[HA followup prompt]]
+
 External source now present in the vault:
 
 - [[kloost_paper2]]
@@ -32,4 +39,3 @@ External source now present in the vault:
 Current status:
 
 Conditional on [[CP 02 The single remaining condition|SBEE]], the proof is organized as a complete proof of the theorem. The theorem statement is squarefree-denominator only; the older unrestricted rational statement should not be used.
-

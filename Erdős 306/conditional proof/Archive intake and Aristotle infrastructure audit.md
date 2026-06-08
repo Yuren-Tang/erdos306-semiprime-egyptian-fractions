@@ -1,0 +1,123 @@
+# Archive intake and Aristotle infrastructure audit
+
+Back to [[CP 00 Navigation]].
+
+This note records what the newly imported archive and the second Aristotle package contribute to the conditional proof project. It is an intake note, not a replacement for [[CP 02 The single remaining condition]].
+
+---
+
+# 1. Snapshot
+
+The raw imported materials are now stored under:
+
+- `Erdős 306/archive/`
+- `Erdős 306/Aristotle/output-final_aristotle_2/`
+- `Erdős 306/kloost_paper2.tex`
+
+The `.webarchive` file `AI對Lean 4支持分析.webarchive` was decoded enough to inspect the visible ChatGPT share text. Its useful content is a route-history record: it contains earlier discussions of SBEE, bucket exposure, Aristotle prompts, and warnings about several older high-frequency routes.
+
+The raw `.webarchive` is the archival source. The large decoded HTML helpers are generated scratch artifacts and are ignored by git.
+
+---
+
+# 2. What Actually Helps
+
+The second Aristotle package is genuinely useful because it formalizes the finite-combinatorial spine used by the current FIE/BCE route.
+
+The useful formal components are:
+
+- `FisherCounting.lean`: abstracts the marked dual large-sieve into the pair-disjoint Fisher inequality
+  $$
+  \sum_i\binom{|S_i|}2\le \binom{|U|}2.
+  $$
+- `BucketFingerprint.lean`: proves the greedy fingerprint lemma, giving a fingerprint of size $r$ that captures at least an $r/|U|$ fraction of incidence mass.
+- `BucketContainer.lean` and `BucketExposure.lean`: assemble generated bucket cores and high-multiplicity containers, including
+  $$
+  |\mathcal V_h|\,h(h-1)\ll (rM)^2.
+  $$
+- `BucketBudget.lean`: proves the repeated-exposure budget
+  $$
+  |\mathrm{Idx}|\,m\le |U|M.
+  $$
+- `BipartiteCycles.lean`: supplies the ordered double-counting/common-neighbour mass bridge.
+- `RankOneRigidity.lean` and `GeneralizedRankOne.lean`: formalize the rectangle-defect implication
+  $$
+  \Delta_{xy}a=0
+  \Longleftrightarrow
+  a(x,y)=\alpha(x)+\beta(y),
+  $$
+  in the generalized file over any additive abelian group.
+- `InfrastructureAudit.lean`: verifies that these pieces import together and restates them with paper-aligned names.
+
+This supports the current scratch sections around marked dual counting, fingerprint exposure, first-level containers, repeated exposure budget, common-neighbour mass, and low-mode rank-one rigidity.
+
+---
+
+# 3. What It Does Not Close
+
+The imported material does not prove SBEE. It also does not prove the reduced-ambient inverse theorem, shifted Irving-good charging, or any Fourier analytic estimate.
+
+The remaining mathematical condition is now best stated as the log-corrected recursive FIE descent plus its return to the SBEE ledger:
+
+Given a non-dominant substantial labelled residual of mass $W$, short-list scale $s$, and
+$$
+D=sL_X,
+$$
+one must show that until the stopping mass
+$$
+W_\ast=
+\left(DX^2\log(Ns)(\log X)^A\right)^{1/3},
+$$
+each saturated exposure step produces a fingerprint with entropy small enough to be paid by the convexity gap in
+$$
+R_{\rm cap}(W,D)\asymp \frac{W^4}{D^2X^2}.
+$$
+
+Concretely, after exposing a chunk of size
+$$
+\theta W,\qquad \theta\ge(\log X)^{-A},
+$$
+the split
+$$
+W_1=\lfloor \theta W/2\rfloor,\qquad W_2=W-W_1
+$$
+must satisfy a recursion whose total fingerprint entropy is dominated by
+$$
+R_{\rm cap}(W,D)-R_{\rm cap}(W_1,D)-R_{\rm cap}(W_2,D).
+$$
+
+Leaves at $W\le W_\ast$ must then be paid by terminal seed encoding, while the complementary large-list range must be paid by the base-list lower bound on $R$.
+
+This is the current precise subcondition behind the route
+$$
+\mathrm{FIE}\Longrightarrow \mathrm{BCE}\Longrightarrow \mathrm{SBEE}.
+$$
+
+---
+
+# 4. Archive Triage
+
+The newly imported Markdown archive contains useful history, but most of it is not a new proof ingredient. The important distinctions are:
+
+- `178.md` records an earlier multi-label entropy lemma. It is an ancestor of SBEE, but still too coarse because it says "cross energy pays entropy" without the recursive container ledger.
+- `092.md` records mass tuning, integerization, and lattice-span setup. This agrees with the existing CP 03 edge/lattice material and is useful as a sanity check.
+- `089.md`, `055.md`, and `129.md` record older high-diagonal, inverse-entropy, and modular-phase routes. They are useful cautions, but not the current FIE proof route.
+- `316.md` is valuable as a handoff warning: it marks older single-block CRT Poincare / pair-kernel / pi-adic routes as context-heavy and easy to confuse with the current route.
+
+No imported archive file appears to contain a completed proof of the log-corrected recursive FIE descent. The archive mainly confirms that the project should stay focused on that one condition rather than reopen earlier high-frequency side routes.
+
+---
+
+# 5. Current Working Directive
+
+For the main conditional proof package, keep the single named assumption as [[CP 02 The single remaining condition|SBEE]].
+
+For the proof attempt, work on the sharper internal target:
+
+$$
+\boxed{
+\text{log-corrected recursive FIE descent with terminal seed encoding}
+}
+$$
+
+The Lean/Aristotle infrastructure can support the finite pieces, but the remaining step is still a paper-side mathematical proof tying those finite pieces to the SBEE counting ledger.
