@@ -5379,13 +5379,21 @@ $$
 
 unless the crude entropy at $(W,Y)$ is already paid by the energy scale.
 
-If this lemma is proved with fixed logarithmic slack, then the recursion telescopes. The sum of all fingerprint costs and all terminal leaf costs is bounded by the initial potential
+If this lemma is proved with fixed logarithmic slack, then the recursion telescopes as a bookkeeping device. The sum of all fingerprint costs and all terminal leaf costs is bounded by the initial potential
 
 $$
 \mathcal P(N,Ns).
 $$
 
-Thus the remaining proof work is no longer to find a new number-theoretic estimate. It is to prove this potential-drop lemma carefully, with constants ordered as:
+However, this is not yet the final SBEE bound by itself, because the initial entropy term
+
+$$
+N\log s
+$$
+
+inside $\mathcal P(N,Ns)$ can be much larger than the desired $o(R)$ bound in the medium-list range. The potential-drop lemma must therefore be used in a **saving form**, not merely as an upper bound.
+
+Thus the remaining proof work is no longer to find a new number-theoretic estimate. It is to prove the potential-drop/saving lemma carefully, with constants ordered as:
 
 $$
 B\ \text{large first},\qquad
@@ -5394,3 +5402,98 @@ A\ \text{large enough to dominate fingerprint entropy}.
 $$
 
 This is the next place to work.
+
+---
+
+# 78. Savings form of the potential argument
+
+The final SBEE counting estimate needs an entropy saving, not just an accounting upper bound.
+
+Let
+
+$$
+H(W,Y)=W\log\frac{eY}{W}
+$$
+
+be the crude entropy of choosing a residual set of mass $W$ from an ambient universe of size $Y$.
+
+At a saturated exposure step,
+
+$$
+(W,Y)
+\longrightarrow
+(W_1,Y_1),\quad (W_2,Y),
+$$
+
+the raw entropy drop is
+
+$$
+\Delta_H
+=
+H(W,Y)-H(W_1,Y_1)-H(W_2,Y).
+$$
+
+As computed above,
+
+$$
+\Delta_H
+=
+\alpha W\log\frac{Y}{Y_1}
++
+W\left(\alpha\log\alpha+(1-\alpha)\log(1-\alpha)\right).
+$$
+
+After paying the fingerprint cost, the net entropy saving is
+
+$$
+\Delta_H^{\rm net}
+=
+\Delta_H-O(|F|\log Y).
+$$
+
+The required saving statement is:
+
+> Along the recursive container tree, the sum of positive net entropy drops plus the non-saturated energy payments reduces the initial crude entropy $H(N,Ns)$ to $o(R)$.
+
+Equivalently, if the terminal leaves are $(W_\ell,Y_\ell)$, one must prove
+
+$$
+\sum_\ell H(W_\ell,Y_\ell)
++
+\sum_{\text{internal }v}|F_v|\log Y_v
+\le
+o(R)
++
+\text{energy payments already forced by non-saturated nodes}.
+$$
+
+This is stronger than merely bounding the same left-hand side by
+
+$$
+H(N,Ns)+A R_{\rm cap}(N,D).
+$$
+
+The latter is automatic from telescoping but does not close SBEE.
+
+Thus the final ambient-sensitive FIE proof has two layers:
+
+1. **Potential-drop accounting:** each saturated step is locally affordable.
+2. **Global saving:** enough branches genuinely reduce ambient size, or else the configuration enters an energy-dominated regime where crude entropy is already paid.
+
+The encouraging parameter overlap remains the same:
+
+$$
+D\ll N^{1/2}(\log X)^{-C}
+\quad\Rightarrow\quad
+\text{energy pays crude entropy},
+$$
+
+while
+
+$$
+D\gg N^{1/3}(\log X)^B
+\quad\Rightarrow\quad
+\text{fingerprint containers reduce ambient size}.
+$$
+
+The overlap suggests that the global saving statement is plausible. But this is now the precise remaining task. It is the point where a publication-level proof must still be written.

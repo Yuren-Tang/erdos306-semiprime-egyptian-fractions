@@ -96,7 +96,7 @@ $$
 \mathcal P(W,Y)-\mathcal P(W_1,Y_1)-\mathcal P(W_2,Y).
 $$
 
-Terminal leaves are then paid by telescoping decrease of the entropy term $W\log(eY/W)$, while the complementary large-list range is paid by the base-list lower bound on $R$.
+Terminal leaves are then paid by telescoping decrease of the entropy term $W\log(eY/W)$, while the complementary large-list range is paid by the base-list lower bound on $R$. The final form must be a genuine saving statement: the cumulative ambient entropy drops must reduce the initial crude entropy $N\log s$ to $o(R)$, except in regimes already paid by forced energy.
 
 This is the current precise subcondition behind the route
 $$

@@ -226,7 +226,8 @@ In the scratch file this is now organized as Proposition FIE with four bookkeepi
    $$
    \mathcal P(W,Y)
    $$
-   to pay the parent fingerprint entropy and terminal leaves.
+   to pay the parent fingerprint entropy and terminal leaves;
+6. prove the global saving form: the cumulative ambient entropy drops reduce the initial crude entropy $N\log s$ to $o(R)$, except in regimes already paid by non-saturated energy or by the base-list lower bound.
 
 The logarithmic loss only changes the large-list split by a fixed power of $\log X$. This ambient-sensitive formulation is the current sharp version of the one remaining internal proof task.
 
