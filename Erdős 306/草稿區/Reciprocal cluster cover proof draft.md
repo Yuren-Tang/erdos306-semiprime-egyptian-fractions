@@ -1599,3 +1599,37 @@ unless the seed tuple is in a low-entropy structured family. Here
 $\mathcal P_H$ is the set of $p\sim X$ admitting a primitive anchored ray of
 height $H$. This is a moving-line codimension-$4$ geometric/inverse sieve
 problem.
+
+The same endpoint has a sharper CRT-interval form. Writing
+
+$$
+a_i=y_i-y_4\qquad(1\le i\le3),
+$$
+
+an anchored ray gives
+
+$$
+p\equiv -q_4x_4a_i^{-1}\pmod {q_i}
+\qquad(1\le i\le3),
+$$
+
+and
+
+$$
+p\equiv -q_\ast x_\ast y_4^{-1}\pmod {q_4}.
+$$
+
+Thus one can instead count short six-tuples
+
+$$
+(x_\ast,x_4,y_4,a_1,a_2,a_3)
+$$
+
+whose CRT residue modulo $q_1q_2q_3q_4$ falls into $[X,2X]$. The random scale is
+
+$$
+\frac{H^6X}{X^4}=\frac{H^6}{X^3},
+$$
+
+which is polylogarithmic at $H\le X^{1/2}(\log X)^A$. This is now the most
+concrete form of the residual-prime shell problem.

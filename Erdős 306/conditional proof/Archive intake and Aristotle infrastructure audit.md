@@ -103,6 +103,11 @@ The useful formal components are:
   fixed-$p$ determinant obstruction for two anchored hits, the small-determinant
   projective-proportionality theorem, and the full six-relation anchored
   factorable shell.
+- `PrimitiveProjectiveNormalization.lean`, from the latest Aristotle report,
+  closes the remaining fixed-$p$ fibre normalization: projectively proportional
+  primitive five-coordinate rays agree up to global sign, assuming Bezout
+  certificates. This confirms that fixed-$p$ multiplicity is no longer the main
+  arithmetic obstacle; the live problem is the residual-prime shell count.
 - `LatticeSpan.lean`, `SemiprimeInfinity.lean`, and `BernoulliFourier.lean`,
   from the broad overview Aristotle run, formalize useful peripheral
   infrastructure: the lattice-span gcd lemma, existence of fresh semiprimes,

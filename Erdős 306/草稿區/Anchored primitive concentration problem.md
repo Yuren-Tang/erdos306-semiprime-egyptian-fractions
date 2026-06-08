@@ -464,7 +464,102 @@ $|\mathcal P_H|$.
 
 ---
 
-# 7. Immediate sublemmas
+# 7. Six-variable CRT interval form
+
+The most useful next reformulation uses the anchored coordinate $y_4$ and the
+three differences
+
+$$
+a_i=y_i-y_4\qquad(1\le i\le3).
+$$
+
+Starting from an anchored ray,
+
+$$
+q_i x_i-q_0x_0=p\,y_i\qquad(1\le i\le4),
+$$
+
+subtract the fourth equation. This gives
+
+$$
+q_i x_i-q_4x_4=p\,a_i\qquad(1\le i\le3),
+$$
+
+and the fourth anchored equation is
+
+$$
+q_4x_4-q_0x_0=p\,y_4.
+$$
+
+If all short $x$-coordinates are nonzero and $H<\min q_i$, then
+$a_i\ne0$ and $y_4\ne0$. For example, $a_i=0$ would give
+$q_i x_i=q_4x_4$, impossible for distinct primes $q_i,q_4$ and
+$0<|x_i|,|x_4|<q_i,q_4$. Thus these denominators are invertible modulo the
+corresponding seed primes.
+
+Consequently every nondegenerate ray gives the four local congruences
+
+$$
+p\equiv -q_4x_4a_i^{-1}\pmod {q_i}
+\qquad(1\le i\le3),
+$$
+
+and
+
+$$
+p\equiv -q_0x_0y_4^{-1}\pmod {q_4}.
+$$
+
+Let
+
+$$
+Q=q_1q_2q_3q_4.
+$$
+
+For every short six-tuple
+
+$$
+(x_0,x_4,y_4,a_1,a_2,a_3),
+\qquad
+0<|x_0|,|x_4|,|y_4|,|a_i|\le H,
+$$
+
+let $R(x_0,x_4,y_4,a_1,a_2,a_3)$ be the unique residue modulo $Q$ satisfying
+the four congruences above. The remaining arithmetic theorem can therefore be
+stated as a short CRT interval estimate:
+
+$$
+\#\left\{
+(x_0,x_4,y_4,a_1,a_2,a_3):
+R(x_0,x_4,y_4,a_1,a_2,a_3)\in[X,2X]
+\right\}
+\ll
+(\log X)^C\left(1+\frac{H^6}{X^3}\right),
+$$
+
+outside low-entropy structured seed families, with the usual small-height
+exception ledger.
+
+This is the right scale. The domain has size $O(H^6)$, the modulus is
+$Q\asymp X^4$, and the target interval has length $X$, so the random main term
+is
+
+$$
+\frac{H^6X}{X^4}=\frac{H^6}{X^3}.
+$$
+
+At the central scale $H\le X^{1/2}(\log X)^A$, this is polylogarithmic. Thus the
+problem is not to beat a power of $X$ by force; it is to prove that the CRT
+residue map does not concentrate in the tiny interval $[X,2X]$ unless the seed
+tuple has low-height rational structure.
+
+This six-variable form is sharper than the five-$x$ gcd-energy count because it
+restores the missing denominator variables which the congruence description had
+hidden.
+
+---
+
+# 8. Immediate sublemmas
 
 The next proof should try to establish:
 
@@ -480,16 +575,25 @@ The next proof should try to establish:
    and $x_0,z_0\ne0$, then the two vectors are equal up to sign. Equivalently,
    one projective class contributes only a sign pair after primitive
    normalization.
-3. **Small-height exception lemma.** A primitive ray with height
+3. **CRT interval reduction lemma.** A nondegenerate primitive anchored ray in a
+   height shell maps injectively up to harmless signs/constants to a short
+   six-tuple
+   $$
+   (x_0,x_4,y_4,a_1,a_2,a_3)
+   $$
+   whose CRT residue lies in $[X,2X]$.
+4. **Small-height exception lemma.** A primitive ray with height
    $H<M(\log X)^{-C}$ puts the seed tuple inside an explicitly encodable
    family
    $$
    q_i=\frac{q_0x_0+p\,y_i}{x_i}.
    $$
-4. **Many-rays inverse lemma.** Many primitive rays of comparable height force
+5. **Many-rays inverse lemma.** Many primitive rays of comparable height force
    many factorable ternary relations; these relations imply low entropy unless
    the seed tuple is already near the rank-one / near-dominant exit.
 
 The first item has now been handed to Aristotle and closed. The second item is
-the next exact algebra task. The third and fourth are the real paper-side
-arithmetic tasks.
+also closed by `PrimitiveProjectiveNormalization.lean`, modulo importing the
+new package into the workspace. The third item is the next useful Aristotle
+interface task. The fourth and fifth are the real paper-side arithmetic tasks,
+with the fifth now best attacked through the six-variable CRT interval form.

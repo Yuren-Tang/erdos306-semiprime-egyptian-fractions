@@ -49,6 +49,7 @@ Archive and formalization audits:
 - [[HA anchored selection pipeline prompt]]
 - [[HA anchored determinant rank prompt]]
 - [[HA primitive projective normalization prompt]]
+- [[HA residual prime shell CRT prompt]]
 
 External source now present in the vault:
 

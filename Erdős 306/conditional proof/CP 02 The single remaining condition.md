@@ -520,6 +520,26 @@ $$
 outside low-entropy structured seed families. This is the current autonomous
 small problem behind the SBEE route.
 
+Equivalently, after setting $a_i=y_i-y_4$ for $1\le i\le3$, it is enough to
+prove the corresponding six-variable CRT interval estimate for
+
+$$
+(x_\ast,x_4,y_4,a_1,a_2,a_3),
+$$
+
+where the CRT residue modulo $q_1q_2q_3q_4$ is defined by
+
+$$
+p\equiv -q_4x_4a_i^{-1}\pmod {q_i}
+\quad(1\le i\le3),
+\qquad
+p\equiv -q_\ast x_\ast y_4^{-1}\pmod {q_4}.
+$$
+
+The expected count in a height shell is $H^6/X^3$, which is polylogarithmic at
+the central scale. This is the sharpest current formulation of the last
+arithmetic input.
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---
