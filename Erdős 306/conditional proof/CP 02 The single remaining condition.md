@@ -236,7 +236,32 @@ The focused draft further refines this into two nested savings:
 1. **First-capture ambient saving**, which removes the main $N\log D$ label-list entropy in the large-list side of the central range.
 2. **Polylog-ambient compression**, still to be proved, which must remove the remaining $N\log\log X$ entropy after the ambient has been reduced to $N(\log X)^K$.
 
-The second point is now the sharpest local bottleneck inside FIE. It is smaller than SBEE, but it is still a genuine mathematical step rather than a purely formal bookkeeping issue.
+The second point has now been sharpened further. The average ambient
+multiplicity $Y/N$ is not by itself the effective bucket parameter for a
+non-product residual container. Instead, after one generated core
+$\mathcal C_0$, the relevant finite statement is the new-bucket capacity bound
+
+$$
+\Delta_{\rm new}(A_h(\mathcal C_0);\mathcal C_0)
+\le
+\frac{|\mathcal C_0|}{h},
+$$
+
+where $A_h(\mathcal C_0)$ is the set of vertices incident to at least $h$
+buckets of $\mathcal C_0$. If a second saturated core $\mathcal C_1$ persists,
+then the residual vertices produce a polylog-dense two-core graph
+
+$$
+G_\Gamma(\mathcal C_0,\mathcal C_1)
+\subset
+\mathcal C_0\times\mathcal C_1.
+$$
+
+Thus the current paper-side bottleneck is a **two-core rectangle inverse**:
+many low-energy bucket rectangles must either charge the energy ledger or force
+rank-one / near-dominant structure. This is smaller and more precise than the
+original SBEE statement, but it is still a genuine mathematical step rather
+than a purely formal bookkeeping issue.
 
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 

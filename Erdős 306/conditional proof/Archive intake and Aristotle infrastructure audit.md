@@ -48,6 +48,13 @@ The useful formal components are:
   $$
   in the generalized file over any additive abelian group.
 - `InfrastructureAudit.lean`: verifies that these pieces import together and restates them with paper-aligned names.
+- `PotentialTree.lean`, from the later Aristotle run, formalizes the finite
+  binary-tree telescoping step: a local inequality
+  $$
+  C(v)+P(v_1)+P(v_2)\le P(v)
+  $$
+  implies the corresponding global bound for total internal cost plus leaf
+  potential, with an optional weighted-saving version.
 
 This supports the current scratch sections around marked dual counting, fingerprint exposure, first-level containers, repeated exposure budget, common-neighbour mass, and low-mode rank-one rigidity.
 
@@ -100,6 +107,22 @@ Terminal leaves are then paid by telescoping decrease of the entropy term $W\log
 
 The newest refinement separates this into a first-capture saving and a residual polylog-ambient compression problem. First capture removes the main $N\log D$ entropy. The remaining local task is to remove the $N\log\log X$ entropy left when the ambient has size $N(\log X)^K$.
 
+The sharpest current form is more specific than average ambient multiplicity.
+For a generated bucket core $\mathcal C$, the captured container
+$A_h(\mathcal C)$ satisfies the new-bucket capacity bound
+
+$$
+\#\{v\in A_h(\mathcal C):n\in\mathcal B_\tau(v)\}\cdot h
+\le
+|\mathcal C|,
+\qquad n\notin\mathcal C.
+$$
+
+If a second saturated generated core persists, the residual vertices determine
+a polylog-dense two-core graph between the two bucket cores. The remaining
+paper-side step is therefore a two-core rectangle inverse: bucket rectangles
+must either be energy-paid or force rank-one / near-dominant structure.
+
 This is the current precise subcondition behind the route
 $$
 \mathrm{FIE}\Longrightarrow \mathrm{BCE}\Longrightarrow \mathrm{SBEE}.
@@ -128,8 +151,11 @@ For the proof attempt, work on the sharper internal target:
 
 $$
 \boxed{
-\text{log-corrected ambient-sensitive FIE descent}
+\text{two-core rectangle inverse inside ambient-sensitive FIE}
 }
 $$
 
-The Lean/Aristotle infrastructure can support the finite pieces, but the remaining step is still a paper-side mathematical proof tying those finite pieces to the SBEE counting ledger.
+The Lean/Aristotle infrastructure can support the finite pieces, especially the
+new-bucket capacity and two-core density bookkeeping. The remaining step is
+still a paper-side mathematical proof tying the bucket-rectangle inverse to the
+SBEE counting ledger.
