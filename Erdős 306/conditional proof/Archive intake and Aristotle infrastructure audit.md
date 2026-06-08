@@ -154,6 +154,19 @@ $$
 p\alpha-q\beta=p_0(u-t).
 $$
 
+After choosing a reference seed $f_\ast=(q_\ast,u_\ast)$, this becomes a
+large-prime gcd problem for the row-difference vectors
+
+$$
+D_v(f)=n_{v,f}-n_{v,f_\ast}
+=p_0(u_f-u_\ast)+q_f b_f-q_\ast b_\ast.
+$$
+
+All coordinates of this vector are divisible by the same residual prime
+$p_v\sim X$. The smallest current arithmetic bottleneck is to bound how often a
+bounded seed-generated progression can contain vectors with such a common large
+prime divisor, unless the seed data are rank-one / low-entropy structured.
+
 This is the current precise subcondition behind the route
 $$
 \mathrm{FIE}\Longrightarrow \mathrm{BCE}\Longrightarrow \mathrm{SBEE}.
@@ -182,11 +195,12 @@ For the proof attempt, work on the sharper internal target:
 
 $$
 \boxed{
-\text{seeded witness-matrix inverse inside ambient-sensitive FIE}
+\text{large-prime gcd bound for bounded seed progressions}
 }
 $$
 
 The Lean/Aristotle infrastructure can support the finite pieces, especially the
 new-bucket capacity, seed-neighbour, and two-core density bookkeeping. The
 remaining step is still a paper-side mathematical proof tying the generated
-bucket-rectangle / witness-defect inverse to the SBEE counting ledger.
+bucket-rectangle / witness-defect inverse to the SBEE counting ledger; in its
+most concrete form, this is the large-prime gcd estimate above.

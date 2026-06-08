@@ -1251,3 +1251,208 @@ The seeded witness-matrix version preserves all relevant structure:
   proved.
 
 This is probably the framework that was missing.
+
+---
+
+# 19. Row-difference reduction: large prime gcd in a seed progression
+
+The seeded witness matrix has an even more concrete arithmetic form.
+
+Fix one seed
+
+$$
+f_\ast=(q_\ast,u_\ast)\in S
+$$
+
+as a reference. For every other seed
+
+$$
+f=(q,u)\in S\setminus\{f_\ast\}
+$$
+
+and residual vertex
+
+$$
+v=(p,t)\in\Gamma(S),
+$$
+
+define the row difference
+
+$$
+D_v(f)=n_{v,f}-n_{v,f_\ast}.
+$$
+
+Since both witnesses are congruent to $m_t$ modulo $p$, we have
+
+$$
+p\mid D_v(f).
+$$
+
+Also
+
+$$
+D_v(f)
+=
+p(\alpha_{v,f}-\alpha_{v,f_\ast}),
+$$
+
+so
+
+$$
+|D_v(f)|\ll X M_\tau\ll \tau+X.
+$$
+
+Using the seed congruences, the same difference is
+
+$$
+D_v(f)
+=
+p_0(u-u_\ast)+q\beta_{v,f}-q_\ast\beta_{v,f_\ast},
+$$
+
+with
+
+$$
+|\beta_{v,f}|,|\beta_{v,f_\ast}|\ll M_\tau.
+$$
+
+Thus the vector
+
+$$
+\mathbf D_v
+=
+\bigl(D_v(f)\bigr)_{f\in S\setminus\{f_\ast\}}
+$$
+
+lies in the short seed-generated progression
+
+$$
+\mathcal P_S
+=
+\left\{
+\bigl(p_0(u_f-u_\ast)+q_f b_f-q_\ast b_\ast\bigr)_{f\ne f_\ast}
+:
+|b_\ast|,|b_f|\ll M_\tau
+\right\}.
+$$
+
+At the same time, every coordinate of $\mathbf D_v$ is divisible by the same
+large prime $p\sim X$.
+
+So the fixed-seed inverse can be rephrased as:
+
+$$
+\boxed{
+\text{count vectors in }\mathcal P_S
+\text{ with a common prime divisor }p\sim X.
+}
+$$
+
+This is sharper than the matrix-defect language.
+
+## 19.1 Easy exits
+
+There are two immediate structural exits.
+
+First, if
+
+$$
+D_v(f)=0
+$$
+
+for many seeds $f$, then $v$ shares the same bucket with many seed vertices.
+This is a low-entropy bucket-star configuration and should be paid by the
+new-bucket capacity / seed-neighbour budget.
+
+Second, if for two residual vertices $v,v'$ we have
+
+$$
+\mathbf D_v=\mathbf D_{v'},
+$$
+
+then every nonzero coordinate is divisible by both $p_v$ and $p_{v'}$. In the
+range
+
+$$
+|D_v(f)|<X^2
+$$
+
+this forces the shared nonzero coordinates to vanish unless $p_v=p_{v'}$.
+Therefore the row-difference vector is essentially injective on residual primes
+outside the zero-star exception.
+
+Thus entropy can only remain high if the seed progression $\mathcal P_S$
+contains many distinct vectors with a large common prime divisor.
+
+## 19.2 Candidate arithmetic lemma
+
+The missing arithmetic statement can now be formulated as follows.
+
+**Large-prime gcd in a seed progression.**
+Let $S$ be a bounded seed tuple with primes $q_f\sim X$ and labels $u_f$. Let
+$\mathcal P_S$ be the progression above with parameter size $M_\tau$. Then the
+number of pairs
+
+$$
+(p,\mathbf D),
+\qquad
+p\sim X,\quad \mathbf D\in\mathcal P_S,\quad p\mid D_f\ \forall f,
+$$
+
+is small enough to pay the residual entropy, unless the seed data
+
+$$
+(q_f,u_f)_{f\in S}
+$$
+
+satisfy a rank-one / low-entropy relation.
+
+For a random seed tuple, one expects a saving roughly
+
+$$
+X^{-(|S|-1)}
+$$
+
+from the common divisibility constraints after the first coordinate. Taking
+$|S|$ large but fixed should beat any fixed polylogarithmic loss.
+
+If this random heuristic fails for many seed tuples, the failure should mean
+that the affine forms
+
+$$
+p_0(u_f-u_\ast)+q_f b_f-q_\ast b_\ast
+$$
+
+have an unexpected common large-prime divisor pattern. That is precisely the
+kind of inverse phenomenon where the sum-product/incidence philosophy should
+force algebraic structure.
+
+## 19.3 Relation to mixed defects
+
+For two residual vertices,
+
+$$
+\Delta(v,v';f,f_\ast)
+=
+D_v(f)-D_{v'}(f).
+$$
+
+Thus the mixed-defect problem is equivalent to understanding collisions and
+differences among the row-difference vectors $\mathbf D_v$.
+
+- Many zero defects mean many repeated row-difference coordinates; by the
+  injectivity observation, this forces zero-star or rank-one structure.
+- Many nonzero defects mean the row-difference vectors are spread through
+  $\mathcal P_S$; then the large-prime gcd counting lemma should give the
+  entropy saving directly.
+
+So the active bottleneck is now:
+
+$$
+\boxed{
+\text{large-prime gcd bound for bounded seed progressions}
+}
+$$
+
+This is a concrete arithmetic-combinatorial lemma. It may be the right place to
+try a fresh proof rather than add more container bookkeeping.

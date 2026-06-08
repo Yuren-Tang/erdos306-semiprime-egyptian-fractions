@@ -295,6 +295,25 @@ must produce enough energy, unless a large submatrix has zero mixed defect and
 hence additive rank one. This is now the sharpest local form of the
 polylog-ambient compression problem.
 
+Equivalently, after fixing a reference seed $f_\ast=(q_\ast,u_\ast)$, the row
+differences
+
+$$
+D_v(f)=n_{v,f}-n_{v,f_\ast}
+$$
+
+all share the large prime divisor $p_v$ attached to the residual vertex
+$v=(p_v,t_v)$, while also lying in the bounded seed-generated progression
+
+$$
+D_v(f)=p_0(u_f-u_\ast)+q_f b_f-q_\ast b_\ast,
+\qquad |b_f|,|b_\ast|\ll M_\tau.
+$$
+
+Thus the current smallest arithmetic bottleneck is a large-prime gcd bound for
+bounded seed progressions, with rank-one / low-entropy structure as the inverse
+alternative.
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---
