@@ -57,21 +57,31 @@ This supports the current scratch sections around marked dual counting, fingerpr
 
 The imported material does not prove SBEE. It also does not prove the reduced-ambient inverse theorem, shifted Irving-good charging, or any Fourier analytic estimate.
 
-The remaining mathematical condition is now best stated as the log-corrected recursive FIE descent plus its return to the SBEE ledger:
+The remaining mathematical condition is now best stated as the log-corrected, ambient-sensitive recursive FIE descent plus its return to the SBEE ledger:
 
 Given a non-dominant substantial labelled residual of mass $W$, short-list scale $s$, and
 $$
 D=sL_X,
 $$
-one must show that until the stopping mass
+one must show that saturated exposure steps decrease a two-parameter potential. A one-parameter mass recursion is not enough, because terminal leaves in a binary peeling tree would have total entropy of order $W\log(Ns)$.
+
+The current state is a pair $(W,Y)$, where $Y$ is the available ambient universe. Use the potential
+
 $$
-W_\ast=
-\left(DX^2\log(Ns)(\log X)^A\right)^{1/3},
+\mathcal P(W,Y)
+=
+A\frac{W^4}{D^2X^2}
++
+B\,W\log\frac{eY}{W}.
 $$
-each saturated exposure step produces a fingerprint with entropy small enough to be paid by the convexity gap in
+
+Each saturated exposure step should produce a fingerprint with entropy small enough to be paid by the potential drop. The captured branch must live in a fingerprint-determined container of size
+
 $$
-R_{\rm cap}(W,D)\asymp \frac{W^4}{D^2X^2}.
+Y_1\ll
+\left(N+\frac{W^2}{D^2}\right)(\log X)^A,
 $$
+while the complement branch remains in ambient $Y$.
 
 Concretely, after exposing a chunk of size
 $$
@@ -83,10 +93,10 @@ W_1=\lfloor \theta W/2\rfloor,\qquad W_2=W-W_1
 $$
 must satisfy a recursion whose total fingerprint entropy is dominated by
 $$
-R_{\rm cap}(W,D)-R_{\rm cap}(W_1,D)-R_{\rm cap}(W_2,D).
+\mathcal P(W,Y)-\mathcal P(W_1,Y_1)-\mathcal P(W_2,Y).
 $$
 
-Leaves at $W\le W_\ast$ must then be paid by terminal seed encoding, while the complementary large-list range must be paid by the base-list lower bound on $R$.
+Terminal leaves are then paid by telescoping decrease of the entropy term $W\log(eY/W)$, while the complementary large-list range is paid by the base-list lower bound on $R$.
 
 This is the current precise subcondition behind the route
 $$
@@ -104,7 +114,7 @@ The newly imported Markdown archive contains useful history, but most of it is n
 - `089.md`, `055.md`, and `129.md` record older high-diagonal, inverse-entropy, and modular-phase routes. They are useful cautions, but not the current FIE proof route.
 - `316.md` is valuable as a handoff warning: it marks older single-block CRT Poincare / pair-kernel / pi-adic routes as context-heavy and easy to confuse with the current route.
 
-No imported archive file appears to contain a completed proof of the log-corrected recursive FIE descent. The archive mainly confirms that the project should stay focused on that one condition rather than reopen earlier high-frequency side routes.
+No imported archive file appears to contain a completed proof of the log-corrected ambient-sensitive recursive FIE descent. The archive mainly confirms that the project should stay focused on that one condition rather than reopen earlier high-frequency side routes.
 
 ---
 
@@ -116,7 +126,7 @@ For the proof attempt, work on the sharper internal target:
 
 $$
 \boxed{
-\text{log-corrected recursive FIE descent with terminal seed encoding}
+\text{log-corrected ambient-sensitive FIE descent}
 }
 $$
 

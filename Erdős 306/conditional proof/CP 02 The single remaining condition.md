@@ -197,31 +197,38 @@ $$
 \text{SBEE}.
 $$
 
-The present scale check shows that the fingerprint/core-generation entropy is smaller than the bucket-capacity energy by a factor $\ll sL_X(\log X)^4/X$ in the saturated short-list regime, while the complementary large-list regime is already paid by the base-list lower bound on $R$. The remaining FIE issue is the residual-container entropy: after a fingerprint generates a bucket core, one must still show that low-energy choices inside the resulting $O(N)$-sized candidate container are recursively exposed or else paid at the terminal scale. The current scratch calculation suggests that recursive exposure down to mass
+The present scale check shows that the fingerprint/core-generation entropy is smaller than the bucket-capacity energy by a factor $\ll sL_X(\log X)^4/X$ in the saturated short-list regime, while the complementary large-list regime is already paid by the base-list lower bound on $R$. The remaining FIE issue is the residual-container entropy: after a fingerprint generates a bucket core, one must still show that low-energy choices inside the resulting candidate container are recursively exposed with their reduced ambient universe recorded. A one-parameter peeling tree is not enough, because many terminal leaves would otherwise contribute total entropy of order $W\log(Ns)$.
+
+Thus the current scratch formulation uses states $(W,Y)$, where $W$ is residual mass and $Y$ is the current ambient universe size, and the potential
 
 $$
-W_\ast=
-\left(sL_XX^2\log(Ns)(\log X)^A\right)^{1/3}
+\mathcal P(W,Y)
+=
+A\frac{W^4}{D^2X^2}
++
+B\,W\log\frac{eY}{W},
+\qquad D=sL_X.
 $$
 
-should pay the residual entropy in the true short-list range, while larger $sL_X$ is already crude-entropy-paid by the base-list lower bound.
-
-In the scratch file this is now organized as Proposition FIE with four bookkeeping lemmas: non-saturated deficit, saturated one-step exposure, residual descent, and terminal seed encoding. The non-saturated deficit is essentially proved up to dyadic logarithmic constants. The saturated one-step exposure is now supported by the Lean-formalized fingerprint/container infrastructure. The remaining paper proof is the log-corrected residual descent:
+In the scratch file this is now organized as Proposition FIE with four bookkeeping lemmas: non-saturated deficit, saturated one-step exposure, ambient-sensitive residual descent, and terminal encoding by telescoping ambient entropy. The non-saturated deficit is essentially proved up to dyadic logarithmic constants. The saturated one-step exposure is now supported by the Lean-formalized fingerprint/container infrastructure. The remaining paper proof is the log-corrected ambient-sensitive residual descent:
 
 1. expose a fingerprint;
 2. capture a chunk of size
    $$
    \theta W,\qquad \theta\ge(\log X)^{-A};
    $$
-3. recurse on a peeled subchunk and its complement;
-4. use the convexity gap in the quartic scale
+3. place that chunk inside a fingerprint-determined container of size
    $$
-   R_{\rm cap}(W,D)\asymp\frac{W^4}{D^2X^2},
-   \qquad D=sL_X,
+   Y_1\ll \left(N+\frac{W^2}{D^2}\right)(\log X)^A;
    $$
-   to pay the parent fingerprint entropy.
+4. recurse on the captured branch with ambient $Y_1$ and on the complement with ambient $Y$;
+5. use the decrease of
+   $$
+   \mathcal P(W,Y)
+   $$
+   to pay the parent fingerprint entropy and terminal leaves.
 
-The logarithmic loss only changes the large-list split by a fixed power of $\log X$.
+The logarithmic loss only changes the large-list split by a fixed power of $\log X$. This ambient-sensitive formulation is the current sharp version of the one remaining internal proof task.
 
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 

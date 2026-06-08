@@ -4990,3 +4990,407 @@ $$
 with $C$ chosen after all dyadic and iteration losses are fixed.
 
 This correction should replace the fixed-$\theta$ language in any final proof of FIE.
+
+---
+
+# 75. Critical correction: terminal leaves are not one seed
+
+There is a bookkeeping flaw in the naive reading of Sections 73--74.
+
+If balanced peeling is implemented as a binary tree, then there may be many terminal leaves. If every leaf of mass at most $W_\ast$ is encoded crudely in the original ambient universe $P\times\mathcal L$, the total terminal entropy is not
+
+$$
+O(W_\ast\log(Ns)).
+$$
+
+It can be as large as
+
+$$
+O(W\log(Ns)),
+$$
+
+because the terminal leaves partition a set of total mass comparable with the original residual mass $W$.
+
+Thus the phrase "leaves are paid by the terminal seed bound" is too optimistic unless the recursion also records the ambient universe available to each branch.
+
+This does not kill the route. It changes the correct formulation.
+
+The exposure step should not be used merely as:
+
+$$
+\exists U_F\subset\Gamma,\qquad |U_F|\ge \theta W.
+$$
+
+It should be used as:
+
+$$
+U_F\subset \mathcal V_F,
+$$
+
+where $\mathcal V_F$ is determined by the fingerprint $F$ and has size
+
+$$
+|\mathcal V_F|
+\ll
+\left(N+M^2\right)(\log X)^B,
+\qquad
+M=\frac WD.
+$$
+
+The point is that one recursive branch is not just smaller in mass; it also lives in a smaller ambient universe. This ambient reduction is the real entropy saving.
+
+The correct recursive state is therefore not just a mass $W$. It is a pair
+
+$$
+(W,Y),
+$$
+
+where $Y$ is the size of the current ambient set from which labelled vertices may be chosen.
+
+Initially,
+
+$$
+Y_0\asymp Ns.
+$$
+
+After a saturated fingerprint exposure, the captured branch has ambient size
+
+$$
+Y_1
+\ll
+\left(N+\frac{W^2}{D^2}\right)(\log X)^B.
+$$
+
+The complement branch keeps ambient size $Y_0$ but has smaller mass.
+
+This is the version that should replace the one-parameter balanced peeling lemma.
+
+---
+
+# 76. Ambient-sensitive potential
+
+Define the two-parameter potential
+
+$$
+\mathcal P(W,Y)
+=
+A\frac{W^4}{D^2X^2}
++
+B\,W\log\frac{eY}{W},
+$$
+
+where $A,B$ are large constants chosen after the dyadic logarithmic losses.
+
+The first term is the bucket-capacity energy scale. The second term is the ambient entropy.
+
+Suppose a saturated step at state $(W,Y)$ gives a fingerprint $F$ with
+
+$$
+|F|
+\ll
+\frac WD(\log X)^B
+$$
+
+and captures a branch of mass
+
+$$
+W_1=\alpha W,
+\qquad
+\alpha\ge(\log X)^{-B},
+$$
+
+inside an ambient container of size
+
+$$
+Y_1
+\ll
+\left(N+\frac{W^2}{D^2}\right)(\log X)^B.
+$$
+
+The complement branch has
+
+$$
+W_2=(1-\alpha)W,
+\qquad
+Y_2=Y.
+$$
+
+The desired one-step inequality is
+
+$$
+\mathcal P(W,Y)
+-
+\mathcal P(W_1,Y_1)
+-
+\mathcal P(W_2,Y_2)
+\ge
+C|F|\log Y.
+$$
+
+The right-hand side pays for choosing the fingerprint.
+
+There are two sources of saving.
+
+First, the quartic term gives
+
+$$
+W^4-W_1^4-W_2^4
+\gg
+\alpha W^4,
+$$
+
+so the energy part contributes
+
+$$
+\Delta_E
+\gg
+A\alpha\frac{W^4}{D^2X^2}.
+$$
+
+Second, the entropy term gives
+
+$$
+W\log\frac{eY}{W}
+-
+W_1\log\frac{eY_1}{W_1}
+-
+W_2\log\frac{eY}{W_2}
+$$
+
+$$
+=
+\alpha W\log\frac{Y}{Y_1}
++
+W\left(\alpha\log\alpha+(1-\alpha)\log(1-\alpha)\right).
+$$
+
+Since
+
+$$
+\alpha\log\alpha+(1-\alpha)\log(1-\alpha)
+\ge
+-C\alpha\log\frac1\alpha,
+$$
+
+the entropy term contributes positively whenever
+
+$$
+\log\frac{Y}{Y_1}
+\gg
+\log\frac1\alpha.
+$$
+
+Thus the recursion has two regimes.
+
+## 76.1 Small-list / energy-dominated regime
+
+If the container does not significantly reduce the ambient universe, then $D$ is small enough that the quartic energy gap is large.
+
+The fingerprint entropy is
+
+$$
+E_{\rm fp}
+\ll
+\frac WD(\log X)^B\log Y.
+$$
+
+The energy gap pays this provided
+
+$$
+\frac WD(\log X)^B\log Y
+\ll
+\alpha\frac{W^4}{D^2X^2},
+$$
+
+or
+
+$$
+W^3
+\gg
+\frac{DX^2(\log X)^B\log Y}{\alpha}.
+$$
+
+This is the corrected stopping condition, now including both the fingerprint logarithmic losses and the peeling fraction $\alpha$.
+
+## 76.2 Medium-list / ambient-reduction regime
+
+If
+
+$$
+Y\asymp Ns
+\asymp \frac{ND}{L_X}
+$$
+
+and
+
+$$
+Y_1
+\ll
+\left(N+\frac{N^2}{D^2}\right)(\log X)^B,
+$$
+
+then a genuine ambient saving occurs once
+
+$$
+D\gg N^{1/3}(\log X)^B.
+$$
+
+Indeed,
+
+$$
+\frac{N^2}{D^2}
+\ll
+\frac{ND}{L_X}
+$$
+
+is equivalent, up to logarithms, to
+
+$$
+D^3\gg NL_X.
+$$
+
+In this regime the entropy decrease
+
+$$
+\alpha W\log\frac{Y}{Y_1}
+$$
+
+helps pay not only the parent fingerprint, but also the terminal leaf entropy along that captured branch. This is precisely what was missing from the one-parameter balanced peeling formulation.
+
+## 76.3 Coverage of parameter ranges
+
+The remaining question is whether the energy-dominated and ambient-reduction regimes cover the full short-list range
+
+$$
+D\le X^{4/7}(\log X)^{-C}.
+$$
+
+They appear to overlap comfortably.
+
+For very small and moderate $D$, crude entropy is already paid by
+
+$$
+R_0
+\asymp
+\frac{X^2}{D^2(\log X)^4}.
+$$
+
+The comparison
+
+$$
+R_0\gg N\log D
+$$
+
+holds, up to logarithms, for
+
+$$
+D\ll N^{1/2}(\log X)^{-C}.
+$$
+
+For
+
+$$
+D\gg N^{1/3}(\log X)^B,
+$$
+
+the saturated fingerprint container gives a genuine ambient reduction.
+
+Since
+
+$$
+N^{1/3}(\log X)^B
+\ll
+N^{1/2}(\log X)^{-C'}
+$$
+
+after choosing constants in the right order, the two mechanisms overlap. This is a strong positive sign.
+
+The new final FIE target is therefore:
+
+> **Ambient-sensitive FIE.** At every residual state $(W,Y)$, either the non-saturated deficit pays the crude entropy directly, or a saturated fingerprint step decreases the potential $\mathcal P(W,Y)$ by enough to pay the fingerprint choice. The terminal leaves are then paid by the telescoping decrease of the entropy term, not by a single global seed estimate.
+
+This is sharper and safer than the one-parameter balanced peeling lemma.
+
+---
+
+# 77. Current mathematical status after the ambient correction
+
+The correction in Sections 75--76 changes the assessment.
+
+The one-parameter balanced peeling route was **not** yet safe, because terminal leaves could carry total entropy $W\log(Ns)$. The ambient-sensitive route fixes exactly that issue by making the fingerprint container reduce the available universe for one branch.
+
+The signs are therefore positive, but with a sharper interpretation:
+
+1. The finite combinatorial infrastructure is now strong enough:
+   marked dual Fisher counting, greedy fingerprints, generated containers, repeated budget, and common-neighbour counting are all available.
+2. The old residual-container obstacle has been localized to a precise potential inequality.
+3. The parameter ranges appear to overlap:
+   $$
+   D\ll N^{1/2}(\log X)^{-C}
+   $$
+   is energy/crude-entropy dominated, while
+   $$
+   D\gg N^{1/3}(\log X)^B
+   $$
+   has genuine ambient reduction. The overlap between $N^{1/3}$ and $N^{1/2}$ is important.
+4. The previous $X^{4/7}$ split is no longer the conceptual centre. It remains a safe outer short-list cutoff, but the real mechanism is the overlap of:
+   $$
+   \text{quartic energy gap}
+   \qquad\text{and}\qquad
+   \text{ambient entropy drop}.
+   $$
+
+The next concrete lemma should be:
+
+**Potential-drop lemma.**
+Let $D=sL_X$, $Y\le Ns$, and let a saturated exposure at state $(W,Y)$ produce a fingerprint $F$ and a captured branch of mass $\alpha W$, with
+
+$$
+\alpha\ge(\log X)^{-B},
+\qquad
+|F|\ll \frac WD(\log X)^B,
+$$
+
+contained in an ambient set of size
+
+$$
+Y_1\ll\left(N+\frac{W^2}{D^2}\right)(\log X)^B.
+$$
+
+Then, after splitting into
+
+$$
+(W_1,Y_1)=(\alpha W,Y_1),
+\qquad
+(W_2,Y_2)=((1-\alpha)W,Y),
+$$
+
+one has
+
+$$
+\mathcal P(W,Y)
+-
+\mathcal P(W_1,Y_1)
+-
+\mathcal P(W_2,Y)
+\gg
+|F|\log Y
+$$
+
+unless the crude entropy at $(W,Y)$ is already paid by the energy scale.
+
+If this lemma is proved with fixed logarithmic slack, then the recursion telescopes. The sum of all fingerprint costs and all terminal leaf costs is bounded by the initial potential
+
+$$
+\mathcal P(N,Ns).
+$$
+
+Thus the remaining proof work is no longer to find a new number-theoretic estimate. It is to prove this potential-drop lemma carefully, with constants ordered as:
+
+$$
+B\ \text{large first},\qquad
+C\ \text{larger after dyadic losses},\qquad
+A\ \text{large enough to dominate fingerprint entropy}.
+$$
+
+This is the next place to work.
