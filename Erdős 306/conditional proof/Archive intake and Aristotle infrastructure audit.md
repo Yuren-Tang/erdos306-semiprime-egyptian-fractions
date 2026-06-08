@@ -397,3 +397,18 @@ exact algebraic step is primitive projective normalization: one projective class
 should give only a sign pair after imposing primitivity. The remaining
 paper-side arithmetic is then the distribution across different $p$ and the
 entropy of the small-determinant / factorable-relation exceptions.
+
+The current autonomous arithmetic problem is best viewed as a moving-line
+codimension-$4$ inverse sieve. For each residual prime $p$, the congruences
+
+$$
+q_i x_i-q_\ast x_\ast\equiv0\pmod p
+\qquad(1\le i\le4)
+$$
+
+cut out a line in $\mathbb A^5_{\mathbb F_p}$. The determinant-rank argument
+controls multiplicity inside one such line. What remains is to bound the set of
+primes $p$ for which this moving line has a primitive lift of height $H$, unless
+the seed tuple is structured. This is adjacent to geometric sieve / larger
+sieve methods, but requires an inverse form because the line moves with $p$ and
+with the seed tuple.

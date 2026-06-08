@@ -1574,8 +1574,28 @@ $$
 \text{small determinant quotient exceptions}.
 $$
 
-The next exact algebra task is to show that one projective class contributes
-only a sign pair after primitive normalization. After that, the remaining
-paper-side issue is not fixed-$p$ multiplicity; it is the distribution of
-primitive rays across different $p$ and the entropy of the small-determinant /
-factorable-relation exceptions.
+The stronger all-coordinate determinant argument in [[Anchored primitive
+concentration problem]] gives a more quantitative form. In a dyadic height
+shell $H$, a fixed residual prime $p$ contributes at most
+
+$$
+O\left(\left(1+\frac{H^2}{X}\right)^4\right)
+$$
+
+primitive rays, after primitive Bezout normalization and up to signs. Thus the
+remaining paper-side issue is not fixed-$p$ multiplicity; it is the number of
+residual primes $p$ supporting even one primitive ray in each height shell.
+
+The active self-contained problem is therefore:
+
+$$
+\sum_H \frac{M}{H}
+\left(1+\frac{H^2}{X}\right)^4
+|\mathcal P_H(q_\ast,q_1,q_2,q_3,q_4)|
+\ll(\log X)^C
+$$
+
+unless the seed tuple is in a low-entropy structured family. Here
+$\mathcal P_H$ is the set of $p\sim X$ admitting a primitive anchored ray of
+height $H$. This is a moving-line codimension-$4$ geometric/inverse sieve
+problem.

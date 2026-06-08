@@ -502,6 +502,24 @@ of size $O(M^2)$. In the strict range $2M^2<p$ this forces projective
 proportionality; in the logarithmically enlarged range the determinant quotient
 is polylogarithmically small and should enter the structured-exception ledger.
 
+Using all coordinate pairs rather than only the reference coordinate, the
+fixed-$p$ contribution in a dyadic height shell $H$ is bounded by
+$$
+O\left(\left(1+\frac{H^2}{X}\right)^4\right)
+$$
+primitive rays, after primitive Bezout normalization. Thus the remaining
+arithmetic input can be stated as a residual-prime shell inverse theorem:
+if $\mathcal P_H$ denotes the set of $p\sim X$ admitting at least one primitive
+anchored ray of height $H$, then
+$$
+\sum_H \frac{M}{H}
+\left(1+\frac{H^2}{X}\right)^4
+|\mathcal P_H|
+\ll(\log X)^C
+$$
+outside low-entropy structured seed families. This is the current autonomous
+small problem behind the SBEE route.
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---

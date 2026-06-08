@@ -239,6 +239,87 @@ One exact algebraic step remains before the fixed-$p$ fibre is fully clean:
 projective proportionality plus primitivity should imply equality up to sign.
 This is a Bezout/gcd normalization lemma for five integer coordinates.
 
+## 3.2 Stronger all-coordinate determinant
+
+There is a stronger determinant identity that should be used in the paper proof.
+
+Let
+
+$$
+Q_0=q_0,\qquad Q_i=q_i\quad(1\le i\le4).
+$$
+
+For any two fixed-$p$ anchored solutions $\mathbf x,\mathbf z$, the congruences
+
+$$
+Q_i x_i\equiv q_0x_0\pmod p,
+\qquad
+Q_i z_i\equiv q_0z_0\pmod p
+$$
+
+imply, for all $0\le i<j\le4$,
+
+$$
+p\mid x_i z_j-z_i x_j,
+$$
+
+provided $p$ is coprime to $Q_iQ_j$. Indeed,
+
+$$
+Q_iQ_j(x_i z_j-z_i x_j)\equiv0\pmod p.
+$$
+
+This matters because one should not always use the reference coordinate $x_0$
+as the denominator. If $x_0$ is small, choose a coordinate $j$ of a primitive
+base ray with
+
+$$
+|z_j|=\max_i|z_i|.
+$$
+
+Then every other ray in the same fixed-$p$ fibre has small determinant
+quotients
+
+$$
+k_i=\frac{x_i z_j-z_i x_j}{p},
+\qquad
+|k_i|\ll\frac{H^2}{X}
+$$
+
+on a dyadic height shell $H\le \max_i|x_i|,\max_i|z_i|\le2H$.
+
+Using a Bezout certificate for the primitive base ray,
+
+$$
+\sum_i c_i z_i=1,
+$$
+
+the congruences
+
+$$
+x_i z_j-z_i x_j=p\,k_i
+$$
+
+force $x_j$ into one residue class modulo $z_j$:
+
+$$
+x_j\equiv -p\sum_i c_i k_i\pmod {z_j}.
+$$
+
+Since $|z_j|\asymp H$, there are only $O(1)$ possible $x_j$ for each tuple
+$(k_i)$. Therefore a fixed-$p$, fixed-height shell contains at most
+
+$$
+O\left(\left(1+\frac{H^2}{X}\right)^4\right)
+$$
+
+primitive rays, up to harmless constants and signs.
+
+This is a real forward step. It says that fixed-$p$ multiplicity is polylog in
+the central range. The main remaining problem is no longer the number of rays
+over one $p$, but the number of residual primes $p$ which admit even one
+primitive ray in a given height shell.
+
 ---
 
 # 4. Inter-prime inverse relation
@@ -305,12 +386,27 @@ The closest directions are:
 - additive properties of reciprocal intervals and multilinear Kloosterman
   sums, such as Bourgain--Garaev,
   [arXiv:1211.4184](https://arxiv.org/abs/1211.4184).
+- geometric sieve methods of Poonen--Stoll / Ekedahl / Bhargava, especially
+  Bhargava's
+  [arXiv:1402.0031](https://arxiv.org/abs/1402.0031);
+- high-dimensional inverse sieve philosophy, such as the inverse sieve problem
+  in high dimensions by Helfgott--Venkatesh.
 
 These tools study short intervals modulo a fixed prime or reciprocal/product
 sets in a finite field. Our problem has a moving residual prime $p$, fixed seed
 primes $q_i$, and needs an inverse/exception statement rather than only an
-average upper bound. They are guidance, not an immediate substitute for the
-anchored primitive theorem.
+average upper bound. The geometric-sieve viewpoint is particularly apt because
+the condition
+
+$$
+q_i x_i-q_0x_0\equiv0\pmod p
+\qquad(1\le i\le4)
+$$
+
+cuts out a codimension-$4$ line in $\mathbb A^5_{\mathbb F_p}$. However, the
+line moves with $p$ and with the seed tuple, so the needed theorem is an
+inverse geometric sieve for moving rational lines, not the standard
+density-tail theorem.
 
 ---
 
@@ -334,6 +430,37 @@ relations and hence belongs to a low-entropy rational structured family.
 
 This theorem is exactly the arithmetic input needed by
 `AnchoredSelectionPipeline.lean`.
+
+After the fixed-$p$ determinant analysis, it is better to state the remaining
+part in height shells:
+
+**Residual-prime shell inverse theorem.**
+For each dyadic height $H\le M$, let
+
+$$
+\mathcal P_H(q_0,\ldots,q_4)
+$$
+
+be the set of residual primes $p\sim X$ admitting at least one primitive
+anchored ray of height in $[H,2H]$. Then either
+
+$$
+\sum_H \frac{M}{H}
+\left(1+\frac{H^2}{X}\right)^4
+|\mathcal P_H(q_0,\ldots,q_4)|
+\ll(\log X)^C,
+$$
+
+or the seed tuple belongs to a low-entropy structured family.
+
+The determinant-rank lemma proves the factor
+
+$$
+\left(1+\frac{H^2}{X}\right)^4
+$$
+
+inside each fixed-$p$ fibre. The hard theorem is now the inverse bound for
+$|\mathcal P_H|$.
 
 ---
 
