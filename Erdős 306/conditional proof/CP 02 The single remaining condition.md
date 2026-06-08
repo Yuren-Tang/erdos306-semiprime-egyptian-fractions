@@ -488,6 +488,20 @@ outside structured exceptions, where $H(r)$ is the primitive ray height. Very
 small primitive rays must be treated as low-height rational structure, not
 silently discarded.
 
+After `AnchoredDeterminantRank.lean`, the fixed-$p$ fibre is algebraically
+controlled. Two anchored hits with the same residual prime satisfy
+$$
+q_i(x_i z_\ast-z_i x_\ast)=p(y_i z_\ast-w_i x_\ast).
+$$
+Hence either the two short vectors are projectively proportional, or $p$ divides
+a nonzero determinant
+$$
+x_i z_\ast-z_i x_\ast
+$$
+of size $O(M^2)$. In the strict range $2M^2<p$ this forces projective
+proportionality; in the logarithmically enlarged range the determinant quotient
+is polylogarithmically small and should enter the structured-exception ledger.
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---

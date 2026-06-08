@@ -13,6 +13,7 @@ The raw imported materials are now stored under:
 - `Erdős 306/archive/`
 - `Erdős 306/Aristotle/output-final_aristotle_2/`
 - `Erdős 306/Aristotle/output-final_aristotle_3/`
+- `Erdős 306/Aristotle/output-final_aristotle_4/`
 - `Erdős 306/kloost_paper2.tex`
 
 The `.webarchive` file `AI對Lean 4支持分析.webarchive` was decoded enough to inspect the visible ChatGPT share text. Its useful content is a route-history record: it contains earlier discussions of SBEE, bucket exposure, Aristotle prompts, and warnings about several older high-frequency routes.
@@ -98,6 +99,14 @@ The useful formal components are:
   machinery: anchored witness membership, anchored bad-tuple coverage, the good
   tuple / all-covered dichotomy, the low-codegree cover bound, the
   high-incidence ledger, and a three-way endpoint pipeline.
+- `AnchoredDeterminantRank.lean`, from the subsequent Aristotle run, proves the
+  fixed-$p$ determinant obstruction for two anchored hits, the small-determinant
+  projective-proportionality theorem, and the full six-relation anchored
+  factorable shell.
+- `LatticeSpan.lean`, `SemiprimeInfinity.lean`, and `BernoulliFourier.lean`,
+  from the broad overview Aristotle run, formalize useful peripheral
+  infrastructure: the lattice-span gcd lemma, existence of fresh semiprimes,
+  and elementary Bernoulli characteristic-function estimates.
 
 This supports the current scratch sections around marked dual counting, fingerprint exposure, first-level containers, repeated exposure budget, common-neighbour mass, and low-mode rank-one rigidity.
 
@@ -106,6 +115,29 @@ This supports the current scratch sections around marked dual counting, fingerpr
 # 3. What It Does Not Close
 
 The imported material does not prove SBEE. It also does not prove the reduced-ambient inverse theorem, shifted Irving-good charging, or any Fourier analytic estimate.
+
+The broad overview Aristotle run is useful but must be interpreted carefully.
+It removes syntactic `sorry` and `True := trivial` from its Lean package by
+making several analytic steps tautological restatements of hypotheses and by
+leaving the final avoiding theorem as a field of `ConditionSBEE`:
+
+$$
+\texttt{fourier\_positivity\_avoiding}.
+$$
+
+Thus it improves the formal interface, and its `LatticeSpan`,
+`SemiprimeInfinity`, and elementary `BernoulliFourier` files can be mined for
+supporting lemmas, but it does not prove the Fourier positivity argument or the
+SBEE route. In particular:
+
+- its `edge_construction` proves only existence of a fresh semiprime, not the
+  full mass-tuned edge architecture;
+- its `main_arc_positive` is a positive finite Gaussian sum, not the full
+  main-arc Taylor expansion plus error control;
+- its intermediate Peierls/global-partition lemmas assume the desired bounds as
+  hypotheses and return them.
+
+This is acceptable as scaffold, not as closure of the main mathematical gap.
 
 The remaining mathematical condition is now best stated as the log-corrected, ambient-sensitive recursive FIE descent plus its return to the SBEE ledger:
 
@@ -335,11 +367,11 @@ $$
 The Lean/Aristotle infrastructure can support the finite and algebraic pieces,
 especially the new-bucket capacity, seed-neighbour, two-core density
 bookkeeping, seeded witness matrices, cluster covers, line incidence, valid CRT
-hits, the anchored CRT lattice, and the anchored selection pipeline. The
-remaining step is still a paper-side mathematical proof tying the generated
-bucket-rectangle / witness-defect inverse to the SBEE counting ledger. In its
-current sharpest form, it is the weighted reference-anchored primitive lattice
-inverse theorem:
+hits, the anchored CRT lattice, the anchored selection pipeline, and the
+fixed-$p$ determinant rank theorem. The remaining step is still a paper-side
+mathematical proof tying the generated bucket-rectangle / witness-defect inverse
+to the SBEE counting ledger. In its current sharpest form, it is the weighted
+reference-anchored primitive lattice inverse theorem:
 
 $$
 \begin{cases}
@@ -358,3 +390,10 @@ acceptable to the FIE exception ledger. The regular affine-slice side has
 reduced to uniqueness per residual prime; the singular anchored short-kernel
 family is the part that still needs proof. The extracted focused note is
 [[Anchored primitive concentration problem]].
+
+After `AnchoredDeterminantRank.lean`, the fixed-$p$ fibre is controlled by a
+projective-proportionality / small-determinant-quotient dichotomy. The next
+exact algebraic step is primitive projective normalization: one projective class
+should give only a sign pair after imposing primitivity. The remaining
+paper-side arithmetic is then the distribution across different $p$ and the
+entropy of the small-determinant / factorable-relation exceptions.

@@ -188,6 +188,57 @@ $M\le X^{1/2}(\log X)^A$, the determinant may be nonzero, but then the same
 display says that $p$ divides a very small determinant. Nonzero determinants
 are therefore themselves chargeable arithmetic structure.
 
+## 3.1 After `AnchoredDeterminantRank.lean`
+
+Aristotle has now formalized this fixed-$p$ rank test.
+
+The file `AnchoredDeterminantRank.lean` proves:
+
+1. for two anchored hits with the same $p,q_0,q_1,\ldots,q_4$,
+   $$
+   q_i(x_i z_0-z_i x_0)=p(y_i z_0-w_i x_0);
+   $$
+2. if $p$ is coprime to $q_i$, then
+   $$
+   p\mid x_i z_0-z_i x_0;
+   $$
+3. if moreover
+   $$
+   |x_i z_0-z_i x_0|<|p|
+   $$
+   for every $i$, then the two rays are projectively proportional:
+   $$
+   x_i z_0=z_i x_0
+   \qquad(1\le i\le4);
+   $$
+4. every anchored witness gives all six factorable ternary relations
+   $$
+   q_i x_i y_j-q_j x_j y_i+q_0x_0(y_i-y_j)=0.
+   $$
+
+Thus the fixed-$p$ fibre is no longer mysterious. It is controlled by the
+dichotomy
+
+$$
+\text{projective class}
+\quad\text{or}\quad
+\text{small determinant quotient }k_i=\frac{x_i z_0-z_i x_0}{p}.
+$$
+
+In the strict box $2M^2<p$, only the projective class remains. In the
+logarithmically enlarged central range, the non-projective case has
+
+$$
+|k_i|\ll\frac{M^2}{X},
+$$
+
+which is only polylogarithmic. This should be treated as a structured
+determinant quotient, not as random entropy.
+
+One exact algebraic step remains before the fixed-$p$ fibre is fully clean:
+projective proportionality plus primitivity should imply equality up to sign.
+This is a Bezout/gcd normalization lemma for five integer coordinates.
+
 ---
 
 # 4. Inter-prime inverse relation
@@ -293,15 +344,25 @@ The next proof should try to establish:
 1. **Fixed-$p$ projective rank lemma.** Two fixed-$p$ anchored rays either are
    projectively proportional, or $p$ divides a nonzero determinant
    $x_i z_0-z_i x_0$ of size $O(M^2)$.
-2. **Small-height exception lemma.** A primitive ray with height
+2. **Projective primitive normalization lemma.** If two five-coordinate
+   primitive rays satisfy
+   $$
+   x_i z_0=z_i x_0
+   \qquad(1\le i\le4),
+   $$
+   and $x_0,z_0\ne0$, then the two vectors are equal up to sign. Equivalently,
+   one projective class contributes only a sign pair after primitive
+   normalization.
+3. **Small-height exception lemma.** A primitive ray with height
    $H<M(\log X)^{-C}$ puts the seed tuple inside an explicitly encodable
    family
    $$
    q_i=\frac{q_0x_0+p\,y_i}{x_i}.
    $$
-3. **Many-rays inverse lemma.** Many primitive rays of comparable height force
+4. **Many-rays inverse lemma.** Many primitive rays of comparable height force
    many factorable ternary relations; these relations imply low entropy unless
    the seed tuple is already near the rank-one / near-dominant exit.
 
-The first item is exact algebra and should be handed to Aristotle. The second
-and third are the real paper-side arithmetic tasks.
+The first item has now been handed to Aristotle and closed. The second item is
+the next exact algebra task. The third and fourth are the real paper-side
+arithmetic tasks.

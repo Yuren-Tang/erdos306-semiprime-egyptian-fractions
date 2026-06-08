@@ -48,6 +48,7 @@ Archive and formalization audits:
 - [[HA anchored CRT lattice interface prompt]]
 - [[HA anchored selection pipeline prompt]]
 - [[HA anchored determinant rank prompt]]
+- [[HA primitive projective normalization prompt]]
 
 External source now present in the vault:
 

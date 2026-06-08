@@ -88,6 +88,12 @@ Aristotle has produced no-sorry Lean files for:
      bound, and the high-incidence ledger in anchored language;
    - proves a three-way conditional endpoint pipeline isolating the remaining
      arithmetic input.
+10. `AnchoredDeterminantRank.lean`:
+    - proves the determinant identity for two anchored hits with the same
+      residual prime $p$;
+    - proves that coprimality plus a small determinant implies projective
+      proportionality;
+    - packages all six factorable ternary relations from one anchored witness.
 
 This means the purely finite infrastructure is no longer the main risk. The
 formal pipeline now carries an anchored codegree estimate, if supplied, into the
@@ -1557,4 +1563,19 @@ $$
 
 In the strict box $2M^2<p$ this is impossible; in the logarithmically enlarged
 box it becomes a small-determinant structured exception. This determinant-rank
-test is the next exact algebra package to give Aristotle.
+test has now been formalized in `AnchoredDeterminantRank.lean`.
+
+The consequence is sharper than expected. For each fixed $p$, the fibre is
+controlled by:
+
+$$
+\text{one projective primitive class}
+\quad\text{plus}\quad
+\text{small determinant quotient exceptions}.
+$$
+
+The next exact algebra task is to show that one projective class contributes
+only a sign pair after primitive normalization. After that, the remaining
+paper-side issue is not fixed-$p$ multiplicity; it is the distribution of
+primitive rays across different $p$ and the entropy of the small-determinant /
+factorable-relation exceptions.
