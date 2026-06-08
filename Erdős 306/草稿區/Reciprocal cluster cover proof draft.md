@@ -5,6 +5,9 @@ Back to [[Ambient-sensitive FIE proof draft]] and [[CP 02 The single remaining c
 This is the focused working note for the current smallest bottleneck inside
 ambient-sensitive FIE.
 
+The current extracted arithmetic endpoint is [[Anchored primitive concentration
+problem]].
+
 The large historical scratch notes should now be treated as route history. The
 active local problem is:
 
@@ -76,8 +79,19 @@ Aristotle has produced no-sorry Lean files for:
    - proves the fourth local residue congruence, the homogeneous scaling law,
      primitive anchored-ray bookkeeping, and basic quotient/divisibility
      diagnostics.
+9. `AnchoredSelectionPipeline.lean`:
+   - defines anchored reciprocal clusters with an abstract shortness predicate;
+   - proves anchored witness membership in these clusters;
+   - bridges anchored bad tuples to the generic `coveredBySomeCluster`
+     predicate;
+   - packages the good tuple / all-covered dichotomy, the low-codegree cover
+     bound, and the high-incidence ledger in anchored language;
+   - proves a three-way conditional endpoint pipeline isolating the remaining
+     arithmetic input.
 
-This means the purely finite infrastructure is no longer the main risk.
+This means the purely finite infrastructure is no longer the main risk. The
+formal pipeline now carries an anchored codegree estimate, if supplied, into the
+seed-selection conclusion.
 
 The remaining work is arithmetic plus one selection/structure step for
 reciprocal clusters.
@@ -1519,3 +1533,28 @@ There are now two plausible proof routes for the remaining arithmetic theorem:
 The first route is cleaner if a suitable large-sieve or modular-interval tool
 exists. The second route is more bespoke but exposes the structured exception
 explicitly.
+
+After isolating the problem in [[Anchored primitive concentration problem]], the
+second route looks more honest. The exact statement needed by the HA pipeline
+is not merely a count of primitive rays, but a **weighted** primitive count:
+
+$$
+\sum_r \frac{M}{H(r)}\ll(\log X)^C,
+$$
+
+where $H(r)$ is the height of the primitive anchored ray. This weight accounts
+for the scalar multiples of one primitive ray, which appear as many different
+anchored clusters indexed by $x_\ast$.
+
+The first algebraic sublemma is now clear. If two short anchored rays for the
+same residual prime $p$ are not projectively proportional, then for some $i$
+
+$$
+p\mid x_i z_\ast-z_i x_\ast,
+\qquad
+0<|x_i z_\ast-z_i x_\ast|\le 2M^2.
+$$
+
+In the strict box $2M^2<p$ this is impossible; in the logarithmically enlarged
+box it becomes a small-determinant structured exception. This determinant-rank
+test is the next exact algebra package to give Aristotle.

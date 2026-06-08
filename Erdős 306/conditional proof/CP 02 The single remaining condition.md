@@ -473,6 +473,21 @@ proof draft]], where regular uniqueness fails only in the presence of a short
 homogeneous kernel. It is distinct from the separate [[lattice statement]]
 span gadget used in the final Fourier/local-CLT layer.
 
+After `AnchoredSelectionPipeline.lean`, the finite selection part is also no
+longer the bottleneck: an anchored codegree estimate feeds into a good tuple,
+low-codegree cover, or high-incidence ledger. The extracted arithmetic endpoint
+is [[Anchored primitive concentration problem]].
+
+One refinement is important. The cluster codegree counts all scalar multiples
+of a primitive anchored ray, because clusters are indexed by $x_\ast$. Thus the
+needed theorem is a weighted primitive inverse estimate
+$$
+\sum_r \frac{M}{H(r)}\ll(\log X)^C
+$$
+outside structured exceptions, where $H(r)$ is the primitive ray height. Very
+small primitive rays must be treated as low-height rational structure, not
+silently discarded.
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---

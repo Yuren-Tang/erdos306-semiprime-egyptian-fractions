@@ -93,6 +93,11 @@ The useful formal components are:
   directions, proves anchored hits imply the unanchored valid hits, and
   formalizes the fourth local residue, homogeneous scaling, primitive
   anchored rays, and basic projection/divisibility diagnostics.
+- `AnchoredSelectionPipeline.lean`, from the subsequent Aristotle run, connects
+  the anchored cluster definition to the generic adaptive cluster-selection
+  machinery: anchored witness membership, anchored bad-tuple coverage, the good
+  tuple / all-covered dichotomy, the low-codegree cover bound, the
+  high-incidence ledger, and a three-way endpoint pipeline.
 
 This supports the current scratch sections around marked dual counting, fingerprint exposure, first-level containers, repeated exposure budget, common-neighbour mass, and low-mode rank-one rigidity.
 
@@ -330,10 +335,11 @@ $$
 The Lean/Aristotle infrastructure can support the finite and algebraic pieces,
 especially the new-bucket capacity, seed-neighbour, two-core density
 bookkeeping, seeded witness matrices, cluster covers, line incidence, valid CRT
-hits, and the anchored CRT lattice. The remaining step is still a paper-side
-mathematical proof tying the generated bucket-rectangle / witness-defect inverse
-to the SBEE counting ledger. In its current sharpest form, it is the
-reference-anchored primitive lattice concentration theorem:
+hits, the anchored CRT lattice, and the anchored selection pipeline. The
+remaining step is still a paper-side mathematical proof tying the generated
+bucket-rectangle / witness-defect inverse to the SBEE counting ledger. In its
+current sharpest form, it is the weighted reference-anchored primitive lattice
+inverse theorem:
 
 $$
 \begin{cases}
@@ -345,8 +351,10 @@ p\sim X,
 $$
 
 with all short variables bounded by $M\le X^{1/2}(\log X)^A$. The desired
-statement is that primitive short rays are polylogarithmically sparse after
-summing over $p$, unless the seed primes lie in a low-entropy rational
-structured family acceptable to the FIE exception ledger. The regular
-affine-slice side has reduced to uniqueness per residual prime; the singular
-anchored short-kernel family is the part that still needs proof.
+statement is that primitive short rays, weighted by their available scalar
+multiplicity $M/H(r)$, are polylogarithmically sparse after summing over $p$,
+unless the seed primes lie in a low-entropy rational structured family
+acceptable to the FIE exception ledger. The regular affine-slice side has
+reduced to uniqueness per residual prime; the singular anchored short-kernel
+family is the part that still needs proof. The extracted focused note is
+[[Anchored primitive concentration problem]].

@@ -17,6 +17,9 @@ This folder is the cleaned conditional proof package. The old notes remain usefu
 7. [[Reciprocal cluster cover proof draft]]
    Current smallest active local problem: reciprocal-cluster codegree/covering
    for singular seeds inside the FIE route.
+8. [[Anchored primitive concentration problem]]
+   Extracted arithmetic endpoint: weighted anchored primitive inverse theorem
+   and determinant-rank obstruction.
 
 Older source notes:
 
@@ -44,6 +47,7 @@ Archive and formalization audits:
 - [[HA valid CRT lattice interface prompt]]
 - [[HA anchored CRT lattice interface prompt]]
 - [[HA anchored selection pipeline prompt]]
+- [[HA anchored determinant rank prompt]]
 
 External source now present in the vault:
 
