@@ -12,6 +12,7 @@ The raw imported materials are now stored under:
 
 - `Erdős 306/archive/`
 - `Erdős 306/Aristotle/output-final_aristotle_2/`
+- `Erdős 306/Aristotle/output-final_aristotle_3/`
 - `Erdős 306/kloost_paper2.tex`
 
 The `.webarchive` file `AI對Lean 4支持分析.webarchive` was decoded enough to inspect the visible ChatGPT share text. Its useful content is a route-history record: it contains earlier discussions of SBEE, bucket exposure, Aristotle prompts, and warnings about several older high-frequency routes.
@@ -86,6 +87,12 @@ The useful formal components are:
   hits to valid quotient hits, proves the bridge with four-seed line witnesses,
   formalizes the homogeneous lattice and scaling/ray properties, and defines
   primitive CRT rays with basic scaling obstruction lemmas.
+- `AnchoredCRTLattice.lean`, from the latest Aristotle run, restores the
+  reference seed in the reciprocal-cluster equations, proves the bridge between
+  anchored cluster witnesses and the normalized anchored lattice in both
+  directions, proves anchored hits imply the unanchored valid hits, and
+  formalizes the fourth local residue, homogeneous scaling, primitive
+  anchored rays, and basic projection/divisibility diagnostics.
 
 This supports the current scratch sections around marked dual counting, fingerprint exposure, first-level containers, repeated exposure budget, common-neighbour mass, and low-mode rank-one rigidity.
 
@@ -278,6 +285,32 @@ The newly imported Markdown archive contains useful history, but most of it is n
 - `089.md`, `055.md`, and `129.md` record older high-diagonal, inverse-entropy, and modular-phase routes. They are useful cautions, but not the current FIE proof route.
 - `316.md` is valuable as a handoff warning: it marks older single-block CRT Poincare / pair-kernel / pi-adic routes as context-heavy and easy to confuse with the current route.
 
+There is one important terminological trap. The word "lattice" appears in two
+different roles:
+
+- [[lattice statement]] and the old lattice-span gadget are final
+  Fourier/local-CLT tools. They ensure
+  $$
+  \gcd_{pq\in E}\frac{L}{pq}=1
+  $$
+  after integerization, so the target has no global periodicity obstruction.
+- Sections 20--21 of [[Ambient-sensitive FIE proof draft]] are the same local
+  mechanism as the current reciprocal-cluster endpoint. They introduce affine
+  slices
+  $$
+  q_i b_i-q_\ast b_\ast+A_i\equiv0\pmod p
+  $$
+  and identify the obstruction to regular uniqueness as a short homogeneous
+  kernel
+  $$
+  q_i x_i-q_\ast x_\ast\equiv0\pmod p.
+  $$
+
+The latest `AnchoredCRTLattice.lean` formalizes the four-seed,
+reference-preserving version of this second lattice. It should not be merged
+conceptually with the global span gadget, though both are ultimately
+periodicity obstructions in different layers of the proof.
+
 No imported archive file appears to contain a completed proof of the log-corrected ambient-sensitive recursive FIE descent. The archive mainly confirms that the project should stay focused on that one condition rather than reopen earlier high-frequency side routes.
 
 ---
@@ -294,12 +327,26 @@ $$
 }
 $$
 
-The Lean/Aristotle infrastructure can support the finite pieces, especially the
-new-bucket capacity, seed-neighbour, and two-core density bookkeeping. The
-remaining step is still a paper-side mathematical proof tying the generated
-bucket-rectangle / witness-defect inverse to the SBEE counting ledger; in its
-most concrete form, this is the regular affine-lattice count plus the
-short-kernel structured entropy bound. The regular count has reduced to
-uniqueness per residual prime; the singular short-kernel family is the part that
-still needs proof, now in the form of a reciprocal-cluster
-selection/structure lemma.
+The Lean/Aristotle infrastructure can support the finite and algebraic pieces,
+especially the new-bucket capacity, seed-neighbour, two-core density
+bookkeeping, seeded witness matrices, cluster covers, line incidence, valid CRT
+hits, and the anchored CRT lattice. The remaining step is still a paper-side
+mathematical proof tying the generated bucket-rectangle / witness-defect inverse
+to the SBEE counting ledger. In its current sharpest form, it is the
+reference-anchored primitive lattice concentration theorem:
+
+$$
+\begin{cases}
+q_i x_i-q_4x_4=p\,a_i,&1\le i\le3,\\
+q_4x_4-q_\ast x_\ast=p\,y_4,
+\end{cases}
+\qquad
+p\sim X,
+$$
+
+with all short variables bounded by $M\le X^{1/2}(\log X)^A$. The desired
+statement is that primitive short rays are polylogarithmically sparse after
+summing over $p$, unless the seed primes lie in a low-entropy rational
+structured family acceptable to the FIE exception ledger. The regular
+affine-slice side has reduced to uniqueness per residual prime; the singular
+anchored short-kernel family is the part that still needs proof.

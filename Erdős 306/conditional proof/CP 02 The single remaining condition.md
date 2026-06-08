@@ -446,6 +446,33 @@ $$
 The final target is therefore the reference-anchored primitive lattice
 concentration theorem, not the unanchored product-hit theorem.
 
+The latest Aristotle package closes the algebraic part of this refinement in
+`AnchoredCRTLattice.lean`: the original anchored equations
+$$
+q_i x_i-q_\ast x_\ast=p\,y_i
+\qquad(1\le i\le4)
+$$
+are equivalent, after using $q_4$ as a base, to the normalized anchored lattice
+$$
+\begin{cases}
+q_i x_i-q_4x_4=p\,a_i,&1\le i\le3,\\
+q_4x_4-q_\ast x_\ast=p\,y_4.
+\end{cases}
+$$
+It also proves homogeneous scaling and primitive-ray bookkeeping. Thus the
+remaining gap is not an algebraic translation gap. It is the arithmetic
+concentration/inverse theorem:
+for non-structured $q_\ast,q_1,q_2,q_3,q_4\sim X$ and
+$M\le X^{1/2}(\log X)^A$, primitive short rays in the displayed anchored
+lattice, summed over $p\sim X$, must be $O((\log X)^C)$, or else the seed primes
+must fall into a low-entropy rational structured family that can be charged in
+the FIE exception ledger.
+
+This matches the older affine-slice formulation in [[Ambient-sensitive FIE
+proof draft]], where regular uniqueness fails only in the presence of a short
+homogeneous kernel. It is distinct from the separate [[lattice statement]]
+span gadget used in the final Fourier/local-CLT layer.
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---

@@ -68,6 +68,14 @@ Aristotle has produced no-sorry Lean files for:
      directions;
    - proves the homogeneous lattice and scaling/ray properties;
    - defines primitive CRT rays and proves the basic scaling obstruction.
+8. `AnchoredCRTLattice.lean`:
+   - restores the reference seed in the valid CRT lattice;
+   - proves the bidirectional bridge between anchored cluster witnesses and the
+     normalized anchored lattice;
+   - proves that anchored hits imply the unanchored valid hits;
+   - proves the fourth local residue congruence, the homogeneous scaling law,
+     primitive anchored-ray bookkeeping, and basic quotient/divisibility
+     diagnostics.
 
 This means the purely finite infrastructure is no longer the main risk.
 
@@ -1159,12 +1167,209 @@ The next Aristotle task should formalize the anchored interface:
 6. prove homogeneous scaling and primitive-ray bookkeeping for the anchored
    lattice.
 
+This has now been done in `AnchoredCRTLattice.lean`, with no `sorry`.
+
+---
+
+# 26. After AnchoredCRTLattice
+
+The latest Aristotle result is a genuine strengthening of the route, not just
+extra syntax.
+
+The unanchored lattice
+
+$$
+q_i x_i-q_4x_4=p\,a_i
+\qquad(1\le i\le3)
+$$
+
+is only a necessary condition for a reciprocal cluster. It allows arbitrary
+line intercepts. The true reciprocal cluster has intercept
+
+$$
+c=q_\ast x_\ast,
+$$
+
+so the normalized system must also include
+
+$$
+q_4x_4-q_\ast x_\ast=p\,y_4.
+$$
+
+The Lean file `AnchoredCRTLattice.lean` proves the exact equivalence
+
+$$
+\text{anchored four-seed cluster witness}
+\Longleftrightarrow
+\text{short point in the anchored normalized lattice},
+$$
+
+before any analytic or prime-counting estimate is invoked. Thus the algebraic
+endpoint is now clean.
+
+The current open theorem is therefore:
+
+**Reference-anchored primitive concentration.** For non-structured seed primes
+
+$$
+q_\ast,q_1,q_2,q_3,q_4\sim X,
+$$
+
+and $M\le X^{1/2}(\log X)^A$, the primitive short rays in
+
+$$
+\begin{cases}
+q_i x_i-q_4x_4=p\,a_i,&1\le i\le3,\\
+q_4x_4-q_\ast x_\ast=p\,y_4,
+\end{cases}
+\qquad p\sim X,
+$$
+
+with
+
+$$
+0<|x_\ast|,|x_i|,|x_4|,|a_i|,|y_4|\le M
+$$
+
+are $O((\log X)^C)$ after summing over $p$, unless the five seed primes lie in a
+low-entropy rational structured family already acceptable to the FIE exception
+ledger.
+
+At the central scale $M\asymp X^{1/2}$, the anchored volume heuristic is
+
+$$
+\sum_{p\sim X} M\left(\frac{M}{X}\right)^4
+\asymp
+\frac{M^5}{X^3}
+\asymp X^{-1/2},
+$$
+
+so the expected generic count is below one. This is the main positive sign.
+
+---
+
+# 27. Relation to the archive lattice notes
+
+The archive contains two different uses of the word "lattice".
+
+The file [[lattice statement]] and the old `lattice-span gadget` sections are
+about the final Fourier/local-CLT span. They prove that after integerizing by
+$L$, the Bernoulli weights
+
+$$
+w_{pq}=\frac{L}{pq}
+$$
+
+generate the full additive lattice:
+
+$$
+\gcd_{pq\in E} w_{pq}=1.
+$$
+
+This is not the same as the current anchored CRT lattice. It removes a global
+periodicity obstruction in the final probability calculation.
+
+By contrast, Sections 20--21 of [[Ambient-sensitive FIE proof draft]] are the
+same mechanism as the current endpoint. There the affine slice
+
+$$
+\Lambda_p(S)=
+\left\{
+\mathbf b:
+q_i b_i-q_\ast b_\ast+A_i\equiv0\pmod p
+\right\}
+$$
+
+was introduced, and the obstruction to uniqueness was the short homogeneous
+kernel
+
+$$
+q_i x_i-q_\ast x_\ast\equiv0\pmod p.
+$$
+
+The anchored lattice is exactly the four-seed, reference-preserving version of
+that short-kernel obstruction. Thus the archive does give a unifying
+architecture:
+
+$$
+\text{affine slice}
+\Longrightarrow
+\text{regular uniqueness unless short kernel}
+\Longrightarrow
+\text{anchored primitive lattice concentration}
+\Longrightarrow
+\text{reciprocal-cluster codegree/cover}.
+$$
+
+The global span lattice and the anchored short-kernel lattice should remain
+separate in the writeup. They are conceptually related as periodicity controls,
+but they live in different parts of the proof.
+
+---
+
+# 28. Proof pressure points
+
+There are now only two honest ways forward.
+
+First, prove the anchored primitive concentration theorem directly. In divisor
+form this counts primitive short vectors
+
+$$
+\mathbf x=(x_\ast,x_1,x_2,x_3,x_4)
+$$
+
+for which the four integers
+
+$$
+q_i x_i-q_\ast x_\ast
+\qquad(1\le i\le4)
+$$
+
+have a common prime divisor $p\sim X$. Since each integer has size
+$O(XM)$ and $M<X$, one primitive vector should have at most $O(1)$ relevant
+large-prime divisors. The hard part is proving that the number of primitive
+vectors that survive all four seed constraints is polylogarithmic unless the
+seed primes have short rational relations.
+
+Second, prove an inverse form: if many such primitive rays exist, then
+eliminating $p$ gives many factorable relations such as
+
+$$
+q_i x_i y_j-q_j x_j y_i+q_\ast x_\ast(y_i-y_j)=0,
+$$
+
+with all coefficients short. A large supply of these relations should force a
+low-entropy rational family of seed primes. This route is more compatible with
+the existing cluster-cover exception ledger.
+
+The warning is clear: further work should not merely rename this theorem. It
+must either produce the direct concentration estimate, prove the inverse
+structure statement, or expose a real obstruction.
+
+---
+
+# 29. Next HA task
+
+The next useful Aristotle task is not to prove the analytic concentration
+estimate. It should assemble the now-formal algebraic pieces into the final
+conditional finite pipeline:
+
+$$
+\text{all seed tuples have anchored hits}
+\Longrightarrow
+\text{all seed tuples are covered by anchored clusters}
+\Longrightarrow
+\text{good tuple or low-codegree cover or high-incidence ledger}.
+$$
+
+This is recorded in [[HA anchored selection pipeline prompt]].
+
 This is a good larger HA task: it is all exact algebra and logic, while the
 remaining theorem is the anchored primitive concentration estimate.
 
 ---
 
-# 26. Anchored short-dilate form
+# 30. Anchored short-dilate form
 
 The anchored condition has a simpler direct form.
 
@@ -1239,7 +1444,7 @@ bound.
 
 ---
 
-# 27. Anchored gcd-energy form
+# 31. Anchored gcd-energy form
 
 The same condition can be written as a short gcd-energy count. A solution is a
 short vector
@@ -1289,7 +1494,7 @@ Eliminating $p$ between $i$ and $j$ gives the factorable relation
 $$
 q_i x_i y_j
 -q_j x_j y_i
-q_\ast x_\ast (y_i-y_j)
++q_\ast x_\ast (y_i-y_j)
 =0.
 $$
 
@@ -1299,7 +1504,7 @@ relations among the seed primes. This is the likely structured exception.
 
 ---
 
-# 28. Current proof avenues
+# 32. Current proof avenues
 
 There are now two plausible proof routes for the remaining arithmetic theorem:
 
