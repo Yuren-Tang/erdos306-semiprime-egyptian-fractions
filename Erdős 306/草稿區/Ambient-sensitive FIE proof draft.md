@@ -1456,3 +1456,310 @@ $$
 
 This is a concrete arithmetic-combinatorial lemma. It may be the right place to
 try a fresh proof rather than add more container bookkeeping.
+
+---
+
+# 20. After Aristotle TwoCoreBookkeeping: lattice-sieve shape of the last step
+
+The Aristotle run proving `TwoCoreBookkeeping.lean` changes the risk profile.
+
+The following finite implications are now safe to treat as formalized:
+
+1. one generated core gives the new-bucket capacity bound;
+2. two saturated cores give a dense two-core bucket-pair graph;
+3. high degree into a generated core gives many seed neighbours.
+
+In particular, the combinatorial path
+
+$$
+\text{persistent saturation}
+\Longrightarrow
+\text{many seed common-neighbours}
+\Longrightarrow
+\text{seeded witness matrix}
+$$
+
+is no longer the main uncertainty.
+
+The remaining uncertainty is the arithmetic counting of row-difference vectors.
+
+## 20.1 Lattice formulation
+
+Fix a seed tuple
+
+$$
+S=\{f_\ast,f_1,\ldots,f_k\},
+\qquad
+f_i=(q_i,u_i),
+$$
+
+and put
+
+$$
+A_i=p_0(u_i-u_\ast).
+$$
+
+Let $I=[-M_\tau,M_\tau]\cap\mathbb Z$. A residual prime $p\sim X$ contributes
+to the fixed-seed common neighbourhood only if there exists
+
+$$
+\mathbf b=(b_\ast,b_1,\ldots,b_k)\in I^{k+1}
+$$
+
+such that
+
+$$
+q_i b_i-q_\ast b_\ast + A_i\equiv0\pmod p
+\qquad (1\le i\le k).
+$$
+
+For each $p$, define the affine lattice slice
+
+$$
+\Lambda_p(S)
+=
+\left\{
+\mathbf b\in\mathbb Z^{k+1}:
+q_i b_i-q_\ast b_\ast + A_i\equiv0\pmod p
+\quad(1\le i\le k)
+\right\}.
+$$
+
+Then the desired fixed-seed count is bounded by
+
+$$
+\sum_{p\sim X}
+\#\bigl(\Lambda_p(S)\cap I^{k+1}\bigr),
+$$
+
+up to the already recorded zero-star and rank-one exceptions.
+
+The congruences have codimension $k$, so the expected determinant is $p^k$.
+A first-pass lattice heuristic would give
+
+$$
+\#\bigl(\Lambda_p(S)\cap I^{k+1}\bigr)
+\ll
+\frac{M_\tau^{k+1}}{p^k}
++O(1),
+$$
+
+or a dyadic-logarithmic variant. If $M_\tau\asymp X^{1/2}$ and $k\ge2$, the
+main term summed over $p\sim X$ is far below $N$:
+
+$$
+\sum_{p\sim X}
+\frac{M_\tau^{k+1}}{p^k}
+\ll
+\frac{X}{\log X}\cdot \frac{X^{(k+1)/2}}{X^k}
+=
+\frac{X^{(3-k)/2}}{\log X}.
+$$
+
+Thus already $k=2$ gives only $O(X^{1/2}/\log X)$ regular solutions, which is
+much smaller than the polylogarithmic residual mass left after the DRC
+extraction.
+
+Section 21 below improves the regular side further: for the actual entropy
+problem, it is enough to prove uniqueness per residual prime outside the
+short-kernel singular set.
+
+## 20.2 The short-kernel obstruction
+
+The only reason the lattice estimate can fail is that the homogeneous kernel
+
+$$
+q_i x_i-q_\ast x_\ast\equiv0\pmod p
+\qquad (1\le i\le k)
+$$
+
+has an unexpectedly short nonzero vector
+
+$$
+\mathbf x=(x_\ast,x_1,\ldots,x_k),
+\qquad
+\|\mathbf x\|_\infty\ll M_\tau.
+$$
+
+Equivalently, $p$ is a common large prime divisor of
+
+$$
+q_i x_i-q_\ast x_\ast
+\qquad (1\le i\le k).
+$$
+
+This is the homogeneous version of the same large-prime gcd problem.
+
+Therefore the last step should be stated as a dichotomy:
+
+**Seed lattice sieve dichotomy.**
+For a bounded seed tuple $S$ with $k\ge2$, either
+
+1. for most residual primes $p$, the affine slice $\Lambda_p(S)$ has the
+   regular determinant-size count;
+2. or many $p$ admit a short homogeneous kernel vector, in which case the seed
+   tuple satisfies a low-entropy rational relation and is charged as a
+   structured exception.
+
+This is exactly the kind of framework the earlier "two-core rectangle inverse"
+was missing.
+
+## 20.3 What remains to prove on paper
+
+The regular case is a geometry-of-numbers / larger-sieve estimate for the
+affine slices $\Lambda_p(S)$.
+
+The singular case must be shown to be low entropy. Concretely, short kernel
+vectors satisfy
+
+$$
+q_i x_i-q_\ast x_\ast=p\,y_i,
+\qquad
+|x_i|,|x_\ast|,|y_i|\ll M_\tau.
+$$
+
+For fixed short data $(x_\ast,x_i,y_i)$, the seed primes obey
+
+$$
+q_i x_i-q_\ast x_\ast=p\,y_i.
+$$
+
+If this happens for several independent seeds $i$, the primes $q_i$ lie in a
+bounded-complexity rational family controlled by $(q_\ast,p)$ and short
+coefficients. The expected entropy is far below free fingerprint entropy unless
+the family is rank-one / near-dominant.
+
+Thus the paper proof should now target:
+
+$$
+\boxed{
+\text{regular affine-lattice count}
+\quad+\quad
+\text{short-kernel structured entropy bound}.
+}
+$$
+
+This is more concrete than the previous witness-matrix formulation and seems
+like the next place to try an actual proof.
+
+---
+
+# 21. Regular case is uniqueness per residual prime
+
+There is a simpler way to state the regular side of the lattice sieve.
+
+Fix $S$ and $p$. Suppose two parameter vectors
+
+$$
+\mathbf b,\mathbf b'\in I^{k+1}
+$$
+
+both lie in the same affine slice $\Lambda_p(S)$. Then their difference
+
+$$
+\mathbf x=\mathbf b-\mathbf b'
+$$
+
+satisfies the homogeneous congruences
+
+$$
+q_i x_i-q_\ast x_\ast\equiv0\pmod p
+\qquad(1\le i\le k),
+$$
+
+and
+
+$$
+\|\mathbf x\|_\infty\le 2M_\tau.
+$$
+
+Therefore:
+
+**Regular uniqueness lemma.**
+If the homogeneous kernel has no nonzero vector with
+
+$$
+\|\mathbf x\|_\infty\le 2M_\tau,
+$$
+
+then
+
+$$
+\#(\Lambda_p(S)\cap I^{k+1})\le1.
+$$
+
+This is stronger and cleaner than the determinant-count phrasing. In the
+transversal setting, one candidate vector for a fixed residual prime $p$ means
+one candidate witness pattern and hence at most one candidate label $t$, up to
+the already separated tiny exceptions. Thus the polylogarithmic label
+multiplicity is removed in the regular case.
+
+So the real problem is exactly the singular case:
+
+$$
+\exists\,\mathbf x\ne0,\qquad
+\|\mathbf x\|_\infty\le 2M_\tau,\qquad
+q_i x_i-q_\ast x_\ast\equiv0\pmod p
+\quad(1\le i\le k).
+$$
+
+## 21.1 Anatomy of a singular prime
+
+Since $M_\tau<X$ in the central range, a short kernel vector cannot have
+$x_\ast=0$ unless it is zero. Indeed, if $x_\ast=0$, then
+
+$$
+p\mid q_i x_i.
+$$
+
+For $p\ne q_i$ and $|x_i|<p$, this forces $x_i=0$ for every $i$.
+
+Thus a singular vector has $x_\ast\ne0$. Writing the congruence as an integer
+identity gives
+
+$$
+q_i x_i-q_\ast x_\ast=p\,y_i,
+\qquad
+|y_i|\ll M_\tau.
+$$
+
+Equivalently,
+
+$$
+q_i
+=
+\frac{q_\ast x_\ast+p\,y_i}{x_i}.
+$$
+
+So, once $q_\ast$, $p$, and the short coefficients $(x_\ast,x_i,y_i)$ are fixed,
+the seed prime $q_i$ is determined.
+
+This is the promised low-entropy shape. A seed tuple admitting many singular
+residual primes must lie in a bounded-complexity rational family controlled by
+short coefficients. The remaining task is to show that this family is either:
+
+1. small enough to pay as a structured seed exception; or
+2. coherent enough to imply the rank-one / near-dominant alternative.
+
+## 21.2 Revised final local lemma
+
+The polylog-compression bottleneck can now be stated as:
+
+**Seed singularity lemma.**
+Let $S=\{f_\ast,f_1,\ldots,f_k\}$ be a bounded seed tuple with $k\ge2$ and
+$M_\tau<X^{1-o(1)}$. For all but a low-entropy family of seed tuples and
+residual primes $p\sim X$, the homogeneous kernel
+
+$$
+q_i x_i-q_\ast x_\ast\equiv0\pmod p
+$$
+
+has no nonzero vector with $\|\mathbf x\|_\infty\le2M_\tau$.
+
+Consequently the affine slice for each regular $p$ has at most one point, so
+the residual ambient has $O(1)$ label multiplicity per prime. The singular seed
+tuples are charged to the structured exception ledger.
+
+This is now the smallest local statement I see. It is no longer a general
+container lemma; it is a short-coefficient rational parametrization problem for
+prime tuples.

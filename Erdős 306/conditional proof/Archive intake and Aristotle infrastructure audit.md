@@ -55,6 +55,10 @@ The useful formal components are:
   $$
   implies the corresponding global bound for total internal cost plus leaf
   potential, with an optional weighted-saving version.
+- `TwoCoreBookkeeping.lean`, from the next Aristotle run, proves the three
+  finite implications needed after persistent second saturation: new-bucket
+  capacity for one generated core, the two-core edge lower bound, and the fact
+  that high degree into a generated core gives many seed neighbours.
 
 This supports the current scratch sections around marked dual counting, fingerprint exposure, first-level containers, repeated exposure budget, common-neighbour mass, and low-mode rank-one rigidity.
 
@@ -167,6 +171,29 @@ $p_v\sim X$. The smallest current arithmetic bottleneck is to bound how often a
 bounded seed-generated progression can contain vectors with such a common large
 prime divisor, unless the seed data are rank-one / low-entropy structured.
 
+The newest lattice-sieve formulation says: for fixed seeds, count the affine
+codimension-$k$ slices
+
+$$
+q_i b_i-q_\ast b_\ast+p_0(u_i-u_\ast)\equiv0\pmod p.
+$$
+
+The regular case should be paid by the determinant-size lattice count. The
+singular case is the existence of a short homogeneous kernel
+
+$$
+q_i x_i-q_\ast x_\ast\equiv0\pmod p,
+$$
+
+which must be counted as a low-entropy structured seed family.
+
+The regular case has a particularly simple form: two short-box points in the
+same affine slice differ by a short homogeneous kernel. Thus if no such kernel
+exists, each residual prime contributes at most one witness pattern. The final
+local bottleneck is therefore the seed singularity lemma: short homogeneous
+kernels must occur only in a low-entropy seed family, or force the rank-one /
+near-dominant structural exit.
+
 This is the current precise subcondition behind the route
 $$
 \mathrm{FIE}\Longrightarrow \mathrm{BCE}\Longrightarrow \mathrm{SBEE}.
@@ -195,7 +222,7 @@ For the proof attempt, work on the sharper internal target:
 
 $$
 \boxed{
-\text{large-prime gcd bound for bounded seed progressions}
+\text{seed singularity lemma}
 }
 $$
 
@@ -203,4 +230,7 @@ The Lean/Aristotle infrastructure can support the finite pieces, especially the
 new-bucket capacity, seed-neighbour, and two-core density bookkeeping. The
 remaining step is still a paper-side mathematical proof tying the generated
 bucket-rectangle / witness-defect inverse to the SBEE counting ledger; in its
-most concrete form, this is the large-prime gcd estimate above.
+most concrete form, this is the regular affine-lattice count plus the
+short-kernel structured entropy bound. The regular count has reduced to
+uniqueness per residual prime; the singular short-kernel family is the part that
+still needs proof.

@@ -314,6 +314,34 @@ Thus the current smallest arithmetic bottleneck is a large-prime gcd bound for
 bounded seed progressions, with rank-one / low-entropy structure as the inverse
 alternative.
 
+Equivalently, for a fixed seed tuple $S=\{f_\ast,f_1,\ldots,f_k\}$ one must
+count affine lattice slices
+
+$$
+\Lambda_p(S)=
+\left\{
+(b_\ast,b_1,\ldots,b_k):
+q_i b_i-q_\ast b_\ast+p_0(u_i-u_\ast)\equiv0\pmod p
+\right\}.
+$$
+
+The regular determinant-size estimate for these codimension-$k$ slices should
+give the needed saving. The singular alternative is a short homogeneous kernel
+
+$$
+q_i x_i-q_\ast x_\ast\equiv0\pmod p,
+$$
+
+which must be shown to have low entropy or to force rank-one / near-dominant
+structure.
+
+The regular side is even cleaner: if two points of $\Lambda_p(S)$ lie in the
+short box, their difference is such a short homogeneous kernel. Hence, in the
+absence of a short kernel, each residual prime $p$ has at most one candidate
+witness pattern and therefore no residual polylogarithmic label multiplicity.
+The final local lemma is the corresponding seed singularity bound for short
+kernel vectors.
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---

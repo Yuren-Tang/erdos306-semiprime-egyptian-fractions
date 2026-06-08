@@ -18,11 +18,15 @@ Useful imports:
 
 ```lean
 import Mathlib
+import RequestProject.TwoCoreBookkeeping
 import RequestProject.GeneralizedRankOne
 import RequestProject.RankOneRigidity
 ```
 
-If the previous task created `RequestProject/TwoCoreBookkeeping.lean`, you may import it too, but this prompt should remain meaningful without it.
+The previous task created `RequestProject/TwoCoreBookkeeping.lean` with
+`newBucket_capacity_mul_le`, `twoCore_edges_lower_mul`, and
+`highDeg_generatedCore_le_seedNeighbours`. Please import it and reference those
+theorems in a short documentation section, but do not reprove them.
 
 ## Goal 1: two-sided dependent-random-choice averaging
 
@@ -137,17 +141,69 @@ Then prove:
 theorem zeroRectangleDefect_iff_additiveRankOne ...
 ```
 
+## Goal 4: row-difference and common-divisor shell
+
+This goal is a formal shell only. Do not try to prove the arithmetic estimate.
+
+For a witness matrix
+
+```lean
+N : R → C → ℤ
+```
+
+and a reference column `c₀ : C`, define:
+
+```lean
+def rowDiff (N : R → C → ℤ) (c₀ : C) (r : R) (c : C) : ℤ :=
+  N r c - N r c₀
+```
+
+Prove the elementary identity:
+
+```lean
+theorem mixedDefect_eq_rowDiff_sub
+    (N : R → C → ℤ) (c₀ : C) (r r' : R) (c : C) :
+    mixedDefect N r r' c c₀ = rowDiff N c₀ r c - rowDiff N c₀ r' c
+```
+
+Then define a predicate saying one integer divides all row differences in a
+finite column set:
+
+```lean
+def DividesAllRowDiffs
+    (N : R → C → ℤ) (Cols : Finset C) (c₀ : C) (r : R) (p : ℤ) : Prop :=
+  ∀ c ∈ Cols, p ∣ rowDiff N c₀ r c
+```
+
+Add a short theorem or lemma showing this predicate is preserved under replacing
+`Cols` by a subset.
+
+This formalizes only the bookkeeping vocabulary for the paper-side statement:
+
+$$
+\text{row differences share a large prime divisor}.
+$$
+
+The actual estimate
+
+$$
+\text{large-prime gcd bound for bounded seed progressions}
+$$
+
+is still a mathematical paper proof, not a Lean task.
+
 ## Expected result
 
 - `RequestProject/SeededWitnessMatrix.lean` compiles with no `sorry`.
 - Goal 1 is the most useful new finite bookkeeping lemma.
 - Goals 2 and 3 should be straightforward wrappers around existing rank-one rigidity.
+- Goal 4 should be elementary and is useful for matching the newest draft.
 - Do not add SBEE or analytic assumptions.
 
 The arithmetic statement still remains outside Lean:
 
 $$
-\text{nonzero witness-matrix defects produce SBEE energy}.
+\text{large-prime gcd bound for bounded seed progressions}.
 $$
 
 This Lean task only formalizes the finite extraction and zero-defect structure.
