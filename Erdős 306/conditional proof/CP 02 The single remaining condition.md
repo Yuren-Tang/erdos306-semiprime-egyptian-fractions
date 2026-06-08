@@ -393,6 +393,19 @@ contains a good tuple, or it is efficiently covered by low-entropy reciprocal
 clusters.
 
 The active focused scratch for this final local problem is [[Reciprocal cluster cover proof draft]].
+After the latest finite bookkeeping, this local problem is sharpened to a
+reciprocal-cluster incidence estimate. Algebraically, a reciprocal cluster is a
+large-slope line
+$$
+z=p\,y+q_\ast x_\ast
+$$
+meeting the short seed point sets
+$$
+P_q=\{(y,qx): |x|,|y|\ll M_\tau\}.
+$$
+Thus the remaining inverse statement is that many such rich lines force many
+short factorable collinearity relations, hence a low-entropy rational seed
+structure.
 
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 

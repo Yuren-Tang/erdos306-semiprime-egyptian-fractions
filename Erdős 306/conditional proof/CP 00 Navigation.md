@@ -39,6 +39,7 @@ Archive and formalization audits:
 - [[HA ambient FIE prompt]]
 - [[HA cluster cover bookkeeping prompt]]
 - [[HA adaptive cluster selection prompt]]
+- [[HA cluster line incidence prompt]]
 
 External source now present in the vault:
 

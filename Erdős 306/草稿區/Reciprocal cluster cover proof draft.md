@@ -37,6 +37,19 @@ Aristotle has produced no-sorry Lean files for:
    - cardinal form: if at most $R$ clusters contain $T$ and each has size at
      most $L$, then $|F|\le |T|+RL$;
    - $k$-subset corollary producing the extension-cover hypothesis.
+4. `AdaptiveClusterSelection.lean`:
+   - defines cluster codegree, good $k$-subsets, and the all-covered
+     alternative;
+   - proves that all-covered plus low codegree gives the same cardinal cover
+     bound;
+   - proves the high-codegree incidence ledger
+     $$
+     \sum_{\substack{T\subset F\\ |T|=m}}\operatorname{codeg}(T)
+     \le
+     \sum_{\mathcal A}
+     \#\{T\subset F\cap\mathcal A:|T|=m\};
+     $$
+   - proves the cardinal upper bound by cluster intersections.
 
 This means the purely finite infrastructure is no longer the main risk.
 
@@ -484,6 +497,10 @@ References checked:
 - Cilleruelo--Garaev, "Congruences involving product of intervals and sets with
   small multiplicative doubling modulo a prime and applications",
   arXiv:1404.5070.
+- Bourgain--Garaev--Konyagin--Shparlinski, "On Congruences with Products of
+  Variables from Short Intervals and Applications", arXiv:1203.0017.
+- Garaev--Pardo--Shparlinski, "Binary and ternary congruences involving
+  intervals and sets modulo a prime", arXiv:2410.03991.
 
 ---
 
@@ -501,3 +518,167 @@ $$
 $$
 
 This is recorded in [[HA adaptive cluster selection prompt]].
+
+---
+
+# 13. After AdaptiveClusterSelection
+
+The latest Aristotle run closes the finite trichotomy:
+
+$$
+\text{good }k\text{-tuple}
+\quad\text{or}\quad
+\text{low-codegree cover}
+\quad\text{or}\quad
+\text{high-codegree incidence mass}.
+$$
+
+Therefore the remaining paper-side statement can be narrowed to one arithmetic
+incidence estimate for reciprocal clusters:
+
+**Reciprocal cluster incidence principle.**
+Let $F$ be a fingerprint seed pool. Unless $F$ is efficiently covered by
+low-entropy reciprocal clusters, the high-codegree incidence mass satisfies
+
+$$
+\sum_{\substack{T\subset F\\ |T|=m}}\operatorname{codeg}(T)
+\ll
+\binom{|F|}{m}(\log X)^C
+$$
+
+for $m=k-1$, with enough logarithmic slack.
+
+Together with `AdaptiveClusterSelection.lean`, this would produce a good
+$k$-tuple or a structured low-entropy seed container.
+
+---
+
+# 14. Line-incidence reformulation
+
+The congruence form has a more rigid integer-geometric form. Put
+
+$$
+c=q_\ast x_\ast,
+\qquad
+|x_\ast|\le 2M_\tau.
+$$
+
+If a cluster $\mathcal A(p,q_\ast,x_\ast)$ contains $q$, then there is a short
+$x$ such that
+
+$$
+qx\equiv c\pmod p.
+$$
+
+Since $q,p\sim X$ and $|x|,|x_\ast|\ll M_\tau$, this is equivalent to an
+integer identity
+
+$$
+qx=p\,y+c,
+\qquad
+|y|\ll M_\tau.
+$$
+
+For each seed prime $q$, define the short point set
+
+$$
+P_q
+=
+\{(y,z)\in\mathbb Z^2:
+|y|\ll M_\tau,\ z=qx,\ 0<|x|\le2M_\tau\}.
+$$
+
+Then a reciprocal cluster containing $T$ is a line
+
+$$
+\ell_{p,c}:\quad z=p\,y+c
+$$
+
+with slope $p\sim X$ and intercept $c=q_\ast x_\ast$, meeting every $P_q$ for
+$q\in T$.
+
+Thus high codegree is not merely many modular coincidences. It is many
+large-slope lines which are simultaneously incident to several highly
+structured short point sets $P_q$.
+
+For three seeds $q_1,q_2,q_3$ in one cluster, there are short $x_i,y_i$ such
+that the three points
+
+$$
+(y_i,q_i x_i)
+$$
+
+are collinear. Hence
+
+$$
+\det
+\begin{pmatrix}
+1&y_1&q_1x_1\\
+1&y_2&q_2x_2\\
+1&y_3&q_3x_3
+\end{pmatrix}
+=0,
+$$
+
+equivalently
+
+$$
+q_1x_1(y_2-y_3)
++q_2x_2(y_3-y_1)
++q_3x_3(y_1-y_2)
+=0.
+$$
+
+The coefficients are not arbitrary coefficients of size $O(M_\tau^2)$. They
+have the factorable form
+
+$$
+x_i(y_j-y_\ell),
+\qquad
+|x_i|,|y_j-y_\ell|\ll M_\tau.
+$$
+
+For four seeds, the same line condition gives simultaneous factorable
+relations, for example
+
+$$
+(q_1x_1-q_2x_2)(y_3-y_4)
+=
+(q_3x_3-q_4x_4)(y_1-y_2).
+$$
+
+This suggests a sharper inverse target:
+
+**Short factorable-collinearity principle.**
+If many reciprocal-cluster lines meet $P_q$ for many $q\in F$, then either
+$F$ is covered by few reciprocal clusters, or the primes in $F$ satisfy many
+short factorable linear relations
+
+$$
+\sum_i q_i\,x_i\,\Delta y_i=0,
+\qquad
+|x_i|,|\Delta y_i|\ll M_\tau,
+$$
+
+which should be charged as a low-entropy rational structure.
+
+This is probably the most concrete current formulation of the last arithmetic
+problem.
+
+---
+
+# 15. Next proof route
+
+The route now has four layers:
+
+1. Use `AdaptiveClusterSelection.lean` to reduce failure of a good tuple to
+   high reciprocal-cluster incidence.
+2. Convert reciprocal-cluster incidence into large-slope line incidence among
+   the point sets $P_q$.
+3. Use collinearity determinants to turn rich lines into short factorable
+   relations among the seed primes.
+4. Prove an inverse lemma: many such factorable relations imply a low-entropy
+   structured seed family, compatible with the existing FIE exception ledger.
+
+The remaining uncertainty is concentrated in layer 4. Layer 2 is algebraic, and
+layer 3 is exact determinant bookkeeping.

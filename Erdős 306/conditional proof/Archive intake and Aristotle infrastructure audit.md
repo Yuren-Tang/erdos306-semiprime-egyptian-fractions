@@ -68,6 +68,12 @@ The useful formal components are:
   in some cluster, then the seed pool lies in $T$ plus the union of clusters
   containing $T$, with the cardinal consequence $|F|\le |T|+RL$ when at most
   $R$ clusters contain $T$ and every cluster has size at most $L$.
+- `AdaptiveClusterSelection.lean`, from the subsequent Aristotle run, proves
+  the finite trichotomy around reciprocal clusters: either there is a good
+  $k$-subset, or all $k$-subsets are covered and a low-codegree $(k-1)$-set
+  gives the cluster-cover bound, or high codegree gives a large cluster-subset
+  incidence ledger. It also proves the cardinal upper bound for this incidence
+  in terms of cluster intersections.
 
 This supports the current scratch sections around marked dual counting, fingerprint exposure, first-level containers, repeated exposure budget, common-neighbour mass, and low-mode rank-one rigidity.
 
