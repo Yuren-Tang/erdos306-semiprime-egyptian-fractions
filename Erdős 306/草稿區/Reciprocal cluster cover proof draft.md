@@ -1,0 +1,503 @@
+# Reciprocal cluster cover proof draft
+
+Back to [[Ambient-sensitive FIE proof draft]] and [[CP 02 The single remaining condition]].
+
+This is the focused working note for the current smallest bottleneck inside
+ambient-sensitive FIE.
+
+The large historical scratch notes should now be treated as route history. The
+active local problem is:
+
+$$
+\boxed{
+\text{reciprocal-cluster covering for singular seeds}
+}
+$$
+
+---
+
+# 1. What Aristotle has closed
+
+The finite path from persistent saturation to the seed-matrix formulation is now
+credible.
+
+Aristotle has produced no-sorry Lean files for:
+
+1. `TwoCoreBookkeeping.lean`:
+   - one generated core gives new-bucket capacity;
+   - two saturated cores give a dense two-core bucket-pair graph;
+   - high degree into a generated core gives many seed neighbours.
+2. `SeededWitnessMatrix.lean`:
+   - two-sided dependent-random-choice averaging;
+   - witness matrices and mixed-defect / additive-rank-one equivalence;
+   - row differences and common-divisor bookkeeping.
+3. `ClusterCoverBookkeeping.lean`:
+   - if every one-point extension of a fixed set $T$ is covered by a cluster,
+     then the seed pool lies in $T$ plus the union of clusters containing $T$;
+   - cardinal form: if at most $R$ clusters contain $T$ and each has size at
+     most $L$, then $|F|\le |T|+RL$;
+   - $k$-subset corollary producing the extension-cover hypothesis.
+
+This means the purely finite infrastructure is no longer the main risk.
+
+The remaining work is arithmetic plus one selection/structure step for
+reciprocal clusters.
+
+---
+
+# 2. Current variables
+
+Fix a reference seed
+
+$$
+f_\ast=(q_\ast,u_\ast),
+\qquad
+q_\ast\sim X.
+$$
+
+Let
+
+$$
+M_\tau=1+\frac{\tau}{X}
+$$
+
+be the short witness range. In the central case,
+
+$$
+M_\tau\asymp X^{1/2}
+$$
+
+up to logarithmic factors.
+
+Let $k$ be the number of non-reference seeds chosen by the DRC step. The
+singular-count threshold is
+
+$$
+M_\tau^{k+1}\ll X^{k-1}(\log X)^{-C}.
+$$
+
+At the central scale this requires
+
+$$
+k>3.
+$$
+
+Thus four non-reference seeds should be enough, after reserving fixed
+logarithmic slack.
+
+---
+
+# 3. Regular uniqueness
+
+For a seed tuple
+
+$$
+S=\{f_\ast,f_1,\ldots,f_k\},
+\qquad
+f_i=(q_i,u_i),
+$$
+
+put
+
+$$
+A_i=p_0(u_i-u_\ast).
+$$
+
+For each residual prime $p\sim X$, define the affine slice
+
+$$
+\Lambda_p(S)
+=
+\left\{
+\mathbf b=(b_\ast,b_1,\ldots,b_k):
+q_i b_i-q_\ast b_\ast+A_i\equiv0\pmod p
+\right\},
+$$
+
+with
+
+$$
+|b_\ast|,|b_i|\le M_\tau.
+$$
+
+If two points of $\Lambda_p(S)$ lie in this short box, their difference gives a
+short homogeneous kernel:
+
+$$
+q_i x_i-q_\ast x_\ast\equiv0\pmod p,
+\qquad
+\|\mathbf x\|_\infty\le2M_\tau.
+$$
+
+Hence, if no nonzero short homogeneous kernel exists, then
+
+$$
+\#(\Lambda_p(S)\cap[-M_\tau,M_\tau]^{k+1})\le1.
+$$
+
+This removes the residual polylogarithmic label multiplicity in the regular
+case.
+
+---
+
+# 4. Singular seed tuples
+
+A singular tuple has
+
+$$
+0<|x_\ast|\le2M_\tau,
+\qquad
+0<|x_i|\le2M_\tau,
+\qquad
+|y_i|\ll M_\tau,
+$$
+
+such that
+
+$$
+q_i x_i-q_\ast x_\ast=p\,y_i.
+$$
+
+For fixed $p,q_\ast,x_\ast$ and $x_i$, the congruence form gives
+
+$$
+q_i\equiv q_\ast x_\ast x_i^{-1}\pmod p.
+$$
+
+Since $q_i\in[X,2X]$ and $p\sim X$, each short $x_i$ gives only $O(1)$ possible
+integers $q_i$.
+
+Therefore singular seed prime tuples obey the global count
+
+$$
+\#\{\text{singular seed prime tuples}\}
+\ll
+N^2M_\tau^{k+1}(\log X)^{O(1)}.
+$$
+
+The free count is
+
+$$
+N^{k+1}.
+$$
+
+Thus singular tuples are globally sparse if
+
+$$
+M_\tau^{k+1}\ll X^{k-1}(\log X)^{-C}.
+$$
+
+This is a real saving, but it is not yet a fixed-pool selection theorem.
+
+---
+
+# 5. Reciprocal clusters
+
+For fixed
+
+$$
+(p,q_\ast,x_\ast),
+$$
+
+define
+
+$$
+\mathcal A(p,q_\ast,x_\ast)
+=
+\left\{
+q\sim X:
+\exists\,0<|x|\le2M_\tau,\quad
+qx\equiv q_\ast x_\ast\pmod p
+\right\}.
+$$
+
+Equivalently,
+
+$$
+q\equiv q_\ast x_\ast x^{-1}\pmod p.
+$$
+
+Each cluster has size
+
+$$
+|\mathcal A(p,q_\ast,x_\ast)|\ll M_\tau.
+$$
+
+A singular non-reference seed tuple is contained in one of these clusters:
+
+$$
+(q_1,\ldots,q_k)\in \mathcal A(p,q_\ast,x_\ast)^k.
+$$
+
+Thus the singular hypergraph is contained in a union of complete $k$-graphs on
+reciprocal clusters.
+
+---
+
+# 6. What HA ClusterCover gives
+
+Let $F$ be the current fingerprint seed pool.
+
+If every $k$-subset of $F$ is contained in some reciprocal cluster, and if for
+some fixed $(k-1)$-subset $T\subset F$ at most $R$ clusters contain $T$, then HA
+gives
+
+$$
+|F|\le |T|+R\,L,
+\qquad
+L=\max_{\mathcal A}|\mathcal A|\ll M_\tau.
+$$
+
+Therefore:
+
+- if $|F|\asymp M_\tau$ and $R=O(1)$, $F$ can be encoded inside $O(1)$ clusters;
+- encoding inside one cluster costs about $|F|\log M_\tau$ rather than
+  $|F|\log N$, giving a central saving of order $\frac12|F|\log N$;
+- if no such $T$ has controlled cluster codegree, then the high codegree itself
+  must be treated as arithmetic structure.
+
+So the active paper problem is not the finite cover lemma. It is the
+reciprocal-cluster codegree/structure estimate.
+
+---
+
+# 7. Cluster codegree equation
+
+Let
+
+$$
+T=\{q_1,\ldots,q_t\}
+$$
+
+be a set of seed primes. A cluster $\mathcal A(p,q_\ast,x_\ast)$ contains $T$
+iff for every $j$ there is a short $x_j$ such that
+
+$$
+q_jx_j\equiv q_\ast x_\ast\pmod p.
+$$
+
+Thus for every pair $j,\ell$,
+
+$$
+p\mid q_jx_j-q_\ell x_\ell.
+$$
+
+The crude coefficient count is too weak: choosing $(x_j,x_\ell)$ gives
+$O(M_\tau^2)$ possible large primes. At the central scale this is too large for
+the HA cardinal cover bound.
+
+The needed arithmetic improvement is:
+
+**Reciprocal cluster codegree principle.**
+For a non-structured set $T$ of at least three or four seed primes, the number
+of reciprocal clusters containing $T$ is $O((\log X)^C)$, or at least small
+enough that HA's cover lemma gives low entropy.
+
+If this fails for many $T$, then many short congruences
+
+$$
+q_jx_j\equiv q_\ast x_\ast\pmod p
+$$
+
+hold simultaneously. This should force $T$ into a low-entropy rational family,
+which is the structured exception.
+
+---
+
+# 8. Next mathematical target
+
+The next proof attempt should target one of the following equivalent forms:
+
+1. **Good codegree form:** find a $(k-1)$-subset $T\subset F$ with small
+   reciprocal-cluster codegree, unless $F$ is structured.
+2. **Cluster cover form:** if every $k$-subset of $F$ is singular, then $F$ is
+   covered by $O((\log X)^C)$ reciprocal clusters, unless $F$ is structured.
+3. **Intersection form:** large intersections among many reciprocal clusters
+   force short-coefficient rational relations among their parameters.
+
+This is the current smallest honest bottleneck I see.
+
+It is plausible, but not closed.
+
+---
+
+# 9. Codegree as short-dilate intersection
+
+For a fixed seed set
+
+$$
+T=\{q_1,\ldots,q_t\},
+$$
+
+define the local multiplicity at a residual prime $p$ by
+
+$$
+C_p(T)
+=
+\#\left\{
+x_\ast:
+0<|x_\ast|\le 2M_\tau,
+\forall q\in T\ \exists\,0<|x_q|\le2M_\tau,
+q x_q\equiv q_\ast x_\ast\pmod p
+\right\}.
+$$
+
+Equivalently, with
+
+$$
+a_q(p)\equiv q_\ast q^{-1}\pmod p,
+$$
+
+the condition is
+
+$$
+x_\ast\in[-2M_\tau,2M_\tau]
+\quad\text{and}\quad
+a_q(p)x_\ast\in[-2M_\tau,2M_\tau]\pmod p
+$$
+
+for every $q\in T$.
+
+Thus, up to harmless duplicate indexing of identical clusters,
+
+$$
+\operatorname{codeg}(T)
+\le
+\sum_{p\sim X} C_p(T).
+$$
+
+This is the cleaner arithmetic form:
+
+$$
+\text{many clusters through }T
+\quad\Longleftrightarrow\quad
+\text{many primes }p\text{ for which several modular dilates of a short interval intersect.}
+$$
+
+For random-looking ratios $a_q(p)$ one expects
+
+$$
+C_p(T)
+\approx
+M_\tau\left(\frac{M_\tau}{X}\right)^t.
+$$
+
+At the central scale $M_\tau\asymp X^{1/2}$ and $t=3$ or $4$, this is already
+tiny per prime. Hence high codegree should be a genuine structure signal, not a
+generic event.
+
+---
+
+# 10. Codegree as short gcd energy
+
+There is an equivalent divisor form which may be better for proofs. If a
+cluster contains $T$, then there are short coefficients
+
+$$
+0<|x_\ast|,|x_q|\le2M_\tau
+\qquad(q\in T)
+$$
+
+such that
+
+$$
+p\mid qx_q-q_\ast x_\ast
+\qquad(q\in T).
+$$
+
+Therefore
+
+$$
+\operatorname{codeg}(T)
+\le
+\sum_{\substack{0<|x_\ast|\le2M_\tau\\0<|x_q|\le2M_\tau}}
+\omega_X\!\left(
+\gcd_{q\in T}(qx_q-q_\ast x_\ast)
+\right),
+$$
+
+where $\omega_X(n)$ counts prime divisors $p\sim X$ of $n$.
+
+The needed arithmetic estimate can now be stated as a short gcd-energy
+principle:
+
+**Short gcd-energy principle.**
+For non-structured $T$ with $|T|=t\ge3$ or $4$,
+
+$$
+\sum_{\substack{0<|x_\ast|\le2M_\tau\\0<|x_q|\le2M_\tau}}
+\omega_X\!\left(
+\gcd_{q\in T}(qx_q-q_\ast x_\ast)
+\right)
+\ll(\log X)^C
+$$
+
+or at least is small enough that HA's low-codegree cover lemma gives entropy
+saving.
+
+If this estimate fails, then many short vectors satisfy simultaneous
+congruences
+
+$$
+qx_q-q_\ast x_\ast\equiv0\pmod p.
+$$
+
+For fixed $p$ and one seed $q$, this is a two-dimensional lattice in the
+$(x_\ast,x_q)$ box. A large number of points in that box forces a much shorter
+nonzero lattice vector by pigeonholing. Thus large $C_p(T)$ gives stronger
+short-rational relations. If many different $p$ contribute with small
+$C_p(T)$, the same phenomenon appears after summing the short gcd energy.
+
+So the structure alternative should be expressible as:
+
+$$
+\text{high reciprocal-cluster codegree}
+\Longrightarrow
+\text{many unusually short rational relations among the }q/q_\ast.
+$$
+
+This is a better final target than the earlier vague phrase
+"large cluster intersections".
+
+---
+
+# 11. External-tool check
+
+I checked the nearby literature direction. Results on modular hyperbolas and
+short interval products, such as Cilleruelo--Garaev bounds for
+
+$$
+xy\equiv\lambda\pmod p
+$$
+
+in short boxes, are conceptually relevant. However, their strongest directly
+quoted small-box regimes are far below the central scale
+$M_\tau\asymp X^{1/2}$. The right local tool here is therefore probably not a
+black-box modular-hyperbola estimate. It should be a bespoke inverse statement
+using the fixed prime ratios $q/q_\ast$, the simultaneous nature of $t\ge4$
+seeds, and the fact that the residual prime $p$ varies.
+
+References checked:
+
+- Cilleruelo--Garaev, "Concentration points on two and three dimensional
+  modular hyperbolas and applications", arXiv:1007.1526.
+- Cilleruelo--Garaev, "Congruences involving product of intervals and sets with
+  small multiplicative doubling modulo a prime and applications",
+  arXiv:1404.5070.
+
+---
+
+# 12. New finite task for HA
+
+The next Aristotle task should not ask it to prove the short gcd-energy
+principle. Instead it should formalize the finite dichotomy around it:
+
+$$
+\text{good }k\text{-tuple}
+\quad\text{or}\quad
+\text{low-codegree cover}
+\quad\text{or}\quad
+\text{high-codegree incidence mass}.
+$$
+
+This is recorded in [[HA adaptive cluster selection prompt]].

@@ -392,6 +392,8 @@ container/covering statement for these reciprocal clusters: either the seed pool
 contains a good tuple, or it is efficiently covered by low-entropy reciprocal
 clusters.
 
+The active focused scratch for this final local problem is [[Reciprocal cluster cover proof draft]].
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---

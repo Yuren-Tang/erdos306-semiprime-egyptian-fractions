@@ -63,6 +63,11 @@ The useful formal components are:
   two-sided dependent-random-choice averaging lemma, packages witness matrices
   and zero mixed defect as additive rank one, and formalizes row differences and
   the common-divisor predicate used in the seed singularity reduction.
+- `ClusterCoverBookkeeping.lean`, from the latest Aristotle run, proves the
+  finite cluster-cover lemma: if every one-point extension of $T$ is contained
+  in some cluster, then the seed pool lies in $T$ plus the union of clusters
+  containing $T$, with the cardinal consequence $|F|\le |T|+RL$ when at most
+  $R$ clusters contain $T$ and every cluster has size at most $L$.
 
 This supports the current scratch sections around marked dual counting, fingerprint exposure, first-level containers, repeated exposure budget, common-neighbour mass, and low-mode rank-one rigidity.
 
@@ -236,6 +241,8 @@ $$
 with $|\mathcal A|\ll M_\tau$. The selection problem is therefore a
 container/covering statement for these reciprocal clusters, not an arbitrary
 sparse hypergraph problem.
+
+The active focused scratch for this last local issue is [[Reciprocal cluster cover proof draft]].
 
 This is the current precise subcondition behind the route
 $$
