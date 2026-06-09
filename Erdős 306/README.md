@@ -6,3 +6,7 @@ Current working entry point:
 
 Everything outside `core-packet/` is now reference/archive unless a core-packet
 file points to it.
+
+Lean-side work is also inside the core packet:
+
+[[core-packet/lean/README]]

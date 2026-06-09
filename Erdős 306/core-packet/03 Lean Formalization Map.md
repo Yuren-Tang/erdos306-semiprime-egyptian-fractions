@@ -2,13 +2,15 @@
 
 Back to [[00 README]].
 
-Latest full Aristotle package:
+Current Lean working package:
 
 $$
-\texttt{../Aristotle/output-final\_aristotle\_7/}
+\texttt{lean/}
 $$
 
-Use it as the current Lean reference package.
+It is a curated subset of the latest archived Aristotle package
+`../Aristotle/output-final_aristotle_7/`. Future Lean work should use this
+clean workbench unless a specific archived dependency must be reintroduced.
 
 ## Boundary file
 
@@ -60,6 +62,10 @@ Use it as the current Lean reference package.
 - `BernoulliFourier.lean`, `LatticeSpan.lean`, `CrossLabelEnergy.lean`:
   partial Fourier/lattice/energy infrastructure.
 
+Bucket/FIE formalization files from the archived Aristotle packages are not in
+the core Lean workbench. They should be restored only if the active
+rational-collision theorem needs them.
+
 ## Lean status
 
 The useful Lean fact is not "Erdős 306 is proved". It is:
@@ -69,3 +75,6 @@ $$
 $$
 
 The remaining theorem is mathematical and analytic/inverse-combinatorial.
+
+Local note: Codex could not rebuild this package here because the shell did not
+have a `lake` command available.

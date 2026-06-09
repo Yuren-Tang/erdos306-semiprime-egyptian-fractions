@@ -26,7 +26,10 @@ stitching the shell theorem back upward.
 
 ## `../Aristotle/output-final_aristotle_7/`
 
-Current Lean reference package. It contains:
+Latest archived Aristotle package. A curated subset has been copied into
+`./lean/` inside this core packet. Use the local curated copy for future work.
+
+It contains:
 
 - `RequestProject/FourierPositivity.lean`
 - `RequestProject/Erdos306Unconditional.lean`

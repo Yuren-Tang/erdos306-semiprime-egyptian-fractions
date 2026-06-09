@@ -41,6 +41,10 @@ The active mathematical target is the rational-value collision theorem in
 5. [[05 Next Work Plan]]
 6. [[06 Archive Map]]
 
+Lean-side work should use:
+
+- [[lean/README]]
+
 ## One-sentence target
 
 Prove that short rational-value collisions
