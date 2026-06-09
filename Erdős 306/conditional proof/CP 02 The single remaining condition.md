@@ -574,6 +574,30 @@ $$
 
 which are now the concrete structured-exception language.
 
+Equivalently, the last arithmetic input is an inverse incidence theorem for
+collisions of the four rational maps
+
+$$
+p
+=
+\frac{q_4z_4-q_\ast x_\ast}{y_4}
+=
+\frac{q_i x_i-q_4x_4}{a_i}
+\qquad(1\le i\le3).
+$$
+
+The desired dichotomy is:
+
+$$
+\text{few collisions at the random scale}
+\quad\text{or}\quad
+\text{low-height seed structure}.
+$$
+
+The seed-prime diagonal $p=q_4$ must be removed explicitly: it creates a large
+$B_{123}$ fibre through $a_i=-x_4$, but the anchor congruence then forces
+$x_\ast=0$ and contributes no nondegenerate hit.
+
 For formal downstream use, this page still treats SBEE as the single named condition. The refined BCE formulation is a sharper route toward proving SBEE, not an additional independent assumption in the main theorem.
 
 ---

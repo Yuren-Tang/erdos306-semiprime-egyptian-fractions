@@ -736,9 +736,125 @@ Thus the truly new arithmetic difficulty is the three-modulus common-numerator
 side $B_{123}$ and its correlation with $A_{04}$, not a generic failure of
 short rational representation on the anchor side.
 
+One must not replace the correlation by a naive separate bound for $B_{123}$.
+There is a visible seed-prime diagonal:
+
+$$
+p=q_4,\qquad a_1=a_2=a_3=-x_4,
+$$
+
+which gives a large $B_{123}$ fibre. But it contributes nothing to the full
+six-variable count, since the anchor congruence becomes
+
+$$
+q_0x_0\equiv0\pmod {q_4},
+$$
+
+forcing $x_0=0$ in the short nonzero box. Thus the correct object is genuinely
+the correlation $A_{04}B_{123}$ after diagonal removal, not $B_{123}$ alone.
+
 ---
 
-# 9. Immediate sublemmas
+# 9. Rational-value collision framework
+
+The split-star equations should be viewed as a collision of four short rational
+maps at the same integer value $p$:
+
+$$
+p
+=
+\frac{q_4z_4-q_0x_0}{y_4}
+=
+\frac{q_i x_i-q_4x_4}{a_i}
+\qquad(1\le i\le3).
+$$
+
+This is the first formulation that feels structurally complete. The earlier
+CRT, gcd-energy, and factorable-relation languages are different projections of
+this same rational-value collision.
+
+The proof should now be organized around the following dichotomy.
+
+**Non-structured case.** The four rational maps behave transversely on short
+boxes. Then the number of common values $p\in[X,2X]$ is controlled by the
+random scale
+
+$$
+1+\frac{H^6}{X^3}.
+$$
+
+This is the desired residual-prime shell estimate.
+
+**Structured case.** Transversality fails. Then many collisions yield many
+split-star relations
+
+$$
+q_i(x_i y_4)+q_0(x_0a_i)-q_4(x_4y_4+z_4a_i)=0,
+$$
+
+with all coefficients built from short products. These relations put the seed
+tuple into a low-height rational family, which is exactly the kind of exception
+the FIE/cluster-cover ledger is designed to pay.
+
+This reframes the remaining theorem as an inverse incidence statement:
+
+$$
+\text{many rational-value collisions}
+\Longrightarrow
+\text{low-entropy seed structure}.
+$$
+
+That is the root problem. The current algebraic formalization is useful because
+it has now made every arrow in this sentence exact.
+
+---
+
+# 10. Fourier diagnostic
+
+There is a direct analytic expansion, but it explains why the problem is not
+likely to collapse under a one-line Kloosterman estimate.
+
+Let $Q=q_1q_2q_3q_4$, and let $I=[X,2X]$. Expanding the condition
+
+$$
+R(x_0,x_4,y_4,a_1,a_2,a_3)\in I\pmod Q
+$$
+
+by additive characters modulo $Q$ gives a main term of size $H^6/X^3$ and error
+terms built from sums of the form
+
+$$
+S_{04}(u)
+=
+\sum_{0<|x_0|,|y_4|\le H}
+e_{q_4}\!\left(-u q_0x_0y_4^{-1}\right),
+$$
+
+and
+
+$$
+T_{123}(u_1,u_2,u_3)
+=
+\sum_{0<|x_4|\le H}
+\prod_{i=1}^3
+\sum_{0<|a_i|\le H}
+e_{q_i}\!\left(-u_i q_4x_4a_i^{-1}\right).
+$$
+
+At the central scale $H\asymp X^{1/2}$ and $q_i\asymp X$, these are incomplete
+reciprocal/Kloosterman sums at the square-root length. Completion plus Weil
+gives bounds of roughly the same size as the trivial length bound, up to
+logarithms, unless one exploits bilinear/multilinear averaging or proves an
+inverse statement for concentration.
+
+So the Fourier route is not ruled out, but it must use the product structure of
+$T_{123}$ and the interval Fourier weights together. The inverse-incidence
+formulation above is the same obstruction in structural language: any failure
+of cancellation should create many split-star factorable relations.
+
+---
+
+# 11. Immediate sublemmas
 
 The next proof should try to establish:
 
@@ -767,19 +883,23 @@ The next proof should try to establish:
    $$
    q_i(x_i y_4)+q_0(x_0a_i)-q_4(x_4y_4+z_4a_i)=0.
    $$
-5. **Correlation inverse lemma.** The short-ratio correlation
+5. **Diagonal-removal lemma.** The seed-prime diagonal $p=q_4$ creates a large
+   $B_{123}$ fibre but gives no nonzero anchor contribution. Similar seed-prime
+   coincidences should either vanish or be put into the explicit diagonal
+   ledger.
+6. **Correlation inverse lemma.** The short-ratio correlation
    $$
    \sum_p A_{04}(p)B_{123}(p)
    $$
    is polylogarithmic unless these factorable ternary relations occupy a
    low-entropy structured family.
-6. **Small-height exception lemma.** A primitive ray with height
+7. **Small-height exception lemma.** A primitive ray with height
    $H<M(\log X)^{-C}$ puts the seed tuple inside an explicitly encodable
    family
    $$
    q_i=\frac{q_0x_0+p\,y_i}{x_i}.
    $$
-7. **Many-rays inverse lemma.** Many primitive rays of comparable height force
+8. **Many-rays inverse lemma.** Many primitive rays of comparable height force
    many factorable ternary relations; these relations imply low entropy unless
    the seed tuple is already near the rank-one / near-dominant exit.
 
@@ -787,6 +907,8 @@ The first item has now been handed to Aristotle and closed. The second item is
 also closed by `PrimitiveProjectiveNormalization.lean`, modulo importing the
 new package into the workspace. The third item is closed in the latest
 Aristotle report via `ResidualPrimeShellCRT.lean`, modulo importing the package.
-The fourth item is the next useful exact-algebra interface. The fifth, sixth,
-and seventh are the real paper-side arithmetic tasks, with the fifth now the
-sharpest target.
+The fourth item is closed in the latest Aristotle report via
+`SplitStarCorrelation.lean`, modulo importing the package. The fifth is an
+explicit cleanup forced by the current numerical and algebraic diagnostics. The
+sixth, seventh, and eighth are the real paper-side arithmetic tasks, with the
+sixth now the sharpest target.

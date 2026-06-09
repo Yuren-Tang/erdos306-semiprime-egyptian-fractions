@@ -1667,3 +1667,22 @@ $$
 
 unless the split-star factorable relations occupy a low-entropy structured
 family.
+
+This is no longer mainly an interface problem. After
+`SplitStarCorrelation.lean`, the HA side has formalized the exact finite
+identity behind this correlation. The paper-side task is now the inverse
+incidence theorem for the rational-value collision
+
+$$
+p
+=
+\frac{q_4z_4-q_\ast x_\ast}{y_4}
+=
+\frac{q_i x_i-q_4x_4}{a_i}
+\qquad(1\le i\le3).
+$$
+
+The diagonal $p=q_4$ should be split off at the start: it gives the large
+$B_{123}$ family $a_i=-x_4$ but no nonzero anchor hit. After that cleanup, many
+collisions should force the displayed split-star factorable relations to occupy
+a low-entropy seed family.

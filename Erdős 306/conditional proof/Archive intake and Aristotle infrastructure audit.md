@@ -113,6 +113,11 @@ The useful formal components are:
   data reconstructs the normalized anchored lattice once the anchor equation is
   supplied, zero denominators are excluded in the short coprime range, and the
   fixed-height residual-prime shell bound is packaged as a formal endpoint.
+- `SplitStarCorrelation.lean`, from the latest Aristotle report, formalizes the
+  split-star interpretation of the six-variable shell, the diagonal bridge back
+  to anchored hits, the three factorable ternary relations, the representation
+  functions $A_{04}$ and $B_{123}$, the exact correlation double-counting
+  identity, and the anchor-side collision determinant.
 - `LatticeSpan.lean`, `SemiprimeInfinity.lean`, and `BernoulliFourier.lean`,
   from the broad overview Aristotle run, formalize useful peripheral
   infrastructure: the lattice-span gcd lemma, existence of fresh semiprimes,
