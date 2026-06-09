@@ -1,14 +1,21 @@
 # Conditional proof navigation
 
+Current compressed working package:
+
+- [[../core-packet/00 README]]
+
+This page is now reference/archive navigation for the longer conditional proof
+files.
+
 This folder is the cleaned conditional proof package. The old notes remain useful as scratch history, but the intended reading order is now:
 
-1. [[CP 01 Conditional theorem]]  
+1. [[CP 01 Conditional theorem]]
    Main theorem, hypotheses, and the conditional proof of the squarefree-denominator result.
-2. [[CP 02 The single remaining condition]]  
+2. [[CP 02 The single remaining condition]]
    The only unfinished mathematical input, stated as a precise dyadic energy-entropy condition.
-3. [[CP 03 Lemma bank]]  
+3. [[CP 03 Lemma bank]]
    Decoupled lemmas used by the main proof: Irving pruning, divisor-energy, edge construction, lattice span, global partition.
-4. [[SBEE dyadic proof draft]]  
+4. [[SBEE dyadic proof draft]]
    Working draft area for attacking the single remaining condition.
 5. [[Archive intake and Aristotle infrastructure audit]]
    Audit of the newly imported archive, the decoded webarchive, and the second Aristotle infrastructure package.
