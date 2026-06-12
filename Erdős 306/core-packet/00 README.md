@@ -29,9 +29,17 @@ condition" of the conditional proof):
   the dispersion engine, Theorems A/B/C, and Lemma E. This is CP 02's "single
   remaining condition", proved elementarily. See note **33**.
 
-Beyond SBEE: the block-to-global chain is now **fully proved on paper, translation-ready** (note 34, no Irving anywhere), and the circle method is spec'd with computations (note 35). **The FINAL Aristotle task package (delivery TASK.md: phases G/C/W) takes the verified SBEE theorem to a sorry-free `erdos_306`.** The earlier "rational-collision / Fourier positivity" framing
-(notes 02–16) was the exploratory route; the SBEE route (29+) is the one being
-carried to machine verification.
+Beyond SBEE: the block-to-global chain is **proved on paper** (note 34, no Irving
+anywhere), and the circle method is spec'd with computations (note 35). The
+latest Aristotle recovery package has machine-verified the faithful finite
+global-assignment interface, G2, G3, and the exceptional G3 corollary; the honest
+remaining Lean targets are now **G5**, **G7**, and **Phase C**
+(`CircleMethod.exists_positive_weighted_construction`). Note **37** is the current
+formalization blueprint, correcting the G5/G7 constant quantifiers and splitting
+the remaining proof into abstract Peierls bookkeeping plus circle-method lemmas.
+The earlier "rational-collision / Fourier positivity" framing (notes 02–16) was
+the exploratory route; the SBEE route (29+) is the one being carried to machine
+verification.
 
 ## Read order
 
@@ -65,6 +73,8 @@ carried to machine verification.
 28. [[28 Faithful SBEE Statement - Design (4th iteration)]] — **4th faithfulness failure**: F2a''' uniform-C still unfaithful (free labeling `∀bl` that `blockPartFun` ignores ⇒ `bl≡0` collapses to a FALSE unconditional bound). **I stop iterative patching and DESIGN the full faithful statement**: `SBEEPartitionBound = ∃C, ∀ pruned `IrvingGood` block P, blockPartFun ≤ C/σ` — uniform C, **pruning hypothesis**, **NO free labeling** (dominant/tiny/non-dom = internal proof cases, label energy-determined). Meta: stating SBEE faithfully is a multi-round design problem; my specs were incomplete each time; **no Aristotle round until I fully pin the statement.**
 29. [[29 SBEE Master - Dominant Case Proved, Window Isolated]] — **mathematical center, part 1.** Full proofs: **Lemma D** (deterministic dispersion, no Kloosterman), **Theorem A** (dominant case: PROVED, elementary, no Irving), **Lemma E** (cross-label energy), **Theorem B** (non-dominant forces $R\gg X/\log^3X$). SBEE unconditional for all $R\le c'X/\log^3X$; window isolated.
 35. [[35 Circle Method - Detailed Spec (Translation-Ready)]] — CP 01 deterministically restated: weighted count W, finite Fourier identity, Bernoulli bound (c=16/9, computed), main-arc Taylor (explicit errors), minor arc = G7, positivity ⟹ closes `fourier_positivity_unconditional`. One external input: Chebyshev block density.
+37. [[37 Faithful G5 G7 C Formalization Blueprint]] — **current next-step blueprint** after Aristotle's latest recovery: finite global assignments + G2/G3/exceptions are done; G5/G7 must be restated with a uniform base constant `exp(A·#blocks)` and a growing `F0(k0)`/final `η` form; prove an abstract `GlobalPeierlsBookkeeping` layer first, then instantiate and split Phase C into C1a–C6.
+36. [[36 Aristotle Append - G5 G7 C Proof]] — previous append prompt: detailed proof of finite assignment, exceptional G3, G5/G7, and Phase C. Superseded/refined by note 37 for the faithful constant quantifiers.
 34. [[34 Global Control - Detailed Proof (Translation-Ready)]] — **the block-to-global chain (Prop 8.1) fully proved, NO Irving anywhere** (deterministic cross-dispersion G2 suffices: Peierls penalties Π_k≍4^k/k⁴ beat entropies ≍k doubly-exponentially, numerically verified). Theorem G (global level-set, segment/droplet encoding) + G7 partition form. Replaces CP 03 §§5–8 (no polymer expansion needed).
 33. [[33 SBEE Machine-Verified - Milestone and Remaining Chain]] — **MILESTONE: SBEE single-block counting (CP 02's "single remaining condition") is fully machine-verified, sorry-free, faithful** (`single_block_counting : SBEEPartitionBound`). Elementary (deterministic dispersion, no Irving at block level). Remaining for Erdős 306: block-to-global chain (CP 03 §§5–8) + circle method (CP 01) + wiring to `erdos_306`. Process: write detailed proofs → Aristotle translates.
 32. [[32 Theorem C Decomposition - Phase Identity and Cold Rigidity]] — decomposed Theorem C into 5 lemmas (phase identity, **cold rigidity = novel core**, injection, entropy). **V3+V4 RESULT: THEOREM C (`fingerprint_count`) FULLY MACHINE-VERIFIED, sorry-free** (`SBEEDispersion`+`SBEEFingerprint` clean; empty-block fixed via `1≤|P|`). So the dispersion engine + the whole novel counting core of SBEE are Lean-proved. Remaining for full SBEE: forcing layer A/E/B (`SBEEForcing.lean`, elementary energy estimates, note 29 §3/§5/§6) + assembly (`single_block_counting`). V5 = those.
@@ -75,10 +85,12 @@ carried to machine verification.
 
 ## Aristotle delivery
 
-`aristotle-delivery/` is a stable, self-contained upload bundle (the full Lean
-package + `TASK.md`). Upload that whole folder to Aristotle for the cleanup tasks
-C1–C3. Refresh it with `aristotle-delivery/REGENERATE.sh` after any change to
-`lean/`.
+`aristotle-delivery/` is the stable, self-contained upload bundle (Lean package +
+`TASK.md` + latest notes). It has been refreshed to the latest recovery state:
+faithful finite `GlobalAssignment`, G2/G3, and `mismatch_penalty_with_exceptions`
+are in `GlobalControl.lean`; remaining named targets are G5, G7, and Phase C.
+For the next Aristotle round, upload this folder and include note **37** as the
+active instruction.
 
 Lean-side work should use:
 
