@@ -51,6 +51,22 @@ $$
 creates a large $B_{123}$ fibre. It vanishes only after multiplying by the
 anchor side $A_{04}$.
 
+This is now quantitative (see [[08 Anchor Energy and the Joint Obstruction]]):
+on the reduced range, $\sum_p A_{04}\asymp X/\log X$ but $\sum_p B_{123}\asymp 1$
+at $H\asymp X^{1/2}$, so Cauchy–Schwarz gives $N_H'\gg X^{1/2}(\log X)^{-1/2}$,
+overshooting the target $(\log X)^C$ by a factor $\asymp X^{1/2}$. **Any
+factorization of the correlation fails.** The correlation must be evaluated
+jointly.
+
+## The $p=q_0$ anchor diagonal (previously implicit)
+
+Beyond $p=q_4$, the prime $p=q_0$ also produces a maximal anchor fibre
+(anti-diagonal $y_4=-x_0$, size $2H$), but unlike $p=q_4$ it does **not**
+self-vanish: its contribution $2H\cdot B_{123}(q_0)$ can reach $\asymp X$ at the
+central scale. It must be removed by the hypothesis that the adjoined prime is
+new, $p\notin\{q_0,\ldots,q_4\}$. See [[07 Diagonal Ledger]]. The reduced sum
+$N_H'$ is over $p\nmid\mathcal Q$, and the bound is false without this exclusion.
+
 ## One-line Fourier estimate risk
 
 At the central scale $H\asymp X^{1/2}$, incomplete reciprocal sums are at

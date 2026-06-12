@@ -1,0 +1,14 @@
+# Summary of changes for run ebaad245-e465-4769-9979-6936132a7eb3
+Worked the SBEE forcing-layer + assembly task (TASK.md P1–P4). A detailed write-up is in `SBEE_FORCING_REPORT.md`.
+
+**Build fixed.** As delivered, all `.lean` files were at the repository root, but `lakefile.toml` declares the `RequestProject` library (glob `RequestProject.+`) and every file uses `import RequestProject.…`, so `lake build` failed on a case-sensitive filesystem. I moved the sources into a `RequestProject/` subdirectory (no content changes). The whole package now builds successfully.
+
+**P1 — Lemma E (`lemma_E_cross_label_energy`): bug found + fully proved (sorry-free).**
+- Correctness finding: the V5 statement was *false* — it omitted the hypotheses that the elements of `C, C'` are primes in `[X,2X]`. Since `crtRepr` returns `0` for non-coprime arguments, taking `C, C'` to be even composites makes the left sum `0` while the right side is positive (a direct counterexample). The paper (note 29 §5) requires prime classes in `[X,2X]`. I added the two missing hypotheses (faithful: exactly the regime Theorem B uses).
+- With the fix, Lemma E is proved in full with absolute constant `c = 1/8192`, decomposed as in §5 into a new per-`q` fiber bound (`lemmaE_fiber`, the reduction to the verified `lemmaD`), a total close-pair count (`lemmaE_close_count`, with the ≤2-divisor discard via `card_prime_factors_dyadic_le_two`), the choice `δ = |C|/(64X)`, and a sum-of-squares energy accounting. `#print axioms` shows only `propext, Classical.choice, Quot.sound` (no `sorry`).
+
+**P2 — Theorem A, P3 — Theorem B, P4 — assembly: remain `sorry` (documented).** These need substantial new infrastructure that is not in the project and could not be discharged here: Theorem A's exception-set entropy/binomial bookkeeping (A4) and restricted-σ comparison (A2); Theorem B's covering construction (base-point averaging, short-list residue classes, the `M₂ ≥ ρN/2` mass accounting flagged as the soft spot); and the assembly's level-set→partition-function Laplace transform plus the `R_C ≤ R_w` mesh (which note 30 only claims asymptotically). I audited the paper arguments for these and found no mathematical errors where I checked — the gaps are formalization volume, not incorrect steps. The report records the exact missing pieces and a reusable bridge (`∑_{p∈C}∑_{q∈C'}(H/pq)² ≤ QP`) that Theorem B will need.
+
+Also flagged (left as-is, outside the task files): `SBEEDispersion.dispersion_energy_bound`'s docstring still says “Status: sorry”, but the declaration is in fact fully proved — the comment is stale.
+
+Net: Lemma E (the engine explicitly highlighted in the task) is delivered verified, a real statement bug was corrected, and the package builds; Theorems A, B and the assembly remain as honestly-marked `sorry`s with a precise account of what is missing.

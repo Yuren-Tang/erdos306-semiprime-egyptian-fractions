@@ -2,6 +2,12 @@
 
 Back to [[00 README]].
 
+> **Superseded.** For the authoritative, audited map (what is real vs
+> assumed/laundered/sorry, the import DAG, duplication, and cleanup actions) see
+> [[20 Lean Core Audit and Dependency Map]]. This older note is kept for its
+> file-by-file orientation but its "all interfaces no-sorry" framing understates
+> that Component B (SBEE) is largely laundered and Component C is disconnected.
+
 Current Lean working package:
 
 $$

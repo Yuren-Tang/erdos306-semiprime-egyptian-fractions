@@ -68,8 +68,10 @@ gap.
 - `RequestProject/LatticeSpan.lean`
 - `RequestProject/CrossLabelEnergy.lean`
 - `RequestProject/SemiprimeInfinity.lean`
-- `RequestProject/SemiprimeReciprocals.lean`
 - `RequestProject/Defs.lean`
+
+(`SemiprimeReciprocals.lean` was removed in cleanup: it was an orphaned duplicate
+of `SemiprimeInfinity.lean`, imported by nothing. See `../20 Lean Core Audit`.)
 
 ## What is intentionally not here
 
