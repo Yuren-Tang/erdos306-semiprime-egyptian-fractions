@@ -1,29 +1,3 @@
-# Summary of changes for run 55bcd808-5453-4add-8c1f-b9f75e7f72ab
-Worked the note-37 ("Faithful G5/G7/C Formalization Blueprint") continuation of the Erdős 306 package. The whole project now builds green (`lake build`, 8057 jobs).
-
-**Project-structure fix.** The `.lean` sources had been flattened to the repository root, but the lakefile (`globs = ["RequestProject.+"]`) and every `import RequestProject.*` expect them under `RequestProject/`. I moved all sources back into `RequestProject/`, so the project compiles again.
-
-**New verified foundation — `RequestProject/GlobalPeierlsBookkeeping.lean` (sorry-free, standard axioms only).** Note 37 §3 explicitly asks to prove the *pure finite combinatorics* layer of the global level-set theorem (G5) before instantiating it with CRT/SBEE data. I created this file and proved:
-- `weighted_subset_entropy` — entropy bound: costs `≤ exp(ε·w/4)` ⟹ total over subsets of weight `≤ R` is `≤ exp(εR/2)·exp(∑ exp(-ε·w/4))`. Used twice in G5.
-- `subset_count_entropy` — the `cost ≡ 1` specialization.
-- `prod_local_count_le` — energy-shell product: `∏ c i ≤ exp(εR)` when `c i ≤ exp(ε·R i)`, `∑ R i ≤ R`.
-- `segment_label_constant` — labels are constant along any connected run of non-boundary edges (G5 step 4).
-
-All four depend only on `propext`, `Classical.choice`, `Quot.sound`.
-
-**Honest status.** Three named sorries remain: `GlobalControl.global_levelset` (G5), `GlobalControl.global_control_partition` (G7), `CircleMethod.exists_positive_weighted_construction` (Phase C). The reusable combinatorial pieces for G5 are now in `GlobalPeierlsBookkeeping.lean`.
-
-# Codex consolidation note (2026-06-12)
-
-This bundle has been consolidated after the recovery run below.  The latest
-active instruction is note `37 Faithful G5 G7 C Formalization Blueprint.md`.
-Relative to the recovery output, `GlobalControl.lean` has one further statement
-correction: G5 now uses the faithful paper factor
-`exp(A * numBlocks BS)` under `admissibleGlobalRange BS`, and G7 is stated in
-the final useful `eta + Gaussian tail` form.  This avoids both bad extremes:
-choosing constants after `BS` (vacuous) and demanding one absolute `Cglob`
-independent of the number of blocks (stronger than the paper statement).
-
 # Summary of changes for run 6d0d0010-2ea3-4c25-841d-34a825e884f5
 I worked on the Phase-G / Phase-C continuation described in note `36`, in `RequestProject/GlobalControl.lean` (and reviewed `RequestProject/CircleMethod.lean`). The whole project builds cleanly. Concretely:
 

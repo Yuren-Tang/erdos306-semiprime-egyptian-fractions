@@ -3,15 +3,46 @@ Worked the note-37 ("Faithful G5/G7/C Formalization Blueprint") continuation of 
 
 **Project-structure fix.** The `.lean` sources had been flattened to the repository root, but the lakefile (`globs = ["RequestProject.+"]`) and every `import RequestProject.*` expect them under `RequestProject/`. I moved all sources back into `RequestProject/`, so the project compiles again.
 
-**New verified foundation — `RequestProject/GlobalPeierlsBookkeeping.lean` (sorry-free, standard axioms only).** Note 37 §3 explicitly asks to prove the *pure finite combinatorics* layer of the global level-set theorem (G5) before instantiating it with CRT/SBEE data. I created this file and proved:
-- `weighted_subset_entropy` — entropy bound: costs `≤ exp(ε·w/4)` ⟹ total over subsets of weight `≤ R` is `≤ exp(εR/2)·exp(∑ exp(-ε·w/4))`. Used twice in G5.
-- `subset_count_entropy` — the `cost ≡ 1` specialization.
-- `prod_local_count_le` — energy-shell product: `∏ c i ≤ exp(εR)` when `c i ≤ exp(ε·R i)`, `∑ R i ≤ R`.
-- `segment_label_constant` — labels are constant along any connected run of non-boundary edges (G5 step 4).
+**New verified foundation — `RequestProject/GlobalPeierlsBookkeeping.lean` (sorry-free, standard axioms only).** Note 37 §3 explicitly asks to prove the *pure finite combinatorics* layer of the global level-set theorem (G5) before instantiating it with CRT/SBEE data. I created this file and proved, with the subagent and direct proofs:
+- `weighted_subset_entropy` — the headline note-37 §3.2 entropy bound: for a finite index set with nonnegative costs satisfying `cost i ≤ exp(ε·w i/4)`, the total cost over all subsets of weight `≤ R` is `≤ exp(εR/2)·exp(∑ exp(-ε·w i/4))`. This is the bound used twice in the G5 proof (hot set and mismatch-boundary set).
+- `subset_count_entropy` — the `cost ≡ 1` specialization, bounding the number of admissible hot/boundary subsets.
+- `prod_local_count_le` — the energy-shell product (G5 steps 2 & 5): `∏ c i ≤ exp(εR)` when `c i ≤ exp(ε·R i)` and `∑ R i ≤ R`.
+- `segment_label_constant` — the segment-construction combinatorial core (note 34 G5 step 4): labels are constant along any connected run of non-boundary edges.
 
-All four depend only on `propext`, `Classical.choice`, `Quot.sound`.
+All four are confirmed to depend only on `propext`, `Classical.choice`, `Quot.sound`.
 
-**Honest status.** Three named sorries remain: `GlobalControl.global_levelset` (G5), `GlobalControl.global_control_partition` (G7), `CircleMethod.exists_positive_weighted_construction` (Phase C). The reusable combinatorial pieces for G5 are now in `GlobalPeierlsBookkeeping.lean`.
+**Honest status of the deep targets (unchanged, documented multi-session work).** Three named sorries remain, exactly as the task describes them as the labor-heavy research core to be done across rounds:
+- `GlobalControl.global_levelset` (G5) — still requires the full segment-encoder/decoder-injectivity argument plus the L2–L5 single-block extraction lemmas from `SBEEForcing`. The reusable combinatorial pieces it needs are now available in `GlobalPeierlsBookkeeping.lean`.
+- `GlobalControl.global_control_partition` (G7) — depends on G5.
+- `CircleMethod.exists_positive_weighted_construction` (Phase C) — depends on G7.
+
+I did not weaken any statement and kept all hypotheses faithful. The running log in `ARISTOTLE_SUMMARY.md` was updated with this round's progress and the precise residual.
+
+# Round (note 37) progress — abstract Peierls bookkeeping foundation
+
+Following note `37 Faithful G5 G7 C Formalization Blueprint.md` §3, this round
+built the *pure finite combinatorics* foundation requested as the first step
+before instantiating G5 with CRT/SBEE data.  New file
+`RequestProject/GlobalPeierlsBookkeeping.lean` (sorry-free, standard axioms only):
+
+* `weighted_subset_entropy` — the headline note 37 §3.2 entropy bound: for finite
+  `I`, nonneg costs with `cost i ≤ exp(ε·w i/4)`, the total cost over subsets of
+  weight `≤ R` is `≤ exp(εR/2)·exp(∑ exp(-ε·w i/4))`.  Used twice in G5 (hot set,
+  mismatch-boundary set).
+* `subset_count_entropy` — the `cost ≡ 1` specialization counting admissible
+  hot/boundary subsets.
+* `prod_local_count_le` — the energy-shell product (G5 steps 2 & 5): `∏ c i ≤
+  exp(εR)` when `c i ≤ exp(ε·R i)` and `∑ R i ≤ R`.
+
+Also fixed project layout: the `.lean` sources had been flattened to the repo
+root but the lakefile/imports expect them under `RequestProject/`; moved them all
+back so `lake build` compiles the whole project.
+
+Still open (unchanged, deep multi-session targets): `GlobalControl.global_levelset`
+(G5 segment-encoder/decoder injectivity + L2–L5 SBEE extractions),
+`GlobalControl.global_control_partition` (G7, depends on G5), and
+`CircleMethod.exists_positive_weighted_construction` (Phase C, depends on G7).
+The build is green at every step.
 
 # Codex consolidation note (2026-06-12)
 
