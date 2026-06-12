@@ -1,105 +1,112 @@
-# Aristotle delivery — NEXT ROUND: Phase G (reuse the verified machinery)
+# Aristotle delivery — MASTER PLAN to a sorry-free `erdos_306`
 
-State: `erdos_306` is formalized end-to-end with ONE named sorry,
-`CircleMethod.exists_positive_weighted_construction` (axiom trace confirms). The
-scaffolding (wiring, extraction `Wcount_pos_imp_repr`, `fourier_orthogonality`,
-`GlobalControl` defs + `IrvingGood` bridge) is sorry-free. The remaining math =
-notes 34 (Phase G) + 35 (Phase C), to be translated into that one sorry.
+**Upload this whole folder** (`lake build`). This single document is the
+complete, ordered task list from the current state to the end. Work the steps
+IN ORDER; keep the build green after every step; partial completion is fine —
+whatever closes, closes. **Translate, don't rediscover**: every remaining
+mathematical step has a written proof in the included notes (38 is the main
+one for Phase G; 35 + 37 §6 for Phase C).
 
-**THIS ROUND: close the Phase-G sorries in `GlobalControl.lean`, in order, by
-REUSING the verified single-block machinery (this is why it should NOT time out
-like a from-scratch attempt):**
+## Ground rules (unchanged, binding)
 
-* `crossblock_dispersion` (G2): **mirror the already-proved
-  `SBEEDispersion.dispersion_residue_count`** — same statement shape; here the
-  fiber is ≤1 (interval length ≤ modulus/2) so it is *easier*. Reuse
-  `SBEEDispersion.lemmaD` / `card_prime_factors_dyadic_le_two` directly. Full
-  proof: note 34 G2.
-* `mismatch_penalty` (G3): note 34 G3 — phase-difference identity (the
-  `H−m_k = v·p`, `v ≡ d·p̄ (q)` step) + G2. Reuse the `phaseP1`-style bound from
-  `SBEEFingerprint.lean`.
-* `global_levelset` (G5): note 34 G5 — the segment/“Peierls” encoding. **Reuse the
-  Theorem-C encoding pattern** (`SBEEFingerprint.decoding_card_bound`,
-  `entropy_inequality`) one level up (blocks as vertices). Extract L2–L5 from the
-  proved `theorem_A_dominant_count`/`theorem_B_nondominant_forcing` first.
-* `global_control_partition` (G7): note 34 G7 — Laplace step; **reuse
-  `SBEEAssembly.partfun_series_bound`'s pattern**.
+* Do NOT weaken any statement; keep every hypothesis. Constants quantified
+  uniformly (never after the block system / object being counted).
+* If a step resists, isolate it as a precisely-named `sorry` with a one-line
+  reason and MOVE ON to the next step that doesn't depend on it.
+* If a written step is WRONG, say so explicitly — that is the most valuable
+  possible report.
+* Only allowed named external input: `chebyshev_block_density` (Phase C), and
+  only if Mathlib lacks it.
 
-Do them one at a time, keep the build green, report which closed. If a single one
-is genuinely too large for the round, close as many as possible and report the
-precise residual. Do NOT weaken statements; keep all hypotheses (note 34 G0/G1).
+## Current state (verified — do NOT redo)
 
-Phases C (circle method, note 35) and the final assembly of
-`exists_positive_weighted_construction` follow in later rounds — see below.
+* Sorry-free: the whole SBEE single-block package (`SBEEDispersion`,
+  `SBEEFingerprint`, `SBEEForcing`, `SBEEAssembly.single_block_counting`),
+  `GlobalControl` G2 (`crossblock_dispersion`), G3 (`mismatch_penalty`,
+  `mismatch_penalty_with_exceptions`), the finite `GlobalAssignment`
+  interface, and `GlobalPeierlsBookkeeping.lean` (4 abstract lemmas).
+* `erdos_306` is wired end-to-end with ONE named sorry
+  (`CircleMethod.exists_positive_weighted_construction`); `GlobalControl` has
+  two more (`global_levelset` G5, `global_control_partition` G7).
+* **Note `38` is new and authoritative for Phase G.** It contains complete
+  proofs for everything below, including three corrections (note 38 §0) —
+  read §0 first.
 
----
+## Phase G — close G5 and G7 (note 38; this is the bulk)
 
-# Aristotle delivery — FINAL PHASE: complete the Erdős 306 formalization
+**G-0 (statement correction, note 38 §0 C-a).** Strengthen
+`admissibleGlobalRange` to `2*BS.k0 ≤ BS.K ∧ BS.K ≤ 3*BS.k0`. (Needed to
+absorb the `k0` factor of the sigma comparison; the construction takes
+`K ≈ 3k0`, so this is faithful.)
 
-**Upload this whole folder** (`lake build`). This is the final task package: it
-takes the machine-verified SBEE single-block theorem all the way to a sorry-free
-`erdos_306`. **The mathematics is fully written out for translation** in the
-included notes `34` (global control) and `35` (circle method); notes `29`/`30`/`32`
-document the verified single-block layer. **Translate, don't rediscover.** Where a
-step resists, isolate it as a precisely-named `sorry` with a one-line reason and
-move on; if a written step is WRONG, say so explicitly — that is the most
-valuable report. Keep ALL hypotheses faithful (window/density/primality/size
-bounds — past statements broke from omitted hypotheses).
+**G-1 (new abstract lemma, `GlobalPeierlsBookkeeping.lean`).**
+`shell_sum_bound` — note 38 §1, full proof given (geometric discount over
+shell vectors). NOTE: the existing `prod_local_count_le` is NOT sufficient for
+the encoding; this lemma is what the assembly actually uses.
 
-State: sorry-free & verified — `SBEEDispersion.lean` (dispersion engine),
-`SBEEFingerprint.lean` (Theorem C), `SBEEForcing.lean` (Theorems A, B, Lemma E),
-`SBEEAssembly.lean` (`single_block_counting : SBEEPartitionBound c`). The one
-intended open sorry: `fourier_positivity_unconditional` (`FourierPositivity.lean`)
-— **this package closes it**.
+**G-2 (block decomposition, `GlobalControl.lean`).** D1 windows disjoint,
+`restrict` def, D2 joint injectivity, D3 energy splits, D4 product count —
+note 38 §2, proofs given.
 
-This will take multiple sessions; phases are ordered. Complete and report each
-phase; partial progress is fine — the build must stay green at every step.
+**G-3 (extraction lemmas, in/next to `SBEEForcing.lean`).** Note 38 §3,
+proofs given:
+* `dominant_label_unique` (L2u) — **use the two-prime proof of note 38; the
+  earlier note-37 §4 single-prime sketch is WRONG.**
+* `fixed_label_count` (L5) — verbatim extraction of the `hfibcard` block
+  inside the proved `theorem_A_dominant_count` (no `htriv` split needed).
+* `cold_exception_bound` (L4c) — corollary of `exception_count_bound`.
+* `L3c` cold-label size chain.
+(L1 = `unified_levelset`, L2 = contrapositive of
+`theorem_B_nondominant_forcing`, L3 = `theoremA_label_range` are used as-is;
+fix `ρ := 1/4`.)
 
-## Phase G — global control (note 34; new file `GlobalControl.lean`)
+**G-4 (sigma lemmas, `GlobalControl.lean`).** S1 `σ_{k0} ≤ σctrl`,
+S2 `σctrl ≤ 4·2^{−k0} ≤ 1`, S3 `σctrl ≤ c_σ·k0·σ_{k0}` — note 38 §4, proofs
+given.
 
-* **G0**: `BlockSystem` (blocks $P_k\subseteq$ primes∩$[2^k,2^{k+1})$, density
-  $|P_k|\ge2^k/(2\log2^k)$, $k_0\le k\le K$), control pairs (internal + consecutive
-  full bipartite), `Qctrl`, `sigmaCtrl`. Each block is `IrvingGood` (bridge lemma).
-* **G1 extractions** (small lemmas from the proved single-block package): L2 cold
-  ⟹ unique dominant label; L3 label range; L4 exception bound ($\le R_k/E_1$, cold
-  ⟹ $\le e_0$ absolute); L5 dominant count given label. (The proofs of
-  `theorem_A_dominant_count` / `theorem_B_nondominant_forcing` contain these;
-  restate standalone.)
-* **G2 cross-block dispersion** (full proof in note 34): reuse the `lemmaD`
-  pattern; fiber $\le1$ here (interval length $\le$ modulus/2).
-* **G3 mismatch penalty** $\Pi_k$ (full proof in note 34).
-* **G4 hot absorption** (numeric).
-* **G5 Theorem G** (global level-set; the encoding — six recorded data items,
-  decoder injective; full proof in note 34).
-* **G6 main-arc localization** + **G7 Prop 8.1** (partition form; Laplace step =
-  the verified `partfun_series_bound` pattern).
+**G-5 (THE assembly: `global_levelset`).** Note 38 §5 — full proof: trivial
+regime split (step 0), hot/cold/labels/boundaries (steps 1–3), the covering
+fibration (step 4, mirrors the proved `hcover`/`hfibcard` pattern of
+`theorem_A_dominant_count` two levels up), per-factor table with the ε-budget
+(step 5, total 6ε ≤ 8ε). Do it concretely in `GlobalControl.lean` (no further
+abstract layer); private helper defs welcome; bundle all `k0 ≥ k0min` numeric
+comparisons into one threshold lemma.
 
-## Phase C — circle method (note 35; new file `CircleMethod.lean`)
+**G-6 (localization lemma).** Note 38 §6, proof given (uses
+`exception_single_energy`, `crtRepr_eq_label`, G3).
 
-* **C0**: Construction structure; the weighted count `W`; the finite Fourier
-  identity (orthogonality on `ZMod L` — pure algebra).
-* **C1**: edge construction exists (CP 03 §9 translation; note 35). External
-  input: Chebyshev block density $\pi(2x)-\pi(x)\ge x/(2\log x)$ — use Mathlib if
-  available, else isolate as the named hypothesis `chebyshev_block_density`
-  (do NOT silently weaken).
-* **C2**: pointwise bound $|\widehat\mu(h)|\le e^{-\frac{16}9Q_E(a(h))}$
-  (computation in note 35; extend `product_charFun_bound`).
-* **C3**: main arc $\ge c_3(C)/\sigma_E$ (explicit Taylor; note 35).
-* **C4**: minor arc via G7 + CRT bijection + $Q_E\ge Q_{\rm ctrl}$.
-* **C5**: positivity ⟹ subset extraction ⟹ **close
-  `fourier_positivity_unconditional`**.
+**G-7 (`global_control_partition`).** Note 38 §7 — full proof:
+`partfun_series_bound` with G5 at `ε = c/32` (step 1), sector I via the
+`F0(BS)` floor + `admissibleGlobalRange` numeric (step 2 — this is where
+`k0min(η,c)` is chosen), sector II via the standalone `gaussian_int_sum_le`
+(statement + elementary proof in note 38 §7).
 
-## Phase W — wiring & cleanup
+## Phase C — circle method (notes 35 + 37 §6)
 
-1. `#print axioms erdos_306` — confirm sorry-free end-to-end (standard axioms only).
-2. Deprecate/derive the superseded placeholders (old `SBEE.lean` chain,
-   `SingleBlockCounting.lean` abstract target, `BlockCRTEnergy.lean` `*_uniform`).
-3. Final report: full sorry inventory of the package (should be empty or
-   precisely-named residuals), axiom trace, build log.
+Split `CircleMethod.exists_positive_weighted_construction` into named lemmas
+C1a (Construction structure), C1b (edge construction; may use the named input
+`chebyshev_block_density`), C2 (pointwise `|μ̂(h)| ≤ e^{−(16/9)Q_E}`,
+extend `product_charFun_bound`), C3 (main arc `≥ c₃(C)/σ_E`; exact mass
+cancellation), C4 (minor arc = G7 + CRT bijection + `Q_E ≥ Q_ctrl`), C5
+(positivity ⟹ close it). Computations are in note 35; file split in note 37
+§6. If a specific C-step stalls, name it precisely — a note-38-grade
+elaboration of that step will be supplied next round.
+
+## Phase W — wiring & final report
+
+1. `#print axioms erdos_306` — confirm standard axioms only (or precisely
+   `chebyshev_block_density` as the sole extra named input).
+2. Deprecate superseded placeholders (old `SBEE.lean` chain,
+   `SingleBlockCounting.lean` abstract target, `BlockCRTEnergy.lean`
+   `*_uniform`).
+3. Final report: sorry inventory (empty or precisely-named), axiom trace,
+   build log.
 
 ## Honest expectations
 
-G5/G7 and C1/C3 are the labor-heavy parts; all are elementary with written
-proofs. If `chebyshev_block_density` is the only residual named input, that is an
-acceptable terminal state (documented elementary provable input); everything else
-should close. Report per-phase.
+G-5 is the labor-heavy step but now has a complete written proof with the
+encoding bookkeeping spelled out (including the shell-sum fix and the trivial
+regime split that earlier notes glossed). G-1 through G-4 are short and
+independent — close them first in one pass even if G-5 then takes longer.
+Acceptable terminal state for a session: any prefix of the ordered list
+closed, the rest as named sorries.
