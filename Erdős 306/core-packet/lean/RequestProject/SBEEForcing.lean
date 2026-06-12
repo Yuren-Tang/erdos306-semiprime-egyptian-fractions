@@ -1816,4 +1816,78 @@ lemma cold_exception_bound (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4)
         ring;
       · exact mul_pos ( by linarith ) ( by positivity )
 
+/-
+A parametrized log-vs-linear threshold: for any constant `K`, eventually
+    `K·log X ≤ X`.  (Generalizes `exists_X0_logbnd`, the `K = 64` case.)
+-/
+lemma exists_X0_const_logbnd (K : ℝ) :
+    ∃ X0 : ℝ, 0 < X0 ∧ ∀ X : ℕ, X0 ≤ X → K * Real.log X ≤ X := by
+  have h_tendsto_zero : Filter.Tendsto (fun X : ℝ => Real.log X / X) Filter.atTop (nhds 0) := by
+    -- Let $y = \frac{1}{x}$, so we can rewrite the limit as $\lim_{y \to 0^+} y \log(1/y)$.
+    suffices h_log_recip : Filter.Tendsto (fun y : ℝ => y * Real.log (1 / y)) (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
+      exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
+    norm_num;
+    exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+  obtain ⟨ X0, hX0 ⟩ := Metric.tendsto_atTop.mp h_tendsto_zero ( 1 / ( |K| + 1 ) ) ( by positivity );
+  refine' ⟨ ⌊X0⌋₊ + 1, _, _ ⟩ <;> norm_num at *;
+  · grind +splitImp;
+  · intro X hX; specialize hX0 X ( le_trans ( Nat.lt_floor_add_one X0 |> le_of_lt ) ( mod_cast hX ) ) ; rw [ div_lt_iff₀ ] at hX0 <;> norm_cast at * ;
+    · cases abs_cases K <;> cases abs_cases ( Real.log X ) <;> nlinarith [ inv_mul_cancel₀ ( by linarith : ( |K| + 1 : ℝ ) ≠ 0 ), Real.log_nonneg ( show ( X : ℝ ) ≥ 1 by norm_cast; linarith ) ];
+    · linarith
+
+/-
+**Lemma L3c (cold-label size chain, note 38 §3).**  For a *cold* block
+    (`R ≤ c₂·X/log³X`) with a dominant label `m`, the label is small:
+    `|m| ≤ N·X/16`, uniformly in `X ≥ X0(c₂)`.  This feeds both `fixed_label_count`
+    / `cold_exception_bound` (which require `|m| ≤ N·X/16`) and the `hm`-type
+    hypotheses of `mismatch_penalty_with_exceptions`.
+
+    Proof: `theoremA_label_range` gives `|m| ≤ (5/(1-ρ))·√R/σ_P`; the cold range
+    `R ≤ c₂·X/log³X` together with the density `N ≥ X/(2 log X)` implies the
+    polynomial bound `R ≤ N⁴(1-ρ)²/(409600·X²)` for `X ≥ X0(c₂)` (a `K·log X ≤ X`
+    threshold via `exists_X0_const_logbnd`), and then `theoremA_label_le`
+    converts `(5/(1-ρ))·√R/σ_P ≤ N·X/16`.
+-/
+lemma cold_label_size (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4) (c2 : ℝ) (hc2 : 0 < c2) :
+    ∃ X0 : ℝ, 0 < X0 ∧
+      ∀ (X : ℕ), X0 ≤ X →
+        ∀ (P : Finset ℕ) [∀ p : P, NeZero p.1],
+          (∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2 * X) →
+          (X : ℝ) / (2 * Real.log X) ≤ P.card →
+          ∀ (a : BlockAssignment P) (m : ℤ) (R : ℝ), 1 ≤ R →
+          |m| ≤ (X : ℤ) ^ 2 / 2 →
+          (1 - ρ) * (P.card : ℝ) ≤ ((P.attach.filter
+              (fun p => a p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ) →
+          QP P a ≤ R → R ≤ c2 * X / (Real.log X) ^ 3 →
+            |(m : ℝ)| ≤ (P.card : ℝ) * (X : ℝ) / 16 := by
+  -- Set the threshold X0 to be large enough; specifically take X0 := max (max 16 X0K) X0d where X0K comes from `exists_X0_const_logbnd K` with K := 6553600 * c2 / (1-ρ)^2 (this guarantees R ≤ N^4(1-ρ)^2/(409600 X^2) in the cold regime), and X0d := the threshold from `exists_X0_logbnd` ensuring 64 log X ≤ X (so density gives N ≥ 32 ≥ 2).
+  obtain ⟨X0K, hX0K_pos, hX0K⟩ : ∃ X0K : ℝ, 0 < X0K ∧ ∀ (X : ℕ), X0K ≤ X → (6553600 * c2 / (1 - ρ)^2) * Real.log X ≤ X := exists_X0_const_logbnd (6553600 * c2 / (1 - ρ)^2);
+  obtain ⟨X0d, hX0d_pos, hX0d⟩ : ∃ X0d : ℝ, 0 < X0d ∧ ∀ (X : ℕ), X0d ≤ X → 64 * Real.log X ≤ X := exists_X0_logbnd;
+  refine' ⟨ Max.max 16 ( Max.max X0K X0d ), _, _ ⟩;
+  · positivity;
+  · intro X hX P _ hP hN a m R hR hm hclass hQ hRcold
+    have hN_ge_2 : 2 ≤ P.card := by
+      have hN_ge_2 : (X : ℝ) / (2 * Real.log X) ≥ 2 := by
+        rw [ ge_iff_le, le_div_iff₀ ] <;> norm_num at *;
+        · linarith [ hX0d X hX.2.2 ];
+        · exact Real.log_pos ( by norm_cast; linarith );
+      exact_mod_cast hN_ge_2.trans hN
+    have hN_ge_8 : 8 ≤ P.card := by
+      rw [ div_le_iff₀ ] at hN <;> norm_num at *;
+      · exact Nat.le_of_lt_succ <| by rw [ ← @Nat.cast_lt ℝ ] ; push_cast; nlinarith [ hX0d X hX.2.2, Real.log_pos <| show ( X : ℝ ) > 1 by norm_cast; linarith ] ;
+      · exact Real.log_pos ( by norm_cast; linarith )
+    have hlogX_pos : 0 < Real.log X := by
+      exact Real.log_pos <| Nat.one_lt_cast.mpr <| by linarith [ show X ≥ 16 by exact_mod_cast le_trans ( le_max_left _ _ ) hX ] ;
+    have hRpoly : R ≤ (P.card : ℝ)^4 * (1 - ρ)^2 / (409600 * X^2) := by
+      have hRpoly : R ≤ c2 * X / (Real.log X)^3 ∧ c2 * X / (Real.log X)^3 ≤ (X / (2 * Real.log X))^4 * (1 - ρ)^2 / (409600 * X^2) := by
+        have := hX0K X ( by linarith [ le_max_left 16 ( max X0K X0d ), le_max_right 16 ( max X0K X0d ), le_max_left X0K X0d, le_max_right X0K X0d ] );
+        rw [ div_pow, div_mul_eq_mul_div, div_div, div_le_div_iff₀ ] <;> try positivity;
+        · rw [ div_mul_eq_mul_div, div_le_iff₀ ] at this <;> try nlinarith;
+          exact ⟨ hRcold, by nlinarith [ show 0 < ( X : ℝ ) ^ 3 * Real.log X ^ 3 by exact mul_pos ( pow_pos ( Nat.cast_pos.mpr ( by linarith [ show X ≥ 16 by exact_mod_cast le_trans ( le_max_left _ _ ) hX ] ) ) 3 ) ( pow_pos hlogX_pos 3 ) ] ⟩;
+        · exact mul_pos ( pow_pos ( mul_pos zero_lt_two hlogX_pos ) 4 ) ( mul_pos ( by norm_num ) ( sq_pos_of_pos ( Nat.cast_pos.mpr ( Nat.pos_of_ne_zero ( by rintro rfl; norm_num at * ) ) ) ) );
+      refine le_trans hRpoly.1 <| hRpoly.2.trans ?_;
+      gcongr;
+    convert theoremA_label_range X ( by norm_num at hX; linarith ) P hP hN_ge_8 ρ hρ hρ4 a m R ( by
+      exact hm ) hclass hQ |> le_trans <| theoremA_label_le X ( by norm_num at hX; linarith ) P hP hN_ge_2 ρ hρ hρ4 R ( by positivity ) hRpoly using 1
+
 end SBEEForcing
