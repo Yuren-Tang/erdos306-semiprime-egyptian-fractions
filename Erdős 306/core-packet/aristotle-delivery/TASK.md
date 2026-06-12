@@ -42,33 +42,38 @@ one for Phase G; 35 + 37 §6 for Phase C).
 
 ## Goal of this session: go as far as you can — ideally all the way
 
-The support layer is COMPLETE (L3c `cold_label_size`, `gaussian_int_sum_le`
-included, last round). The remaining work is G5 → G7 → Phase C → Phase W, and
-**every remaining step has a written proof.** **If the steps keep closing, do
-NOT stop at a phase boundary — continue straight through; the intended
-terminal state of this whole effort is a sorry-free `erdos_306` (standard
-axioms, plus at most the named `chebyshev_block_density`).**
+**The note-39 G5 skeleton is INSTANTIATED and most holes are CLOSED** (last
+round): all setup definitions (`blockEnergy`/`Rw`/`isHot`/`hotSet`/`coldLabel`/
+`boundarySet`/`shellVec`/`segStarts`/`segStart`/`Pifloor`/`labelRange`/
+`classCount`/`fiber`) plus holes 1 (`coldLabel_spec`, `coldLabel_eq`),
+2 (`cold_isDominant`), 4 (`segStart_le/ge/run`), 5 (`coldLabel_eq_segStart`),
+7 (`fiber_card_le`), 9 (`cold_factor`), 11 (`trivial_regime`), and the
+hole-8 numeric core `hot_threshold` + `inv_sigmaP_bound` — all sorry-free.
+**Do not redo any of these.**
 
-## G5: skeleton-first — do NOT attempt it monolithically again
+Remaining: the hole-8 glue (`hot_factor`), holes 3, 6, 10, 12 (= G5), then
+G7, Phase C, Phase W. **Note `40` is now binding**: it quarters exactly these
+into sub-lemmas of ≤ 30–60 lines each, every one with a complete proof, in
+closing order. **If the steps keep closing, do NOT stop at a phase boundary —
+the intended terminal state is a sorry-free `erdos_306`.**
 
-Two direct attempts at `global_levelset` have timed out, losing all progress
-each time. **Note `39` is now binding for G5**: it contains the full Lean
-skeleton (setup definitions + twelve named holes with proof instructions).
-Procedure:
+## Working rules for the remaining holes (note 40)
 
-1. Paste the §0 definitions + the twelve lemma statements (with `sorry`
-   bodies) into `GlobalControl.lean` before `global_levelset`, adjusting
-   syntax until the file compiles WITH the sorries. **Semantics is binding,
-   syntax is yours.** This step alone is valuable — commit it.
-2. Close holes in the note-39 order (1, 4, 7 are small; 2, 5, 9, 11 medium;
-   3, 8, 10 numeric threshold-chases; 6 bookkeeping; 12 = `global_levelset`
-   itself, ~40–60 lines once 1–11 stand).
-3. Every closed hole is durable progress that survives a timeout. A partially
-   holed skeleton is a GOOD terminal state; never trade it for a monolith
-   attempt.
+1. **Read note 40's three structural notes (N-a/N-b/N-c) first** — they
+   correct/simplify the assembly: no trivial-regime split is needed; the
+   shell-data Finset must carry the hot-consistency filter; the INITIAL
+   segment label ranges over the `√R`-window `L0`, NOT `labelRange`.
+2. Work sub-lemma by sub-lemma in note-40 order (§1 hot_factor glue; §2 =
+   3a, 3b, 3c, 3d-i…iv; §3 = 6c, 6a, 6b, 6d + the data-Finset defs; §4 =
+   10a, 10b, 10c; §5 = hole 12 assembly). State ALL of them with `sorry`
+   first, get the file compiling, THEN close them one at a time. Every
+   closed sub-lemma is durable; never attempt a multi-sub-lemma jump.
+3. The proofs in note 40 are complete — translate; if a constant chase
+   misses, widen the constant/threshold rather than redesigning (statement
+   shapes are binding, constants are lavish by design).
 
-Then G7 (note 38 §7; `gaussian_int_sum_le` is already proved), then Phase C,
-then Phase W, as below.
+Then G7 (note 38 §7 / note 40 §6; `gaussian_int_sum_le` is already proved),
+then Phase C, then Phase W, as below.
 
 ## Phase G — close G5 and G7 (note 38; this is the bulk)
 
