@@ -95,6 +95,52 @@ lemma prod_local_count_le {ι : Type*} (I : Finset ι) (Renergy c : ι → ℝ)
         apply Real.exp_le_exp.mpr
         exact mul_le_mul_of_nonneg_left hsum heps
 
+/-
+**Shell-sum lemma** (note 38 §1, Lemma SH).  Enumerating shell vectors
+`v : ι → ℕ` with `∑ v ≤ R`, the sum of products of per-block counts `c k (v k)`
+(each `≤ exp(α(n+1))`) is dominated by `exp((α+β)R)·exp(|ι|·(α+log(1/(1-e^{-β}))))`.
+The geometric discount in `β` makes the (unconstrained) enumeration of shell
+vectors converge.  This is the energy-shell bookkeeping used by G5.
+-/
+lemma shell_sum_bound {ι : Type*} [Fintype ι] [DecidableEq ι] (c : ι → ℕ → ℝ)
+    (alpha beta R : ℝ) (halpha : 0 < alpha) (hbeta : 0 < beta) (hR : 0 ≤ R)
+    (hc0 : ∀ k n, 0 ≤ c k n)
+    (hcb : ∀ k (n : ℕ), c k n ≤ Real.exp (alpha * (n + 1))) :
+    ∑ v ∈ (Fintype.piFinset (fun _ : ι => Finset.range (⌊R⌋₊ + 1))).filter
+        (fun v => (∑ k, (v k : ℝ)) ≤ R),
+      ∏ k, c k (v k)
+    ≤ Real.exp ((alpha + beta) * R) *
+      Real.exp ((Fintype.card ι : ℝ) *
+        (alpha + Real.log (1 / (1 - Real.exp (-beta))))) := by
+  -- For each admissible v (in the filter, so ∑ k, (v k : ℝ) ≤ R), bound the product:
+  have h_bound : ∀ v ∈ Fintype.piFinset (fun _ => Finset.range (⌊R⌋₊ + 1)), (∑ k, (v k : ℝ)) ≤ R → (∏ k, c k (v k)) ≤ Real.exp (alpha * Fintype.card ι) * Real.exp ((alpha + beta) * R) * (∏ k, Real.exp (-beta * (v k : ℝ))) := by
+    -- Using the bounds on $c_k(n)$ and the fact that $\sum_{k} v_k \leq R$, we can show that the product of $c_k(v_k)$ is bounded by the exponential term.
+    intros v hv hvR
+    have h_prod_bound : (∏ k, c k (v k)) ≤ Real.exp (alpha * (∑ k, (v k + 1))) := by
+      exact le_trans ( Finset.prod_le_prod ( fun _ _ => hc0 _ _ ) fun _ _ => hcb _ _ ) ( by simp +decide [ ← Real.exp_sum, mul_add, Finset.mul_sum _ _ _ ] );
+    simp_all +decide [ mul_add, ← Real.exp_add, Finset.sum_add_distrib ];
+    rw [ ← Real.exp_sum, ← Real.exp_add ];
+    exact h_prod_bound.trans ( Real.exp_le_exp.mpr <| by nlinarith [ show ( ∑ k : ι, ( v k : ℝ ) ) ≥ 0 by exact Finset.sum_nonneg fun _ _ => Nat.cast_nonneg _, show ( ∑ k : ι, - ( beta * ( v k : ℝ ) ) ) = - ( beta * ∑ k : ι, ( v k : ℝ ) ) by rw [ Finset.mul_sum _ _ _ ] ; rw [ Finset.sum_neg_distrib ] ] );
+  -- Therefore, the filtered sum ≤ sum over ALL v ∈ piFinset of [exp(alpha*card)*exp((alpha+beta)*R)*∏ k, exp(-beta*(v k))], by extending the filter to the whole piFinset (all terms nonnegative).
+  have h_sum_bound : (∑ v ∈ Fintype.piFinset (fun _ => Finset.range (⌊R⌋₊ + 1)) |>.filter (fun v => ∑ k, (v k : ℝ) ≤ R), (∏ k, c k (v k))) ≤ Real.exp (alpha * Fintype.card ι) * Real.exp ((alpha + beta) * R) * (∏ k : ι, (∑ n ∈ Finset.range (⌊R⌋₊ + 1), Real.exp (-beta * (n : ℝ)))) := by
+    refine' le_trans ( Finset.sum_le_sum fun v hv => h_bound v ( Finset.mem_filter.mp hv |>.1 ) ( Finset.mem_filter.mp hv |>.2 ) ) _;
+    refine' le_trans ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.filter_subset _ _ ) fun _ _ _ => mul_nonneg ( mul_nonneg ( Real.exp_nonneg _ ) ( Real.exp_nonneg _ ) ) ( Finset.prod_nonneg fun _ _ => Real.exp_nonneg _ ) ) _;
+    rw [ ← Finset.mul_sum _ _ _, Finset.prod_sum ];
+    refine' le_of_eq _;
+    refine' congr_arg _ ( Finset.sum_bij ( fun v hv => fun k _ => v k ) _ _ _ _ ) <;> simp +decide;
+    · simp +contextual [ funext_iff ];
+    · exact fun b hb => ⟨ fun k => b k ( Finset.mem_univ k ), hb, rfl ⟩;
+  -- Each inner geometric sum: ∑ n ∈ range N, exp(-beta*n) = ∑ n ∈ range N, (exp(-beta))^n ≤ 1/(1-exp(-beta)) since 0 ≤ exp(-beta) < 1.
+  have h_geo_sum : ∀ N : ℕ, (∑ n ∈ Finset.range N, Real.exp (-beta * (n : ℝ))) ≤ 1 / (1 - Real.exp (-beta)) := by
+    intro N
+    have h_geo_sum : (∑ n ∈ Finset.range N, Real.exp (-beta * (n : ℝ))) = (∑ n ∈ Finset.range N, (Real.exp (-beta)) ^ n) := by
+      exact Finset.sum_congr rfl fun _ _ => by rw [ ← Real.exp_nat_mul ] ; ring;
+    rw [ h_geo_sum, one_div, ← tsum_geometric_of_lt_one ( by positivity ) ( by norm_num; positivity ) ] ; exact Summable.sum_le_tsum ( Finset.range N ) ( fun _ _ => by positivity ) ( by exact summable_geometric_of_lt_one ( by positivity ) ( by norm_num; positivity ) ) ;
+  convert h_sum_bound.trans ( mul_le_mul_of_nonneg_left ( Finset.prod_le_prod ( fun _ _ => Finset.sum_nonneg fun _ _ => Real.exp_nonneg _ ) fun _ _ => h_geo_sum _ ) ( by positivity ) ) using 1 ; ring;
+  simp +decide [ mul_assoc, ← Real.exp_add, ← Real.exp_nat_mul ];
+  rw [ ← Real.rpow_natCast, Real.rpow_def_of_pos ( sub_pos.mpr <| Real.exp_lt_one_iff.mpr <| neg_lt_zero.mpr hbeta ) ] ; ring;
+  rw [ ← Real.exp_neg, ← Real.exp_add ] ; ring
+
 /-- **Segment label constancy** (note 34 G5 step 4 / note 37 §3.2 "segment
 construction").  If across every index `k` of a connected run the edge predicate
 `P k` forces `label k = label (k+1)`, then the label is constant throughout the
