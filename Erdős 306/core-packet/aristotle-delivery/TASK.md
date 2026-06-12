@@ -1,3 +1,39 @@
+# Aristotle delivery — NEXT ROUND: Phase G (reuse the verified machinery)
+
+State: `erdos_306` is formalized end-to-end with ONE named sorry,
+`CircleMethod.exists_positive_weighted_construction` (axiom trace confirms). The
+scaffolding (wiring, extraction `Wcount_pos_imp_repr`, `fourier_orthogonality`,
+`GlobalControl` defs + `IrvingGood` bridge) is sorry-free. The remaining math =
+notes 34 (Phase G) + 35 (Phase C), to be translated into that one sorry.
+
+**THIS ROUND: close the Phase-G sorries in `GlobalControl.lean`, in order, by
+REUSING the verified single-block machinery (this is why it should NOT time out
+like a from-scratch attempt):**
+
+* `crossblock_dispersion` (G2): **mirror the already-proved
+  `SBEEDispersion.dispersion_residue_count`** — same statement shape; here the
+  fiber is ≤1 (interval length ≤ modulus/2) so it is *easier*. Reuse
+  `SBEEDispersion.lemmaD` / `card_prime_factors_dyadic_le_two` directly. Full
+  proof: note 34 G2.
+* `mismatch_penalty` (G3): note 34 G3 — phase-difference identity (the
+  `H−m_k = v·p`, `v ≡ d·p̄ (q)` step) + G2. Reuse the `phaseP1`-style bound from
+  `SBEEFingerprint.lean`.
+* `global_levelset` (G5): note 34 G5 — the segment/“Peierls” encoding. **Reuse the
+  Theorem-C encoding pattern** (`SBEEFingerprint.decoding_card_bound`,
+  `entropy_inequality`) one level up (blocks as vertices). Extract L2–L5 from the
+  proved `theorem_A_dominant_count`/`theorem_B_nondominant_forcing` first.
+* `global_control_partition` (G7): note 34 G7 — Laplace step; **reuse
+  `SBEEAssembly.partfun_series_bound`'s pattern**.
+
+Do them one at a time, keep the build green, report which closed. If a single one
+is genuinely too large for the round, close as many as possible and report the
+precise residual. Do NOT weaken statements; keep all hypotheses (note 34 G0/G1).
+
+Phases C (circle method, note 35) and the final assembly of
+`exists_positive_weighted_construction` follow in later rounds — see below.
+
+---
+
 # Aristotle delivery — FINAL PHASE: complete the Erdős 306 formalization
 
 **Upload this whole folder** (`lake build`). This is the final task package: it
