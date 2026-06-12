@@ -1,40 +1,69 @@
-# Aristotle delivery — V6: Theorem A, Theorem B, and the assembly
+# Aristotle delivery — FINAL PHASE: complete the Erdős 306 formalization
 
-**Upload this whole folder** (`lake build`). State: machine-verified, sorry-free —
-the dispersion engine (`SBEEDispersion.lean`), all of **Theorem C**
-(`SBEEFingerprint.lean`, `fingerprint_count`), and **Lemma E**
-(`lemma_E_cross_label_energy` in `SBEEForcing.lean`, with helpers `lemmaE_fiber`,
-`lemmaE_close_count`). Remaining SBEE sorries: `theorem_A_dominant_count`,
-`theorem_B_nondominant_forcing` (`SBEEForcing.lean`), `single_block_counting`
-(`SBEEAssembly.lean`). Paper proofs: included notes `29`, `30`. **Use judgment;
-flag any wrong/unprovable step. Include ALL hypotheses faithfully (e.g. prime-in-
-[X,2X], P.card lower bounds) — earlier statements were buggy for omitting them.**
+**Upload this whole folder** (`lake build`). This is the final task package: it
+takes the machine-verified SBEE single-block theorem all the way to a sorry-free
+`erdos_306`. **The mathematics is fully written out for translation** in the
+included notes `34` (global control) and `35` (circle method); notes `29`/`30`/`32`
+document the verified single-block layer. **Translate, don't rediscover.** Where a
+step resists, isolate it as a precisely-named `sorry` with a one-line reason and
+move on; if a written step is WRONG, say so explicitly — that is the most
+valuable report. Keep ALL hypotheses faithful (window/density/primality/size
+bounds — past statements broke from omitted hypotheses).
 
-## P1 — Theorem A (`theorem_A_dominant_count`), `SBEEForcing.lean`
-Note `29 §3`. For an `m`-dominant assignment: (A1) label uniqueness; (A2) label
-range `|m| ≤ 5√R/((1−ρ)σ_P)` (restricted-σ comparison `σ_{C_m}² ≥ ((1−ρ)²/24)σ_P²`);
-(A3) **each exception vertex carries energy `≥ N³/2¹⁵X²`** — a direct application of
-the verified `lemmaD` (mirror Theorem C's dispersion use / `lemmaE_fiber`);
-(A4) the count `≤ e^{εR}(1+C_ρ√R/σ_P)` — exception entropy bookkeeping
-(`exceptions ≤ R/E₁`, `binom × residues`), **reuse the Theorem-C encoding/entropy
-infrastructure** in `SBEEFingerprint.lean` (`decoding_card_bound`,
-`entropy_inequality` are templates). Include the faithful hypotheses
-(`1 ≤ P.card` / `N ≥ X/(2 log X)`, primes in `[X,2X]`, `|m| ≤ X²/2`).
+State: sorry-free & verified — `SBEEDispersion.lean` (dispersion engine),
+`SBEEFingerprint.lean` (Theorem C), `SBEEForcing.lean` (Theorems A, B, Lemma E),
+`SBEEAssembly.lean` (`single_block_counting : SBEEPartitionBound c`). The one
+intended open sorry: `fourier_positivity_unconditional` (`FourierPositivity.lean`)
+— **this package closes it**.
 
-## P2 — Theorem B (`theorem_B_nondominant_forcing`), `SBEEForcing.lean`
-Note `29 §6`, now with **Lemma E available**. Steps: the base-point averaging
-(`29 §4`: `∃ p₀` with `#{q:|H_{p₀q}|>B} ≤ 32N/A²`, `B=A√R X²/N`); the short list
-`𝓛` and classes `C_n`; the **mass accounting** `M₂ ≥ ρN/2` (the flagged soft spot —
-chain: covered mass `≥ N−32N/A²−1`, no class `>(1−ρ)N`, tiny mass `≤ ρN/8`); then
-`lemma_E_cross_label_energy` on the substantial classes ⇒ `R ≥ c·N²/(X log X) ≳ X/log³X`.
-Consider extracting the covering and mass-accounting as named sub-lemmas (as note 32
-did for Theorem C) if the monolith resists. Include the reusable bridge
-`∑_{p∈C}∑_{q∈C'}(H/pq)² ≤ Q_P` (noted in the V5 report).
+This will take multiple sessions; phases are ordered. Complete and report each
+phase; partial progress is fine — the build must stay green at every step.
 
-## P3 — assembly (`single_block_counting`), `SBEEAssembly.lean`
-Combine `R < R_w` (Theorem B ⇒ dominant ⇒ Theorem A) + `R ≥ R_w` (Theorem C; mesh
-`R_C ≤ R_w` — asymptotic, take as hypothesis `X ≥ X₁`) + trivial, into
-`SBEEPartitionBound` (note 28); then Laplace-transform the level-set bound to the
-partition-function form (`∑_a e^{-cQ} = ∫₀^∞ N(R)·c·e^{-cR} dR`, `c>2ε`). No laundering.
+## Phase G — global control (note 34; new file `GlobalControl.lean`)
 
-Report `lake build` + remaining sorries per theorem, and flag anything suspect.
+* **G0**: `BlockSystem` (blocks $P_k\subseteq$ primes∩$[2^k,2^{k+1})$, density
+  $|P_k|\ge2^k/(2\log2^k)$, $k_0\le k\le K$), control pairs (internal + consecutive
+  full bipartite), `Qctrl`, `sigmaCtrl`. Each block is `IrvingGood` (bridge lemma).
+* **G1 extractions** (small lemmas from the proved single-block package): L2 cold
+  ⟹ unique dominant label; L3 label range; L4 exception bound ($\le R_k/E_1$, cold
+  ⟹ $\le e_0$ absolute); L5 dominant count given label. (The proofs of
+  `theorem_A_dominant_count` / `theorem_B_nondominant_forcing` contain these;
+  restate standalone.)
+* **G2 cross-block dispersion** (full proof in note 34): reuse the `lemmaD`
+  pattern; fiber $\le1$ here (interval length $\le$ modulus/2).
+* **G3 mismatch penalty** $\Pi_k$ (full proof in note 34).
+* **G4 hot absorption** (numeric).
+* **G5 Theorem G** (global level-set; the encoding — six recorded data items,
+  decoder injective; full proof in note 34).
+* **G6 main-arc localization** + **G7 Prop 8.1** (partition form; Laplace step =
+  the verified `partfun_series_bound` pattern).
+
+## Phase C — circle method (note 35; new file `CircleMethod.lean`)
+
+* **C0**: Construction structure; the weighted count `W`; the finite Fourier
+  identity (orthogonality on `ZMod L` — pure algebra).
+* **C1**: edge construction exists (CP 03 §9 translation; note 35). External
+  input: Chebyshev block density $\pi(2x)-\pi(x)\ge x/(2\log x)$ — use Mathlib if
+  available, else isolate as the named hypothesis `chebyshev_block_density`
+  (do NOT silently weaken).
+* **C2**: pointwise bound $|\widehat\mu(h)|\le e^{-\frac{16}9Q_E(a(h))}$
+  (computation in note 35; extend `product_charFun_bound`).
+* **C3**: main arc $\ge c_3(C)/\sigma_E$ (explicit Taylor; note 35).
+* **C4**: minor arc via G7 + CRT bijection + $Q_E\ge Q_{\rm ctrl}$.
+* **C5**: positivity ⟹ subset extraction ⟹ **close
+  `fourier_positivity_unconditional`**.
+
+## Phase W — wiring & cleanup
+
+1. `#print axioms erdos_306` — confirm sorry-free end-to-end (standard axioms only).
+2. Deprecate/derive the superseded placeholders (old `SBEE.lean` chain,
+   `SingleBlockCounting.lean` abstract target, `BlockCRTEnergy.lean` `*_uniform`).
+3. Final report: full sorry inventory of the package (should be empty or
+   precisely-named residuals), axiom trace, build log.
+
+## Honest expectations
+
+G5/G7 and C1/C3 are the labor-heavy parts; all are elementary with written
+proofs. If `chebyshev_block_density` is the only residual named input, that is an
+acceptable terminal state (documented elementary provable input); everything else
+should close. Report per-phase.
