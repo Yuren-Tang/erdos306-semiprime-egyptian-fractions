@@ -61,6 +61,7 @@ package (`SBEEAssembly`), `GlobalPeierls.shell_sum_bound`, and `lemmaD`.
 import Mathlib
 import RequestProject.BlockCRTEnergy
 import RequestProject.SBEEAssembly
+import RequestProject.GlobalPeierlsBookkeeping
 
 open Finset BigOperators Classical
 
@@ -975,6 +976,380 @@ theorem mismatch_penalty_with_exceptions (BS : BlockSystem)
     of note 34/36 G5.  This is the deep combinatorial core of Phase G and is not
     yet formalized.
 -/
+/-! ### G5 skeleton (note 39) — setup definitions -/
+
+/-- Per-block internal energy of a global assignment. -/
+def blockEnergy (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) : ℝ :=
+  QP (BS.P k) (restrict BS a k)
+
+/-- The cold/hot threshold `R_w(k) = c2·2^k/log³(2^k)` (Theorem-B floor). -/
+def Rw (c2 : ℝ) (k : ℕ) : ℝ := c2 * 2 ^ k / (Real.log (2 ^ k)) ^ 3
+
+/-- Hot block: internal energy at least the forcing floor. -/
+def isHot (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS) (k : ℕ) : Prop :=
+  Rw c2 k ≤ blockEnergy BS a k
+
+instance instDecidableIsHot (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS)
+    (k : ℕ) : Decidable (isHot BS c2 a k) := Classical.dec _
+
+/-- The hot set: scales in `[k0,K]` whose block is hot. -/
+def hotSet (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS) : Finset ℕ :=
+  (Finset.Icc BS.k0 BS.K).filter (isHot BS c2 a)
+
+/-- The dominant label of a block (0 if none).  Uniqueness is hole 1. -/
+def coldLabel (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) : ℤ :=
+  if h : ∃ m : ℤ, |m| ≤ ((2:ℤ) ^ k) ^ 2 / 2 ∧
+      (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+        (((BS.P k).attach.filter
+          (fun p => restrict BS a k p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ)
+  then h.choose else 0
+
+/-- Mismatch boundary: two consecutive cold blocks with distinct labels. -/
+def boundarySet (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS) : Finset ℕ :=
+  (Finset.Ico BS.k0 BS.K).filter (fun k =>
+    ¬ isHot BS c2 a k ∧ ¬ isHot BS c2 a (k+1) ∧
+    coldLabel BS a k ≠ coldLabel BS a (k+1))
+
+/-- Integer energy shell of each block. -/
+def shellVec (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) : ℕ :=
+  ⌊blockEnergy BS a k⌋₊
+
+/-- Segment starts determined by the DATA `(H,B)` alone (no `a`):
+    cold blocks that open a maximal cold run. -/
+def segStarts (BS : BlockSystem) (H B : Finset ℕ) : Finset ℕ :=
+  ((Finset.Icc BS.k0 BS.K) \ H).filter
+    (fun k => k = BS.k0 ∨ (k - 1) ∈ H ∨ (k - 1) ∈ B)
+
+/-- The start of the segment containing a cold `k` (recursion downward). -/
+def segStart (BS : BlockSystem) (H B : Finset ℕ) : ℕ → ℕ
+  | k => if k ≤ BS.k0 then BS.k0
+         else if (k - 1) ∈ H ∨ (k - 1) ∈ B then k
+         else segStart BS H B (k - 1)
+  decreasing_by all_goals omega
+
+/-- The exception-reduced boundary penalty floor `Π(k)`. -/
+def Pifloor (BS : BlockSystem) (e0 : ℝ) (k : ℕ) : ℝ :=
+  (((BS.P (k+1)).card : ℝ) - e0 - 1) * (((BS.P k).card : ℝ) - e0) ^ 3 /
+    (2 ^ 13 * ((2:ℝ) ^ k) ^ 2)
+
+/-- Label range at a segment start (L3 + cold threshold; note 38 §3 L3c). -/
+def labelRange (c2 : ℝ) (k : ℕ) : ℤ := ⌈(168:ℝ) * Real.sqrt c2 *
+    ((2:ℝ) ^ k) ^ (3/2 : ℝ) / Real.sqrt (Real.log (2 ^ k))⌉
+
+/-! ### G5 skeleton (note 39) — holes -/
+
+/-
+**Hole 1a (`coldLabel_spec`).**  When a dominant label exists for block `k`,
+    `coldLabel` is one such label: it satisfies the size+class property.
+-/
+lemma coldLabel_spec (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
+    (h : ∃ m : ℤ, |m| ≤ ((2:ℤ) ^ k) ^ 2 / 2 ∧
+      (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+        (((BS.P k).attach.filter
+          (fun p => restrict BS a k p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ)) :
+    |coldLabel BS a k| ≤ ((2:ℤ) ^ k) ^ 2 / 2 ∧
+      (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+        (((BS.P k).attach.filter
+          (fun p => restrict BS a k p
+            = ((coldLabel BS a k : ℤ) : ZMod (p : ℕ)))).card : ℝ) := by
+  convert h.choose_spec; all_goals exact dif_pos h
+
+/-
+**Hole 1b (`coldLabel_eq`).**  Uniqueness: the dominant label is unique, so
+    any `m` with the size+class property at a cold block equals `coldLabel`.
+-/
+lemma coldLabel_eq (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
+    (hk1 : BS.k0 ≤ k) (hk2 : k ≤ BS.K) (hX : 4 ≤ (2:ℕ) ^ k)
+    (hN : 4 ≤ (BS.P k).card)
+    (m : ℤ) (hm : |m| ≤ ((2:ℤ) ^ k) ^ 2 / 2)
+    (hclass : (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+      (((BS.P k).attach.filter
+        (fun p => restrict BS a k p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ)) :
+    coldLabel BS a k = m := by
+  apply SBEEForcing.dominant_label_unique (2 ^ k) hX (BS.P k) (fun p hp => ⟨BS.hprime k p hp, by
+    exact ⟨ by linarith [ BS.hwindow k p hp ], by linarith [ BS.hwindow k p hp, pow_succ' 2 k ] ⟩⟩) hN (1 / 4) (by positivity) (by norm_num) (restrict BS a k) (coldLabel BS a k) m (by
+  convert coldLabel_spec BS a k _ |>.1 using 1;
+  use m) (by
+  convert hm using 1) (by
+  convert coldLabel_spec BS a k _ |>.2 using 1;
+  use m) (by
+  grind)
+
+/-
+**Hole 4a (`segStart_le`).**  For `k ≥ k0` the segment start of `k` is `≤ k`.
+    (For `k < k0` the recursion returns `k0 > k`, so the hypothesis is needed.)
+-/
+lemma segStart_le (BS : BlockSystem) (H B : Finset ℕ) (k : ℕ) (hk : BS.k0 ≤ k) :
+    segStart BS H B k ≤ k := by
+  induction' k using Nat.strong_induction_on with k ih;
+  unfold segStart;
+  grind +splitImp
+
+/-
+**Hole 4b (`segStart_ge`).**  The segment start of `k` is `≥ k0`.
+-/
+lemma segStart_ge (BS : BlockSystem) (H B : Finset ℕ) (k : ℕ) :
+    BS.k0 ≤ segStart BS H B k := by
+  induction' k using Nat.strong_induction_on with k ih;
+  unfold segStart;
+  grind
+
+/-
+**Hole 4c (`segStart_run`).**  Every block strictly inside the run from the
+    segment start of `k` up to `k` is cold-by-data and carries no internal
+    boundary edge.
+-/
+lemma segStart_run (BS : BlockSystem) (H B : Finset ℕ) (k : ℕ)
+    (j : ℕ) (hj1 : segStart BS H B k ≤ j) (hj2 : j < k) :
+    j ∉ H ∧ j ∉ B := by
+  induction' k with k ih generalizing j <;> simp_all +decide [ Nat.pow_succ' ];
+  grind +locals
+
+/-
+**Hole 2 (`cold_isDominant`).**  Contrapositive of
+    `theorem_B_nondominant_forcing` at `ρ = 1/4`: with `c2`/`X0` the constants it
+    produces, every cold block (`¬ isHot`) is dominant.
+-/
+lemma cold_isDominant :
+    ∃ (c2 X0 : ℝ), 0 < c2 ∧ 0 < X0 ∧
+      ∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
+        X0 ≤ (2:ℝ) ^ k → BS.k0 ≤ k → k ≤ BS.K →
+        ¬ isHot BS c2 a k →
+        SBEEForcing.IsDominant (2 ^ k) (BS.P k) (restrict BS a k) (1/4) := by
+  obtain ⟨ c2, X0, hc2, hX0, hB ⟩ := SBEEForcing.theorem_B_nondominant_forcing ( 1 / 4 ) ( by norm_num ) ( by norm_num );
+  refine' ⟨ c2, X0, hc2, hX0, fun BS a k hk1 hk2 hk3 hk4 => _ ⟩;
+  contrapose! hB;
+  refine' ⟨ 2 ^ k, _, BS.P k, _, _, _, _ ⟩ <;> norm_num;
+  · exact_mod_cast hk1;
+  · exact fun p hp => ⟨ Nat.Prime.ne_zero ( BS.hprime k p hp ) ⟩;
+  · exact fun p hp => ⟨ BS.hprime k p hp, by linarith [ BS.hwindow k p hp ], by linarith [ BS.hwindow k p hp, pow_succ' 2 k ] ⟩;
+  · have := BS.hdensity k hk2 hk3; norm_num at *; ring_nf at *; linarith;
+  · refine' ⟨ restrict BS a k, blockEnergy BS a k, le_rfl, hB, _ ⟩;
+    unfold isHot at hk4; norm_num [ Rw ] at hk4; linarith;
+
+/-
+**Hole 5 (`coldLabel_eq_segStart`).**  Along a cold segment the dominant
+    label is constant: a cold block's label equals the label of its segment
+    start.
+-/
+lemma coldLabel_eq_segStart (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS)
+    (k : ℕ) (hk1 : BS.k0 ≤ k) (hk2 : k ≤ BS.K)
+    (hcold : k ∉ hotSet BS c2 a) :
+    coldLabel BS a k
+      = coldLabel BS a
+          (segStart BS (hotSet BS c2 a) (boundarySet BS c2 a) k) := by
+  have h_run : ∀ t, segStart BS (hotSet BS c2 a) (boundarySet BS c2 a) k ≤ t ∧ t < k → coldLabel BS a t = coldLabel BS a (t + 1) := by
+    intros t ht; by_contra h_neq; simp_all +decide [ hotSet, boundarySet ] ;
+    have h_not_hot : ¬isHot BS c2 a t ∧ ¬isHot BS c2 a (t + 1) := by
+      have h_not_hot : t ∉ hotSet BS c2 a ∧ t + 1 ∉ hotSet BS c2 a := by
+        have h_not_hot : ∀ j, segStart BS (hotSet BS c2 a) (boundarySet BS c2 a) k ≤ j ∧ j < k → j ∉ hotSet BS c2 a ∧ j ∉ boundarySet BS c2 a := by
+          intros j hj; exact (by
+          exact segStart_run BS ( hotSet BS c2 a ) ( boundarySet BS c2 a ) k j hj.1 hj.2);
+        by_cases h : t + 1 < k <;> simp_all +decide [ hotSet, boundarySet ]; all_goals grind;
+      exact ⟨ fun h => h_not_hot.1 <| Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ by linarith [ segStart_ge BS ( filter ( isHot BS c2 a ) ( Icc BS.k0 BS.K ) ) ( { k ∈ Ico BS.k0 BS.K | ¬isHot BS c2 a k ∧ ¬isHot BS c2 a ( k + 1 ) ∧ ¬coldLabel BS a k = coldLabel BS a ( k + 1 ) } ) k ], by linarith ⟩, h ⟩, fun h => h_not_hot.2 <| Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ by linarith [ segStart_ge BS ( filter ( isHot BS c2 a ) ( Icc BS.k0 BS.K ) ) ( { k ∈ Ico BS.k0 BS.K | ¬isHot BS c2 a k ∧ ¬isHot BS c2 a ( k + 1 ) ∧ ¬coldLabel BS a k = coldLabel BS a ( k + 1 ) } ) k ], by linarith ⟩, h ⟩ ⟩;
+    have h_boundary : t ∈ Finset.filter (fun k => ¬isHot BS c2 a k ∧ ¬isHot BS c2 a (k + 1) ∧ coldLabel BS a k ≠ coldLabel BS a (k + 1)) (Finset.Ico BS.k0 BS.K) := by
+      simp_all +decide [ Finset.mem_filter, Finset.mem_Ico ];
+      exact ⟨ by linarith [ segStart_ge BS ( filter ( isHot BS c2 a ) ( Icc BS.k0 BS.K ) ) ( { k ∈ Ico BS.k0 BS.K | ¬isHot BS c2 a k ∧ ¬isHot BS c2 a ( k + 1 ) ∧ ¬coldLabel BS a k = coldLabel BS a ( k + 1 ) } ) k ], by linarith ⟩;
+    have := segStart_run BS ( hotSet BS c2 a ) ( boundarySet BS c2 a ) k t ht.1 ht.2; simp_all +decide [ hotSet, boundarySet ] ;
+  have h_segment : ∀ i j, segStart BS (hotSet BS c2 a) (boundarySet BS c2 a) k ≤ i → i ≤ j → j ≤ k → coldLabel BS a i = coldLabel BS a j := by
+    intros i j hi hj hk; induction' hj with j hj ih <;> simp_all +decide [ Nat.succ_eq_add_one, add_assoc ] ;
+    rw [ ih ( by linarith ), h_run j ( by linarith ) hk ];
+  exact Eq.symm ( h_segment _ _ le_rfl ( segStart_le _ _ _ _ hk1 ) le_rfl )
+
+/-- The number of primes of block `k` on which `restrict BS a k` takes the
+    residue `m` (the size of the `m`-class). -/
+def classCount (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) (m : ℤ) : ℕ :=
+  ((BS.P k).attach.filter
+    (fun p => restrict BS a k p = ((m : ℤ) : ZMod (p : ℕ)))).card
+
+/-- **Hole 6 (fiber).**  The data-fiber of `(H,B,v,ℓ)`: assignments whose every
+    block energy sits in the shell `v k` and whose cold blocks carry the
+    segment-start label `ℓ (segStart …)` on a `(1-ρ)` fraction of primes. -/
+def fiber (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (ℓ : ℕ → ℤ) :
+    Finset (GlobalAssignment BS) :=
+  Finset.univ.filter (fun a => ∀ k ∈ Finset.Icc BS.k0 BS.K,
+    blockEnergy BS a k ≤ (v k : ℝ) + 1 ∧
+    (k ∉ H → (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+      (classCount BS a k (ℓ (segStart BS H B k)) : ℝ)))
+
+/-
+**Hole 7 (`fiber_card_le`).**  The fiber injects into the product of the
+    per-block counts (Lemma D4, `restrict_filter_card_le`).
+-/
+lemma fiber_card_le (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (ℓ : ℕ → ℤ) :
+    (fiber BS H B v ℓ).card ≤
+      ∏ k ∈ Finset.Icc BS.k0 BS.K,
+        (Finset.univ.filter (fun b : BlockAssignment (BS.P k) =>
+          QP (BS.P k) b ≤ (v k : ℝ) + 1 ∧
+          (k ∉ H → (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+            (((BS.P k).attach.filter
+              (fun p => b p = ((ℓ (segStart BS H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card := by
+  unfold fiber; norm_num;
+  convert restrict_filter_card_le BS ( fun k b => QP ( BS.P k ) b ≤ v k + 1 ∧ ( k ∉ H → ( 3 / 4 : ℝ ) * ( BS.P k |> Finset.card ) ≤ ( Finset.card ( Finset.filter ( fun p : { x // x ∈ BS.P k } => b p = ℓ ( segStart BS H B k ) ) ( Finset.attach ( BS.P k ) ) ) : ℝ ) ) ) using 2;
+  · simp +decide [ blockEnergy, classCount ];
+  · convert rfl
+
+/-
+**Hole 11 (`trivial_regime`).**  In the trivial regime `R ≥ Rtriv` the total
+    number of global assignments is already `≤ exp(εR)`.  Here
+    `Rtriv = ε⁻¹·2^{K+2}·(K+1)`.  (Counts `∏ p ≤ exp(∑_k N_k(k+1)log2)`,
+    `N_k ≤ 2^k`.)
+-/
+lemma trivial_regime (eps : ℝ) (heps : 0 < eps) (BS : BlockSystem) (R : ℝ)
+    (hR : eps⁻¹ * 2 ^ (BS.K + 2) * ((BS.K : ℝ) + 1) ≤ R) :
+    (Fintype.card (GlobalAssignment BS) : ℝ) ≤ Real.exp (eps * R) := by
+  -- We can bound each product term $p \leq 2^{k+1}$ for $p \in P_k$ and sum over $k$.
+  have h_bound : Real.log (Fintype.card (GlobalAssignment BS)) ≤ ∑ k ∈ Finset.Icc BS.k0 BS.K, (BS.P k).card * Real.log (2 ^ (k + 1)) := by
+    have h_log_bound : Real.log (Fintype.card (GlobalAssignment BS)) ≤ ∑ k ∈ Finset.Icc BS.k0 BS.K, ∑ p ∈ BS.P k, Real.log p := by
+      have h_log : Real.log (Fintype.card (GlobalAssignment BS)) = ∑ p ∈ blockSupport BS, Real.log p := by
+        have h_card : (Fintype.card (GlobalAssignment BS)) = ∏ p ∈ blockSupport BS, p := by
+          unfold GlobalAssignment; simp +decide [ Fintype.card_pi ] ;
+          conv_rhs => rw [ ← Finset.prod_attach ] ;
+        rw [ h_card, Nat.cast_prod, Real.log_prod ] ; norm_num;
+        exact fun h => by obtain ⟨ k, hk, hk' ⟩ := Finset.mem_biUnion.mp h; have := BS.hwindow k 0 hk'; norm_num at this;
+      rw [ h_log, blockSupport, Finset.sum_biUnion ];
+      exact fun k hk l hl hkl => blocks_disjoint BS hkl;
+    refine le_trans h_log_bound <| Finset.sum_le_sum fun k hk => ?_;
+    exact le_trans ( Finset.sum_le_sum fun x hx => Real.log_le_log ( Nat.cast_pos.mpr <| Nat.Prime.pos <| BS.hprime k x hx ) <| show ( x : ℝ ) ≤ 2 ^ ( k + 1 ) by exact_mod_cast Nat.le_of_lt <| BS.hwindow k x hx |>.2 ) <| by norm_num;
+  -- We can bound each term $\log(2^{k+1}) = (k+1)\log(2)$ and use the fact that $(BS.P k).card \leq 2^k$.
+  have h_bound' : Real.log (Fintype.card (GlobalAssignment BS)) ≤ ∑ k ∈ Finset.Icc BS.k0 BS.K, (2 ^ k : ℝ) * (k + 1) * Real.log 2 := by
+    refine le_trans h_bound <| Finset.sum_le_sum fun k hk => ?_;
+    norm_num [ mul_assoc ];
+    gcongr;
+    exact_mod_cast le_trans ( Finset.card_le_card ( show BS.P k ⊆ Finset.Ico ( 2 ^ k ) ( 2 ^ ( k + 1 ) ) from fun x hx => Finset.mem_Ico.mpr <| BS.hwindow k x hx ) ) ( by norm_num [ pow_succ' ] ; linarith );
+  -- We can bound the sum $\sum_{k=k0}^{K} 2^k (k+1)$ by $2^{K+1} (K+1)$.
+  have h_sum_bound : ∑ k ∈ Finset.Icc BS.k0 BS.K, (2 ^ k : ℝ) * (k + 1) ≤ 2 ^ (BS.K + 1) * (BS.K + 1) := by
+    have h_sum_bound : ∑ k ∈ Finset.range (BS.K + 1), (2 ^ k : ℝ) * (k + 1) ≤ 2 ^ (BS.K + 1) * (BS.K + 1) := by
+      exact Nat.recOn BS.K ( by norm_num ) fun n ihn => by norm_num [ Finset.sum_range_succ, pow_succ' ] at * ; nlinarith [ pow_pos ( zero_lt_two' ℝ ) n ] ;
+    exact le_trans ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.subset_iff.mpr fun x hx => Finset.mem_range.mpr ( by linarith [ Finset.mem_Icc.mp hx ] ) ) fun _ _ _ => by positivity ) h_sum_bound;
+  -- We can bound the sum $\sum_{k=k0}^{K} 2^k (k+1)$ by $2^{K+1} (K+1)$ and use the fact that $\log(2) < 1$.
+  have h_final_bound : Real.log (Fintype.card (GlobalAssignment BS)) ≤ 2 ^ (BS.K + 1) * (BS.K + 1) * Real.log 2 := by
+    exact h_bound'.trans ( by rw [ ← Finset.sum_mul _ _ _ ] ; exact mul_le_mul_of_nonneg_right h_sum_bound <| Real.log_nonneg <| by norm_num );
+  rw [ ← Real.log_le_iff_le_exp ( Nat.cast_pos.mpr <| Fintype.card_pos_iff.mpr ⟨ fun _ => 0 ⟩ ) ];
+  refine le_trans h_final_bound ?_;
+  refine le_trans ?_ ( mul_le_mul_of_nonneg_left hR heps.le ) ; ring_nf ; norm_num [ heps.ne' ];
+  nlinarith [ Real.log_le_sub_one_of_pos zero_lt_two, show ( 0 : ℝ ) ≤ 2 ^ BS.K by positivity, show ( 0 : ℝ ) ≤ BS.K * 2 ^ BS.K by positivity ]
+
+/-
+**Hole 9 (`cold_factor`).**  Per-cold-block fixed-label count: for a label
+    of size `|m| ≤ N·X/16` the number of block assignments of energy `≤ n+1`
+    whose `m`-class covers a `(1-ρ)` fraction is `≤ exp(ε(n+1))`.  Direct wrapper
+    of `SBEEForcing.fixed_label_count` at `ρ = 1/4`.
+-/
+lemma cold_factor (eps : ℝ) (heps : 0 < eps) :
+    ∃ X0 : ℝ, 0 < X0 ∧
+      ∀ (BS : BlockSystem) (k : ℕ), BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k →
+        ∀ (m : ℤ), |(m : ℝ)| ≤ ((BS.P k).card : ℝ) * (2 ^ k) / 16 →
+        ∀ (n : ℕ),
+          ((Finset.univ.filter (fun b : BlockAssignment (BS.P k) =>
+              QP (BS.P k) b ≤ (n : ℝ) + 1 ∧
+              (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+                (((BS.P k).attach.filter
+                  (fun p => b p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ))).card : ℝ)
+            ≤ Real.exp (eps * ((n : ℝ) + 1)) := by
+  obtain ⟨ X0, hX0, hF ⟩ := SBEEForcing.fixed_label_count eps ( 1 / 4 ) heps ( by norm_num ) ( by norm_num );
+  refine' ⟨ ⌈X0⌉₊ + 1, by positivity, fun BS k hk1 hk2 hk3 m hm n ↦ _ ⟩;
+  convert hF ( 2 ^ k ) _ ( BS.P k ) _ _ m _ ( n + 1 ) _ using 1 <;> norm_num;
+  · linarith [ Nat.le_ceil X0 ];
+  · exact fun p hp => ⟨ BS.hprime k p hp, by linarith [ BS.hwindow k p hp ], by linarith [ BS.hwindow k p hp, pow_succ' 2 k ] ⟩;
+  · convert BS.hdensity k hk1 hk2 |> le_trans _ using 1 ; ring;
+    norm_num [ Real.log_pow ] ; ring_nf ; norm_num;
+  · convert hm using 1
+
+/-
+Block-`σ` lower control: `1/sigmaP (BS.P k) ≤ 16·2^k·log(2^k)`, from the
+    block-density `card ≥ 2^k/(2 log 2^k)` and `sigmaP_lower`.
+-/
+lemma inv_sigmaP_bound (BS : BlockSystem) (k : ℕ) (hk1 : BS.k0 ≤ k) (hk2 : k ≤ BS.K) :
+    1 / sigmaP (BS.P k) ≤ 16 * (2:ℝ) ^ k * Real.log (2 ^ k) := by
+  by_cases hN : 2 ≤ (BS.P k).card;
+  · have h_sigmaP_lower : (BS.P k).card / (8 * (2 ^ k : ℝ) ^ 2) ≤ sigmaP (BS.P k) := by
+      convert SBEEForcing.sigmaP_lower ( 2 ^ k ) ( one_le_pow₀ ( by norm_num ) ) ( BS.P k ) _ _ using 1 <;> norm_num;
+      · exact fun p hp => ⟨ BS.hprime k p hp, by linarith [ BS.hwindow k p hp ], by linarith [ BS.hwindow k p hp, pow_succ' 2 k ] ⟩;
+      · linarith;
+    have h_density : (BS.P k).card ≥ (2 ^ k : ℝ) / (2 * Real.log (2 ^ k)) := by
+      convert BS.hdensity k hk1 hk2 using 1;
+    rw [ div_le_iff₀ ] at * <;> norm_num at *;
+    · rw [ div_le_iff₀ ] at h_density <;> nlinarith [ show ( 0 : ℝ ) < 2 ^ k by positivity, show ( 0 : ℝ ) < k * Real.log 2 by exact mul_pos ( Nat.cast_pos.mpr <| by linarith [ BS.hk0 ] ) <| Real.log_pos <| by norm_num ];
+    · exact lt_of_lt_of_le ( by positivity ) h_sigmaP_lower;
+  · interval_cases _ : Finset.card ( BS.P k ) <;> simp_all +decide;
+    · have := BS.hdensity k hk1 hk2; norm_num [ ‹BS.P k = ∅› ] at this;
+      exact absurd this ( not_le_of_gt ( div_pos ( by positivity ) ( mul_pos zero_lt_two ( mul_pos ( Nat.cast_pos.mpr ( by linarith [ BS.hk0 ] ) ) ( Real.log_pos one_lt_two ) ) ) ) );
+    · have := BS.hdensity k hk1 hk2;
+      rw [ div_le_iff₀ ] at this <;> norm_num [ Real.log_pow ] at *;
+      · rcases k with ( _ | _ | k ) <;> norm_num at *;
+        · norm_num [ ‹#(BS.P 1) = 1› ] at this ; linarith [ Real.log_lt_sub_one_of_pos zero_lt_two ( by norm_num ) ];
+        · norm_num [ ‹#(BS.P (k + 1 + 1)) = 1› ] at this;
+          exact absurd this ( by { exact not_le_of_gt ( by { exact Nat.recOn k ( by norm_num; have := Real.log_two_lt_d9; norm_num1 at *; linarith ) fun n ihn => by norm_num [ pow_succ' ] at * ; nlinarith [ Real.log_nonneg one_le_two ] } ) } );
+      · exact mul_pos ( Nat.cast_pos.mpr ( by linarith [ BS.hk0 ] ) ) ( Real.log_pos ( by norm_num ) )
+
+/-
+Analytic threshold for the hot-block absorption (helper for `hot_factor`).
+    For `X` large the energy floor `c2·X/log³X` dominates the logarithmic
+    polynomial factor coming from `unified_levelset`.
+-/
+lemma hot_threshold (eps c2 C0 : ℝ) (heps : 0 < eps) (hc2 : 0 < c2) :
+    ∃ X0 : ℕ, 2 ≤ X0 ∧ ∀ X : ℕ, X0 ≤ X →
+      eps * c2 * X / (Real.log X) ^ 3 ≥
+        2 * (Real.log C0 + Real.log 34 + Real.log X + Real.log (Real.log X) + 1) ∧
+      eps * (c2 * X / (Real.log X) ^ 3) ≥ Real.log (c2 * X / (Real.log X) ^ 3) := by
+  obtain ⟨X0₁, hX0₁⟩ : ∃ X0₁ : ℕ, 2 ≤ X0₁ ∧ ∀ X : ℕ, X0₁ ≤ X → eps * c2 * (X : ℝ) / (Real.log X) ^ 3 ≥ 2 * (Real.log C0 + Real.log 34 + Real.log X + Real.log (Real.log X) + 1) := by
+    have h_lim : Filter.Tendsto (fun X : ℝ => (Real.log C0 + Real.log 34 + Real.log X + Real.log (Real.log X) + 1) * (Real.log X) ^ 3 / X) Filter.atTop (nhds 0) := by
+      -- We'll use the fact that $\frac{\log^k X}{X}$ tends to $0$ as $X$ tends to infinity for any $k$.
+      have h_log_pow : ∀ k : ℕ, Filter.Tendsto (fun X : ℝ => (Real.log X) ^ k / X) Filter.atTop (nhds 0) := by
+        intro k
+        have h_log_pow_div_X_zero : Filter.Tendsto (fun X : ℝ => (Real.log X)^k / X) Filter.atTop (nhds 0) := by
+          have h_log_pow_div_X_zero : Filter.Tendsto (fun X : ℝ => X^k / Real.exp X) Filter.atTop (nhds 0) := by
+            simpa [ Real.exp_neg ] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero k
+          have := h_log_pow_div_X_zero.comp Real.tendsto_log_atTop;
+          exact this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ Function.comp_apply, Real.exp_log hx ] )
+        exact h_log_pow_div_X_zero;
+      -- We'll use the fact that $\frac{\log(\log X)}{X}$ tends to $0$ as $X$ tends to infinity.
+      have h_log_log : Filter.Tendsto (fun X : ℝ => Real.log (Real.log X) * (Real.log X) ^ 3 / X) Filter.atTop (nhds 0) := by
+        -- We can use the fact that $\frac{\log(\log X)}{\log X}$ tends to $0$ as $X$ tends to infinity.
+        have h_log_log_div_log : Filter.Tendsto (fun X : ℝ => Real.log (Real.log X) / Real.log X) Filter.atTop (nhds 0) := by
+          have := h_log_pow 1;
+          exact this.comp ( Real.tendsto_log_atTop ) |> fun h => h.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by simp +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, ne_of_gt, Real.log_pos hx ] );
+        convert h_log_log_div_log.mul ( h_log_pow 4 ) using 2 <;> ring;
+        grind;
+      convert Filter.Tendsto.add ( Filter.Tendsto.add ( Filter.Tendsto.add ( Filter.Tendsto.add ( h_log_pow 3 |> Filter.Tendsto.const_mul ( Real.log C0 ) ) ( h_log_pow 3 |> Filter.Tendsto.const_mul ( Real.log 34 ) ) ) ( h_log_pow 4 ) ) h_log_log ) ( h_log_pow 3 ) using 2 <;> ring;
+    obtain ⟨ X0₁, hX0₁ ⟩ := Metric.tendsto_atTop.mp h_lim ( eps * c2 / 2 ) ( by positivity );
+    refine' ⟨ ⌈X0₁⌉₊ + 2, _, _ ⟩ <;> norm_num;
+    intro X hX; specialize hX0₁ X ( Nat.le_of_ceil_le ( by linarith ) ) ; rw [ dist_eq_norm ] at hX0₁ ; rw [ Real.norm_eq_abs ] at hX0₁ ; rw [ abs_lt ] at hX0₁ ; rw [ le_div_iff₀ ( pow_pos ( Real.log_pos <| Nat.one_lt_cast.mpr <| by linarith ) _ ) ] ; nlinarith [ show ( X : ℝ ) ≥ ⌈X0₁⌉₊ + 2 by exact_mod_cast hX, Real.log_pos <| show ( X : ℝ ) > 1 by norm_cast; linarith, pow_pos ( Real.log_pos <| show ( X : ℝ ) > 1 by norm_cast; linarith ) 3, mul_div_cancel₀ ( ( Real.log C0 + Real.log 34 + Real.log X + Real.log ( Real.log X ) + 1 ) * Real.log X ^ 3 ) ( show ( X : ℝ ) ≠ 0 by norm_cast; linarith ) ] ;
+  -- Show that `eps * (c2 * X / (Real.log X) ^ 3) ≥ Real.log (c2 * X / (Real.log X) ^ 3)` for large X.
+  have h_log : Filter.Tendsto (fun X : ℝ => Real.log (c2 * X / (Real.log X) ^ 3) / (c2 * X / (Real.log X) ^ 3)) Filter.atTop (nhds 0) := by
+    have h_log : Filter.Tendsto (fun t : ℝ => Real.log t / t) Filter.atTop (nhds 0) := by
+      -- Let $y = \frac{1}{t}$, so we can rewrite the limit as $\lim_{y \to 0^+} y \log(1/y)$.
+      suffices h_log_recip : Filter.Tendsto (fun y : ℝ => y * Real.log (1 / y)) (Filter.map (fun t => 1 / t) Filter.atTop) (nhds 0) by
+        exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
+      norm_num;
+      exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+    refine h_log.comp ?_;
+    -- We can use the change of variables $u = \log X$ to transform the limit expression.
+    suffices h_log : Filter.Tendsto (fun u : ℝ => c2 * Real.exp u / u ^ 3) Filter.atTop Filter.atTop by
+      have := h_log.comp Real.tendsto_log_atTop;
+      exact this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ Function.comp_apply, Real.exp_log hx ] );
+    simpa [ mul_div_assoc ] using Filter.Tendsto.const_mul_atTop hc2 ( Real.tendsto_exp_div_pow_atTop 3 );
+  -- By the definition of limit, there exists an $X0₂$ such that for all $X \geq X0₂$, $\frac{\log(c2 * X / (\log X)^3)}{c2 * X / (\log X)^3} < \epsilon$.
+  obtain ⟨X0₂, hX0₂⟩ : ∃ X0₂ : ℕ, ∀ X : ℕ, X0₂ ≤ X → Real.log (c2 * X / (Real.log X) ^ 3) / (c2 * X / (Real.log X) ^ 3) < eps := by
+    exact Filter.eventually_atTop.mp ( h_log.eventually ( gt_mem_nhds heps ) ) |> fun ⟨ X0₂, hX0₂ ⟩ => ⟨ ⌈X0₂⌉₊, fun X hX => hX0₂ X <| Nat.le_of_ceil_le hX ⟩;
+  refine' ⟨ X0₁ + X0₂ + 2, _, _ ⟩ <;> norm_num at *;
+  intro X hX; specialize hX0₂ X ( by linarith ) ; rw [ div_lt_iff₀ ( div_pos ( mul_pos hc2 ( Nat.cast_pos.mpr ( by linarith ) ) ) ( pow_pos ( Real.log_pos ( Nat.one_lt_cast.mpr ( by linarith ) ) ) 3 ) ) ] at hX0₂; exact ⟨ hX0₁.2 X ( by linarith ), by linarith ⟩ ;
+
+/-- **Hole 8 (`hot_factor`).**  Per-hot-block count: once the block energy floor
+    `Rw c2 k ≤ n+1` holds (hot block), the unconstrained level-set count is
+    `≤ exp(2ε(n+1))` — the entropy `unified_levelset` bound `C₀ e^{ε(n+1)}(1+√/σ)`
+    has its polynomial factor absorbed by the (large) energy floor.  Valid for
+    `k0 ≥` a threshold encoded as `X0 ≤ 2^k`. -/
+lemma hot_factor (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1) (c2 : ℝ) (hc2 : 0 < c2) :
+    ∃ X0 : ℝ, 0 < X0 ∧
+      ∀ (BS : BlockSystem) (k : ℕ), BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k →
+        ∀ (n : ℕ), Rw c2 k ≤ (n : ℝ) + 1 →
+          ((Finset.univ.filter (fun b : BlockAssignment (BS.P k) =>
+              QP (BS.P k) b ≤ (n : ℝ) + 1)).card : ℝ)
+            ≤ Real.exp (2 * eps * ((n : ℝ) + 1)) := by
+  sorry
+
 theorem global_levelset (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1) :
     ∃ (k0min : ℕ) (A : ℝ), 0 < A ∧
       ∀ (BS : BlockSystem), k0min ≤ BS.k0 → admissibleGlobalRange BS →
