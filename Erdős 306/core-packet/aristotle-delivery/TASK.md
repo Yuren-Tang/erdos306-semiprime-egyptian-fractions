@@ -24,45 +24,46 @@ one for Phase G; 35 + 37 §6 for Phase C).
   `SBEEFingerprint`, `SBEEForcing`, `SBEEAssembly.single_block_counting`),
   `GlobalControl` G2 (`crossblock_dispersion`), G3 (`mismatch_penalty`,
   `mismatch_penalty_with_exceptions`), the finite `GlobalAssignment`
-  interface, and `GlobalPeierlsBookkeeping.lean` (4 abstract lemmas).
-* `erdos_306` is wired end-to-end with ONE named sorry
-  (`CircleMethod.exists_positive_weighted_construction`); `GlobalControl` has
-  two more (`global_levelset` G5, `global_control_partition` G7).
-* **Note `38` is new and authoritative for Phase G.** It contains complete
-  proofs for everything below, including three corrections (note 38 §0) —
-  read §0 first.
+  interface, and `GlobalPeierlsBookkeeping.lean` (5 abstract lemmas incl.
+  `shell_sum_bound`).
+* **The note-38 support layer is CLOSED (last round): G-0 through G-4 and
+  three of the four G-3 extraction lemmas are proved** —
+  `admissibleGlobalRange` strengthened, `shell_sum_bound`, `restrict` /
+  `blocks_disjoint` / `restrict_injective` / `restrict_filter_card_le` /
+  `energy_splits`, `sigmaP_block_le` / `sigmaCtrl_le_one` /
+  `sigmaCtrl_le_sigmaP_k0`, `dominant_label_unique`, `fixed_label_count`,
+  `cold_exception_bound`. Only **L3c** (cold-label size chain, note 38 §3)
+  remains from the support layer.
+* Exactly three sorries on the `erdos_306` chain: `global_levelset` (G5),
+  `global_control_partition` (G7),
+  `CircleMethod.exists_positive_weighted_construction` (Phase C).
+* **Note `38` is authoritative for Phase G** — complete proofs, three
+  corrections in §0 (already applied to statements).
+
+## Goal of this session: go as far as you can — ideally all the way
+
+Every remaining step has a written proof. Start with L3c, then G-5 (all its
+inputs are now verified), then G-6/G-7, then Phase C, then Phase W. **If the
+steps keep closing, do NOT stop at a phase boundary — continue straight
+through; the intended terminal state of this whole effort is a sorry-free
+`erdos_306` (standard axioms, plus at most the named `chebyshev_block_density`).**
+If you judge mid-session that the remaining distance is closable, go for the
+whole thing. If a step resists, leave the named sorry with a one-line reason
+and keep going with whatever is independent of it.
 
 ## Phase G — close G5 and G7 (note 38; this is the bulk)
 
-**G-0 (statement correction, note 38 §0 C-a).** Strengthen
-`admissibleGlobalRange` to `2*BS.k0 ≤ BS.K ∧ BS.K ≤ 3*BS.k0`. (Needed to
-absorb the `k0` factor of the sigma comparison; the construction takes
-`K ≈ 3k0`, so this is faithful.)
+**G-0 … G-4: DONE last round (see "Current state"). Do not redo.**
 
-**G-1 (new abstract lemma, `GlobalPeierlsBookkeeping.lean`).**
-`shell_sum_bound` — note 38 §1, full proof given (geometric discount over
-shell vectors). NOTE: the existing `prod_local_count_le` is NOT sufficient for
-the encoding; this lemma is what the assembly actually uses.
+**L3c (the one remaining support lemma).** Cold-label size chain — note 38 §3,
+proof given (`theoremA_label_range` + `sigmaP_lower` + the cold threshold).
+Both conclusions (`|m| ≤ N·X/16` for L5/L4c, and the `hm`-type bounds of
+`mismatch_penalty_with_exceptions`) follow from
+`|m| ≤ 168√c2·X^{3/2}/√(log X) ≤ X²/(64 log X)` for `X ≥ X0(c2)`.
 
-**G-2 (block decomposition, `GlobalControl.lean`).** D1 windows disjoint,
-`restrict` def, D2 joint injectivity, D3 energy splits, D4 product count —
-note 38 §2, proofs given.
-
-**G-3 (extraction lemmas, in/next to `SBEEForcing.lean`).** Note 38 §3,
-proofs given:
-* `dominant_label_unique` (L2u) — **use the two-prime proof of note 38; the
-  earlier note-37 §4 single-prime sketch is WRONG.**
-* `fixed_label_count` (L5) — verbatim extraction of the `hfibcard` block
-  inside the proved `theorem_A_dominant_count` (no `htriv` split needed).
-* `cold_exception_bound` (L4c) — corollary of `exception_count_bound`.
-* `L3c` cold-label size chain.
-(L1 = `unified_levelset`, L2 = contrapositive of
-`theorem_B_nondominant_forcing`, L3 = `theoremA_label_range` are used as-is;
-fix `ρ := 1/4`.)
-
-**G-4 (sigma lemmas, `GlobalControl.lean`).** S1 `σ_{k0} ≤ σctrl`,
-S2 `σctrl ≤ 4·2^{−k0} ≤ 1`, S3 `σctrl ≤ c_σ·k0·σ_{k0}` — note 38 §4, proofs
-given.
+(For the assembly: L1 = `unified_levelset`, L2 = contrapositive of
+`theorem_B_nondominant_forcing`, L3 = `theoremA_label_range`, L2u/L5/L4c =
+last round's extractions; fix `ρ := 1/4`.)
 
 **G-5 (THE assembly: `global_levelset`).** Note 38 §5 — full proof: trivial
 regime split (step 0), hot/cold/labels/boundaries (steps 1–3), the covering
