@@ -42,14 +42,33 @@ one for Phase G; 35 + 37 §6 for Phase C).
 
 ## Goal of this session: go as far as you can — ideally all the way
 
-Every remaining step has a written proof. Start with L3c, then G-5 (all its
-inputs are now verified), then G-6/G-7, then Phase C, then Phase W. **If the
-steps keep closing, do NOT stop at a phase boundary — continue straight
-through; the intended terminal state of this whole effort is a sorry-free
-`erdos_306` (standard axioms, plus at most the named `chebyshev_block_density`).**
-If you judge mid-session that the remaining distance is closable, go for the
-whole thing. If a step resists, leave the named sorry with a one-line reason
-and keep going with whatever is independent of it.
+The support layer is COMPLETE (L3c `cold_label_size`, `gaussian_int_sum_le`
+included, last round). The remaining work is G5 → G7 → Phase C → Phase W, and
+**every remaining step has a written proof.** **If the steps keep closing, do
+NOT stop at a phase boundary — continue straight through; the intended
+terminal state of this whole effort is a sorry-free `erdos_306` (standard
+axioms, plus at most the named `chebyshev_block_density`).**
+
+## G5: skeleton-first — do NOT attempt it monolithically again
+
+Two direct attempts at `global_levelset` have timed out, losing all progress
+each time. **Note `39` is now binding for G5**: it contains the full Lean
+skeleton (setup definitions + twelve named holes with proof instructions).
+Procedure:
+
+1. Paste the §0 definitions + the twelve lemma statements (with `sorry`
+   bodies) into `GlobalControl.lean` before `global_levelset`, adjusting
+   syntax until the file compiles WITH the sorries. **Semantics is binding,
+   syntax is yours.** This step alone is valuable — commit it.
+2. Close holes in the note-39 order (1, 4, 7 are small; 2, 5, 9, 11 medium;
+   3, 8, 10 numeric threshold-chases; 6 bookkeeping; 12 = `global_levelset`
+   itself, ~40–60 lines once 1–11 stand).
+3. Every closed hole is durable progress that survives a timeout. A partially
+   holed skeleton is a GOOD terminal state; never trade it for a monolith
+   attempt.
+
+Then G7 (note 38 §7; `gaussian_int_sum_le` is already proved), then Phase C,
+then Phase W, as below.
 
 ## Phase G — close G5 and G7 (note 38; this is the bulk)
 
