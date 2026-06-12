@@ -1,8 +1,20 @@
 /-
-# The Last Sorry — Fourier Positivity (Unconditional)
+# Fourier Positivity (Unconditional)
 
-This file isolates the sole remaining sorry in the Erdős 306
-formalization. The sorry has been verified to be irreducible to
+**STATUS (current phase).** `fourier_positivity_unconditional` is no longer a
+`sorry`: it is now *proved* by `CircleMethod.circle_method_positivity`
+(`CircleMethod.lean`, note 35 C5).  The circle-method decomposition reduces it to
+the single precisely-named analytic residual
+`CircleMethod.exists_positive_weighted_construction` (the edge construction +
+main/minor-arc positivity, fed by the Phase-G global control of
+`GlobalControl.lean`).  The deterministic extraction layer (C0/C5) and the finite
+Fourier orthogonality identity (C0) are fully proved.
+
+The remainder of this docstring records the original proof sketch and the
+dependency analysis (CP 01 §§3–7), which the new files translate.
+
+This file isolates the analytic core of the Erdős 306
+formalization. That core has been verified to be irreducible to
 simpler correct sub-lemmas without formalizing substantial
 Fourier-analytic infrastructure.
 
@@ -118,6 +130,7 @@ import RequestProject.SemiprimeInfinity
 import RequestProject.LatticeSpan
 import RequestProject.BernoulliFourier
 import RequestProject.CrossLabelEnergy
+import RequestProject.CircleMethod
 
 open scoped BigOperators Classical
 
@@ -134,7 +147,7 @@ See the module docstring for the complete proof sketch and
 dependency analysis. -/
 theorem fourier_positivity_unconditional
     (T : Finset ℕ) (b : ℕ) (hb : 0 < b) (hbsf : Squarefree b) :
-    HasEgyptianSemiprimeReprAvoiding T ((1 : ℚ) / b) := by
-  sorry
+    HasEgyptianSemiprimeReprAvoiding T ((1 : ℚ) / b) :=
+  CircleMethod.circle_method_positivity T b hb hbsf
 
 end

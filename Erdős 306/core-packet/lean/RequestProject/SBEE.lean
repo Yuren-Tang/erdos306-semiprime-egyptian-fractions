@@ -1,6 +1,13 @@
 /-
 # Condition SBEE and the Lemma Chain
 
+**DEPRECATED / SUPERSEDED (Phase W).** This file's old SBEE lemma chain
+(`sbee_*` placeholder lemmas, all `sorry`) is superseded by the verified
+single-block package (`SBEEAssembly.single_block_counting`) and the Phase-G
+global control (`GlobalControl.lean`).  It is retained only for documentation
+of the original strategy and is not part of the `erdos_306` dependency chain.
+The residual `sorry`s below are honestly-named placeholders, not used downstream.
+
 This file states:
 1. Condition SBEE (the sole unproved condition) — as a proper mathematical
    condition on single-block energy level sets

@@ -1,6 +1,12 @@
 /-
 # Single-Block Counting Skeleton (Revised)
 
+**DEPRECATED / SUPERSEDED (Phase W).** The abstract single-block target here
+(`sbee_nondominant` and friends, `sorry`) is superseded by the verified
+`SBEEAssembly.single_block_counting`.  Retained for documentation only; not part
+of the `erdos_306` dependency chain.  The residual `sorry` is an honestly-named
+placeholder, not used downstream.
+
 This file provides the abstract single-block counting framework and
 connects it to the faithful CRT encoding in `BlockCRTEnergy.lean`.
 

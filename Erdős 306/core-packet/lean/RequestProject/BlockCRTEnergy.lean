@@ -273,7 +273,15 @@ Each case below provides a single, block-independent constant `C` (quantified
 for every prime block `P` whose canonical labeling satisfies the corresponding
 case hypothesis.  These are the **real** theorems: proving them requires genuine
 dispersion/energy content and they cannot be discharged by a per-block `∃C`
-trick.  They are left as clearly-named honest `sorry`s. -/
+trick.  They are left as clearly-named honest `sorry`s.
+
+**DEPRECATED / SUPERSEDED (Phase W).** The `*_uniform` stubs below
+(`dominant_case_uniform`, `tiny_case_uniform`, `sbee_nondominant_uniform`,
+`single_block_counting_uniform`) are superseded by the verified
+`SBEEAssembly.single_block_counting`.  They are retained for documentation only
+and are not part of the `erdos_306` dependency chain.  (The CRT-energy
+*definitions* above — `crtRepr`, `QP`, `sigmaP`, `blockPartFun` — remain in active
+use, including by `GlobalControl.lean`.) -/
 
 /-- **Dominant case (uniform).**
 
