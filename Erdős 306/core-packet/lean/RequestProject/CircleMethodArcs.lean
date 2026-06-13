@@ -1,5 +1,6 @@
 import RequestProject.BernoulliFourier
 import RequestProject.GlobalControl
+import RequestProject.GlobalControlG7
 
 open Finset BigOperators Classical Real GlobalControl
 
@@ -254,6 +255,43 @@ lemma Qctrl_freq_eq (BS : BlockSystem) (h : ℕ) :
   -- ‖h/(pq)‖ = |crtRepr|/(pq), so nndist² = (crtRepr/(pq))²
   have hbridge := nndist1_eq_crtRepr_div pq.1 pq.2 hp1 hp2 hne h
   rw [hbridge, div_pow, div_pow, sq_abs]
+
+/-! ## C4 minor-arc energy reindex (assembly glue)
+
+Given the structural facts that the C1 construction must provide — `Q_E(h) ≥
+Q_ctrl(a(h))` (control pairs are edges), the off-main-arc membership of `a(h)`,
+and injectivity of `h ↦ a(h)` — the minor-arc energy sum over frequencies is
+bounded by the off-main-arc control-energy sum, ready to feed
+`global_control_partition_final`. -/
+lemma minor_energy_sum_le (BS : BlockSystem) (E : Finset ℕ) (c C : ℝ) (Sm : Finset ℕ)
+    (hc : 0 ≤ c)
+    (hQE : ∀ h ∈ Sm, Qctrl BS (fun p => ((h : ZMod p.1))) ≤ QE E h)
+    (hnotmain : ∀ h ∈ Sm,
+      (fun p => ((h : ZMod p.1)) : GlobalAssignment BS) ∉ mainArc BS C)
+    (hinj : ∀ h₁ ∈ Sm, ∀ h₂ ∈ Sm,
+      (fun p => ((h₁ : ZMod p.1)) : GlobalAssignment BS)
+        = (fun p => ((h₂ : ZMod p.1)) : GlobalAssignment BS) → h₁ = h₂) :
+    ∑ h ∈ Sm, Real.exp (-c * QE E h) ≤
+      ∑' a : {a : GlobalAssignment BS // a ∉ mainArc BS C},
+        Real.exp (-c * Qctrl BS a.1) := by
+  set af : ℕ → GlobalAssignment BS := fun h => (fun p => ((h : ZMod p.1))) with haf
+  have hinj' : ∀ x ∈ Sm, ∀ y ∈ Sm, af x = af y → x = y := hinj
+  rw [fintype_subtype_tsum_eq (fun a => a ∉ mainArc BS C)
+    (fun a => Real.exp (-c * Qctrl BS a))]
+  calc ∑ h ∈ Sm, Real.exp (-c * QE E h)
+      ≤ ∑ h ∈ Sm, Real.exp (-c * Qctrl BS (af h)) := by
+        refine Finset.sum_le_sum (fun h hh => ?_)
+        exact Real.exp_le_exp.mpr (by nlinarith [hQE h hh, hc])
+    _ = ∑ a ∈ Sm.image af, Real.exp (-c * Qctrl BS a) := by
+        rw [Finset.sum_image hinj']
+    _ ≤ ∑ a ∈ Finset.univ.filter (fun a => a ∉ mainArc BS C),
+          Real.exp (-c * Qctrl BS a) := by
+        refine Finset.sum_le_sum_of_subset_of_nonneg ?_ (fun a _ _ => (Real.exp_pos _).le)
+        intro a ha
+        rw [Finset.mem_image] at ha
+        obtain ⟨h, hh, rfl⟩ := ha
+        rw [Finset.mem_filter]
+        exact ⟨Finset.mem_univ _, hnotmain h hh⟩
 
 end CircleMethod
 
