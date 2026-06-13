@@ -112,6 +112,31 @@ theorem fourier_orthogonality (L : ℕ) (hL : 0 < L) (n : ℤ) :
       field_simp;
       exact fun ⟨ k, hk ⟩ => h <| by exact ⟨ k, by rw [ ← @Int.cast_inj ℂ ] ; push_cast; rw [ div_eq_iff ( Nat.cast_ne_zero.mpr hL.ne' ) ] at hk; linear_combination hk ⟩ ;
 
+/-! ## C5. Arc separation (positivity core) -/
+
+/-- **C5 positivity core (note 35 C5).**  If `L·W` equals a real main term plus a
+    minor complex remainder whose norm is strictly beaten by the main term, then
+    `W > 0`.  This is the arc-separation step of the circle method, isolated from
+    the specific main-arc / minor-arc estimates (which enter only through the
+    hypotheses `hmainpos`, `hminor`, `hbeat`).  Pure analysis; no dependence on
+    Phase G. -/
+theorem positivity_from_arcs (L : ℕ) (hL : 0 < L) (W main minorBound : ℝ)
+    (minorSum : ℂ)
+    (hident : (L : ℂ) * (W : ℂ) = (main : ℂ) + minorSum)
+    (hmainpos : 0 < main) (hminor : ‖minorSum‖ ≤ minorBound)
+    (hbeat : minorBound < main) :
+    0 < W := by
+  have hre : (L : ℝ) * W = main + minorSum.re := by
+    have h := congrArg Complex.re hident
+    simpa using h
+  have hbound : -minorBound ≤ minorSum.re := by
+    have h1 : |minorSum.re| ≤ ‖minorSum‖ := Complex.abs_re_le_norm minorSum
+    have h2 : |minorSum.re| ≤ minorBound := le_trans h1 hminor
+    linarith [(abs_le.mp h2).1]
+  have hpos : 0 < (L : ℝ) * W := by rw [hre]; linarith
+  have hLpos : 0 < (L : ℝ) := by exact_mod_cast hL
+  exact (mul_pos_iff_of_pos_left hLpos).mp hpos
+
 end CircleMethod
 
 /-! ## C1–C4 (analytic heart) + C5 assembly
