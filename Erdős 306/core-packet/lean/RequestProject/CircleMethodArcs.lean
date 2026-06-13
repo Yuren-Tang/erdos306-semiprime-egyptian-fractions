@@ -293,6 +293,54 @@ lemma minor_energy_sum_le (BS : BlockSystem) (E : Finset ℕ) (c C : ℝ) (Sm : 
         rw [Finset.mem_filter]
         exact ⟨Finset.mem_univ _, hnotmain h hh⟩
 
+/-! ## C4 minor-arc bound (full assembly)
+
+Combining the C2 norm bound (`minor_arc_norm_le`, with `θ₀ = 1/3` giving the
+`16/9` constant), the energy reindex (`minor_energy_sum_le`), and the global
+control partition (`global_control_partition_final`), the off-main-arc
+Fourier sum is `≤ (η + Ctail·e^{-C²·(8/9)})/σ`.  The remaining inputs
+(`hQE`, `hnotmain`, `hinj`) are exactly what the C1 construction must supply
+(edges ⊇ control pairs; frequency injectivity). -/
+theorem minor_arc_bound (eps : ℝ) (heps : 0 < eps) :
+    ∀ η : ℝ, 0 < η →
+    ∃ (k0min : ℕ) (Ctail : ℝ), 0 < Ctail ∧
+      ∀ (BS : BlockSystem), k0min ≤ BS.k0 → admissibleGlobalRange BS →
+      ∀ (C : ℝ), 1 ≤ C →
+      ∀ (E : Finset ℕ) (theta : ℕ → ℝ) (b L : ℕ) (Sm : Finset ℕ),
+      (∀ e ∈ E, (1 / 3 : ℝ) ≤ theta e) → (∀ e ∈ E, theta e ≤ 2 / 3) →
+      (∀ e ∈ E, e ∣ L) → (∀ e ∈ E, 0 < e) → 0 < L →
+      (∀ h ∈ Sm, Qctrl BS (fun p => ((h : ZMod p.1))) ≤ QE E h) →
+      (∀ h ∈ Sm, (fun p => ((h : ZMod p.1)) : GlobalAssignment BS) ∉ mainArc BS C) →
+      (∀ h₁ ∈ Sm, ∀ h₂ ∈ Sm,
+        (fun p => ((h₁ : ZMod p.1)) : GlobalAssignment BS)
+          = (fun p => ((h₂ : ZMod p.1)) : GlobalAssignment BS) → h₁ = h₂) →
+      ‖∑ h ∈ Sm,
+          (∏ e ∈ E, ((theta e : ℂ) *
+              Complex.exp (2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+              + (1 - theta e)))
+          * Complex.exp (-(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ)))‖
+        ≤ (η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl BS := by
+  intro η hη
+  obtain ⟨k0min, Ctail, hCtail, hgcp⟩ :=
+    global_control_partition_final (16 / 9) (by norm_num) eps heps η hη
+  refine ⟨k0min, Ctail, hCtail, ?_⟩
+  intro BS hk0 hadm C hC E theta b L Sm hlb hub heL he0 hL hQE hnotmain hinj
+  have hconst : (8 * (1 / 3 : ℝ) * (1 - 1 / 3)) = 16 / 9 := by norm_num
+  calc ‖∑ h ∈ Sm,
+          (∏ e ∈ E, ((theta e : ℂ) *
+              Complex.exp (2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+              + (1 - theta e)))
+          * Complex.exp (-(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ)))‖
+      ≤ ∑ h ∈ Sm, Real.exp (-(8 * (1 / 3 : ℝ) * (1 - 1 / 3)) * QE E h) :=
+        minor_arc_norm_le (1 / 3) (by norm_num) (by norm_num) E theta b L
+          hlb (by intro e he; have := hub e he; linarith) heL he0 hL Sm
+    _ = ∑ h ∈ Sm, Real.exp (-(16 / 9 : ℝ) * QE E h) := by rw [hconst]
+    _ ≤ ∑' a : {a : GlobalAssignment BS // a ∉ mainArc BS C},
+          Real.exp (-(16 / 9 : ℝ) * Qctrl BS a.1) :=
+        minor_energy_sum_le BS E (16 / 9) C Sm (by norm_num) hQE hnotmain hinj
+    _ ≤ (η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl BS :=
+        hgcp BS hk0 hadm C hC
+
 end CircleMethod
 
 end
