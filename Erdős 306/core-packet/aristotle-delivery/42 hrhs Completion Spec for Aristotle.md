@@ -97,6 +97,60 @@ this `hrhs` into `global_levelset_route` to close `GlobalControl.global_levelset
 — same underlying `theorem_B_nondominant_forcing (1/4)`; choose `k0min` = max of
 all thresholds.)
 
+## Detailed proofs (direct-translation level) for the hard pieces
+
+### N1 detailed — the analytic core `pow_beats_poly_log`
+First prove the clean asymptotic lemma (the only real analysis; everything else
+is algebra):
+```
+lemma pow_beats_poly_log (C D : ℝ) (hD : 0 < D) :
+    ∃ N : ℕ, ∀ s : ℕ, N ≤ s →
+      C + (3 * s / 2) * Real.log 2 + Real.log (Real.log (2 ^ s))
+        ≤ D * 2 ^ (s - 1) / (Real.log (2 ^ (s - 1))) ^ 3
+```
+Proof: `Real.log (2^s) = s·log 2`, so the LHS is `O(s)` and the RHS is
+`D·2^{s-1}/((s-1)log2)^3`. Use `Filter.Tendsto`: the function
+`(LHS)·((s-1)log2)^3 / 2^{s-1} → 0` (polynomial-times-log over `2^s`), via
+`tendsto_pow_atTop_nhds_zero`-style facts already used in
+`SBEEForcing.exists_X0_const_logbnd` / `hot_threshold` (copy that pattern: those
+lemmas prove `poly·log^k / X → 0`).
+
+Then `labelBound_charge_hot`: take `k0min := max 2 (N+1)` with `N` from
+`pow_beats_poly_log (Real.log ((640/3)*Real.sqrt c2) ) (eps*c2)`. For `s ≥ k0min`:
+* `labelBound c2 s ≤ (20/3)·√(c2·2^s)·(16·2^s·log(2^s)) + 1` by `Int.ceil_le`
+  (`⌈x⌉ ≤ x + 1`), so `2·labelBound c2 s + 1 ≤ (640/3)·√(c2·2^s)·2^s·log(2^s) + 3`.
+* `√(c2·2^s) = √c2·2^{s/2}` (`Real.sqrt_mul`, `Real.sqrt_eq_rpow` or
+  `2^{s/2}=√(2^s)`), so the bound is `≤ (640/3)√c2·2^{3s/2}·log(2^s) + 3
+  ≤ exp(log((640/3)√c2) + (3s/2)log2 + log log(2^s))` (for the `+3`, fold into
+  the constant; use `x ≤ exp(log x)` and monotonicity).
+* `exp(that) ≤ exp(ε·c2·2^{s-1}/log(2^{s-1})³) = exp(ε·Rw c2 (s-1))` by
+  `pow_beats_poly_log` and `Real.exp_le_exp`.
+Constants are lavish; widen freely. `labelBound_charge_boundary` is identical
+with `Pifloor BS e0 (s-1)` in place of `Rw c2 (s-1)`, using the lower bound
+`Pifloor BS e0 (s-1) ≥ c·2^{s-1}/(log)^? ` from block density (carry `BS`,`e0`,
+and `N_k ≥ 2^k/(2 log 2^k)`).
+
+### N4 detailed — `label_product_le`
+Let `SS := segStarts BS H B`. Then:
+```
+∏_{s∈SS} |labelFin s|
+  = (∏_{s∈SS ∩ {k0}} |labelFin s|) · (∏_{s∈SS \ {k0}} |labelFin s|)   -- Finset.prod_union (disjoint by sdiff)
+```
+* First factor `≤ |labelFin k0|`: if `k0 ∈ SS` it equals `|labelFin k0|`; else the
+  product over `∅` is `1 ≤ |labelFin k0|` (window nonempty ⟹ card ≥ 1).
+* Second factor: `SS \ {k0}` splits (disjointly, since `H ∩ B = ∅`) into
+  `A_H := {s ∈ SS\{k0} : s-1 ∈ H}` and `A_B := {s ∈ SS\{k0} : s-1 ∈ B}` (every
+  `s ∈ SS\{k0}` has `s-1 ∈ H ∪ B` by the `segStarts` filter). On `A_H`,
+  `|labelFin s| ≤ exp(ε·Rw c2 (s-1))` (`hcharge`); the map `s ↦ s-1` is injective
+  (`Nat.sub` injective on `≥1`; `SS` elements `≥ k0 ≥ 1`) with image `⊆ H`, so
+  `∏_{s∈A_H} exp(ε·Rw c2 (s-1)) = ∏_{j∈(s↦s-1)''A_H} exp(ε·Rw c2 j)`
+  (`Finset.prod_image`) `≤ ∏_{j∈H} exp(ε·Rw c2 j)`
+  (`Finset.prod_le_prod_of_subset_of_one_le'`, factors `≥ 1` since `Rw ≥ 0`).
+  Symmetrically for `A_B` with `Pifloor`.
+Multiplying gives the claim. Key Mathlib lemmas: `Finset.prod_union`,
+`Finset.prod_image` (injective `s↦s-1`), `Finset.prod_le_prod_of_subset_of_one_le'`,
+`Finset.prod_filter_mul_prod_filter_not` (to split `SS\{k0}` by `s-1∈H`).
+
 ## After hrhs
 G7 (`global_control_partition`) via note 38 §7 / 40 §6 (`partfun_series_bound` +
 `gaussian_int_sum_le`, both ready). Phase C is being driven separately
