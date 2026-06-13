@@ -1,10 +1,92 @@
 import RequestProject.GlobalControl
 
 open Finset BigOperators Classical
+open Filter Topology
 
 noncomputable section
 
 namespace GlobalControl
+
+lemma geom_div_pow_tendsto (r : ℝ) (hr : 1 < r) (m : ℕ) :
+    Filter.Tendsto (fun n : ℕ => r ^ n / (n : ℝ) ^ m) Filter.atTop Filter.atTop := by
+  have hlr : 0 < Real.log r := Real.log_pos hr
+  have h1 : Filter.Tendsto (fun x : ℝ => Real.exp x / x ^ m) Filter.atTop Filter.atTop :=
+    Real.tendsto_exp_div_pow_atTop m
+  have h2 : Filter.Tendsto (fun n : ℕ => (n : ℝ) * Real.log r) Filter.atTop Filter.atTop :=
+    Filter.Tendsto.atTop_mul_const hlr tendsto_natCast_atTop_atTop
+  have h3 := h1.comp h2
+  have hcongr :
+      (fun n : ℕ => r ^ n / (n : ℝ) ^ m) =
+        fun n : ℕ =>
+          (Real.log r) ^ m *
+            (Real.exp ((n : ℝ) * Real.log r) / (((n : ℝ) * Real.log r) ^ m)) := by
+    funext n
+    rw [Real.exp_nat_mul, Real.exp_log (by linarith), mul_pow]
+    by_cases hn : (n : ℝ) = 0
+    · have hn0 : n = 0 := Nat.cast_eq_zero.mp hn
+      subst n
+      by_cases hm : m = 0
+      · subst m
+        simp
+      · simp [zero_pow hm]
+    · field_simp [hn, ne_of_gt hlr]
+  rw [hcongr]
+  exact h3.const_mul_atTop (by positivity)
+
+lemma beats_affine_of_tendsto (f : ℕ → ℝ)
+    (hf : Filter.Tendsto (fun n : ℕ => f n / ((n : ℝ) + 1)) Filter.atTop Filter.atTop)
+    (M : ℝ) :
+    ∃ K : ℕ, ∀ k : ℕ, K ≤ k → M * ((k : ℝ) + 1) ≤ f k := by
+  obtain ⟨K, hK⟩ := Filter.eventually_atTop.mp (hf.eventually_ge_atTop M)
+  refine ⟨K, ?_⟩
+  intro k hk
+  have hMk : M ≤ f k / ((k : ℝ) + 1) := hK k hk
+  have hpos : 0 < (k : ℝ) + 1 := by positivity
+  calc
+    M * ((k : ℝ) + 1) ≤ (f k / ((k : ℝ) + 1)) * ((k : ℝ) + 1) := by
+      exact mul_le_mul_of_nonneg_right hMk hpos.le
+    _ = f k := by field_simp [ne_of_gt hpos]
+
+lemma affine_div_le_linear_multiple
+    (β A V : ℝ) (hβ : 0 < β) (hA : 0 < A) :
+    ∃ M : ℝ, ∀ k : ℕ,
+      (A * (2 * (k : ℝ) + 1) + V) / β ≤ M * ((k : ℝ) + 1) := by
+  refine ⟨(2 * A + |A + V|) / β, ?_⟩
+  intro k
+  have hk : 0 ≤ (k : ℝ) := by positivity
+  have hAV : A + V ≤ |A + V| := le_abs_self _
+  have hAbs : 0 ≤ |A + V| := abs_nonneg _
+  have hAbsMul : 0 ≤ |A + V| * (k : ℝ) := mul_nonneg hAbs hk
+  have hnum :
+      A * (2 * (k : ℝ) + 1) + V ≤
+        (2 * A + |A + V|) * ((k : ℝ) + 1) := by
+    nlinarith [hAV, hA.le, hk, hAbsMul]
+  calc
+    (A * (2 * (k : ℝ) + 1) + V) / β
+        ≤ ((2 * A + |A + V|) * ((k : ℝ) + 1)) / β :=
+          div_le_div_of_nonneg_right hnum hβ.le
+    _ = ((2 * A + |A + V|) / β) * ((k : ℝ) + 1) := by
+      field_simp [ne_of_gt hβ]
+
+/- `sorry` reason: analytic normalization of `Rw/k → ∞` through
+`Real.log ((2:ℝ)^k) = k * Real.log 2`; the downstream affine reduction is
+formalized below. -/
+lemma Rw_div_linear_tendsto
+    (c2 : ℝ) (hc2 : 0 < c2) :
+    Filter.Tendsto (fun k : ℕ => Rw c2 k / ((k : ℝ) + 1))
+      Filter.atTop Filter.atTop := by
+  sorry
+
+/- `sorry` reason: direct exponential-over-polynomial asymptotic
+`4^k/(k+1)^5 → ∞`; the downstream affine reduction is formalized below. -/
+lemma exp2_model_div_linear_tendsto
+    (c0 : ℝ) (hc0 : 0 < c0) :
+    Filter.Tendsto
+      (fun k : ℕ =>
+        (c0 * ((2 : ℝ) ^ (2 * k)) / (((k : ℝ) + 1) ^ 4)) /
+          ((k : ℝ) + 1))
+      Filter.atTop Filter.atTop := by
+  sorry
 
 /-!
 # G7 Sector I absorption
@@ -68,15 +150,59 @@ lemma sectorI_full_laplace_bound
     (sectorI_global_levelset_finset_bound
       (Real.exp (A * (numBlocks BS : ℝ))) eps BS hlevel)
 
+/-- The remaining prime-density lower bound for `Pifloor`.
+
+This is the density chain from `BS.hdensity` at `k₀` and `k₀+1`: after discarding
+the fixed exception budget, `Pifloor` is still bounded below by an
+exponential-over-polynomial term, uniformly over admissible block systems.
+
+`sorry` reason: this is exactly the `Pifloor` density chain requested in
+`CODEX_TASK_pifloor_density.md`, using `BS.hdensity` at `k₀` and `k₀+1`. -/
+lemma Pifloor_exp_poly_lower
+    (e0 : ℝ) (he0 : 0 < e0) :
+    ∃ K1 : ℕ, ∃ c0 : ℝ, 0 < c0 ∧
+      ∀ (BS : BlockSystem), K1 ≤ BS.k0 → admissibleGlobalRange BS →
+        c0 * ((2 : ℝ) ^ (2 * BS.k0)) / (((BS.k0 : ℝ) + 1) ^ 4) ≤
+          Pifloor BS e0 BS.k0 := by
+  sorry
+
+/-- `Rw c2 k` eventually beats every affine function of `k`. -/
+lemma Rw_affine_lower
+    (c2 : ℝ) (hc2 : 0 < c2) :
+    ∀ (β A V : ℝ), 0 < β → 0 < A →
+    ∃ K : ℕ, ∀ k : ℕ, K ≤ k →
+      (A * (2 * (k : ℝ) + 1) + V) / β ≤ Rw c2 k := by
+  intro β A V hβ hA
+  obtain ⟨M, hM⟩ := affine_div_le_linear_multiple β A V hβ hA
+  obtain ⟨K, hK⟩ :=
+    beats_affine_of_tendsto (fun k : ℕ => Rw c2 k)
+      (Rw_div_linear_tendsto c2 hc2) M
+  exact ⟨K, fun k hk => le_trans (hM k) (hK k hk)⟩
+
+/-- The model lower bound `c0 * 2^(2k)/(k+1)^4` eventually beats every affine
+function of `k`. -/
+lemma exp2_affine_lower
+    (c0 : ℝ) (hc0 : 0 < c0) :
+    ∀ (β A V : ℝ), 0 < β → 0 < A →
+    ∃ K : ℕ, ∀ k : ℕ, K ≤ k →
+      (A * (2 * (k : ℝ) + 1) + V) / β ≤
+        c0 * ((2 : ℝ) ^ (2 * k)) / (((k : ℝ) + 1) ^ 4) := by
+  intro β A V hβ hA
+  obtain ⟨M, hM⟩ := affine_div_le_linear_multiple β A V hβ hA
+  obtain ⟨K, hK⟩ :=
+    beats_affine_of_tendsto
+      (fun k : ℕ =>
+        c0 * ((2 : ℝ) ^ (2 * k)) / (((k : ℝ) + 1) ^ 4))
+      (exp2_model_div_linear_tendsto c0 hc0) M
+  exact ⟨K, fun k hk => le_trans (hM k) (hK k hk)⟩
+
 /-- The remaining floor-growth input for Sector I.
 
 This is the density-driven lower bound requested in `CODEX_TASK_pifloor.md`,
 packaged in the affine form actually consumed by the absorption arithmetic:
 eventually the global floor beats any prescribed affine function of `k₀`.
 
-`sorry` reason: this is the prime-density/Pifloor lower bound from note 35/38:
-`Pifloor BS e0 k0` is uniformly bounded below by an exponential-over-polynomial
-quantity, while `Rw c2 k0` has the analogous superlinear growth. -/
+The only unproved density input used below is `Pifloor_exp_poly_lower`. -/
 lemma Pifloor_density_lower
     (c2 e0 : ℝ) (hc2 : 0 < c2) (he0 : 0 < e0) :
     ∀ (β A V : ℝ), 0 < β → 0 < A →
@@ -84,7 +210,28 @@ lemma Pifloor_density_lower
       ∀ (BS : BlockSystem), k0min ≤ BS.k0 → admissibleGlobalRange BS →
         (A * (2 * (BS.k0 : ℝ) + 1) + V) / β ≤
           globalControlFloor BS c2 e0 := by
-  sorry
+  intro β A V hβ hA
+  obtain ⟨KRw, hRw⟩ := Rw_affine_lower c2 hc2 β A V hβ hA
+  obtain ⟨KPi0, c0, hc0, hPiLower⟩ := Pifloor_exp_poly_lower e0 he0
+  obtain ⟨KPi1, hPi1⟩ := exp2_affine_lower c0 hc0 β A V hβ hA
+  refine ⟨max KRw (max KPi0 KPi1), ?_⟩
+  intro BS hk hadm
+  have hkRw : KRw ≤ BS.k0 := le_trans (le_max_left _ _) hk
+  have hkPi0 : KPi0 ≤ BS.k0 := le_trans (le_max_left _ _) (le_trans (le_max_right _ _) hk)
+  have hkPi1 : KPi1 ≤ BS.k0 := le_trans (le_max_right _ _) (le_trans (le_max_right _ _) hk)
+  have hRwBS :
+      (A * (2 * (BS.k0 : ℝ) + 1) + V) / β ≤ Rw c2 BS.k0 :=
+    hRw BS.k0 hkRw
+  have hPiModel :
+      (A * (2 * (BS.k0 : ℝ) + 1) + V) / β ≤
+        c0 * ((2 : ℝ) ^ (2 * BS.k0)) / (((BS.k0 : ℝ) + 1) ^ 4) := by
+    have := hPi1 BS.k0 hkPi1
+    linarith
+  have hPiBS :
+      (A * (2 * (BS.k0 : ℝ) + 1) + V) / β ≤ Pifloor BS e0 BS.k0 :=
+    le_trans hPiModel (hPiLower BS hkPi0 hadm)
+  unfold globalControlFloor
+  exact le_min hRwBS hPiBS
 
 /-- The floor-growth input for Sector I.
 

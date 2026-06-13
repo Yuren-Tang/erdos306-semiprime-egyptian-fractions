@@ -1,7 +1,7 @@
 import RequestProject.BernoulliFourier
 import RequestProject.GlobalControl
 
-open Finset BigOperators Classical Real
+open Finset BigOperators Classical Real GlobalControl
 
 noncomputable section
 
@@ -215,6 +215,45 @@ lemma nndist1_eq_crtRepr_div (p q : ℕ) (hp : Nat.Prime p) (hq : Nat.Prime q)
     rw [div_le_iff₀ hpqR]
     linarith [hmle]
   rw [nndist1_eq_of_int _ t habs, hxt, abs_div, abs_of_pos hpqR]
+
+/-- Endpoints of a control pair are distinct primes. -/
+lemma ctrlPairs_distinct_primes (BS : BlockSystem) {pq : ℕ × ℕ}
+    (hpq : pq ∈ ctrlPairs BS) :
+    Nat.Prime pq.1 ∧ Nat.Prime pq.2 ∧ pq.1 ≠ pq.2 := by
+  have hmem := ctrlPairs_mem_blockSupport BS hpq
+  refine ⟨blockSupport_prime BS hmem.1, blockSupport_prime BS hmem.2, ?_⟩
+  simp only [ctrlPairs, Finset.mem_union, Finset.mem_biUnion, internalPairs,
+    bipartitePairs, Finset.mem_filter, Finset.mem_product, Finset.mem_Icc,
+    Finset.mem_Ico] at hpq
+  rcases hpq with ⟨k, _, ⟨_, _⟩, hlt⟩ | ⟨k, _, hp1, hp2⟩
+  · exact Nat.ne_of_lt hlt
+  · -- bipartite: pq.1 < 2^(k+1) ≤ pq.2
+    have h1 := (BS.hwindow k pq.1 hp1).2
+    have h2 := (BS.hwindow (k + 1) pq.2 hp2).1
+    exact Nat.ne_of_lt (lt_of_lt_of_le h1 h2)
+
+/-- **Q_ctrl of the frequency-induced assignment** equals the nearest-integer
+energy sum.  With `a(h)_p = h mod p`, `Q_ctrl(a(h)) = ∑_{pq} ‖h/(pq)‖²` — the
+`Q_ctrl` side of the C4 identity `Q_E(h) = Q_ctrl(a(h))`. -/
+lemma Qctrl_freq_eq (BS : BlockSystem) (h : ℕ) :
+    Qctrl BS (fun p => ((h : ZMod p.1))) =
+      ∑ pq ∈ ctrlPairs BS, (GlobalControl.nndist1 ((h : ℝ) / ((pq.1 : ℝ) * (pq.2 : ℝ)))) ^ 2 := by
+  unfold Qctrl
+  refine Finset.sum_congr rfl (fun pq hpq => ?_)
+  obtain ⟨hp1, hp2, hne⟩ := ctrlPairs_distinct_primes BS hpq
+  have hmem := ctrlPairs_mem_blockSupport BS hpq
+  -- toPlain of the frequency assignment is h mod p on the support
+  have htp1 : toPlain BS (fun p => ((h : ZMod p.1))) pq.1 = (h : ZMod pq.1) := by
+    simp only [toPlain, dif_pos hmem.1]
+  have htp2 : toPlain BS (fun p => ((h : ZMod p.1))) pq.2 = (h : ZMod pq.2) := by
+    simp only [toPlain, dif_pos hmem.2]
+  have hHglob : Hglob (toPlain BS (fun p => ((h : ZMod p.1)))) pq.1 pq.2
+      = crtRepr pq.1 pq.2 (h : ZMod pq.1) (h : ZMod pq.2) := by
+    unfold Hglob; rw [htp1, htp2]
+  rw [hHglob]
+  -- ‖h/(pq)‖ = |crtRepr|/(pq), so nndist² = (crtRepr/(pq))²
+  have hbridge := nndist1_eq_crtRepr_div pq.1 pq.2 hp1 hp2 hne h
+  rw [hbridge, div_pow, div_pow, sq_abs]
 
 end CircleMethod
 
