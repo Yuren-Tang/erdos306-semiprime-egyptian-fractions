@@ -217,6 +217,38 @@ lemma charterm_expand (E : Finset ℕ) (theta : ℕ → ℝ) (b L h : ℕ) :
       rw [hLHS, hRHS]; ring
     rw [harg]
 
+/-- **C0 Fourier identity (note 35 C0).**  The deterministic weighted count is the
+    circle-method sum: `L·Wcount` equals the sum over frequencies `h < L` of the
+    Bernoulli product times the target phase.  (Under `b ≥ 2`, the divisibility
+    hypotheses, and the no-wraparound bound `∑_E L/e < L`.) -/
+theorem wcount_fourier_identity (E : Finset ℕ) (theta : ℕ → ℝ) (b L : ℕ)
+    (hb : 2 ≤ b) (hL : 0 < L) (hbL : b ∣ L) (heL : ∀ e ∈ E, e ∣ L)
+    (he0 : ∀ e ∈ E, 0 < e) (hbound : (∑ e ∈ E, (L / e : ℕ)) < L) :
+    (L : ℂ) * (Wcount E theta b : ℂ)
+      = ∑ h ∈ Finset.range L,
+          (∏ e ∈ E, ((theta e : ℂ) *
+              Complex.exp (2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+              + (1 - theta e)))
+          * Complex.exp (-(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ))) := by
+  rw [Finset.sum_congr rfl (fun h _ => charterm_expand E theta b L h), Finset.sum_comm]
+  have hterm : ∀ S ∈ E.powerset,
+      (∑ h ∈ Finset.range L,
+        ((∏ e ∈ S, (theta e : ℂ)) * (∏ e ∈ E \ S, (1 - theta e : ℂ)))
+        * Complex.exp (2 * Real.pi * Complex.I * (h : ℂ)
+            * (((∑ e ∈ S, ((L / e : ℕ) : ℤ)) - ((L / b : ℕ) : ℤ) : ℤ) : ℂ) / (L : ℂ)))
+      = (L : ℂ) * (if (∑ e ∈ S, (1 : ℚ) / (e : ℚ)) = (1 : ℚ) / (b : ℚ) then
+          (∏ e ∈ S, (theta e : ℂ)) * (∏ e ∈ E \ S, (1 - theta e : ℂ)) else 0) := by
+    intro S hS
+    rw [← Finset.mul_sum, fourier_orthogonality L hL]
+    have hiff := fourier_indicator E b L hb hL hbL heL he0 hbound S (Finset.mem_powerset.mp hS)
+    by_cases hcond : (∑ e ∈ S, (1 : ℚ) / (e : ℚ)) = (1 : ℚ) / (b : ℚ)
+    · rw [if_pos hcond, if_pos (hiff.mpr hcond)]; ring
+    · rw [if_neg hcond, if_neg (fun h => hcond (hiff.mp h))]; ring
+  rw [Finset.sum_congr rfl hterm, Wcount, Complex.ofReal_sum, Finset.mul_sum]
+  refine Finset.sum_congr rfl (fun S _ => ?_)
+  rw [apply_ite (Complex.ofReal)]
+  split_ifs <;> push_cast <;> ring
+
 /-- **C5 positivity core (note 35 C5).**  If `L·W` equals a real main term plus a
     minor complex remainder whose norm is strictly beaten by the main term, then
     `W > 0`.  This is the arc-separation step of the circle method, isolated from
