@@ -166,6 +166,26 @@ theorem exists_positive_weighted_construction
       0 < Wcount E theta b := by
   sorry
 
+/-- **Phase-C route closure.**  Reduces the analytic heart
+    `exists_positive_weighted_construction` to: a concrete construction `(E, θ)`
+    of semiprime edges avoiding `T`, together with the Fourier identity
+    `L·Wcount = main + minorSum` and the arc separation `‖minorSum‖ < main`.
+    The positivity then follows from `positivity_from_arcs`.  This isolates the
+    remaining Phase-C content to the edge construction (C1), the Fourier identity
+    (C0), and the main/minor arc estimates (C3/C4 via G7). -/
+theorem exists_pos_construction_of_arcs (T : Finset ℕ) (b : ℕ)
+    (E : Finset ℕ) (theta : ℕ → ℝ) (L : ℕ) (hL : 0 < L)
+    (main minorBound : ℝ) (minorSum : ℂ)
+    (hsemi : ∀ e ∈ E, IsSemiprime e) (havoid : ∀ e ∈ E, e ∉ T)
+    (hident : (L : ℂ) * (Wcount E theta b : ℂ) = (main : ℂ) + minorSum)
+    (hmainpos : 0 < main) (hminor : ‖minorSum‖ ≤ minorBound) (hbeat : minorBound < main) :
+    ∃ (E' : Finset ℕ) (theta' : ℕ → ℝ),
+      (∀ e ∈ E', IsSemiprime e) ∧ (∀ e ∈ E', e ∉ T) ∧
+      0 < Wcount E' theta' b :=
+  ⟨E, theta, hsemi, havoid,
+    positivity_from_arcs L hL (Wcount E theta b) main minorBound minorSum
+      hident hmainpos hminor hbeat⟩
+
 /-- **C5 (positivity ⟹ representation).**  Assembles the analytic positivity
     `exists_positive_weighted_construction` with the extraction principle
     `Wcount_pos_imp_repr` to produce an Egyptian semiprime representation of
