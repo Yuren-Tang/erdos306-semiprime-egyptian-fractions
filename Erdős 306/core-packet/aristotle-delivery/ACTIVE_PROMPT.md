@@ -1,12 +1,25 @@
 # ACTIVE TASK: prove the G6 localization dichotomy (`g6_localization`)
 
-## Startup — DO NOT rebuild the verified core (it is pre-built here)
-The compiled `.olean` files for ALL of RequestProject are already laid out under
-`.lake/build/lib/lean/RequestProject/` and match the source exactly. After
-`lake exe cache get` (Mathlib only), run `lake build` — it should SKIP the whole
-verified core and elaborate only your new file. Do NOT delete `.lake`. If you
-flatten sources to the repo root, move them back under `RequestProject/` first
-(the lakefile expects `RequestProject/*`).
+## Startup — DO NOT rebuild the verified core (follow this ORDER exactly)
+Compiled `.olean`s for ALL of RequestProject are shipped, both in
+`.lake/build/lib/lean/RequestProject/` AND in `prebuilt-oleans.tar.gz`. The core
+takes ~40 min to build from scratch — avoid it. Do this, IN ORDER:
+
+1. `lake exe cache get`   (fetches Mathlib oleans only)
+2. **If your environment flattened the sources to the repo root, move them back
+   under `RequestProject/` FIRST** (the lakefile globs `RequestProject/*`).
+3. **THEN extract the prebuilt oleans so they are newer than the (just-moved)
+   sources** — this is the key step; moving sources gives them a fresh mtime, and
+   lake rebuilds any module whose source is newer than its olean:
+   ```
+   tar xzf prebuilt-oleans.tar.gz -C .lake/build/lib/lean/
+   ```
+   (Do this even if `.lake` already contains oleans — it refreshes their mtimes.)
+4. `lake build` — it should now SKIP/replay the whole verified core and elaborate
+   ONLY your new file `RequestProject/GlobalControlG6.lean`.
+
+Do NOT delete `.lake`. If `lake` still insists on rebuilding RequestProject, it is
+the source-mtime check — re-run step 3 after all source moves are finished.
 
 ## File-split strategy (keep it — it is why iteration is fast)
 Work ONLY in a NEW leaf `RequestProject/GlobalControlG6.lean` that
