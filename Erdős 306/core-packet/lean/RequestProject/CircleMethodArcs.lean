@@ -341,6 +341,68 @@ theorem minor_arc_bound (eps : ℝ) (heps : 0 < eps) :
     _ ≤ (η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl BS :=
         hgcp BS hk0 hadm C hC
 
+/-! ## C3 main-arc Gaussian lower bound
+
+The diagonal Gaussian sum over the main-arc label window is `≥ c₃/σ` — the
+positive main term of the circle method (note 35 C3).  Pure analysis: keep the
+`⌊1/(2σ)⌋+1 ≥ 1/(2σ)` labels with `|m| ≤ 1/(2σ)`, each contributing
+`≥ e^{-π²/2}`. -/
+lemma main_arc_gaussian_lower (σ : ℝ) (hσ : 0 < σ) (N : ℤ) (hN : (1 : ℝ) / σ ≤ (N : ℝ)) :
+    Real.exp (-(Real.pi ^ 2 / 2)) / 2 / σ ≤
+      ∑ m ∈ Finset.Icc (-N) N, Real.exp (-(2 * Real.pi ^ 2 * σ ^ 2) * (m : ℝ) ^ 2) := by
+  set K : ℤ := ⌊1 / (2 * σ)⌋ with hKdef
+  have h2σ : (0 : ℝ) < 2 * σ := by positivity
+  have hKnn : 0 ≤ K := Int.floor_nonneg.mpr (by positivity)
+  have hKle : (K : ℝ) ≤ 1 / (2 * σ) := Int.floor_le _
+  have hNR : (0 : ℝ) ≤ (N : ℝ) := le_trans (by positivity) hN
+  have hNZ : (0 : ℤ) ≤ N := by exact_mod_cast hNR
+  have hKleN : K ≤ N := by
+    have h12 : (1 : ℝ) / (2 * σ) ≤ (N : ℝ) := by
+      have hh : (1 : ℝ) / (2 * σ) ≤ 1 / σ := by
+        rw [div_le_div_iff₀ h2σ hσ]; nlinarith [hσ]
+      linarith [hh, hN]
+    exact_mod_cast le_trans hKle h12
+  have hsub : Finset.Icc (0 : ℤ) K ⊆ Finset.Icc (-N) N :=
+    Finset.Icc_subset_Icc (by omega) hKleN
+  -- per-term lower bound on the subset
+  have hterm : ∀ m ∈ Finset.Icc (0 : ℤ) K,
+      Real.exp (-(Real.pi ^ 2 / 2)) ≤ Real.exp (-(2 * Real.pi ^ 2 * σ ^ 2) * (m : ℝ) ^ 2) := by
+    intro m hm
+    rw [Finset.mem_Icc] at hm
+    have hm0 : (0 : ℝ) ≤ (m : ℝ) := by exact_mod_cast hm.1
+    have hmK : (m : ℝ) ≤ 1 / (2 * σ) := le_trans (by exact_mod_cast hm.2) hKle
+    have hσm : σ * (m : ℝ) ≤ 1 / 2 := by
+      have h := mul_le_mul_of_nonneg_left hmK hσ.le
+      have he : σ * (1 / (2 * σ)) = 1 / 2 := by field_simp
+      linarith [h, he]
+    apply Real.exp_le_exp.mpr
+    nlinarith [Real.pi_pos, hσm, mul_nonneg hσ.le hm0,
+      mul_nonneg (by linarith [hσm] : (0:ℝ) ≤ 1/2 - σ * (m:ℝ))
+        (by positivity : (0:ℝ) ≤ 1/2 + σ * (m:ℝ)),
+      mul_pos Real.pi_pos Real.pi_pos]
+  -- count bound
+  have hcard : ((Finset.Icc (0 : ℤ) K).card : ℝ) = (K : ℝ) + 1 := by
+    have hc : (Finset.Icc (0 : ℤ) K).card = (K + 1).toNat := by rw [Int.card_Icc]; simp
+    rw [hc]
+    have : ((K + 1).toNat : ℤ) = K + 1 := Int.toNat_of_nonneg (by omega)
+    exact_mod_cast this
+  have hk1' : (1 : ℝ) ≤ ((K : ℝ) + 1) * (2 * σ) := by
+    have hlt := Int.lt_floor_add_one (1 / (2 * σ))
+    rw [← hKdef] at hlt
+    rw [div_lt_iff₀ h2σ] at hlt
+    linarith [hlt]
+  calc Real.exp (-(Real.pi ^ 2 / 2)) / 2 / σ
+      ≤ ((K : ℝ) + 1) * Real.exp (-(Real.pi ^ 2 / 2)) := by
+        have hexp : (0:ℝ) < Real.exp (-(Real.pi ^ 2 / 2)) := Real.exp_pos _
+        rw [div_div, div_le_iff₀ h2σ]
+        nlinarith [mul_le_mul_of_nonneg_left hk1' hexp.le, hexp]
+    _ = ∑ _m ∈ Finset.Icc (0 : ℤ) K, Real.exp (-(Real.pi ^ 2 / 2)) := by
+        rw [Finset.sum_const, nsmul_eq_mul, hcard]
+    _ ≤ ∑ m ∈ Finset.Icc (0 : ℤ) K, Real.exp (-(2 * Real.pi ^ 2 * σ ^ 2) * (m : ℝ) ^ 2) :=
+        Finset.sum_le_sum hterm
+    _ ≤ ∑ m ∈ Finset.Icc (-N) N, Real.exp (-(2 * Real.pi ^ 2 * σ ^ 2) * (m : ℝ) ^ 2) :=
+        Finset.sum_le_sum_of_subset_of_nonneg hsub (fun m _ _ => (Real.exp_pos _).le)
+
 end CircleMethod
 
 end
