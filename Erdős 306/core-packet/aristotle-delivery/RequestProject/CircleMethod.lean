@@ -112,7 +112,142 @@ theorem fourier_orthogonality (L : ℕ) (hL : 0 < L) (n : ℤ) :
       field_simp;
       exact fun ⟨ k, hk ⟩ => h <| by exact ⟨ k, by rw [ ← @Int.cast_inj ℂ ] ; push_cast; rw [ div_eq_iff ( Nat.cast_ne_zero.mpr hL.ne' ) ] at hk; linear_combination hk ⟩ ;
 
-/-! ## C5. Arc separation (positivity core) -/
+/-! ## C0. Fourier identity — the indicator core
+
+The orthogonality picks out, among all subsets `S ⊆ E`, exactly those with
+`L ∣ (∑_{e∈S} L/e − L/b)`.  Under the no-wraparound hypotheses (`b ≥ 2` and the
+total mass `∑_{e∈E} L/e < L`, i.e. `∑ 1/e < 1`), that divisibility is equivalent
+to the exact reciprocal identity `∑_{e∈S} 1/e = 1/b` used by `Wcount`. -/
+
+/-- For `e ∣ L` and `0 < e`, the reciprocal `1/e` equals `(L/e)/L` in `ℚ`. -/
+lemma one_div_eq_div_of_dvd (e L : ℕ) (he : 0 < e) (hL : 0 < L) (hdvd : e ∣ L) :
+    (1 : ℚ) / (e : ℚ) = ((L / e : ℕ) : ℚ) / (L : ℚ) := by
+  have hmul : (e : ℕ) * (L / e) = L := Nat.mul_div_cancel' hdvd
+  rw [div_eq_div_iff (by exact_mod_cast he.ne' : (e:ℚ) ≠ 0)
+    (by exact_mod_cast hL.ne' : (L:ℚ) ≠ 0), one_mul]
+  rw [mul_comm]
+  exact_mod_cast hmul.symm
+
+/-- **C0 indicator equivalence (no-wraparound).** -/
+lemma fourier_indicator (E : Finset ℕ) (b L : ℕ) (hb : 2 ≤ b) (hL : 0 < L)
+    (hbL : b ∣ L) (heL : ∀ e ∈ E, e ∣ L) (he0 : ∀ e ∈ E, 0 < e)
+    (hbound : (∑ e ∈ E, (L / e : ℕ)) < L)
+    (S : Finset ℕ) (hS : S ⊆ E) :
+    ((L : ℤ) ∣ ((∑ e ∈ S, ((L / e : ℕ) : ℤ)) - ((L / b : ℕ) : ℤ)))
+      ↔ (∑ e ∈ S, (1 : ℚ) / (e : ℚ)) = (1 : ℚ) / (b : ℚ) := by
+  set mS := ∑ e ∈ S, (L / e : ℕ) with hmSdef
+  set mb := (L / b : ℕ) with hmbdef
+  have hsumcast : (∑ e ∈ S, ((L / e : ℕ) : ℤ)) = (mS : ℤ) := by
+    rw [hmSdef, Nat.cast_sum]
+  rw [hsumcast]
+  have hmS_lt : mS < L := lt_of_le_of_lt (Finset.sum_le_sum_of_subset hS) hbound
+  have hmb_lt : mb < L := Nat.div_lt_self hL (by omega)
+  -- divisibility ↔ mS = mb
+  have hdiv_iff : ((L : ℤ) ∣ ((mS : ℤ) - (mb : ℤ))) ↔ mS = mb := by
+    constructor
+    · intro h
+      obtain ⟨k, hk⟩ := h
+      have hkabs : |(mS : ℤ) - (mb : ℤ)| < (L : ℤ) := by
+        have h1 : (mS : ℤ) < L := by exact_mod_cast hmS_lt
+        have h2 : (mb : ℤ) < L := by exact_mod_cast hmb_lt
+        have h3 : (0 : ℤ) ≤ mS := Int.natCast_nonneg _
+        have h4 : (0 : ℤ) ≤ mb := Int.natCast_nonneg _
+        rw [abs_lt]; omega
+      rw [hk, abs_mul] at hkabs
+      have hLpos : (0 : ℤ) < L := by exact_mod_cast hL
+      have hk0 : k = 0 := by
+        rcases eq_or_ne k 0 with h | h
+        · exact h
+        · exfalso
+          have hLabs : |(L : ℤ)| = L := abs_of_pos hLpos
+          rw [hLabs] at hkabs
+          have hk1 : (1 : ℤ) ≤ |k| := Int.one_le_abs h
+          nlinarith [mul_le_mul_of_nonneg_left hk1 hLpos.le, hkabs]
+      rw [hk0, mul_zero, sub_eq_zero] at hk
+      exact_mod_cast hk
+    · intro h; rw [h, sub_self]; exact dvd_zero _
+  rw [hdiv_iff]
+  -- ℚ bridge
+  have hqS : (∑ e ∈ S, (1 : ℚ) / (e : ℚ)) = (mS : ℚ) / (L : ℚ) := by
+    rw [hmSdef]; push_cast [Finset.sum_div]
+    exact Finset.sum_congr rfl (fun e he =>
+      one_div_eq_div_of_dvd e L (he0 e (hS he)) hL (heL e (hS he)))
+  have hqb : (1 : ℚ) / (b : ℚ) = (mb : ℚ) / (L : ℚ) :=
+    one_div_eq_div_of_dvd b L (by omega) hL hbL
+  have hLne : (L : ℚ) ≠ 0 := by exact_mod_cast hL.ne'
+  rw [hqS, hqb, div_eq_div_iff hLne hLne]
+  constructor
+  · intro h; rw [h]
+  · intro h; exact_mod_cast mul_right_cancel₀ hLne h
+
+/-- **C0 char-product expansion (per `h`).**  Expanding the Bernoulli product and
+    factoring the exponentials, the `h`-term of the circle-method sum is a sum over
+    subsets `S ⊆ E` with the `Wcount` weights and a single additive character at
+    frequency `h` and integer phase `∑_{e∈S} L/e − L/b`. -/
+lemma charterm_expand (E : Finset ℕ) (theta : ℕ → ℝ) (b L h : ℕ) :
+    (∏ e ∈ E, ((theta e : ℂ) *
+        Complex.exp (2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+        + (1 - theta e)))
+      * Complex.exp (-(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ)))
+    = ∑ S ∈ E.powerset,
+        ((∏ e ∈ S, (theta e : ℂ)) * (∏ e ∈ E \ S, (1 - theta e : ℂ)))
+        * Complex.exp (2 * Real.pi * Complex.I * (h : ℂ)
+            * (((∑ e ∈ S, ((L / e : ℕ) : ℤ)) - ((L / b : ℕ) : ℤ) : ℤ) : ℂ) / (L : ℂ)) := by
+  rw [Finset.prod_add, Finset.sum_mul]
+  refine Finset.sum_congr rfl (fun S hS => ?_)
+  rw [Finset.prod_mul_distrib, ← Complex.exp_sum]
+  trans (((∏ e ∈ S, (theta e : ℂ)) * (∏ e ∈ E \ S, (1 - theta e : ℂ)))
+      * (Complex.exp (∑ e ∈ S,
+            2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+        * Complex.exp (-(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ)))))
+  · ring
+  · rw [← Complex.exp_add]
+    have harg : (∑ e ∈ S,
+          2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+        + -(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ))
+        = 2 * Real.pi * Complex.I * (h : ℂ)
+            * (((∑ e ∈ S, ((L / e : ℕ) : ℤ)) - ((L / b : ℕ) : ℤ) : ℤ) : ℂ) / (L : ℂ) := by
+      have hLHS : (∑ e ∈ S,
+            2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+          = (2 * Real.pi * Complex.I * (h : ℂ) / (L : ℂ)) * ∑ e ∈ S, ((L / e : ℕ) : ℂ) := by
+        rw [Finset.mul_sum]; exact Finset.sum_congr rfl (fun e _ => by ring)
+      have hRHS : ((((∑ e ∈ S, ((L / e : ℕ) : ℤ)) - ((L / b : ℕ) : ℤ)) : ℤ) : ℂ)
+          = (∑ e ∈ S, ((L / e : ℕ) : ℂ)) - ((L / b : ℕ) : ℂ) := by
+        rw [Int.cast_sub, Int.cast_sum]; norm_cast
+      rw [hLHS, hRHS]; ring
+    rw [harg]
+
+/-- **C0 Fourier identity (note 35 C0).**  The deterministic weighted count is the
+    circle-method sum: `L·Wcount` equals the sum over frequencies `h < L` of the
+    Bernoulli product times the target phase.  (Under `b ≥ 2`, the divisibility
+    hypotheses, and the no-wraparound bound `∑_E L/e < L`.) -/
+theorem wcount_fourier_identity (E : Finset ℕ) (theta : ℕ → ℝ) (b L : ℕ)
+    (hb : 2 ≤ b) (hL : 0 < L) (hbL : b ∣ L) (heL : ∀ e ∈ E, e ∣ L)
+    (he0 : ∀ e ∈ E, 0 < e) (hbound : (∑ e ∈ E, (L / e : ℕ)) < L) :
+    (L : ℂ) * (Wcount E theta b : ℂ)
+      = ∑ h ∈ Finset.range L,
+          (∏ e ∈ E, ((theta e : ℂ) *
+              Complex.exp (2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+              + (1 - theta e)))
+          * Complex.exp (-(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ))) := by
+  rw [Finset.sum_congr rfl (fun h _ => charterm_expand E theta b L h), Finset.sum_comm]
+  have hterm : ∀ S ∈ E.powerset,
+      (∑ h ∈ Finset.range L,
+        ((∏ e ∈ S, (theta e : ℂ)) * (∏ e ∈ E \ S, (1 - theta e : ℂ)))
+        * Complex.exp (2 * Real.pi * Complex.I * (h : ℂ)
+            * (((∑ e ∈ S, ((L / e : ℕ) : ℤ)) - ((L / b : ℕ) : ℤ) : ℤ) : ℂ) / (L : ℂ)))
+      = (L : ℂ) * (if (∑ e ∈ S, (1 : ℚ) / (e : ℚ)) = (1 : ℚ) / (b : ℚ) then
+          (∏ e ∈ S, (theta e : ℂ)) * (∏ e ∈ E \ S, (1 - theta e : ℂ)) else 0) := by
+    intro S hS
+    rw [← Finset.mul_sum, fourier_orthogonality L hL]
+    have hiff := fourier_indicator E b L hb hL hbL heL he0 hbound S (Finset.mem_powerset.mp hS)
+    by_cases hcond : (∑ e ∈ S, (1 : ℚ) / (e : ℚ)) = (1 : ℚ) / (b : ℚ)
+    · rw [if_pos hcond, if_pos (hiff.mpr hcond)]; ring
+    · rw [if_neg hcond, if_neg (fun h => hcond (hiff.mp h))]; ring
+  rw [Finset.sum_congr rfl hterm, Wcount, Complex.ofReal_sum, Finset.mul_sum]
+  refine Finset.sum_congr rfl (fun S _ => ?_)
+  rw [apply_ite (Complex.ofReal)]
+  split_ifs <;> push_cast <;> ring
 
 /-- **C5 positivity core (note 35 C5).**  If `L·W` equals a real main term plus a
     minor complex remainder whose norm is strictly beaten by the main term, then
@@ -165,6 +300,26 @@ theorem exists_positive_weighted_construction
       (∀ e ∈ E, IsSemiprime e) ∧ (∀ e ∈ E, e ∉ T) ∧
       0 < Wcount E theta b := by
   sorry
+
+/-- **Phase-C route closure.**  Reduces the analytic heart
+    `exists_positive_weighted_construction` to: a concrete construction `(E, θ)`
+    of semiprime edges avoiding `T`, together with the Fourier identity
+    `L·Wcount = main + minorSum` and the arc separation `‖minorSum‖ < main`.
+    The positivity then follows from `positivity_from_arcs`.  This isolates the
+    remaining Phase-C content to the edge construction (C1), the Fourier identity
+    (C0), and the main/minor arc estimates (C3/C4 via G7). -/
+theorem exists_pos_construction_of_arcs (T : Finset ℕ) (b : ℕ)
+    (E : Finset ℕ) (theta : ℕ → ℝ) (L : ℕ) (hL : 0 < L)
+    (main minorBound : ℝ) (minorSum : ℂ)
+    (hsemi : ∀ e ∈ E, IsSemiprime e) (havoid : ∀ e ∈ E, e ∉ T)
+    (hident : (L : ℂ) * (Wcount E theta b : ℂ) = (main : ℂ) + minorSum)
+    (hmainpos : 0 < main) (hminor : ‖minorSum‖ ≤ minorBound) (hbeat : minorBound < main) :
+    ∃ (E' : Finset ℕ) (theta' : ℕ → ℝ),
+      (∀ e ∈ E', IsSemiprime e) ∧ (∀ e ∈ E', e ∉ T) ∧
+      0 < Wcount E' theta' b :=
+  ⟨E, theta, hsemi, havoid,
+    positivity_from_arcs L hL (Wcount E theta b) main minorBound minorSum
+      hident hmainpos hminor hbeat⟩
 
 /-- **C5 (positivity ⟹ representation).**  Assembles the analytic positivity
     `exists_positive_weighted_construction` with the extraction principle

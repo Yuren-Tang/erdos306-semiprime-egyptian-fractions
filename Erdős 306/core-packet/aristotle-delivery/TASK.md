@@ -1,5 +1,9 @@
 # Aristotle delivery — current task
 
+**CURRENT TASK = `ACTIVE_PROMPT.md`: prove `g6_localization` in a new leaf
+`RequestProject/GlobalControlG6.lean` (see note 43). Earlier hrhs/G5 task is
+superseded — that is now driven separately.**
+
 Work in this folder as the Lake project root.  The Lean package is already in
 the expected layout:
 

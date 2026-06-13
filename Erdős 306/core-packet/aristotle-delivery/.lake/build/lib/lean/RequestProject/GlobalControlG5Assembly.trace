@@ -1,13 +1,19 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["6c14c5013caf1b43.olean"],
-  "i": "44e3918fed51d7d6.ilean",
+ {"o": ["98fc3a7407512f31.olean"],
+  "i": "46778e1ea03d6363.ilean",
   "c": "57fdeaf7e8123d98.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/Users/david/erdos-lean-build/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/erdos-lean-build/RequestProject/GlobalControlG5Assembly.lean -o /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/GlobalControlG5Assembly.olean -i /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/GlobalControlG5Assembly.ilean -c /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/GlobalControlG5Assembly.c --setup /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/GlobalControlG5Assembly.setup.json --json",
-   "level": "trace"}],
+   "level": "trace"},
+  {"message":
+   "RequestProject/GlobalControlG5Assembly.lean:111:59: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControlG5Assembly.lean:129:294: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"}],
  "inputs":
  [["RequestProject.GlobalControlG5Assembly:deps",
    [["deps",
@@ -26,7 +32,7 @@
   ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
    "a96bc04a2e5e9630"],
   ["/Users/david/erdos-lean-build/RequestProject/GlobalControlG5Assembly.lean",
-   "50d8f5c8228f7a2c"],
+   "29b81750db1ee3d7"],
   ["options", "00000000000006bb"],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "a49483735b3569b2"}
+ "depHash": "e2fddf6217d6f5cd"}
