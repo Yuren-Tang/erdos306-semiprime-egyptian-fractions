@@ -1,15 +1,18 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["15bee53669962fde.olean"],
-  "i": "228b4cabe8bb7c69.ilean",
-  "c": "ae8fec749155aada.c"},
+ {"o": ["6d6cc89e256b73aa.olean"],
+  "i": "d2ba73b7d1cfcc84.ilean",
+  "c": "df5e82db423c0516.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/Users/david/erdos-lean-build/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/erdos-lean-build/RequestProject/GlobalControlSectorI.lean -o /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/GlobalControlSectorI.olean -i /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/GlobalControlSectorI.ilean -c /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/GlobalControlSectorI.c --setup /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/GlobalControlSectorI.setup.json --json",
    "level": "trace"},
   {"message":
-   "RequestProject/GlobalControlSectorI.lean:79:8: declaration uses `sorry`",
+   "RequestProject/GlobalControlSectorI.lean:549:13: unused variable `hc`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControlSectorI.lean:550:5: unused variable `heps`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["RequestProject.GlobalControlSectorI:deps",
@@ -19,7 +22,11 @@
       ["imports",
        [["RequestProject.GlobalControl transitive imports (legacy)",
          "6445d23247c65faa"],
-        ["RequestProject.GlobalControl:importAllArts", "d7f072fda1246bcf"]]]]],
+        ["RequestProject.GlobalControl:importAllArts", "d7f072fda1246bcf"],
+        ["RequestProject.GlobalControlG6 transitive imports (legacy)",
+         "57f5ba02a0b4d37e"],
+        ["RequestProject.GlobalControlG6:importAllArts",
+         "c4d8f04424e40bbb"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -28,7 +35,7 @@
   ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
    "a96bc04a2e5e9630"],
   ["/Users/david/erdos-lean-build/RequestProject/GlobalControlSectorI.lean",
-   "f444344dde6d5fc3"],
+   "e3d21e2088a07d7f"],
   ["options", "00000000000006bb"],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "2b9ee4680f7adb58"}
+ "depHash": "8dc3c7f2573a0668"}

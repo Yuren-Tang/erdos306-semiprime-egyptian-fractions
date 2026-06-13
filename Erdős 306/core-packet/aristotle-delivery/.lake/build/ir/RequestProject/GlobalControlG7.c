@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: RequestProject.GlobalControlG7
-// Imports: public import Init public import RequestProject.GlobalControl
+// Imports: public import Init public import RequestProject.GlobalControl public import RequestProject.GlobalControlG6 public import RequestProject.GlobalControlSectorI
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,8 @@ extern "C" {
 #endif
 lean_object* initialize_Init(uint8_t builtin);
 lean_object* initialize_RequestProject_RequestProject_GlobalControl(uint8_t builtin);
+lean_object* initialize_RequestProject_RequestProject_GlobalControlG6(uint8_t builtin);
+lean_object* initialize_RequestProject_RequestProject_GlobalControlSectorI(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_RequestProject_RequestProject_GlobalControlG7(uint8_t builtin) {
 lean_object * res;
@@ -24,6 +26,12 @@ res = initialize_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_RequestProject_RequestProject_GlobalControl(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_RequestProject_RequestProject_GlobalControlG6(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_RequestProject_RequestProject_GlobalControlSectorI(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

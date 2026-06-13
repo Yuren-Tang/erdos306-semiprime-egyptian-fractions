@@ -1,105 +1,47 @@
-# ACTIVE TASK: prove the G6 localization dichotomy (`g6_localization`)
+# ACTIVE TASK: close G5 — prove `global_levelset_final` (hrhs N5 assembly)
 
-## Startup — DO NOT rebuild the verified core (follow this ORDER exactly)
-Compiled `.olean`s for ALL of RequestProject are shipped, both in
-`.lake/build/lib/lean/RequestProject/` AND in `prebuilt-oleans.tar.gz`. The core
-takes ~40 min to build from scratch — avoid it. Do this, IN ORDER:
+## DONE already — do NOT redo
+`g6_localization` (now in `RequestProject/GlobalControlG6.lean`) is COMPLETE and
+integrated. `GlobalControlSectorI.lean` is complete. The hrhs sub-lemmas N1–N4 in
+`RequestProject/GlobalControlG5Assembly.lean` (`pow_beats_poly_log`,
+`labelBound_charge_hot`, `label_product_le`, `fiber_card_exp_bound`, plus the
+frozen cover layer in `GlobalControlG5Data.lean`: `cover_card_le`, the 5
+admissibility facts, `hrhs_inner`, `global_levelset_route`) are PROVED. The ONLY
+remaining Phase-G sorry is `global_levelset` (G5).
 
-1. `lake exe cache get`   (fetches Mathlib oleans only)
-2. **If your environment flattened the sources to the repo root, move them back
-   under `RequestProject/` FIRST** (the lakefile globs `RequestProject/*`).
-3. **THEN extract the prebuilt oleans so they are newer than the (just-moved)
-   sources** — this is the key step; moving sources gives them a fresh mtime, and
-   lake rebuilds any module whose source is newer than its olean:
-   ```
-   tar xzf prebuilt-oleans.tar.gz -C .lake/build/lib/lean/
-   ```
-   (Do this even if `.lake` already contains oleans — it refreshes their mtimes.)
-4. `lake build` — it should now SKIP/replay the whole verified core and elaborate
-   ONLY your new file `RequestProject/GlobalControlG6.lean`.
+## Startup — DO NOT rebuild the verified core (follow ORDER)
+1. `lake exe cache get`  (Mathlib only)
+2. if sources were flattened to repo root, move them back under `RequestProject/` FIRST
+3. `tar xzf prebuilt-oleans.tar.gz -C .lake/build/lib/lean/`  (refreshes olean mtimes
+   so lake replays instead of rebuilding the ~40-min core)
+4. `lake build RequestProject.GlobalControlG5Assembly`  (should elaborate only your work)
 
-Do NOT delete `.lake`. If `lake` still insists on rebuilding RequestProject, it is
-the source-mtime check — re-run step 3 after all source moves are finished.
+## Work ONLY in the leaf `RequestProject/GlobalControlG5Assembly.lean`
+Do NOT edit `GlobalControl.lean`, `GlobalControlG5Data.lean`, `GlobalControlG6.lean`,
+`GlobalControlSectorI.lean`, `GlobalControlG7.lean`, `CircleMethod*.lean`.
 
-## File-split strategy (keep it — it is why iteration is fast)
-Work ONLY in a NEW leaf `RequestProject/GlobalControlG6.lean` that
-`import RequestProject.GlobalControl`. Do NOT edit `GlobalControl.lean`,
-`GlobalControlG7.lean`, `GlobalControlG5Assembly.lean`, or `CircleMethod.lean`
-(those are driven separately and the G7 file already contains the assembly that
-consumes your result). Build with `lake build RequestProject.GlobalControlG6`.
+## Task: prove `global_levelset_final` (= the hrhs N5 assembly)
+State and prove, in namespace `GlobalControl`, a lemma with the EXACT signature of
+`GlobalControl.global_levelset` (copy it from `GlobalControl.lean` — the
+`∃ k0min A, 0 < A ∧ ∀ BS, k0min ≤ k0 → admissibleGlobalRange BS → ∀ R ≥ 1,
+ncard{a | Qctrl ≤ R} ≤ exp(A·numBlocks)·exp(8εR)·(1+√R/σ)` statement), named
+`global_levelset_final`, sorry-free. (We keep it in the leaf to avoid the cyclic
+import; G7 will be repointed to it.)
 
-## Task
-Prove the G6 localization dichotomy, fully decomposed (L1–L5) with
-translation-ready proofs in **note `43 G6 Localization - Translation-Ready
-Decomposition.md`** (read it fully). The target theorem (give it this exact
-signature, namespace `GlobalControl`, in your new file):
+**Proof = N5 assembly** (note `42 hrhs Completion Spec for Aristotle.md`, the N5
+section, + notes 39/40 for the skeleton). Use the verified inputs:
+- `global_levelset_route` (GlobalControlG5Data) reduces the target to `hrhs`
+  (the ∑∑∑∑ fiber.card bound) + existential facts.
+- `hrhs` = the ε-budget assembly: per-block `fiber_card_le` + `hot_factor`/
+  `cold_factor` → `fiber_card_exp_bound` (N3, done); `label_product_le` (N4, done);
+  `labelBound_charge_hot` (N1, done); `shell_sum_bound`/`weighted_subset_entropy`
+  for the H- and B-sums; combine constants → `exp(A·numBlocks)`, budget 6ε ≤ 8ε.
+- **The first-segment subtlety (the N5 obstruction you flagged before):** the initial
+  segment (`segStart = k0`) label window is `L0 ≈ √R/σ_{k0}`, paid ONCE as the
+  `√R/σctrl` factor in the target (NOT block-by-block). Route it via
+  `sigmaCtrl_le_sigmaP_k0` (σctrl ≤ c_σ·k0·σ_{k0}, so `L0 = 7√R/σ_{k0} ≤
+  7 c_σ k0 · √R/σctrl`); the extra `k0` factor is absorbed into `exp(A·numBlocks)`
+  since `numBlocks ≥ k0` (admissible). This is bookkeeping, not new math.
 
-```lean
-def globalControlFloor (BS : BlockSystem) (c2 e0 : ℝ) : ℝ :=
-  min (Rw c2 BS.k0) (Pifloor BS e0 BS.k0)
-
-def diagSector (BS : BlockSystem) (C : ℝ) (a : GlobalAssignment BS) : Prop :=
-  ∃ m : ℤ,
-    (∀ p : {p : ℕ // p ∈ blockSupport BS}, (a p : ZMod p.1) = (m : ZMod p.1)) ∧
-    C / sigmaCtrl BS < |(m : ℝ)| ∧
-    Qctrl BS a = (m : ℝ) ^ 2 * (sigmaCtrl BS) ^ 2
-
-theorem g6_localization :
-    ∃ (k0loc : ℕ) (c2 e0 : ℝ), 0 < c2 ∧ 0 < e0 ∧
-      ∀ (BS : BlockSystem), k0loc ≤ BS.k0 → admissibleGlobalRange BS →
-      ∀ (C : ℝ), 1 ≤ C →
-      ∀ a : GlobalAssignment BS, a ∉ mainArc BS C →
-        globalControlFloor BS c2 e0 ≤ Qctrl BS a ∨ diagSector BS C a
-```
-
-(These `globalControlFloor`/`diagSector` defs are byte-identical to the ones in
-`GlobalControlG7.lean`; redeclaring them in your namespace is expected — keep the
-bodies identical so the G7 assembly can use yours.)
-
-## Order of work (note 43)
-1. `crtRepr_eq_label_of_small` — small CRT centered-rep lemma (L5 core).
-2. `Rw_mono` (needs `4 ≤ k0`) — analytic monotonicity (L1). **A verified proof of
-   the single step is given below — paste it, then induct.**
-3. `Pifloor_mono` / `min(Rw k0, Pifloor k0) ≤ Pifloor e0 k` — density + super-linear (L2).
-4. `cold_no_exceptions` — **the one substantive new step** (L3): in the no-hot/
-   no-boundary case every cold block has empty exception set, because an exception
-   prime carries block energy `≥ Rw c2 k` (reuse Theorem-A §3 (A3) per-exception
-   energy via `dispersion_energy_bound`), contradicting `¬ isHot`.
-5. Assemble L1–L5 into `g6_localization`.
-
-If `cold_no_exceptions` resists full formalization, isolate IT as the single named
-`sorry` and close everything else (L1/L2/L4/L5 + the assembly skeleton) — that is
-still major progress and the precise diagnostic.
-
-## Verified `Rw_mono` single step (paste directly — already machine-checked here)
-```lean
-lemma Rw_mono_step (c2 : ℝ) (hc2 : 0 < c2) (k : ℕ) (hk : 4 ≤ k) :
-    Rw c2 k ≤ Rw c2 (k+1) := by
-  have hlog2 : (0:ℝ) < Real.log 2 := Real.log_pos (by norm_num)
-  have hkR : (4:ℝ) ≤ (k:ℝ) := by exact_mod_cast hk
-  have hcube : ((k:ℝ)+1)^3 ≤ 2 * (k:ℝ)^3 := by
-    nlinarith [hkR, mul_nonneg (show (0:ℝ) ≤ (k:ℝ)-4 by linarith) (sq_nonneg (k:ℝ)),
-      mul_nonneg (show (0:ℝ) ≤ (k:ℝ) by linarith) (show (0:ℝ) ≤ (k:ℝ)-3 by linarith)]
-  have hrw : ∀ j:ℕ, 1 ≤ j → Rw c2 j = (c2/(Real.log 2)^3) * ((2:ℝ)^j/(j:ℝ)^3) := by
-    intro j hj
-    have hjR : (0:ℝ) < (j:ℝ) := by exact_mod_cast hj
-    unfold Rw; rw [Real.log_pow, mul_pow]; field_simp
-  have key : (2:ℝ)^k / (k:ℝ)^3 ≤ (2:ℝ)^(k+1) / ((k:ℝ)+1)^3 := by
-    have hps : (2:ℝ)^(k+1) = 2 * 2^k := by rw [pow_succ]; ring
-    rw [div_le_div_iff₀ (by positivity) (by positivity)]
-    nlinarith [mul_le_mul_of_nonneg_left hcube (pow_pos (show (0:ℝ)<2 by norm_num) k).le, hps]
-  rw [hrw k (by omega), hrw (k+1) (by omega)]
-  push_cast
-  exact mul_le_mul_of_nonneg_left key (by positivity)
-```
-Then `Rw_mono : 4 ≤ k0 → k0 ≤ k → Rw c2 k0 ≤ Rw c2 k` by `Nat.le_induction` on `k`
-from `k0`, each step `Rw_mono_step` (note `k ≥ k0 ≥ 4`).
-
-## Available verified machinery to reuse
-`energy_splits`, `QP_restrict_eq_internal`, `boundary_penalty_per_k`,
-`cold_isDominant`, `cold_exceptions_small`, `cold_block_facts`,
-`coldLabel`/`coldLabel_eq`, `segment_label_constant`
-(`GlobalPeierlsBookkeeping`), `crtRepr`/`crtRepr_congr` (`CRTLatticeCore`),
-`dispersion_energy_bound` (`SBEEDispersion`), `pow_beats_poly_log`
-(`GlobalControlG5Assembly`). Keep every hypothesis faithful; report which
-sub-lemmas closed and the residual sorry pattern.
+If a sub-step genuinely resists, isolate it as ONE precisely-named `sorry` and close
+everything else; report the residual. Axiom-check `global_levelset_final`.
