@@ -195,4 +195,36 @@ lemma cover_card_le (BS : BlockSystem) (c2 e0 R : ℝ)
         Finset.sum_le_sum (fun _ _ => Finset.sum_le_sum (fun _ _ =>
           Finset.sum_le_sum (fun _ _ => Finset.card_biUnion_le)))
 
+/-! ### Admissibility facts (note 41 §4) -/
+
+/-- The hot set is admissible (its forcing floors sum to `≤ R`). -/
+lemma hotSet_mem_admH (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS) (R : ℝ)
+    (hR : Qctrl BS a ≤ R) : hotSet BS c2 a ∈ admH BS c2 R := by
+  rw [admH, Finset.mem_filter, Finset.mem_powerset]
+  refine ⟨?_, sum_Rw_hot_le BS c2 a R hR⟩
+  rw [hotSet]; exact Finset.filter_subset _ _
+
+/-- The boundary set is admissible (its Peierls penalties sum to `≤ R`), given
+    the per-`k` penalty bound from `boundary_penalty_per_k`. -/
+lemma boundarySet_mem_admB (BS : BlockSystem) (c2 e0 X0 R : ℝ)
+    (a : GlobalAssignment BS) (hX0 : X0 ≤ (2:ℝ) ^ BS.k0)
+    (hpen : ∀ k, BS.k0 ≤ k → k < BS.K → X0 ≤ (2:ℝ) ^ k →
+        k ∈ boundarySet BS c2 a → Pifloor BS e0 k ≤ Xen BS a k)
+    (hR : Qctrl BS a ≤ R) : boundarySet BS c2 a ∈ admB BS e0 R := by
+  have hsub : boundarySet BS c2 a ⊆ Finset.Ico BS.k0 BS.K := by
+    rw [boundarySet]; exact Finset.filter_subset _ _
+  rw [admB, Finset.mem_filter, Finset.mem_powerset]
+  refine ⟨hsub, ?_⟩
+  calc ∑ k ∈ boundarySet BS c2 a, Pifloor BS e0 k
+      ≤ ∑ k ∈ boundarySet BS c2 a, Xen BS a k := by
+        refine Finset.sum_le_sum (fun k hk => ?_)
+        have hkIco := Finset.mem_Ico.mp (hsub hk)
+        have hkX : X0 ≤ (2:ℝ) ^ k :=
+          le_trans hX0 (pow_le_pow_right₀ (by norm_num) hkIco.1)
+        exact hpen k hkIco.1 hkIco.2 hkX hk
+    _ ≤ ∑ k ∈ Finset.Ico BS.k0 BS.K, Xen BS a k :=
+        Finset.sum_le_sum_of_subset_of_nonneg hsub
+          (fun k _ _ => Finset.sum_nonneg (fun _ _ => sq_nonneg _))
+    _ ≤ R := sum_bipartite_le BS a R hR
+
 end GlobalControl
