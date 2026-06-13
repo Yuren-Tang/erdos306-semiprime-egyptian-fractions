@@ -145,6 +145,23 @@ theorem sectorI_absorption (c : ℝ) (hc : 0 < c) (eps A c2 e0 : ℝ)
 
 /-! ## Sector II — diagonal Gaussian tail -/
 
+/-- Summability of the one-dimensional integer Gaussian (comparison to the
+geometric series `(e^{-A})^n` via `n² ≥ n`). -/
+private lemma summable_int_gaussian (A : ℝ) (hA : 0 < A) :
+    Summable (fun m : ℤ => Real.exp (-A * (m : ℝ) ^ 2)) := by
+  have hg : Summable (fun n : ℕ => Real.exp (-A) ^ n) :=
+    summable_geometric_of_lt_one (by positivity)
+      (Real.exp_lt_one_iff.mpr (neg_lt_zero.mpr hA))
+  have key : ∀ n : ℕ, (n : ℝ) ≤ (n : ℝ) ^ 2 := fun n => by
+    exact_mod_cast Nat.le_self_pow (by norm_num) n
+  rw [summable_int_iff_summable_nat_and_neg]
+  refine ⟨?_, ?_⟩ <;>
+  · refine Summable.of_nonneg_of_le (fun n => (Real.exp_pos _).le) (fun n => ?_) hg
+    rw [← Real.exp_nat_mul]
+    refine Real.exp_le_exp.mpr ?_
+    push_cast
+    nlinarith [key n, mul_le_mul_of_nonneg_left (key n) hA.le]
+
 /-- **Sector-II Gaussian tail.**  The diagonal sector is bounded by a Gaussian
 tail in the label window `|m| > C / σ`.  A diagonal assignment is determined by
 its common label, so the sum injects into `∑_{|m| > C/σ} e^{-c m² σ²}`, which is
@@ -161,7 +178,116 @@ theorem sectorII_gaussian (c : ℝ) (hc : 0 < c) :
       ∑' a : {a : GlobalAssignment BS // diagSector BS C a},
           Real.exp (-c * Qctrl BS a.1) ≤
         Ctail * Real.exp (-C ^ 2 * c / 2) / sigmaCtrl BS := by
-  sorry
+  classical
+  have hsc : 0 < Real.sqrt c := Real.sqrt_pos.mpr hc
+  obtain ⟨n, hn⟩ := pow_unbounded_of_one_lt (4 * Real.sqrt c) (by norm_num : (1 : ℝ) < 2)
+  refine ⟨1 + 6 * Real.sqrt 2 / Real.sqrt c, max 2 n, by positivity, ?_⟩
+  intro BS hk0II hσ0 C hC
+  set σ := sigmaCtrl BS with hσ_def
+  have hk0_2 : 2 ≤ BS.k0 := le_trans (le_max_left _ _) hk0II
+  have hk0_n : n ≤ BS.k0 := le_trans (le_max_right _ _) hk0II
+  have hσ1 : σ ≤ 1 := sigmaCtrl_le_one BS hk0_2
+  have hC0 : (0 : ℝ) ≤ C := le_trans zero_le_one hC
+  -- σ < 1/√c via the geometric bound and 2^k0 > 4√c.
+  have hσ_small : σ < 1 / Real.sqrt c := by
+    have hgeom : σ ≤ 4 / 2 ^ BS.k0 := sigmaCtrl_le_geom BS hk0_2
+    have hpow : (2 : ℝ) ^ n ≤ (2 : ℝ) ^ BS.k0 := pow_le_pow_right₀ (by norm_num) hk0_n
+    have hbig : 4 * Real.sqrt c < (2 : ℝ) ^ BS.k0 := lt_of_lt_of_le hn hpow
+    have hstep : (4 : ℝ) / 2 ^ BS.k0 < 4 / (4 * Real.sqrt c) := by
+      rw [div_lt_div_iff₀ (by positivity) (by positivity)]
+      nlinarith [hbig, hsc]
+    have hcollapse : (4 : ℝ) / (4 * Real.sqrt c) = 1 / Real.sqrt c := by
+      rw [div_eq_div_iff (by positivity) (by positivity)]; ring
+    calc σ ≤ 4 / 2 ^ BS.k0 := hgeom
+      _ < 4 / (4 * Real.sqrt c) := hstep
+      _ = 1 / Real.sqrt c := hcollapse
+  -- σ² < 1/c, hence A := c σ²/2 ∈ (0,1].
+  have hσsq : σ ^ 2 < 1 / c := by
+    have hsc2 : Real.sqrt c ^ 2 = c := Real.sq_sqrt hc.le
+    have hpos_inv : (0 : ℝ) < 1 / Real.sqrt c := by positivity
+    have hlt : σ ^ 2 < (1 / Real.sqrt c) ^ 2 :=
+      sq_lt_sq' (by linarith [hσ0, hpos_inv]) hσ_small
+    rwa [div_pow, one_pow, hsc2] at hlt
+  have hApos : 0 < c * σ ^ 2 / 2 := by positivity
+  have hcσ : c * σ ^ 2 < 1 := by
+    have h := mul_lt_mul_of_pos_left hσsq hc
+    rwa [mul_one_div, div_self hc.ne'] at h
+  have hAle1 : c * σ ^ 2 / 2 ≤ 1 := by linarith [hcσ]
+  -- Convert the diagonal-sector tsum to a finite filter sum.
+  rw [fintype_subtype_tsum_eq (fun a => diagSector BS C a)
+    (fun a => Real.exp (-c * Qctrl BS a))]
+  set F := Finset.univ.filter (fun a : GlobalAssignment BS => diagSector BS C a) with hF_def
+  -- Label map: pick the diagonal witness for each diagonal assignment.
+  set lab : GlobalAssignment BS → ℤ :=
+    fun a => if h : diagSector BS C a then h.choose else 0 with hlab_def
+  have labspec : ∀ a, diagSector BS C a →
+      (∀ p : {p : ℕ // p ∈ blockSupport BS}, (a p : ZMod p.1) = (lab a : ZMod p.1)) ∧
+      C / σ < |(lab a : ℝ)| ∧ Qctrl BS a = (lab a : ℝ) ^ 2 * σ ^ 2 := by
+    intro a ha
+    have hch : lab a = ha.choose := by rw [hlab_def]; exact dif_pos ha
+    rw [hch]; exact ha.choose_spec
+  -- Injectivity of `lab` on `F` (a diagonal assignment is recovered from its label).
+  have hinj : ∀ a ∈ F, ∀ b ∈ F, lab a = lab b → a = b := by
+    intro a haF b hbF hab
+    have ha := (Finset.mem_filter.mp haF).2
+    have hb := (Finset.mem_filter.mp hbF).2
+    funext p
+    have h1 := (labspec a ha).1 p
+    have h2 := (labspec b hb).1 p
+    rw [h1, h2, hab]
+  -- The main chain.
+  calc ∑ a ∈ F, Real.exp (-c * Qctrl BS a)
+      = ∑ a ∈ F, Real.exp (-c * ((lab a : ℝ) ^ 2 * σ ^ 2)) := by
+        refine Finset.sum_congr rfl (fun a haF => ?_)
+        rw [(labspec a (Finset.mem_filter.mp haF).2).2.2]
+    _ ≤ ∑ a ∈ F, Real.exp (-C ^ 2 * c / 2) * Real.exp (-(c * σ ^ 2 / 2) * (lab a : ℝ) ^ 2) := by
+        refine Finset.sum_le_sum (fun a haF => ?_)
+        have ha := (Finset.mem_filter.mp haF).2
+        have hwin := (labspec a ha).2.1
+        have hCσ : C < σ * |(lab a : ℝ)| := by
+          rw [div_lt_iff₀ hσ0] at hwin; nlinarith [hwin]
+        have hsm : C ^ 2 ≤ σ ^ 2 * (lab a : ℝ) ^ 2 := by
+          have h1 : C ^ 2 ≤ (σ * |(lab a : ℝ)|) ^ 2 := by nlinarith [hCσ, hC0]
+          calc C ^ 2 ≤ (σ * |(lab a : ℝ)|) ^ 2 := h1
+            _ = σ ^ 2 * (lab a : ℝ) ^ 2 := by rw [mul_pow, sq_abs]
+        rw [← Real.exp_add]
+        refine Real.exp_le_exp.mpr ?_
+        nlinarith [hsm, hc, sq_nonneg (lab a : ℝ), hσ0]
+    _ = Real.exp (-C ^ 2 * c / 2) *
+          ∑ a ∈ F, Real.exp (-(c * σ ^ 2 / 2) * (lab a : ℝ) ^ 2) := by
+        rw [Finset.mul_sum]
+    _ = Real.exp (-C ^ 2 * c / 2) *
+          ∑ m ∈ F.image lab, Real.exp (-(c * σ ^ 2 / 2) * (m : ℝ) ^ 2) := by
+        rw [Finset.sum_image hinj]
+    _ ≤ Real.exp (-C ^ 2 * c / 2) *
+          ∑' m : ℤ, Real.exp (-(c * σ ^ 2 / 2) * (m : ℝ) ^ 2) := by
+        refine mul_le_mul_of_nonneg_left ?_ (Real.exp_pos _).le
+        exact (summable_int_gaussian _ hApos).sum_le_tsum _
+          (fun i _ => (Real.exp_pos _).le)
+    _ ≤ Real.exp (-C ^ 2 * c / 2) * (1 + 6 / Real.sqrt (c * σ ^ 2 / 2)) := by
+        refine mul_le_mul_of_nonneg_left ?_ (Real.exp_pos _).le
+        exact gaussian_int_sum_le _ hApos hAle1
+    _ ≤ (1 + 6 * Real.sqrt 2 / Real.sqrt c) * Real.exp (-C ^ 2 * c / 2) / σ := by
+        have hfin : 1 + 6 / Real.sqrt (c * σ ^ 2 / 2) ≤
+            (1 + 6 * Real.sqrt 2 / Real.sqrt c) / σ := by
+          have hsqrt2 : (0 : ℝ) < Real.sqrt 2 := Real.sqrt_pos.mpr (by norm_num)
+          have hkey : Real.sqrt 2 * Real.sqrt (c * σ ^ 2 / 2) = Real.sqrt c * σ := by
+            rw [← Real.sqrt_mul (by norm_num),
+              show (2 : ℝ) * (c * σ ^ 2 / 2) = c * σ ^ 2 by ring,
+              Real.sqrt_mul hc.le, Real.sqrt_sq hσ0.le]
+          have heq : 6 / Real.sqrt (c * σ ^ 2 / 2)
+              = 6 * Real.sqrt 2 / (Real.sqrt c * σ) := by rw [← hkey]; field_simp
+          rw [heq]
+          have hsplit : (1 + 6 * Real.sqrt 2 / Real.sqrt c) / σ
+              = 1 / σ + 6 * Real.sqrt 2 / (Real.sqrt c * σ) := by field_simp
+          rw [hsplit]
+          have h1 : (1 : ℝ) ≤ 1 / σ := by rw [le_div_iff₀ hσ0]; linarith
+          linarith
+        have hexp : 0 < Real.exp (-C ^ 2 * c / 2) := Real.exp_pos _
+        calc Real.exp (-C ^ 2 * c / 2) * (1 + 6 / Real.sqrt (c * σ ^ 2 / 2))
+            ≤ Real.exp (-C ^ 2 * c / 2) * ((1 + 6 * Real.sqrt 2 / Real.sqrt c) / σ) :=
+              mul_le_mul_of_nonneg_left hfin hexp.le
+          _ = (1 + 6 * Real.sqrt 2 / Real.sqrt c) * Real.exp (-C ^ 2 * c / 2) / σ := by ring
 
 /-! ## sigmaCtrl positivity -/
 
