@@ -419,6 +419,65 @@ lemma fiber_prod_bound (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (
     _ ≤ ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)) :=
         Finset.prod_le_prod (fun k _ => by positivity) hcnt
 
+/-- Shell-sum bound for `admShells`: the sum over admissible shells of the
+    per-block `exp(2ε(v k+1))` product is controlled by the verified
+    `shell_sum_bound` (after reindexing the `Finset.pi` form to the subtype
+    `Fintype.piFinset` form). -/
+lemma shell_sum_le (BS : BlockSystem) (c2 R eps : ℝ)
+    (H : Finset ℕ) (heps : 0 < eps) (hR0 : 0 ≤ R) :
+    (∑ v ∈ admShells BS c2 R H,
+        ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)))
+      ≤ Real.exp ((2 * eps + eps) * R) *
+          Real.exp ((numBlocks BS : ℝ) *
+            (2 * eps + Real.log (1 / (1 - Real.exp (-eps))))) := by
+  classical
+  set c : {x // x ∈ Finset.Icc BS.k0 BS.K} → ℕ → ℝ :=
+    fun _ n => Real.exp (2 * eps * ((n : ℝ) + 1)) with hc
+  have hcard : Fintype.card {x // x ∈ Finset.Icc BS.k0 BS.K} = numBlocks BS := by
+    simp only [Fintype.card_coe, Nat.card_Icc, numBlocks]
+  have hshell := GlobalPeierls.shell_sum_bound c (2 * eps) eps R (by linarith) heps hR0
+    (fun _ _ => Real.exp_nonneg _) (fun _ _ => le_of_eq (by simp only [hc]))
+  rw [hcard] at hshell
+  refine le_trans ?_ hshell
+  set φ : (ℕ → ℕ) → ({x // x ∈ Finset.Icc BS.k0 BS.K} → ℕ) := fun v k => v k.1 with hφ
+  have hsc : ∀ v ∈ admShells BS c2 R H,
+      (∀ k : {x // x ∈ Finset.Icc BS.k0 BS.K}, v k.1 < ⌊R⌋₊ + 1) ∧
+      (∀ k, k ∉ Finset.Icc BS.k0 BS.K → v k = 0) := by
+    intro v hv
+    rw [admShells, Finset.mem_filter] at hv
+    obtain ⟨hvsc, -⟩ := hv
+    rw [shellCarrier, Finset.mem_image] at hvsc
+    obtain ⟨p, hp, rfl⟩ := hvsc
+    rw [Finset.mem_pi] at hp
+    refine ⟨fun k => ?_, fun k hk => ?_⟩
+    · dsimp only; rw [dif_pos k.2]; exact Finset.mem_range.mp (hp k.1 k.2)
+    · dsimp only; rw [dif_neg hk]
+  have hAB : (∑ v ∈ admShells BS c2 R H,
+        ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)))
+      = ∑ w ∈ (admShells BS c2 R H).image φ, ∏ k, c k (w k) := by
+    rw [Finset.sum_image]
+    · refine Finset.sum_congr rfl (fun v _ => ?_)
+      exact (Finset.prod_coe_sort (Finset.Icc BS.k0 BS.K)
+        (fun k => Real.exp (2 * eps * ((v k : ℝ) + 1)))).symm
+    · intro v hv v' hv' heq
+      funext k
+      by_cases hk : k ∈ Finset.Icc BS.k0 BS.K
+      · have := congrFun heq ⟨k, hk⟩
+        simpa [hφ] using this
+      · rw [(hsc v hv).2 k hk, (hsc v' hv').2 k hk]
+  rw [hAB]
+  refine Finset.sum_le_sum_of_subset_of_nonneg ?_ (fun _ _ _ => by positivity)
+  intro w hw
+  rw [Finset.mem_image] at hw
+  obtain ⟨v, hv, rfl⟩ := hw
+  rw [Finset.mem_filter, Fintype.mem_piFinset]
+  refine ⟨fun k => ?_, ?_⟩
+  · rw [Finset.mem_range]; exact (hsc v hv).1 k
+  · rw [admShells, Finset.mem_filter] at hv
+    have hsum := hv.2.1
+    rw [Finset.sum_coe_sort (Finset.Icc BS.k0 BS.K) (fun k => (v k : ℝ))]
+    exact hsum
+
 /-! ### Route closure (confirms the cover layer composes to `global_levelset`)
 
 This lemma wires the verified cover layer (`cover_card_le` + the four proved
