@@ -1,5 +1,15 @@
 .DS_Store
 **/.DS_Store
+.lake/
+**/.lake/
+!Erdős 306/core-packet/aristotle-delivery/.lake/
+!Erdős 306/core-packet/aristotle-delivery/.lake/build/
+!Erdős 306/core-packet/aristotle-delivery/.lake/build/lib/
+!Erdős 306/core-packet/aristotle-delivery/.lake/build/lib/lean/
+!Erdős 306/core-packet/aristotle-delivery/.lake/build/lib/lean/RequestProject/
+!Erdős 306/core-packet/aristotle-delivery/.lake/build/lib/lean/RequestProject/**
+output-final_aristotle/
+output-final_aristotle_*/
 .smart-env/
 .obsidian/
 .obsidian/plugins/smart-connections/

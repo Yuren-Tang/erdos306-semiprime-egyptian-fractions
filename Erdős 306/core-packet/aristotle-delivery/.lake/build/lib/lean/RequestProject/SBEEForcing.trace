@@ -1,0 +1,136 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["c4695f6e3a46b21f.olean"],
+  "i": "908d1e83fbfccb14.ilean",
+  "c": "f166c36f50528094.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Users/david/erdos-lean-build/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/erdos-lean-build/RequestProject/SBEEForcing.lean -o /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/SBEEForcing.olean -i /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/SBEEForcing.ilean -c /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/SBEEForcing.c --setup /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/SBEEForcing.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:207:82: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:287:35: This simp argument is unused:\n  Finset.subset_iff\n\nHint: Omit it from the simp argument list.\n  simp_all +decide [̵ ̵F̵i̵n̵s̵e̵t̵.̵s̵u̵b̵s̵e̵t̵_̵i̵f̵f̵,̵ ̵o̵r̵d̵e̵r̵e̵d̵P̵r̵i̵m̵e̵P̵a̵i̵r̵s̵A̵ ̵]̵[̲o̲r̲d̲e̲r̲e̲d̲P̲r̲i̲m̲e̲P̲a̲i̲r̲s̲A̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:486:13: unused variable `hρ`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:571:45: unused variable `hR1`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:612:38: unused variable `hX`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:638:21: This simp argument is unused:\n  Finset.sum_powerset\n\nHint: Omit it from the simp argument list.\n  simp +decide ̵[̵ ̵F̵i̵n̵s̵e̵t̵.̵s̵u̵m̵_̵p̵o̵w̵e̵r̵s̵e̵t̵ ̵]̵\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:686:169: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:743:50: unused variable `hR0`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:762:52: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:767:70: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:833:6: 'push_cast at h2 ⊢' tactic does nothing\n\nNote: This linter can be disabled with `set_option linter.unusedTactic false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:900:10: 'push_cast' tactic does nothing\n\nNote: This linter can be disabled with `set_option linter.unusedTactic false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:936:218: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:954:48: This simp argument is unused:\n  Finset.sum_ite\n\nHint: Omit it from the simp argument list.\n  simp +decide ̵[̵ ̵F̵i̵n̵s̵e̵t̵.̵s̵u̵m̵_̵i̵t̵e̵ ̵]̵\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:986:136: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:975:37: unused variable `hR`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1019:53: This simp argument is unused:\n  Finset.card_sdiff\n\nHint: Omit it from the simp argument list.\n  simp_all +decide ̵[̵ ̵F̵i̵n̵s̵e̵t̵.̵c̵a̵r̵d̵_̵s̵d̵i̵f̵f̵ ̵]̵\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1020:173: This simp argument is unused:\n  Finset.sum_sdiff\n\nHint: Omit it from the simp argument list.\n  simp +decide [̵ ̵*̵,̵ ̵F̵i̵n̵s̵e̵t̵.̵s̵u̵m̵_̵s̵d̵i̵f̵f̵,̵ ̵F̵i̵n̵s̵e̵t̵.̵c̵a̵r̵d̵_̵s̵d̵i̵f̵f̵ ̵]̵[̲*̲,̲\n  ̲ ̲ ̲ ̲ ̲ ̲ ̲F̲i̲n̲s̲e̲t̲.̲c̲a̲r̲d̲_̲s̲d̲i̲f̲f̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1158:46: unused variable `hB0`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1167:14: unused variable `hcE0`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1223:15: This simp argument is unused:\n  hρ\n\nHint: Omit it from the simp argument list.\n  simp ̵[̵h̵ρ̵]̵\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1416:26: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1423:111: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1434:49: unused variable `hρ4`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1437:5: unused variable `hR0`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1437:19: unused variable `hu0`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1498:119: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1520:44: unused variable `hc2`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1521:48: unused variable `hXpos`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1713:262: try 'simp' instead of 'simpa'\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1698:13: unused variable `hρ`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/SBEEForcing.lean:1851:71: unused variable `hc2`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"}],
+ "inputs":
+ [["RequestProject.SBEEForcing:deps",
+   [["deps",
+     [["RequestProject/RequestProject:extraDep",
+       [["@RequestProject:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Mathlib transitive imports (legacy)", "8fd896a9b3011bd6"],
+        ["Mathlib:importAllArts", "8fc2a9ec06d95bdc"],
+        ["RequestProject.BlockCRTEnergy transitive imports (legacy)",
+         "c350adbc6648f003"],
+        ["RequestProject.BlockCRTEnergy:importAllArts", "13bfe0d58a7205ac"],
+        ["RequestProject.SBEEDispersion transitive imports (legacy)",
+         "e9688931c5dc5b1e"],
+        ["RequestProject.SBEEDispersion:importAllArts", "754a52e20bf376cb"],
+        ["RequestProject.SBEEFingerprint transitive imports (legacy)",
+         "68ebf6bc77ca50f7"],
+        ["RequestProject.SBEEFingerprint:importAllArts",
+         "8add88f16f2c90ce"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
+   "a96bc04a2e5e9630"],
+  ["/Users/david/erdos-lean-build/RequestProject/SBEEForcing.lean",
+   "48f933b78fe88bce"],
+  ["options", "00000000000006bb"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "3434f845c08130d7"}

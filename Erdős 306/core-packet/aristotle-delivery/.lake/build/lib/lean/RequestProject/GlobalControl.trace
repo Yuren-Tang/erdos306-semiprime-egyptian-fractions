@@ -1,0 +1,160 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["93e9ef5a06e374d4.olean"],
+  "i": "e415b41fa873ca78.ilean",
+  "c": "4258d1477d754bf0.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Users/david/erdos-lean-build/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/erdos-lean-build/RequestProject/GlobalControl.lean -o /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/GlobalControl.olean -i /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/GlobalControl.ilean -c /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/GlobalControl.c --setup /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/GlobalControl.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "RequestProject/GlobalControl.lean:238:128: This simp argument is unused:\n  Nat.pow_lt_pow_iff_right\n\nHint: Omit it from the simp argument list.\n  simp_all +decide ̵[̵ ̵N̵a̵t̵.̵p̵o̵w̵_̵l̵t̵_̵p̵o̵w̵_̵i̵f̵f̵_̵r̵i̵g̵h̵t̵ ̵]̵\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:293:89: This simp argument is unused:\n  Finset.mem_filter\n\nHint: Omit it from the simp argument list.\n  simp +decide [̵ ̵F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵f̵i̵l̵t̵e̵r̵,̵ ̵F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵p̵r̵o̵d̵u̵c̵t̵ ̵]̵[̲F̲i̲n̲s̲e̲t̲.̲m̲e̲m̲_̲p̲r̲o̲d̲u̲c̲t̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:293:108: This simp argument is unused:\n  Finset.mem_product\n\nHint: Omit it from the simp argument list.\n  simp +decide [̵ ̵F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵f̵i̵l̵t̵e̵r̵,̵ ̵F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵p̵r̵o̵d̵u̵c̵t̵ ̵]̵[̲F̲i̲n̲s̲e̲t̲.̲m̲e̲m̲_̲f̲i̲l̲t̲e̲r̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:414:40: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:427:29: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:427:29: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:427:29: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:436:44: unused variable `hk0`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:517:84: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:517:84: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:540:21: This simp argument is unused:\n  mul_comm\n\nHint: Omit it from the simp argument list.\n  simp +decide [̵ ̵m̵u̵l̵_̵c̵o̵m̵m̵,̵ ̵R̵a̵t̵.̵d̵i̵v̵I̵n̵t̵_̵e̵q̵_̵d̵i̵v̵ ̵]̵[̲R̲a̲t̲.̲d̲i̲v̲I̲n̲t̲_̲e̲q̲_̲d̲i̲v̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:565:131: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:553:13: unused variable `hd`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:580:57: This simp argument is unused:\n  dvd_add_right\n\nHint: Omit it from the simp argument list.\n  simp_all +decide [̵ ̵d̵v̵d̵_̵a̵d̵d̵_̵r̵i̵g̵h̵t̵,̵ ̵d̵v̵d̵_̵a̵d̵d̵_̵l̵e̵f̵t̵,̵[̲d̲v̲d̲_̲a̲d̲d̲_̲l̲e̲f̲t̲,̲ dvd_sub_right,\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲dvd_sub_left, dvd_mul_of_dvd_right, dvd_mul_of_dvd_left, h̵q̵.̵d̵v̵d̵_̵m̵u̵l̵ ̵]̵h̲q̲.̲d̲v̲d̲_̲m̲u̲l̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:580:72: This simp argument is unused:\n  dvd_add_left\n\nHint: Omit it from the simp argument list.\n  simp_all +decide [ ̵dvd_add_right, dvd_a̵d̵d̵_̵l̵e̵f̵t̵,̵ ̵d̵v̵d̵_̵sub_right,\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲dvd_sub_left, dvd_mul_of_dvd_right, dvd_mul_of_dvd_left, hq.dvd_mul ̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:580:86: This simp argument is unused:\n  dvd_sub_right\n\nHint: Omit it from the simp argument list.\n  simp_all +decide [ ̵dvd_add_right, dvd_add_left,\n  ̲ d̵v̵d̵_̵s̵u̵b̵_̵r̵i̵g̵h̵t̵,̵  ̲ ̲ ̲ ̲ ̲ ̲dvd_sub_left, dvd_mul_of_dvd_right, dvd_mul_of_dvd_left, hq.dvd_mul ̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:580:115: This simp argument is unused:\n  dvd_mul_of_dvd_right\n\nHint: Omit it from the simp argument list.\n  simp_all +decide [̵ ̵d̵v̵d̵_̵a̵d̵d̵_̵r̵i̵g̵h̵t̵,̵[̲d̲v̲d̲_̲a̲d̲d̲_̲r̲i̲g̲h̲t̲,̲ dvd_add_left,\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲dvd_sub_right, dvd_sub_left, d̵v̵d̵_̵m̵u̵l̵_̵o̵f̵_̵d̵v̵d̵_̵r̵i̵g̵h̵t̵,̵ ̵dvd_mul_of_dvd_left, h̵q̵.̵d̵v̵d̵_̵m̵u̵l̵ ̵]̵h̲q̲.̲d̲v̲d̲_̲m̲u̲l̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:580:158: This simp argument is unused:\n  hq.dvd_mul\n\nHint: Omit it from the simp argument list.\n  simp_all +decide [ ̵dvd_add_right, dvd_add_left,\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲dvd_sub_right, dvd_sub_left, dvd_mul_of_dvd_right, dvd_mul_of_dvd_left,̵ ̵h̵q̵.̵d̵v̵d̵_̵m̵u̵l̵ ̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:581:61: This simp argument is unused:\n  dvd_sub_right\n\nHint: Omit it from the simp argument list.\n  simp_all +decide [̵ ̵d̵v̵d̵_̵s̵u̵b̵_̵r̵i̵g̵h̵t̵,̵ ̵d̵v̵d̵_̵s̵u̵b̵_̵l̵e̵f̵t̵ ̵]̵[̲d̲v̲d̲_̲s̲u̲b̲_̲l̲e̲f̲t̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:581:76: This simp argument is unused:\n  dvd_sub_left\n\nHint: Omit it from the simp argument list.\n  simp_all +decide [̵ ̵d̵v̵d̵_̵s̵u̵b̵_̵r̵i̵g̵h̵t̵,̵ ̵d̵v̵d̵_̵s̵u̵b̵_̵l̵e̵f̵t̵ ̵]̵[̲d̲v̲d̲_̲s̲u̲b̲_̲r̲i̲g̲h̲t̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:668:45: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:793:5: unused variable `hk1`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:793:23: unused variable `hk2`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:886:45: unused variable `hEk1`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1062:5: unused variable `hk1`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1062:23: unused variable `hk2`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1105:63: This simp argument is unused:\n  Nat.pow_succ'\n\nHint: Omit it from the simp argument list.\n  simp_all +decide ̵[̵ ̵N̵a̵t̵.̵p̵o̵w̵_̵s̵u̵c̵c̵'̵ ̵]̵\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1155:96: This simp argument is unused:\n  add_assoc\n\nHint: Omit it from the simp argument list.\n  simp_all +decide [̵ ̵N̵a̵t̵.̵s̵u̵c̵c̵_̵e̵q̵_̵a̵d̵d̵_̵o̵n̵e̵,̵ ̵a̵d̵d̵_̵a̵s̵s̵o̵c̵ ̵]̵[̲N̲a̲t̲.̲s̲u̲c̲c̲_̲e̲q̲_̲a̲d̲d̲_̲o̲n̲e̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1255:58: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1313:66: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1312:177: This simp argument is unused:\n  mul_assoc\n\nHint: Omit it from the simp argument list.\n  simp +decide [̵ ̵d̵i̵v̵_̵e̵q̵_̵m̵u̵l̵_̵i̵n̵v̵,̵ ̵m̵u̵l̵_̵a̵s̵s̵o̵c̵,̵[̲d̲i̲v̲_̲e̲q̲_̲m̲u̲l̲_̲i̲n̲v̲,̲\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲mul_comm, mul_left_comm, ne_of_gt, Real.log_pos h̵x̵ ̵]̵h̲x̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1312:198: This simp argument is unused:\n  mul_left_comm\n\nHint: Omit it from the simp argument list.\n  simp +decide [̵ ̵d̵i̵v̵_̵e̵q̵_̵m̵u̵l̵_̵i̵n̵v̵,̵[̲d̲i̲v̲_̲e̲q̲_̲m̲u̲l̲_̲i̲n̲v̲,̲\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲mul_assoc, mul_comm, m̵u̵l̵_̵l̵e̵f̵t̵_̵c̵o̵m̵m̵,̵ ̵ne_of_gt, Real.log_pos h̵x̵ ̵]̵h̲x̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1312:213: This simp argument is unused:\n  ne_of_gt\n\nHint: Omit it from the simp argument list.\n  simp +decide [̵ ̵d̵i̵v̵_̵e̵q̵_̵m̵u̵l̵_̵i̵n̵v̵,̵[̲d̲i̲v̲_̲e̲q̲_̲m̲u̲l̲_̲i̲n̲v̲,̲\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲mul_assoc, mul_comm, mul_left_comm, n̵e̵_̵o̵f̵_̵g̵t̵,̵ ̵Real.log_pos h̵x̵ ̵]̵h̲x̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1312:223: This simp argument is unused:\n  Real.log_pos hx\n\nHint: Omit it from the simp argument list.\n  simp +decide [̵ ̵d̵i̵v̵_̵e̵q̵_̵m̵u̵l̵_̵i̵n̵v̵,̵[̲d̲i̲v̲_̲e̲q̲_̲m̲u̲l̲_̲i̲n̲v̲,̲\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲mul_assoc, mul_comm, mul_left_comm, n̵e̵_̵o̵f̵_̵g̵t̵,̵ ̵R̵e̵a̵l̵.̵l̵o̵g̵_̵p̵o̵s̵ ̵h̵x̵ ̵]̵n̲e̲_̲o̲f̲_̲g̲t̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1344:6: declaration uses `sorry`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1353:8: declaration uses `sorry`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1398:66: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1419:217: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1420:59: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1452:8: declaration uses `sorry`",
+   "level": "warning"}],
+ "inputs":
+ [["RequestProject.GlobalControl:deps",
+   [["deps",
+     [["RequestProject/RequestProject:extraDep",
+       [["@RequestProject:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Mathlib transitive imports (legacy)", "8fd896a9b3011bd6"],
+        ["Mathlib:importAllArts", "8fc2a9ec06d95bdc"],
+        ["RequestProject.BlockCRTEnergy transitive imports (legacy)",
+         "c350adbc6648f003"],
+        ["RequestProject.BlockCRTEnergy:importAllArts", "13bfe0d58a7205ac"],
+        ["RequestProject.SBEEAssembly transitive imports (legacy)",
+         "f6d98dd89527e970"],
+        ["RequestProject.SBEEAssembly:importAllArts", "b0ea913fe227415a"],
+        ["RequestProject.GlobalPeierlsBookkeeping transitive imports (legacy)",
+         "12c1ba7185138d42"],
+        ["RequestProject.GlobalPeierlsBookkeeping:importAllArts",
+         "d1e75b6cda18a8cf"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
+   "a96bc04a2e5e9630"],
+  ["/Users/david/erdos-lean-build/RequestProject/GlobalControl.lean",
+   "336b78e393d7ad41"],
+  ["options", "00000000000006bb"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "5854c1fefee30175"}

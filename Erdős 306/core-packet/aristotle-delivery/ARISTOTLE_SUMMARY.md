@@ -1,3 +1,23 @@
+# Summary of changes for run e69b533e-b227-43d8-b123-952f9690ba31
+Continued the Erdős-306 (note-40) Phase-G program in `RequestProject/GlobalControl.lean`, picking up from the prebuilt state. The whole project builds green (`lake build`, 8057 jobs) and every new result is axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`).
+
+**Closed the hole-8 glue (previously open).**
+- `hot_factor` — the per-hot-block level-set count `≤ exp(2ε(n+1))`, absorbing the `unified_levelset` polynomial factor into the energy floor. Supported by two new reusable helpers I added and proved: `log_le_eps_mul` (monotone `log t ≤ ε·t` for `t ≥ 1/ε`) and `Rw_large` (`Rw c2 k → ∞`).
+
+**Completed the note-40 §2 energy-budget layer (all proved):**
+`sum_blockEnergy_le`, `sum_shellVec_le`, `shellVec_le_floorR`, `sum_Rw_hot_le`, `sum_bipartite_le` — the per-block internal energies, shell vectors, hot floors and bipartite cross-energies each sum to `≤ R`.
+
+**Built the exception-set machinery and the cold/boundary layer (note-40 §3d, all proved):**
+- `excSet` (deviating primes of a cold block) with `excSet_subset`, `restrict_eq_toPlain`, `excSet_card_eq`, `conform_card_eq` (bridges to the `attach`/`classCount` forms used by the single-block package).
+- `cold_exceptions_small` (§3d-ii) — cold blocks have a small exception set.
+- `cold_label_size64` — a factor-4 sharper cold-label bound `|m| ≤ N·X/64` (needed by the boundary penalty).
+- `cold_block_facts` — bundles, for every cold block, the small-exception bound, the sharp label bound, and the conform property, producing the global cold constants `c2,e0`.
+- `boundary_penalty_per_k` (§3d-iii/3d-iv master lemma) — the "heart": every mismatch-boundary block contributes bipartite control energy `≥ Pifloor`, assembled from `mismatch_penalty_with_exceptions`, `cold_block_facts`, and density thresholds.
+
+**Honest remaining status.** The three headline chain results remain precisely-named `sorry`s, stated faithfully (uniform constants): `global_levelset` (G5), `global_control_partition` (G7), and `CircleMethod.exists_positive_weighted_construction` (Phase C). The note-40 §2 and §3d support layers underneath G5 are now essentially complete; what remains for G5 is the §3 data Finsets, the four-level covering argument (6a/6b/6d), the label-product numerics (10a–c), and the final assembly (hole 12), then G7 and Phase C.
+
+No user-provided content was deleted; the previously-documented FALSE original `mismatch_penalty` statement remains commented out with its finding. `ARISTOTLE_SUMMARY.md` was left unedited as requested.
+
 # Summary of changes for run 55bcd808-5453-4add-8c1f-b9f75e7f72ab
 Worked the note-37 ("Faithful G5/G7/C Formalization Blueprint") continuation of the Erdős 306 package. The whole project now builds green (`lake build`, 8057 jobs).
 

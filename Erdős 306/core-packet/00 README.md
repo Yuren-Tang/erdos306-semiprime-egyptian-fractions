@@ -31,15 +31,18 @@ condition" of the conditional proof):
 
 Beyond SBEE: the block-to-global chain is **proved on paper** (note 34, no Irving
 anywhere), and the circle method is spec'd with computations (note 35). The
-latest Aristotle recovery package has machine-verified the faithful finite
-global-assignment interface, G2, G3, and the exceptional G3 corollary; the honest
-remaining Lean targets are now **G5**, **G7**, and **Phase C**
-(`CircleMethod.exists_positive_weighted_construction`). The note-37 abstract
-Peierls layer (`GlobalPeierlsBookkeeping.lean`) is machine-verified. Note **38**
-is now the authoritative Phase-G document: complete translation-ready proofs for
-the G5 instantiation and G7, with three corrections (an `admissibleGlobalRange`
-lower bound, the two-prime label-uniqueness proof replacing note 37 §4's wrong
-sketch, and the shell-sum lemma the abstract layer was missing).
+latest Aristotle recovery packages have machine-verified the faithful finite
+global-assignment interface, G2, G3, the exceptional G3 corollary, the abstract
+Peierls layer (`GlobalPeierlsBookkeeping.lean`), and most of the note-40 G5
+support layer: the hot-factor glue, energy-budget sums, cold-exception machinery,
+and boundary penalty bookkeeping. The honest remaining Lean targets are still
+**G5**, **G7**, and **Phase C** (`CircleMethod.exists_positive_weighted_construction`),
+but G5 is now localized to note **40**'s endgame: data Finsets and covering
+lemmas, label-product numerics, and the final assembly. Note **38** remains the
+authoritative Phase-G paper proof, with three corrections (an
+`admissibleGlobalRange` lower bound, the two-prime label-uniqueness proof
+replacing note 37 §4's wrong sketch, and the shell-sum lemma the abstract layer
+was missing).
 The earlier "rational-collision / Fourier positivity" framing (notes 02–16) was
 the exploratory route; the SBEE route (29+) is the one being carried to machine
 verification.
@@ -76,7 +79,7 @@ verification.
 28. [[28 Faithful SBEE Statement - Design (4th iteration)]] — **4th faithfulness failure**: F2a''' uniform-C still unfaithful (free labeling `∀bl` that `blockPartFun` ignores ⇒ `bl≡0` collapses to a FALSE unconditional bound). **I stop iterative patching and DESIGN the full faithful statement**: `SBEEPartitionBound = ∃C, ∀ pruned `IrvingGood` block P, blockPartFun ≤ C/σ` — uniform C, **pruning hypothesis**, **NO free labeling** (dominant/tiny/non-dom = internal proof cases, label energy-determined). Meta: stating SBEE faithfully is a multi-round design problem; my specs were incomplete each time; **no Aristotle round until I fully pin the statement.**
 29. [[29 SBEE Master - Dominant Case Proved, Window Isolated]] — **mathematical center, part 1.** Full proofs: **Lemma D** (deterministic dispersion, no Kloosterman), **Theorem A** (dominant case: PROVED, elementary, no Irving), **Lemma E** (cross-label energy), **Theorem B** (non-dominant forces $R\gg X/\log^3X$). SBEE unconditional for all $R\le c'X/\log^3X$; window isolated.
 35. [[35 Circle Method - Detailed Spec (Translation-Ready)]] — CP 01 deterministically restated: weighted count W, finite Fourier identity, Bernoulli bound (c=16/9, computed), main-arc Taylor (explicit errors), minor arc = G7, positivity ⟹ closes `fourier_positivity_unconditional`. One external input: Chebyshev block density.
-40. [[40 G5 Endgame - Remaining Holes Quartered]] — **current binding G5 document**: the remaining holes (hot_factor glue, 3, 6, 10, 12) quartered into ≤ 60-line sub-lemmas with complete proofs. Three structural corrections vs note 38: no trivial-regime split needed; shell data must carry hot-consistency; initial segment label ranges over the `√R`-window `L0`, not `labelRange`.
+40. [[40 G5 Endgame - Remaining Holes Quartered]] — **current binding G5 document**: the G5 monolith is quartered into small sub-lemmas. The hot-factor glue and much of the energy/cold/boundary support layer are now machine-verified; remaining work is concentrated in the data-Finset/covering layer, label-product numerics, and final G5 assembly. Three structural corrections vs note 38: no trivial-regime split needed; shell data must carry hot-consistency; initial segment label ranges over the `√R`-window `L0`, not `labelRange`.
 39. [[39 G5 Lean Skeleton - Twelve Named Holes]] — the G5 decomposition that broke the monolith deadlock: setup definitions (`isHot`/`coldLabel`/`boundarySet`/`segStart`/…) + twelve named holes with proof instructions. Skeleton instantiated and holes 1, 2, 4, 5, 7, 9, 11 + `hot_threshold` machine-verified.
 38. [[38 G5-G7 Instantiation - Complete Proofs for Translation]] — complete paper proofs for the G5 segment-encoding assembly and G7 (shell-sum lemma SH, block decomposition D1–D4, extractions L2u/L5/L4c/L3c, sigma lemmas S1–S3, the ε-budget table, G6 localization, Gaussian tail). Corrects note 37 §4's wrong uniqueness sketch, adds the missing shell-sum lemma, strengthens `admissibleGlobalRange` with `2k0 ≤ K`. Support layer fully machine-verified; assembly superseded by notes 39/40.
 37. [[37 Faithful G5 G7 C Formalization Blueprint]] — blueprint after Aristotle's latest recovery: finite global assignments + G2/G3/exceptions done; G5/G7 restated with uniform base constant `exp(A·#blocks)`; abstract `GlobalPeierlsBookkeeping` layer (now machine-verified); Phase C split C1a–C6 (still current for Phase C). Instantiation part superseded by note 38.
@@ -93,10 +96,11 @@ verification.
 
 `aristotle-delivery/` is the stable, self-contained upload bundle (Lean package +
 `TASK.md` + latest notes). It has been refreshed to the latest recovery state:
-faithful finite `GlobalAssignment`, G2/G3, and `mismatch_penalty_with_exceptions`
-are in `GlobalControl.lean`; remaining named targets are G5, G7, and Phase C.
-For the next Aristotle round, upload this folder and include note **37** as the
-active instruction.
+faithful finite `GlobalAssignment`, G2/G3, `mismatch_penalty_with_exceptions`,
+`GlobalPeierlsBookkeeping.lean`, and the note-40 support layer are present.
+Remaining named targets are G5, G7, and Phase C. For the next Aristotle round,
+upload this folder and use note **40** as the active G5 instruction, with notes
+38/39 as the surrounding proof map.
 
 Lean-side work should use:
 

@@ -1,0 +1,38 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["57b4c7952843a991.olean"],
+  "i": "25b266771d6e02aa.ilean",
+  "c": "e9d3cc4565276294.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Users/david/erdos-lean-build/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/erdos-lean-build/RequestProject/SingleBlockCounting.lean -o /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/SingleBlockCounting.olean -i /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/SingleBlockCounting.ilean -c /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/SingleBlockCounting.c --setup /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/SingleBlockCounting.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "RequestProject/SingleBlockCounting.lean:167:8: declaration uses `sorry`",
+   "level": "warning"}],
+ "inputs":
+ [["RequestProject.SingleBlockCounting:deps",
+   [["deps",
+     [["RequestProject/RequestProject:extraDep",
+       [["@RequestProject:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Mathlib transitive imports (legacy)", "8fd896a9b3011bd6"],
+        ["Mathlib:importAllArts", "8fc2a9ec06d95bdc"],
+        ["RequestProject.SBEE transitive imports (legacy)", "bfb93d42d226f2f5"],
+        ["RequestProject.SBEE:importAllArts", "49375cba1374bcfb"],
+        ["RequestProject.BlockCRTEnergy transitive imports (legacy)",
+         "c350adbc6648f003"],
+        ["RequestProject.BlockCRTEnergy:importAllArts", "13bfe0d58a7205ac"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
+   "a96bc04a2e5e9630"],
+  ["/Users/david/erdos-lean-build/RequestProject/SingleBlockCounting.lean",
+   "d31f82a0f3388c6f"],
+  ["options", "00000000000006bb"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "4463b07caba577ed"}
