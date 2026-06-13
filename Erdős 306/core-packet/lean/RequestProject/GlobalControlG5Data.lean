@@ -478,6 +478,38 @@ lemma shell_sum_le (BS : BlockSystem) (c2 R eps : ℝ)
     rw [Finset.sum_coe_sort (Finset.Icc BS.k0 BS.K) (fun k => (v k : ℝ))]
     exact hsum
 
+/-- Inner `(v, ℓ)` double sum: given the per-fiber product bound, the sum over
+    admissible shells and labels is `≤ |admLabels|·shellBound`. -/
+lemma hrhs_inner (BS : BlockSystem) (c2 R eps : ℝ) (H B : Finset ℕ)
+    (heps : 0 < eps) (hR0 : 0 ≤ R)
+    (hbound : ∀ v ∈ admShells BS c2 R H, ∀ ℓ ∈ admLabels BS c2 R H B,
+        ((fiber BS H B v ℓ).card : ℝ) ≤
+          ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1))) :
+    (∑ v ∈ admShells BS c2 R H, ∑ ℓ ∈ admLabels BS c2 R H B,
+        ((fiber BS H B v ℓ).card : ℝ))
+      ≤ ((admLabels BS c2 R H B).card : ℝ) *
+          (Real.exp ((2 * eps + eps) * R) *
+            Real.exp ((numBlocks BS : ℝ) *
+              (2 * eps + Real.log (1 / (1 - Real.exp (-eps)))))) := by
+  calc ∑ v ∈ admShells BS c2 R H, ∑ ℓ ∈ admLabels BS c2 R H B,
+        ((fiber BS H B v ℓ).card : ℝ)
+      ≤ ∑ v ∈ admShells BS c2 R H, ∑ ℓ ∈ admLabels BS c2 R H B,
+          ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)) := by
+        refine Finset.sum_le_sum (fun v hv => Finset.sum_le_sum (fun ℓ hℓ => hbound v hv ℓ hℓ))
+    _ = ∑ v ∈ admShells BS c2 R H, ((admLabels BS c2 R H B).card : ℝ) *
+          ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)) := by
+        refine Finset.sum_congr rfl (fun v _ => ?_)
+        rw [Finset.sum_const, nsmul_eq_mul]
+    _ = ((admLabels BS c2 R H B).card : ℝ) *
+          ∑ v ∈ admShells BS c2 R H,
+            ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)) := by
+        rw [Finset.mul_sum]
+    _ ≤ ((admLabels BS c2 R H B).card : ℝ) *
+          (Real.exp ((2 * eps + eps) * R) *
+            Real.exp ((numBlocks BS : ℝ) *
+              (2 * eps + Real.log (1 / (1 - Real.exp (-eps)))))) :=
+        mul_le_mul_of_nonneg_left (shell_sum_le BS c2 R eps H heps hR0) (by positivity)
+
 /-! ### Route closure (confirms the cover layer composes to `global_levelset`)
 
 This lemma wires the verified cover layer (`cover_card_le` + the four proved
