@@ -61,4 +61,14 @@ def admLabels (BS : BlockSystem) (c2 R : ℝ) (H B : Finset ℕ) : Finset (ℕ �
   ((segStarts BS H B).pi (fun k => labelFin BS c2 R k)).image
     (fun ell k => if h : k ∈ segStarts BS H B then ell k h else 0)
 
+/-! ### Generic covering bound (note 41 §2) -/
+
+/-- If `S` is covered by the indexed family `F` over `I`, then
+    `|S| ≤ ∑_{i∈I} |F i|`.  Pure finite combinatorics. -/
+lemma card_le_sum_fibers_of_cover {α ι : Type*} [DecidableEq α]
+    (S : Finset α) (I : Finset ι) (F : ι → Finset α)
+    (hcover : S ⊆ I.biUnion F) :
+    S.card ≤ ∑ i ∈ I, (F i).card :=
+  le_trans (Finset.card_le_card hcover) Finset.card_biUnion_le
+
 end GlobalControl
