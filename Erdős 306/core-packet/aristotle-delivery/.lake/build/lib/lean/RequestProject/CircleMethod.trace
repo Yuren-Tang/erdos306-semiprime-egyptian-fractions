@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["49803d440bedad62.olean"],
-  "i": "60966d07a71aa624.ilean",
+ {"o": ["e9572fb12a502ae3.olean"],
+  "i": "286c3e4c1c6bae97.ilean",
   "c": "c9ab1d945dab1f54.c"},
  "log":
  [{"message":
@@ -18,7 +18,10 @@
    "RequestProject/CircleMethod.lean:108:55: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
    "level": "info"},
   {"message":
-   "RequestProject/CircleMethod.lean:137:8: declaration uses `sorry`",
+   "RequestProject/CircleMethod.lean:194:5: unused variable `hmainpos`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethod.lean:230:8: declaration uses `sorry`",
    "level": "warning"}],
  "inputs":
  [["RequestProject.CircleMethod:deps",
@@ -38,7 +41,7 @@
   ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
    "a96bc04a2e5e9630"],
   ["/Users/david/erdos-lean-build/RequestProject/CircleMethod.lean",
-   "9fefd11d8671ac14"],
+   "358ee91ae9a548af"],
   ["options", "00000000000006bb"],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "cce4346116d761ae"}
+ "depHash": "5a3344dc0e386c7d"}

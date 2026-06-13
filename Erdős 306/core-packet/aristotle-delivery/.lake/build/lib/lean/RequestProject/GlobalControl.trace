@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["93e9ef5a06e374d4.olean"],
-  "i": "e415b41fa873ca78.ilean",
+ {"o": ["4ac10e61d1e883ea.olean"],
+  "i": "cbb65d9f31ea9728.ilean",
   "c": "4258d1477d754bf0.c"},
  "log":
  [{"message":
@@ -111,22 +111,40 @@
    "RequestProject/GlobalControl.lean:1312:223: This simp argument is unused:\n  Real.log_pos hx\n\nHint: Omit it from the simp argument list.\n  simp +decide [̵ ̵d̵i̵v̵_̵e̵q̵_̵m̵u̵l̵_̵i̵n̵v̵,̵[̲d̲i̲v̲_̲e̲q̲_̲m̲u̲l̲_̲i̲n̲v̲,̲\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲mul_assoc, mul_comm, mul_left_comm, n̵e̵_̵o̵f̵_̵g̵t̵,̵ ̵R̵e̵a̵l̵.̵l̵o̵g̵_̵p̵o̵s̵ ̵h̵x̵ ̵]̵n̲e̲_̲o̲f̲_̲g̲t̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "RequestProject/GlobalControl.lean:1344:6: declaration uses `sorry`",
+   "RequestProject/GlobalControl.lean:1466:5: unused variable `hR0`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "RequestProject/GlobalControl.lean:1353:8: declaration uses `sorry`",
+   "RequestProject/GlobalControl.lean:1505:5: unused variable `hk`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "RequestProject/GlobalControl.lean:1398:66: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "RequestProject/GlobalControl.lean:1507:45: This simp argument is unused:\n  Finset.mem_biUnion.mpr\n\nHint: Omit it from the simp argument list.\n  simp +decide [̵ ̵*̵,̵ ̵F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵b̵i̵U̵n̵i̵o̵n̵.̵m̵p̵r̵ ̵]̵[̲*̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1525:23: This simp argument is unused:\n  restrict_eq_toPlain\n\nHint: Omit it from the simp argument list.\n  simp [excSet,̵ ̵r̵e̵s̵t̵r̵i̵c̵t̵_̵e̵q̵_̵t̵o̵P̵l̵a̵i̵n̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1635:237: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
    "level": "info"},
   {"message":
-   "RequestProject/GlobalControl.lean:1419:217: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "RequestProject/GlobalControl.lean:1735:52: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
    "level": "info"},
   {"message":
-   "RequestProject/GlobalControl.lean:1420:59: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "RequestProject/GlobalControl.lean:1761:33: 'norm_num [this]' tactic does nothing\n\nNote: This linter can be disabled with `set_option linter.unusedTactic false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1795:8: declaration uses `sorry`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1840:66: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
    "level": "info"},
   {"message":
-   "RequestProject/GlobalControl.lean:1452:8: declaration uses `sorry`",
+   "RequestProject/GlobalControl.lean:1861:217: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1862:59: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/GlobalControl.lean:1894:8: declaration uses `sorry`",
    "level": "warning"}],
  "inputs":
  [["RequestProject.GlobalControl:deps",
@@ -154,7 +172,7 @@
   ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
    "a96bc04a2e5e9630"],
   ["/Users/david/erdos-lean-build/RequestProject/GlobalControl.lean",
-   "336b78e393d7ad41"],
+   "b4032f7fc9ab6456"],
   ["options", "00000000000006bb"],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "5854c1fefee30175"}
+ "depHash": "01b920824a122a41"}

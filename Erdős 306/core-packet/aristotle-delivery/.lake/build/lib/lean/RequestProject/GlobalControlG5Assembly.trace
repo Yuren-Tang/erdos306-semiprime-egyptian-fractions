@@ -1,0 +1,32 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["6c14c5013caf1b43.olean"],
+  "i": "44e3918fed51d7d6.ilean",
+  "c": "57fdeaf7e8123d98.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Users/david/erdos-lean-build/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/erdos-lean-build/RequestProject/GlobalControlG5Assembly.lean -o /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/GlobalControlG5Assembly.olean -i /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/GlobalControlG5Assembly.ilean -c /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/GlobalControlG5Assembly.c --setup /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/GlobalControlG5Assembly.setup.json --json",
+   "level": "trace"}],
+ "inputs":
+ [["RequestProject.GlobalControlG5Assembly:deps",
+   [["deps",
+     [["RequestProject/RequestProject:extraDep",
+       [["@RequestProject:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["RequestProject.GlobalControlG5Data transitive imports (legacy)",
+         "57f5ba02a0b4d37e"],
+        ["RequestProject.GlobalControlG5Data:importAllArts",
+         "f70be64e3570d36d"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
+   "a96bc04a2e5e9630"],
+  ["/Users/david/erdos-lean-build/RequestProject/GlobalControlG5Assembly.lean",
+   "50d8f5c8228f7a2c"],
+  ["options", "00000000000006bb"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "a49483735b3569b2"}
