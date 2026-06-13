@@ -384,6 +384,41 @@ lemma extLabel_mem_admLabels (BS : BlockSystem) (c2 R : ℝ) (a : GlobalAssignme
     by_cases hk : k ∈ segStarts BS (hotSet BS c2 a) (boundarySet BS c2 a) <;>
       simp [extLabel, hk]
 
+/-! ### RHS ε-budget assembly (note 40 §5) -/
+
+/-- Per-fiber product bound: given the per-block count bound (from
+    `hot_factor`/`cold_factor`), a fiber's cardinality is at most the product of
+    `exp(2ε(v k+1))` over the blocks. -/
+lemma fiber_prod_bound (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (ℓ : ℕ → ℤ)
+    (eps : ℝ)
+    (hcnt : ∀ k ∈ Finset.Icc BS.k0 BS.K,
+        ((Finset.univ.filter (fun b : BlockAssignment (BS.P k) =>
+            QP (BS.P k) b ≤ (v k : ℝ) + 1 ∧
+            (k ∉ H → (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+              (((BS.P k).attach.filter
+                (fun p => b p = ((ℓ (segStart BS H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card : ℝ)
+          ≤ Real.exp (2 * eps * ((v k : ℝ) + 1))) :
+    ((fiber BS H B v ℓ).card : ℝ) ≤
+      ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)) := by
+  have h1 := fiber_card_le BS H B v ℓ
+  calc ((fiber BS H B v ℓ).card : ℝ)
+      ≤ ((∏ k ∈ Finset.Icc BS.k0 BS.K,
+          (Finset.univ.filter (fun b : BlockAssignment (BS.P k) =>
+            QP (BS.P k) b ≤ (v k : ℝ) + 1 ∧
+            (k ∉ H → (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+              (((BS.P k).attach.filter
+                (fun p => b p = ((ℓ (segStart BS H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card : ℕ) : ℝ) := by
+        exact_mod_cast h1
+    _ = ∏ k ∈ Finset.Icc BS.k0 BS.K,
+          ((Finset.univ.filter (fun b : BlockAssignment (BS.P k) =>
+            QP (BS.P k) b ≤ (v k : ℝ) + 1 ∧
+            (k ∉ H → (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+              (((BS.P k).attach.filter
+                (fun p => b p = ((ℓ (segStart BS H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card : ℝ) := by
+        push_cast; rfl
+    _ ≤ ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)) :=
+        Finset.prod_le_prod (fun k _ => by positivity) hcnt
+
 /-! ### Route closure (confirms the cover layer composes to `global_levelset`)
 
 This lemma wires the verified cover layer (`cover_card_le` + the four proved
