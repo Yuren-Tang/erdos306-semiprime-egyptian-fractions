@@ -180,7 +180,42 @@ lemma fourier_indicator (E : Finset ℕ) (b L : ℕ) (hb : 2 ≤ b) (hL : 0 < L)
   · intro h; rw [h]
   · intro h; exact_mod_cast mul_right_cancel₀ hLne h
 
-/-! ## C5. Arc separation (positivity core) -/
+/-- **C0 char-product expansion (per `h`).**  Expanding the Bernoulli product and
+    factoring the exponentials, the `h`-term of the circle-method sum is a sum over
+    subsets `S ⊆ E` with the `Wcount` weights and a single additive character at
+    frequency `h` and integer phase `∑_{e∈S} L/e − L/b`. -/
+lemma charterm_expand (E : Finset ℕ) (theta : ℕ → ℝ) (b L h : ℕ) :
+    (∏ e ∈ E, ((theta e : ℂ) *
+        Complex.exp (2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+        + (1 - theta e)))
+      * Complex.exp (-(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ)))
+    = ∑ S ∈ E.powerset,
+        ((∏ e ∈ S, (theta e : ℂ)) * (∏ e ∈ E \ S, (1 - theta e : ℂ)))
+        * Complex.exp (2 * Real.pi * Complex.I * (h : ℂ)
+            * (((∑ e ∈ S, ((L / e : ℕ) : ℤ)) - ((L / b : ℕ) : ℤ) : ℤ) : ℂ) / (L : ℂ)) := by
+  rw [Finset.prod_add, Finset.sum_mul]
+  refine Finset.sum_congr rfl (fun S hS => ?_)
+  rw [Finset.prod_mul_distrib, ← Complex.exp_sum]
+  trans (((∏ e ∈ S, (theta e : ℂ)) * (∏ e ∈ E \ S, (1 - theta e : ℂ)))
+      * (Complex.exp (∑ e ∈ S,
+            2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+        * Complex.exp (-(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ)))))
+  · ring
+  · rw [← Complex.exp_add]
+    have harg : (∑ e ∈ S,
+          2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+        + -(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ))
+        = 2 * Real.pi * Complex.I * (h : ℂ)
+            * (((∑ e ∈ S, ((L / e : ℕ) : ℤ)) - ((L / b : ℕ) : ℤ) : ℤ) : ℂ) / (L : ℂ) := by
+      have hLHS : (∑ e ∈ S,
+            2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+          = (2 * Real.pi * Complex.I * (h : ℂ) / (L : ℂ)) * ∑ e ∈ S, ((L / e : ℕ) : ℂ) := by
+        rw [Finset.mul_sum]; exact Finset.sum_congr rfl (fun e _ => by ring)
+      have hRHS : ((((∑ e ∈ S, ((L / e : ℕ) : ℤ)) - ((L / b : ℕ) : ℤ)) : ℤ) : ℂ)
+          = (∑ e ∈ S, ((L / e : ℕ) : ℂ)) - ((L / b : ℕ) : ℂ) := by
+        rw [Int.cast_sub, Int.cast_sum]; norm_cast
+      rw [hLHS, hRHS]; ring
+    rw [harg]
 
 /-- **C5 positivity core (note 35 C5).**  If `L·W` equals a real main term plus a
     minor complex remainder whose norm is strictly beaten by the main term, then
