@@ -237,6 +237,19 @@ lemma fourierTerm_eq_term_label_of_cong
       ring
     rw [hphase, Complex.exp_add, Complex.exp_int_mul_two_pi_mul_I, mul_one]
 
+/-- **`hterm` from a single mod-`L` congruence.**  Since every edge value and `b`
+divide the period `L`, it suffices that `h ≡ m (mod L)`: then `fourierTerm` at `h`
+equals the label term at `m`.  (The main-arc frequencies are `h ≡ m (mod L)`.) -/
+lemma fourierTerm_eq_term_label_of_modL
+    (E : Finset ℕ) (θ : ℕ → ℝ) (b L : ℕ) (h : ℕ) (m : ℤ)
+    (hb : 0 < b) (hbL : b ∣ L) (hL : 0 < L)
+    (he0 : ∀ e ∈ E, 0 < e) (heL : ∀ e ∈ E, e ∣ L)
+    (hmodL : (L : ℤ) ∣ ((h : ℤ) - m)) :
+    fourierTerm E θ b L h = term_label E θ b m :=
+  fourierTerm_eq_term_label_of_cong E θ b L h m hb hbL hL he0 heL
+    (fun e he => dvd_trans (Int.natCast_dvd_natCast.mpr (heL e he)) hmodL)
+    (dvd_trans (Int.natCast_dvd_natCast.mpr hbL) hmodL)
+
 end CircleMethod
 
 end
