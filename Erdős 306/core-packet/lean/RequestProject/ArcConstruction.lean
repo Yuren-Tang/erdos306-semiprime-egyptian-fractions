@@ -176,6 +176,33 @@ theorem minor_arc_bound_mult (eps : ℝ) (heps : 0 < eps) :
     _ = (M : ℝ) * (η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl BS := by
         ring
 
+/-! ## Periodicity for the main-arc term identity (`hterm` core) -/
+
+/-- The Bernoulli factor is `1`-periodic: shifting the frequency by an integer
+leaves it unchanged. -/
+lemma bernoulliCharFun_int_add (θ t : ℝ) (n : ℤ) :
+    bernoulliCharFun θ (t + (n : ℝ)) = bernoulliCharFun θ t := by
+  unfold bernoulliCharFun
+  congr 2
+  rw [Complex.ofReal_add, Complex.ofReal_intCast,
+    show (2 * (Real.pi : ℂ) * ((t : ℂ) + (n : ℂ)) * Complex.I)
+        = 2 * (Real.pi : ℂ) * (t : ℂ) * Complex.I + (n : ℂ) * (2 * (Real.pi : ℂ) * Complex.I)
+      from by ring,
+    Complex.exp_add, Complex.exp_int_mul_two_pi_mul_I, mul_one]
+
+/-- If `e ∣ (h − m)` then the Bernoulli factor at `h/e` equals that at `m/e`
+(`1`-periodicity, since `(h−m)/e ∈ ℤ`). -/
+lemma bernoulliCharFun_cong (θ : ℝ) (h : ℕ) (m : ℤ) (e : ℕ) (he : 0 < e)
+    (hdvd : (e : ℤ) ∣ ((h : ℤ) - m)) :
+    bernoulliCharFun θ ((h : ℝ) / (e : ℝ)) = bernoulliCharFun θ ((m : ℝ) / (e : ℝ)) := by
+  obtain ⟨k, hk⟩ := hdvd
+  have heR : (e : ℝ) ≠ 0 := by exact_mod_cast he.ne'
+  have hsplit : (h : ℝ) / (e : ℝ) = (m : ℝ) / (e : ℝ) + (k : ℝ) := by
+    have : (h : ℝ) - (m : ℝ) = (e : ℝ) * (k : ℝ) := by exact_mod_cast hk
+    field_simp
+    linarith [this]
+  rw [hsplit, bernoulliCharFun_int_add]
+
 end CircleMethod
 
 end
