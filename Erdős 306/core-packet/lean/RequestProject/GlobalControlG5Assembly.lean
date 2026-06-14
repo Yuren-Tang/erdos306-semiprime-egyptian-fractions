@@ -47,16 +47,12 @@ Now PROVED and axiom-clean (this round), completing the note-45 route:
     hence `global_levelset_final` — all reduced to the single kernel below.
 
 Still open — ONE precisely-named residual `sorry`:
-  * `cold_count_wrap` (the *wrapped* huge-label cold count).  For a fixed label
-    `m` beyond the CRT wrap threshold (`(2^k)²/2 < |m|`, reached in the middle-R
-    regime by the first-segment window `L0 = ⌈7√R/σ_{k0}⌉`) in the low-energy
-    regime (`n+1 < Rw c2 k`), the `(3/4)`-conforming count is still
-    `≤ exp(2ε(n+1))`.  This is TRUE — a low-energy conforming assignment pins a
-    *small* dominant representative `M ≡ m (mod conforming primes)` with
-    `|M| ≤ (2^k)²/2`, so the count is the `fixed_label_count` of `M` (no `√/σ`
-    factor: the freedom is removed by pinning) — but formalizing that
-    dominant-label extraction for an arbitrary wrapped label is Theorem-A-internal
-    work absent from the frozen core.  It is the single honest, TRUE residual.
+  * `wrapped_count_le_small_fixed_label` (the wrapped huge-label reduction).
+    `cold_count_wrap` is now a wrapper: it applies this reduction to get a small
+    fixed label `M`, then applies `cold_factor` with `2ε`.  The remaining content
+    is the Theorem-A-internal extraction of `M` and the injection from the wrapped
+    `m`-fiber into the fixed-label `M`-fiber.  It is the single honest, TRUE
+    residual.
     Everything else in the G5 chain (cover, admissibility, route closure, N1–N5,
     `cold_master`, `hadmL_final`, the per-fiber discharge, the charge assembly,
     and `global_levelset_final`) is proved and depends only on this one kernel.
@@ -613,15 +609,38 @@ lemma cold_count_nonwrap (c2 : ℝ) (hc2 : 0 < c2) :
     convert hx using 1, by
     exact hn.le
 
-/-- **Wrapped huge-label cold count (the genuine residual kernel, note 45).**
+/-- **Wrapped-label reduction kernel (note 45).**
+    In the low-energy wrapped regime, the assignments conforming to a large
+    wrapped label `m` inject into the fixed-label fiber for one small label `M`.
+    This is the missing Theorem-A-internal dominant-representative extraction and
+    transport step; once available, `cold_count_wrap` is just `cold_factor`. -/
+lemma wrapped_count_le_small_fixed_label (c2 : ℝ) (hc2 : 0 < c2) :
+    ∃ X0 : ℝ, 0 < X0 ∧
+      ∀ (BS : BlockSystem) (k : ℕ), BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k →
+        ∀ (m : ℤ) (n : ℕ),
+          (n : ℝ) + 1 < Rw c2 k →
+          ((2:ℝ) ^ k) ^ 2 / 2 < |((m : ℤ) : ℝ)| →
+          ∃ M : ℤ,
+            |(M : ℝ)| ≤ ((BS.P k).card : ℝ) * (2 ^ k) / 16 ∧
+            ((Finset.univ.filter (fun b : BlockAssignment (BS.P k) =>
+              QP (BS.P k) b ≤ (n : ℝ) + 1 ∧
+              (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+                (((BS.P k).attach.filter
+                  (fun p => b p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ))).card : ℝ)
+            ≤
+            ((Finset.univ.filter (fun b : BlockAssignment (BS.P k) =>
+              QP (BS.P k) b ≤ (n : ℝ) + 1 ∧
+              (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+                (((BS.P k).attach.filter
+                  (fun p => b p = ((M : ℤ) : ZMod (p : ℕ)))).card : ℝ))).card : ℝ) := by
+  sorry
+
+/-- **Wrapped huge-label cold count (note 45 wrapper).**
     For a label beyond the CRT wrap threshold (`(2^k)²/2 < |m|`), the per-block
-    conforming count is still `≤ exp(2ε(n+1))`.  This is the remaining deep
-    content: a low-energy `(3/4)`-conforming assignment pins a *small* dominant
-    representative `M ≡ m (mod conforming primes)` with `|M| ≤ (2^k)²/2`, so the
-    count is controlled by `cold_factor`(M) (`≤ exp(ε(n+1))`) via the Theorem-A
-    dominant-label extraction.  Formalizing that extraction for an arbitrary
-    wrapped label is the open kernel; left as a precisely-named `sorry`. -/
-lemma cold_count_wrap (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
+    conforming count is still `≤ exp(2ε(n+1))`.  The actual wrapped-label work is
+    isolated in `wrapped_count_le_small_fixed_label`; this lemma only applies
+    `cold_factor` to the resulting small fixed label. -/
+lemma cold_count_wrap (eps : ℝ) (heps : 0 < eps) (_heps1 : eps < 1)
     (c2 : ℝ) (hc2 : 0 < c2) :
     ∃ X0 : ℝ, 0 < X0 ∧
       ∀ (BS : BlockSystem) (k : ℕ), BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k →
@@ -634,7 +653,15 @@ lemma cold_count_wrap (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
                 (((BS.P k).attach.filter
                   (fun p => b p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ))).card : ℝ)
             ≤ Real.exp (2 * eps * ((n : ℝ) + 1)) := by
-  sorry
+  obtain ⟨Xr, hXr0, hReduce⟩ := wrapped_count_le_small_fixed_label c2 hc2
+  obtain ⟨Xc, hXc0, hCold⟩ := cold_factor (2 * eps) (by positivity)
+  refine ⟨max Xr Xc, by positivity, ?_⟩
+  intro BS k hk1 hk2 hk3 m n hn hwrap
+  obtain ⟨M, hMsmall, hleM⟩ :=
+    hReduce BS k hk1 hk2 (le_trans (le_max_left _ _) hk3) m n hn hwrap
+  exact le_trans hleM
+    (by
+      convert hCold BS k hk1 hk2 (le_trans (le_max_right _ _) hk3) M hMsmall n using 1)
 
 /-- **The residual kernel (note 45): huge-label cold count in the low-energy
     regime.**  For a cold block (`n+1 < Rw c2 k`) and a label `m` LARGER than
