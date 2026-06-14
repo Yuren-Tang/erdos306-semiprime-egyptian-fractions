@@ -1,4 +1,7 @@
 import RequestProject.GlobalControl
+import RequestProject.GlobalControlG6
+import RequestProject.GlobalControlSectorI
+import RequestProject.GlobalControlG5Assembly
 
 open Finset BigOperators Classical
 
@@ -67,36 +70,6 @@ lemma fintype_subtype_tsum_le_of_or {α : Type*} [Fintype α]
           Finset.sum_nonneg (fun a _ => hf a)
         linarith
 
-/-! ## G6 localization and the energy floor -/
-
-/-- The G6 energy floor: the smaller of the Theorem-B forcing floor `Rw c2 k0`
-and the boundary penalty floor `Π(e0,k0)` at the first block. -/
-def globalControlFloor (BS : BlockSystem) (c2 e0 : ℝ) : ℝ :=
-  min (Rw c2 BS.k0) (Pifloor BS e0 BS.k0)
-
-/-- The "diagonal sector": globally diagonal with a label outside the main-arc
-window and *exact* quadratic control energy `m² σ²`. -/
-def diagSector (BS : BlockSystem) (C : ℝ) (a : GlobalAssignment BS) : Prop :=
-  ∃ m : ℤ,
-    (∀ p : {p : ℕ // p ∈ blockSupport BS}, (a p : ZMod p.1) = (m : ZMod p.1)) ∧
-    C / sigmaCtrl BS < |(m : ℝ)| ∧
-    Qctrl BS a = (m : ℝ) ^ 2 * (sigmaCtrl BS) ^ 2
-
-/-- **G6 localization dichotomy** (note 34 G6 / note 38 §6).  An off-main-arc
-assignment is either above the global energy floor, or lies in the diagonal
-sector.
-
-`sorry` reason: this is the genuinely-hard remaining G6 math — the main-arc
-localization "no structure ⟹ global diagonal", built from the assembled
-exception-floor monotonicity, global cold-segment collapse, and the
-all-control-pair CRT identity.  It is the single bundled open step of G7. -/
-theorem g6_localization :
-    ∃ (k0loc : ℕ) (c2 e0 : ℝ), 0 < c2 ∧ 0 < e0 ∧
-      ∀ (BS : BlockSystem), k0loc ≤ BS.k0 → admissibleGlobalRange BS →
-      ∀ (C : ℝ), 1 ≤ C →
-      ∀ a : GlobalAssignment BS, a ∉ mainArc BS C →
-        globalControlFloor BS c2 e0 ≤ Qctrl BS a ∨ diagSector BS C a := by
-  sorry
 
 /-! ## Sector I — Laplace absorption above the energy floor -/
 
@@ -119,29 +92,6 @@ lemma global_levelset_finset_bound
     simp [Set.toFinset_setOf]
   simpa [hcard] using hlevel R hR
 
-/-- **Sector-I absorption.**  With the explicit `exp(A · numBlocks BS)`
-level-set hypothesis, the Laplace sum restricted to assignments above the energy
-floor is `≤ η / sigmaCtrl BS`, provided `k0` is large enough that the floor
-beats `A · numBlocks BS`.
-
-`sorry` reason: needs the floor growth lower bound
-`globalControlFloor BS c2 e0 ≥ const · 2^k0 / k0³` (via `Rw_large` for the `Rw`
-part and the density-driven growth of `Pifloor`), then the tail-shift Laplace
-estimate `∑_{Q ≥ floor} e^{-cQ} ≤ e^{-(c/2)·floor}·∑_all e^{-(c/2)Q}`. -/
-theorem sectorI_absorption (c : ℝ) (hc : 0 < c) (eps A c2 e0 : ℝ)
-    (heps : 0 < eps) (hepsc : 8 * eps < c) (hA : 0 < A)
-    (hc2 : 0 < c2) (he0 : 0 < e0) :
-    ∀ η : ℝ, 0 < η →
-    ∃ k0min : ℕ,
-      ∀ (BS : BlockSystem), k0min ≤ BS.k0 → admissibleGlobalRange BS →
-      0 < sigmaCtrl BS →
-      (∀ R : ℝ, 1 ≤ R →
-        (Set.ncard {a : GlobalAssignment BS | Qctrl BS a ≤ R} : ℝ) ≤
-          Real.exp (A * (numBlocks BS : ℝ)) * Real.exp (8 * eps * R) *
-            (1 + Real.sqrt R / sigmaCtrl BS)) →
-      ∑' a : {a : GlobalAssignment BS // globalControlFloor BS c2 e0 ≤ Qctrl BS a},
-          Real.exp (-c * Qctrl BS a.1) ≤ η / sigmaCtrl BS := by
-  sorry
 
 /-! ## Sector II — diagonal Gaussian tail -/
 
@@ -357,11 +307,11 @@ theorem global_control_partition_final (c : ℝ) (hc : 0 < c)
     have : eps0 ≤ c / 16 := min_le_left _ _
     nlinarith
   -- G5 level-set theorem: a fixed constant A and a base scale k0minG5.
-  obtain ⟨k0minG5, A, hA, hlevel⟩ := global_levelset eps0 heps0_pos heps0_lt1
+  obtain ⟨k0minG5, A, hA, hlevel⟩ := global_levelset_final eps0 heps0_pos heps0_lt1
   -- G6 localization dichotomy: fixed floor constants c2, e0.
   obtain ⟨k0loc, c2, e0, hc2, he0, hloc⟩ := g6_localization
   -- Sector I: η-absorption above the floor, depending on A, c2, e0.
-  obtain ⟨k0minI, hI⟩ := sectorI_absorption c hc eps0 A c2 e0 heps0_pos heps0_c hA hc2 he0 η hη
+  obtain ⟨k0minI, hI⟩ := sectorI_absorption' c hc eps0 A c2 e0 heps0_pos heps0_c hA hc2 he0 η hη
   -- Sector II: the Gaussian tail constant.
   obtain ⟨Ctail, k0II, hCtail, hII⟩ := sectorII_gaussian c hc
   refine ⟨max k0minG5 (max k0loc (max k0minI k0II)), Ctail, hCtail, ?_⟩
