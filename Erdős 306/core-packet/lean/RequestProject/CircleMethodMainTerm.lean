@@ -227,6 +227,40 @@ lemma main_re_lower (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (N : ℤ)
         rw [hgauss]
         exact term_label_re_lower E θ b m he0 hlb hub hmass (ht m hm) (hsmall m hm)
 
+/-- The Fourier-identity summand at frequency `h` (matches `wcount_fourier_identity`). -/
+def fourierTerm (E : Finset ℕ) (theta : ℕ → ℝ) (b L h : ℕ) : ℂ :=
+  (∏ e ∈ E, ((theta e : ℂ) *
+      Complex.exp (2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+      + (1 - theta e)))
+    * Complex.exp (-(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ)))
+
+/-- **R3 main-arc reindex.**  Given a label map `lbl` that bijects the main-arc
+frequency set `SM` onto the label window `[-N, N]` and identifies the Fourier
+term with the diagonal label term (the CRT/periodicity facts the construction
+supplies), the real part of the main-arc Fourier sum is `≥ c₃/σ_E`. -/
+lemma main_sum_re_lower (E : Finset ℕ) (θ : ℕ → ℝ) (b L : ℕ) (N : ℤ) (SM : Finset ℕ)
+    (lbl : ℕ → ℤ)
+    (hne : E.Nonempty) (he0 : ∀ e ∈ E, 0 < e)
+    (hlb : ∀ e ∈ E, 1/3 ≤ θ e) (hub : ∀ e ∈ E, θ e ≤ 2/3)
+    (hmass : (∑ e ∈ E, θ e / (e : ℝ)) = 1 / (b : ℝ))
+    (hN : (1:ℝ) / Real.sqrt (sigmaE2 E θ) ≤ (N:ℝ))
+    (htw : ∀ m ∈ Finset.Icc (-N) N, ∀ e ∈ E, |(m : ℝ) / (e : ℝ)| ≤ 1/10)
+    (hsmall : ∀ m ∈ Finset.Icc (-N) N, (∑ e ∈ E, 100000 * |(m:ℝ)/(e:ℝ)|^3) ≤ 1/10)
+    (hmaps : ∀ h ∈ SM, lbl h ∈ Finset.Icc (-N) N)
+    (hinj : ∀ h₁ ∈ SM, ∀ h₂ ∈ SM, lbl h₁ = lbl h₂ → h₁ = h₂)
+    (hsurj : ∀ m ∈ Finset.Icc (-N) N, ∃ h ∈ SM, lbl h = m)
+    (hterm : ∀ h ∈ SM, fourierTerm E θ b L h = term_label E θ b (lbl h)) :
+    0.8 * (Real.exp (-(Real.pi^2/2)) / 2) / Real.sqrt (sigmaE2 E θ)
+      ≤ (∑ h ∈ SM, fourierTerm E θ b L h).re := by
+  have hsum : (∑ h ∈ SM, fourierTerm E θ b L h)
+      = ∑ m ∈ Finset.Icc (-N) N, term_label E θ b m := by
+    rw [Finset.sum_congr rfl hterm]
+    exact Finset.sum_bij (fun h _ => lbl h) hmaps hinj
+      (fun m hm => by obtain ⟨h, hh, he⟩ := hsurj m hm; exact ⟨h, hh, he⟩)
+      (fun h _ => rfl)
+  rw [hsum]
+  exact main_re_lower E θ b N hne he0 hlb hub hmass hN htw hsmall
+
 end CircleMethod
 
 end
