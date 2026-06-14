@@ -1,124 +1,95 @@
-# R2 Assembly Skeleton Next Task
+# R2 Minor-Split Assembly Interface
 
-Back to [[50 R2 Construction Resolved - Gadget Cancellation and the b≥3 Reduction]]
-and [[51 R2 Mass Batch Completed]].
+Read `53 R2 Assembly Skeleton Bookkeeping Completed.md` first.
 
-## Current State
+The file `RequestProject/R2AssemblySkeleton.lean` is already present and builds
+sorry-free.  Do **not** redo gadget-edge or union-edge bookkeeping.  The next
+task is to isolate the `hminor` interface for the final R2 construction.
 
-The arithmetic cores are now banked:
+## Context
 
-- block system with `K = 3*k0`;
-- block-aligned mass batch:
-  `CircleMethod.exists_blockAligned_mass_batch`;
-- block-minor interface:
-  `CircleMethod.minor_arc_bound_fiber_tail`;
-- support and period bookkeeping:
-  `ArcConstructionExtra.lean`;
-- sigma comparison:
-  `ArcConstructionSigma.lean`;
-- extra-minor gadget arithmetic:
-  `CircleMethod.gadget_nndist1_lower` and
-  `CircleMethod.gadget_charFun_damp`;
-- `b = 2` reduction has been added in `CircleMethodAssembly.lean`;
-- the consumer is still:
-  `CircleMethod.exists_arcConstruction`.
+The final R2 edge set has the shape
 
-## The Remaining Shape
+```lean
+r2Edges BS Q R S = ctrlEdges BS ∪ Q ∪ gadgetEdges R S
+```
 
-The remaining R2 work is no longer a missing arithmetic estimate.  It is the
-monolithic assembly:
+The easy fields for `ArcConstruction` now have wrappers:
 
-1. instantiate a block system at sufficiently large scale;
-2. choose a block-aligned mass batch `Q`;
-3. choose gadget edges `r*s` for each prime `r ∣ b` and enough block primes `s`;
-4. define the final edge set
+```lean
+CircleMethod.r2_edges_semiprime
+CircleMethod.r2_edges_avoid
+CircleMethod.r2_edges_dvd_period
+```
 
-   ```lean
-   E = ctrlEdges BS ∪ Q ∪ gadgetEdges
-   ```
+The remaining difficult field is the minor-arc bound.  It should be proved by
+splitting minor frequencies into:
 
-5. set the period
+1. block-minor frequencies, handled by
+   `CircleMethod.minor_arc_bound_fiber_tail`;
+2. extra-minor frequencies, handled by the gadget sibling damping theorem
+   `CircleMethod.gadget_charFun_damp`.
 
-   ```lean
-   L = b * ∏ p ∈ blockSupport BS, p
-   ```
+## Task
 
-6. choose weights `theta` satisfying `[1/3,2/3]` and exact mass;
-7. define the main frequencies `SM` and labels using `exists_mainArc_bijection`;
-8. split `Sm = range L \ SM` into block-minor and extra-minor parts internally;
-9. prove `hminor` as block-minor bound plus extra-minor sibling damping;
-10. fill all fields of `ArcConstruction`.
-
-## Recommended Next Lean Task
-
-Do not attempt the whole `exists_arcConstruction` in one jump.  First create a
-new leaf file:
+Create a new leaf file:
 
 ```text
-RequestProject/R2AssemblySkeleton.lean
+RequestProject/R2MinorAssembly.lean
 ```
 
 with imports:
 
 ```lean
-import RequestProject.BlockMassPool
+import RequestProject.R2AssemblySkeleton
 import RequestProject.ExtraEnergyMinorArc
 import RequestProject.ExtraMinorDamping
-import RequestProject.ArcConstructionSigma
 ```
 
-### Target A: gadget edge definitions
-
-Define a finite gadget edge set abstractly from a finite set of denominator
-primes `R` and support primes `S`:
+Prove a wrapper theorem with a name like:
 
 ```lean
-def gadgetEdges (R S : Finset ℕ) : Finset ℕ :=
-  (R ×ˢ S).image (fun rs => rs.1 * rs.2)
-```
-
-Prove support and semiprime lemmas under prime/distinct hypotheses:
-
-```lean
-lemma gadgetEdges_semiprime
-lemma gadgetEdges_dvd_period
-lemma gadgetEdges_avoid_of_large_support
-```
-
-Use statement forms that are easy to feed into `ArcConstruction`.
-
-### Target B: union edge-set bookkeeping
-
-For
-
-```lean
-E := ctrlEdges BS ∪ Q ∪ gadgetEdges R S
-```
-
-prove named lemmas:
-
-```lean
-lemma r2_edges_semiprime
-lemma r2_edges_avoid
-lemma r2_edges_dvd_period
-lemma ctrlEdges_subset_r2_edges
-```
-
-All hypotheses should be explicit; do not hide construction choices.
-
-### Target C: block-minor ready lemma
-
-Prove a wrapper that packages the hypotheses needed to invoke
-`minor_arc_bound_fiber_tail` on the block-minor set.  It is acceptable for the
-wrapper to take the actual fiber-tail bound as a hypothesis:
-
-```lean
-theorem r2_block_minor_bound
+theorem r2_minor_bound_split
   ...
 ```
 
-The goal is to isolate the exact hypothesis list that the final assembly must
-supply.
+The theorem should **not** choose final numeric constants.  Instead it should
+make the exact interface explicit.
+
+The intended proof shape is:
+
+1. Let `Sm` be the full minor-frequency Finset.
+2. Let `Sblock` and `Sextra` be two Finsets with
+   `Sm ⊆ Sblock ∪ Sextra`.
+3. Assume a block-minor sum bound on `Sblock`, in the exact form produced by
+   `minor_arc_bound_fiber_tail` or a direct corollary of it.
+4. Assume an extra-minor sum bound on `Sextra`, in a form whose hypotheses are
+   close to `gadget_charFun_damp`.
+5. Conclude a combined minor bound over `Sm` by monotonicity and finite-sum
+   splitting.
+
+It is acceptable, and likely best, to first prove a pure finite-sum lemma:
+
+```lean
+lemma sum_le_of_subset_union_bounds
+  {α : Type*} [DecidableEq α]
+  (Sm Sblock Sextra : Finset α) (F : α → ℝ)
+  (hFnonneg : ∀ x ∈ Sm, 0 ≤ F x)
+  (hcover : Sm ⊆ Sblock ∪ Sextra)
+  (hblock : ∑ x ∈ Sm.filter (fun x => x ∈ Sblock), F x ≤ A)
+  (hextra : ∑ x ∈ Sm.filter (fun x => x ∈ Sextra), F x ≤ B) :
+  ∑ x ∈ Sm, F x ≤ A + B
+```
+
+If this exact statement is awkward because of duplicate overlap, use the
+disjointized version:
+
+```lean
+SblockPart = Sm.filter (fun x => x ∈ Sblock)
+SextraPart = Sm.filter (fun x => x ∉ Sblock ∧ x ∈ Sextra)
+```
+
+and prove the corresponding partition identity/bound.  This is probably easier.
 
 ## Deliverable
 
@@ -126,8 +97,10 @@ Return:
 
 1. files changed;
 2. theorem names proved;
-3. `lake build RequestProject.R2AssemblySkeleton`;
-4. axiom traces for the nontrivial endpoint lemmas.
+3. `lake build RequestProject.R2MinorAssembly`;
+4. axiom traces for the endpoint lemmas;
+5. a short explanation of the exact remaining hypotheses that final
+   `exists_arcConstruction` must supply.
 
-If Target C is too large, complete Targets A and B first.  They are immediately
-useful and should be sorry-free.
+Keep the new theorem sorry-free if possible.  If a statement requires a larger
+refactor, isolate the smallest precise `sorry` and explain why.

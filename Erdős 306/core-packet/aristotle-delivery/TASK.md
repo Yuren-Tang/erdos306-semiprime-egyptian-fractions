@@ -1,9 +1,9 @@
 # Aristotle delivery — current task
 
-**CURRENT TASK = `ACTIVE_PROMPT.md`: create the R2 assembly skeleton from note 52
-in a new leaf `RequestProject/R2AssemblySkeleton.lean`.** The R2-mass batch and
-note-49 extra-energy minor-arc interface are already integrated; do not redo
-them.
+**CURRENT TASK = `ACTIVE_PROMPT.md`: create the R2 minor-split assembly interface
+in a new leaf `RequestProject/R2MinorAssembly.lean`.** The R2-mass batch,
+extra-energy minor-arc interface, extra-minor gadget damping, and
+`R2AssemblySkeleton.lean` are already integrated; do not redo them.
 
 Work in this folder as the Lake project root.  The Lean package is already in
 the expected layout:
@@ -37,21 +37,23 @@ The current R2 foundation includes:
 - `RequestProject.BlockMassPool`, with `exists_blockAligned_mass_batch`;
 - `RequestProject.ExtraEnergyMinorArc`, with `minor_arc_bound_fiber_tail`;
 - `RequestProject.ExtraMinorDamping`, with `gadget_charFun_damp`;
-- `lake build RequestProject.ArcConstructionExtra` green in the warm build
+- `RequestProject.R2AssemblySkeleton`, with `gadgetEdges`, `r2Edges`, and the
+  semiprime/avoidance/period divisibility wrappers for the union edge set;
+- `lake build RequestProject.R2AssemblySkeleton` green in the warm build
   project;
 - key new endpoints depending only on standard axioms
   `[propext, Classical.choice, Quot.sound]`.
 
-## Immediate target: note 52
+## Immediate target: note 53
 
 Use `ACTIVE_PROMPT.md` as the direct instruction.  Create
-`RequestProject/R2AssemblySkeleton.lean` and prove the first assembly
-bookkeeping layer:
+`RequestProject/R2MinorAssembly.lean` and prove the finite-sum/minor-split
+interface:
 
-1. gadget edge definitions and support/semiprime/divisibility lemmas;
-2. union edge-set bookkeeping for `ctrlEdges ∪ Q ∪ gadgetEdges`;
-3. if possible, a block-minor wrapper around `minor_arc_bound_fiber_tail`.
+1. disjointize a minor-frequency set into block-minor and extra-minor parts;
+2. combine separate block and extra bounds into one `hminor`-shaped bound;
+3. expose the exact hypotheses that final `exists_arcConstruction` must supply.
 
 Do not attempt `CircleMethod.exists_arcConstruction` directly in this round.
-Keep the file sorry-free if possible; if the block-minor wrapper is too large,
-return the gadget/union bookkeeping green with a precise explanation.
+Keep the file sorry-free if possible; if a wrapper theorem is too ambitious,
+return the pure finite-sum partition/bound green with a precise explanation.

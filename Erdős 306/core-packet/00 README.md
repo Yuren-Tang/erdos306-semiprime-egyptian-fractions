@@ -85,6 +85,8 @@ verification.
 49. [[49 R2 Extra-Energy Minor Arc Interface Task]] — next bounded Lean task: prove a `fiber-tail` replacement for `minor_energy_sum_le_mult`, then wrap it into `minor_arc_bound_fiber_tail`. This is the first real extra-energy interface needed to replace crude multiplicity in R2.
 50. [[50 R2 Construction Resolved - Gadget Cancellation and the b≥3 Reduction]] — Claude's current R2 design: reduce `b=2` via `1/2=1/3+1/6`, handle `b≥3` with block-aligned mass plus gadget cancellation, and use extra-minor sibling damping. This is the active construction blueprint.
 51. [[51 R2 Mass Batch Completed]] — Aristotle's R2-mass package integrated and locally verified: `BlockMassPool.lean` now proves the block-prime product-load lower bound and `exists_blockAligned_mass_batch` for squarefree `b≥3`, depending only on the named Mertens input beyond standard axioms. Remaining R2 is monolithic assembly plus gadget/minor-arc wiring.
+52. [[52 R2 Assembly Skeleton Next Task]] — next bounded task after R2-mass: define gadget edges, union edge-set bookkeeping, and a block-minor wrapper before attempting the final `exists_arcConstruction`.
+53. [[53 R2 Assembly Skeleton Bookkeeping Completed]] — Targets A/B of note 52 are now Lean-verified in `R2AssemblySkeleton.lean`: gadget edges, semiprime/avoidance/period divisibility, and `r2Edges = ctrlEdges ∪ Q ∪ gadgetEdges` wrappers build sorry-free. Remaining R2 is the minor-arc split plus final concrete edge/weight assembly.
 41. [[41 G5 Cover Layer - Local Proof Memo]] — current local memo after the latest engineering pass: G5 data should use total-function shell/label Finsets matching `fiber`; the cover lemma is isolated as pure finite-union bookkeeping; remaining post-cover work is exactly initial-label cardinality, non-initial label-product absorption, and final constant absorption.
 40. [[40 G5 Endgame - Remaining Holes Quartered]] — **current binding G5 document**: the G5 monolith is quartered into small sub-lemmas. The hot-factor glue and much of the energy/cold/boundary support layer are now machine-verified; remaining work is concentrated in the data-Finset/covering layer, label-product numerics, and final G5 assembly. Three structural corrections vs note 38: no trivial-regime split needed; shell data must carry hot-consistency; initial segment label ranges over the `√R`-window `L0`, not `labelRange`.
 39. [[39 G5 Lean Skeleton - Twelve Named Holes]] — the G5 decomposition that broke the monolith deadlock: setup definitions (`isHot`/`coldLabel`/`boundarySet`/`segStart`/…) + twelve named holes with proof instructions. Skeleton instantiated and holes 1, 2, 4, 5, 7, 9, 11 + `hot_threshold` machine-verified.
@@ -102,11 +104,11 @@ verification.
 ## Aristotle delivery
 
 `aristotle-delivery/` is the stable, self-contained upload bundle (Lean package +
-`TASK.md` + latest notes). It has been refreshed to the R2 state around notes
-46–49, including `ArcConstructionExtra.lean` and `FiberCount.lean`. The former
-note-47 support task is now completed locally; do not send it as new work unless
-an independent duplicate check is desired. The next useful external task is note
-49: the extra-energy minor-arc interface.
+`TASK.md` + latest notes). It has been refreshed through notes 51–53, including
+`BlockMassPool.lean`, `ExtraMinorDamping.lean`, `R2AssemblySkeleton.lean`, and
+the corresponding prebuilt artifacts. The current useful external direction is
+the note-53 suggested task: isolate the `hminor` split interface between
+block-minor and extra-minor frequencies.
 
 Lean-side work should use:
 
