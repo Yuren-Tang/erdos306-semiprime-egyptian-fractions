@@ -1,8 +1,9 @@
 # Aristotle delivery — current task
 
-**CURRENT TASK = `ACTIVE_PROMPT.md`: prove the R2 extra-energy minor-arc
-interface from note 49 in a new leaf
-`RequestProject/ExtraEnergyMinorArc.lean`.**
+**CURRENT TASK = `ACTIVE_PROMPT.md`: R2-mass — the block-aligned mass batch
+(T1 S₂ tail, T2 product-load ≥ 1/2, T3 greedy window) extending
+`RequestProject/BlockMassPool.lean`.** (Note 49's extra-energy minor arc was
+already integrated; do not redo it.)
 
 Work in this folder as the Lake project root.  The Lean package is already in
 the expected layout:

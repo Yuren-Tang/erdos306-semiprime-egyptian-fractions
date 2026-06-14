@@ -285,21 +285,10 @@ the subject of `GlobalControl.lean` (note 34) together with `BernoulliFourier`.
 
 namespace CircleMethod
 
-/-- **C1–C4 (analytic heart).**  For every squarefree `b > 0` and finite
-    obstruction set `T`, there is a finite edge set `E` of squarefree semiprimes
-    avoiding `T`, together with Bernoulli weights `θ`, such that the deterministic
-    weighted count `Wcount E θ b` is strictly positive.
-
-    This bundles the edge construction (note 35 C1), the pointwise Fourier bound
-    (C2), the main-arc lower bound (C3) and the minor-arc upper bound (C4 via
-    Phase-G global control).  It is the sole analytic residual of the circle
-    method. -/
-theorem exists_positive_weighted_construction
-    (T : Finset ℕ) (b : ℕ) (hb : 0 < b) (hbsf : Squarefree b) :
-    ∃ (E : Finset ℕ) (theta : ℕ → ℝ),
-      (∀ e ∈ E, IsSemiprime e) ∧ (∀ e ∈ E, e ∉ T) ∧
-      0 < Wcount E theta b := by
-  sorry
+/- **C1–C4 (analytic heart).**  `exists_positive_weighted_construction` and the
+    closing `circle_method_positivity` are now proved in `CircleMethodAssembly.lean`
+    (they depend on the verified main/minor arc assembly there); they were moved out
+    of this file to break the import cycle (the assembly imports this file). -/
 
 /-- **Phase-C route closure.**  Reduces the analytic heart
     `exists_positive_weighted_construction` to: a concrete construction `(E, θ)`
@@ -320,17 +309,6 @@ theorem exists_pos_construction_of_arcs (T : Finset ℕ) (b : ℕ)
   ⟨E, theta, hsemi, havoid,
     positivity_from_arcs L hL (Wcount E theta b) main minorBound minorSum
       hident hmainpos hminor hbeat⟩
-
-/-- **C5 (positivity ⟹ representation).**  Assembles the analytic positivity
-    `exists_positive_weighted_construction` with the extraction principle
-    `Wcount_pos_imp_repr` to produce an Egyptian semiprime representation of
-    `1/b` avoiding `T`. -/
-theorem circle_method_positivity
-    (T : Finset ℕ) (b : ℕ) (hb : 0 < b) (hbsf : Squarefree b) :
-    HasEgyptianSemiprimeReprAvoiding T ((1 : ℚ) / (b : ℚ)) := by
-  obtain ⟨E, theta, hsemi, hdisj, hW⟩ :=
-    exists_positive_weighted_construction T b hb hbsf
-  exact Wcount_pos_imp_repr T E theta b hsemi hdisj hW
 
 end CircleMethod
 
