@@ -151,14 +151,65 @@ theorem exists_arcConstruction (T : Finset ℕ) (b : ℕ) (hb : 2 ≤ b)
     (hbsf : Squarefree b) : Nonempty (ArcConstruction T b) := by
   sorry
 
-/-- **The `b = 1` input.**  A finite set of distinct squarefree semiprimes avoiding
-`T` whose reciprocals sum to exactly `1` (an exact semiprime Egyptian decomposition
-of `1`).  This is the elementary residual of the `b = 1` case — outside the
-single-block circle method, which needs reciprocal load `< 1`. -/
+/-- **C5 (b ≥ 2)**, assembled from the R2 construction via the verified analytic
+core `exists_pos_weighted_of_construction`. -/
+theorem exists_pos_weighted_ge2 (T : Finset ℕ) (b : ℕ) (hb : 2 ≤ b)
+    (hbsf : Squarefree b) :
+    ∃ (E : Finset ℕ) (theta : ℕ → ℝ),
+      (∀ e ∈ E, IsSemiprime e) ∧ (∀ e ∈ E, e ∉ T) ∧ 0 < Wcount E theta b := by
+  obtain ⟨c⟩ := exists_arcConstruction T b hb hbsf
+  exact ⟨c.E, c.theta, c.hsemi, c.havoid,
+    exists_pos_weighted_of_construction T b hb c.E c.theta c.L c.N c.SM c.Sm c.lbl c.Bm
+      c.hsemi c.havoid c.hne c.hL c.hbL c.heL c.he0 c.hbound c.hlb c.hub c.hmass
+      c.hpart c.hdisj c.hN c.htw c.hsmall c.hmaps c.hinj c.hsurj c.hterm c.hminor c.hbeat⟩
+
+/-- A semiprime Egyptian representation of `1/b` avoiding `T`, for squarefree
+`b ≥ 2` (positivity ⟹ extraction). -/
+theorem egyptian_rep_ge2 (T : Finset ℕ) (b : ℕ) (hb : 2 ≤ b) (hbsf : Squarefree b) :
+    HasEgyptianSemiprimeReprAvoiding T ((1:ℚ) / (b:ℚ)) := by
+  obtain ⟨E, theta, hsemi, hdisj, hW⟩ := exists_pos_weighted_ge2 T b hb hbsf
+  exact Wcount_pos_imp_repr T E theta b hsemi hdisj hW
+
+/-- **The `b = 1` input, PROVED via `1 = 1/2 + 1/3 + 1/6`.**  Each `1/bᵢ`
+(`bᵢ ∈ {2,3,6}`, all squarefree `≥ 2`) gets a semiprime representation avoiding the
+cumulative obstruction set, so their disjoint union is a distinct-semiprime set
+avoiding `T` with reciprocal sum exactly `1`.  This folds the `b = 1` case into the
+`b ≥ 2` circle method (no separate construction). -/
 theorem exists_semiprime_egyptian_one (T : Finset ℕ) :
     ∃ G : Finset ℕ, (∀ e ∈ G, IsSemiprime e) ∧ (∀ e ∈ G, e ∉ T) ∧
       (∑ e ∈ G, (1:ℚ) / (e:ℚ)) = 1 := by
-  sorry
+  have sf6 : Squarefree 6 := by
+    show Squarefree (2 * 3)
+    rw [Nat.squarefree_mul_iff]
+    exact ⟨by norm_num, Nat.prime_two.squarefree, Nat.prime_three.squarefree⟩
+  obtain ⟨S2, hs2semi, hs2disj, hs2sum⟩ :=
+    egyptian_rep_ge2 T 2 (by norm_num) Nat.prime_two.squarefree
+  obtain ⟨S3, hs3semi, hs3disj, hs3sum⟩ :=
+    egyptian_rep_ge2 (T ∪ S2) 3 (by norm_num) Nat.prime_three.squarefree
+  obtain ⟨S6, hs6semi, hs6disj, hs6sum⟩ :=
+    egyptian_rep_ge2 (T ∪ S2 ∪ S3) 6 (by norm_num) sf6
+  obtain ⟨hs3T, hs3S2⟩ := Finset.disjoint_union_right.mp hs3disj
+  obtain ⟨hs6TS2, hs6S3⟩ := Finset.disjoint_union_right.mp hs6disj
+  obtain ⟨hs6T, hs6S2⟩ := Finset.disjoint_union_right.mp hs6TS2
+  have hd23 : Disjoint S2 S3 := hs3S2.symm
+  have hd26 : Disjoint S2 S6 := hs6S2.symm
+  have hd36 : Disjoint S3 S6 := hs6S3.symm
+  refine ⟨S2 ∪ S3 ∪ S6, ?_, ?_, ?_⟩
+  · intro e he
+    rcases Finset.mem_union.mp he with h | h6
+    · rcases Finset.mem_union.mp h with h2 | h3
+      · exact hs2semi e h2
+      · exact hs3semi e h3
+    · exact hs6semi e h6
+  · intro e he
+    rcases Finset.mem_union.mp he with h | h6
+    · rcases Finset.mem_union.mp h with h2 | h3
+      · exact Finset.disjoint_left.mp hs2disj h2
+      · exact Finset.disjoint_left.mp hs3T h3
+    · exact Finset.disjoint_left.mp hs6T h6
+  · have hd_23_6 : Disjoint (S2 ∪ S3) S6 := Finset.disjoint_union_left.mpr ⟨hd26, hd36⟩
+    rw [Finset.sum_union hd_23_6, Finset.sum_union hd23, hs2sum, hs3sum, hs6sum]
+    norm_num
 
 /-- **The `b = 1` case** (target `1/1 = 1`).  With the uniform weight `θ ≡ 1/2`, the
 full set `G` from `exists_semiprime_egyptian_one` is itself a reciprocal-`1` subset,
@@ -197,11 +248,7 @@ theorem exists_positive_weighted_construction
   · have hb1' : b = 1 := by omega
     subst hb1'
     exact exists_positive_weighted_construction_one T
-  · obtain ⟨c⟩ := exists_arcConstruction T b hb2 hbsf
-    exact ⟨c.E, c.theta, c.hsemi, c.havoid,
-      exists_pos_weighted_of_construction T b hb2 c.E c.theta c.L c.N c.SM c.Sm c.lbl c.Bm
-        c.hsemi c.havoid c.hne c.hL c.hbL c.heL c.he0 c.hbound c.hlb c.hub c.hmass
-        c.hpart c.hdisj c.hN c.htw c.hsmall c.hmaps c.hinj c.hsurj c.hterm c.hminor c.hbeat⟩
+  · exact exists_pos_weighted_ge2 T b hb2 hbsf
 
 /-- **C5 (positivity ⟹ representation).**  Assembles the analytic positivity with
 the extraction principle `Wcount_pos_imp_repr`. -/
