@@ -144,6 +144,14 @@ lemma bernoulli_log_taylor (θ t : ℝ) (hθlb : 1/3 ≤ θ) (hθub : θ ≤ 2/3
     _ ≤ 99000 * |t|^3 + 1000 * |t|^3 := add_le_add hAbnd hBnorm
     _ = 100000 * |t|^3 := by ring
 
+/-- **L2 foundation** (no branch issue): a finite product of nonzero complex
+numbers equals `exp` of the sum of their `Complex.log`s. -/
+lemma prod_eq_exp_sum_log {ι : Type*} (E : Finset ι) (f : ι → ℂ)
+    (hf : ∀ e ∈ E, f e ≠ 0) :
+    ∏ e ∈ E, f e = Complex.exp (∑ e ∈ E, Complex.log (f e)) := by
+  rw [Complex.exp_sum]
+  exact Finset.prod_congr rfl (fun e he => (Complex.exp_log (hf e he)).symm)
+
 end CircleMethod
 
 end
