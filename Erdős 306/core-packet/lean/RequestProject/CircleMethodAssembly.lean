@@ -151,13 +151,38 @@ theorem exists_arcConstruction (T : Finset ℕ) (b : ℕ) (hb : 2 ≤ b)
     (hbsf : Squarefree b) : Nonempty (ArcConstruction T b) := by
   sorry
 
-/-- **The `b = 1` case** (target `1/1 = 1`).  Outside the single-block circle
-method (mass `1` forces reciprocal load `> 1`, violating the no-wraparound bound);
-handled by a separate distinct-semiprime Egyptian representation of `1`. -/
+/-- **The `b = 1` input.**  A finite set of distinct squarefree semiprimes avoiding
+`T` whose reciprocals sum to exactly `1` (an exact semiprime Egyptian decomposition
+of `1`).  This is the elementary residual of the `b = 1` case — outside the
+single-block circle method, which needs reciprocal load `< 1`. -/
+theorem exists_semiprime_egyptian_one (T : Finset ℕ) :
+    ∃ G : Finset ℕ, (∀ e ∈ G, IsSemiprime e) ∧ (∀ e ∈ G, e ∉ T) ∧
+      (∑ e ∈ G, (1:ℚ) / (e:ℚ)) = 1 := by
+  sorry
+
+/-- **The `b = 1` case** (target `1/1 = 1`).  With the uniform weight `θ ≡ 1/2`, the
+full set `G` from `exists_semiprime_egyptian_one` is itself a reciprocal-`1` subset,
+contributing `(1/2)^{|G|} > 0` to `Wcount`, and every term is nonnegative. -/
 theorem exists_positive_weighted_construction_one (T : Finset ℕ) :
     ∃ (E : Finset ℕ) (theta : ℕ → ℝ),
       (∀ e ∈ E, IsSemiprime e) ∧ (∀ e ∈ E, e ∉ T) ∧ 0 < Wcount E theta 1 := by
-  sorry
+  obtain ⟨G, hsemi, havoid, hsum⟩ := exists_semiprime_egyptian_one T
+  refine ⟨G, fun _ => 1/2, hsemi, havoid, ?_⟩
+  unfold Wcount
+  have hmem : G ∈ G.powerset := Finset.mem_powerset.mpr (le_refl G)
+  set g : Finset ℕ → ℝ := fun S =>
+    if (∑ e ∈ S, (1 : ℚ) / (e : ℚ)) = (1 : ℚ) / ((1:ℕ) : ℚ) then
+      (∏ e ∈ S, (1/2 : ℝ)) * (∏ e ∈ G \ S, (1 - 1/2 : ℝ)) else 0 with hg
+  have hGterm : 0 < g G := by
+    rw [hg]; dsimp only
+    rw [if_pos (by rw [hsum]; norm_num), Finset.sdiff_self]
+    simp only [Finset.prod_empty, mul_one]
+    positivity
+  have hnonneg : ∀ S ∈ G.powerset, 0 ≤ g S := by
+    intro S _; rw [hg]; dsimp only; split
+    · positivity
+    · exact le_refl 0
+  exact lt_of_lt_of_le hGterm (Finset.single_le_sum hnonneg hmem)
 
 /-- **C1–C4 (analytic heart), assembled.**  For squarefree `b > 0` and finite `T`,
 there are semiprime edges avoiding `T` with weights making `Wcount > 0`.  For
