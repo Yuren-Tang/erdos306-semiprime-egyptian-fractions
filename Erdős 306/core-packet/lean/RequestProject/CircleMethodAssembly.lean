@@ -103,6 +103,90 @@ theorem exists_pos_weighted_of_construction
   exact wcount_pos_of_split E theta b L hb hL hbL heL he0 hbound SM Sm hpart hdisj
     mainPos Bm 0 hmainPos hmain_re hminor hmain_im (by linarith [hbeat])
 
+/-- **R2 construction interface (note 35 C1 / note 44 R3).**  The data of a
+block-aligned circle-method construction for `1/b`: semiprime edges `E` avoiding
+`T` with weights in `[1/3,2/3]` and exact mass, a common period `L`, a main-arc
+frequency set `SM` bijecting (via `lbl`) to the label window `[-N,N]` with the
+CRT/periodicity identity `fourierTerm = term_label`, the main-arc smallness
+conditions, and a minor-arc bound `Bm` strictly beaten by the Gaussian main term
+`c₃/σ_E`.  Exactly the hypotheses consumed by `exists_pos_weighted_of_construction`. -/
+structure ArcConstruction (T : Finset ℕ) (b : ℕ) where
+  E : Finset ℕ
+  theta : ℕ → ℝ
+  L : ℕ
+  N : ℤ
+  SM : Finset ℕ
+  Sm : Finset ℕ
+  lbl : ℕ → ℤ
+  Bm : ℝ
+  hsemi : ∀ e ∈ E, IsSemiprime e
+  havoid : ∀ e ∈ E, e ∉ T
+  hne : E.Nonempty
+  hL : 0 < L
+  hbL : b ∣ L
+  heL : ∀ e ∈ E, e ∣ L
+  he0 : ∀ e ∈ E, 0 < e
+  hbound : (∑ e ∈ E, (L / e : ℕ)) < L
+  hlb : ∀ e ∈ E, 1/3 ≤ theta e
+  hub : ∀ e ∈ E, theta e ≤ 2/3
+  hmass : (∑ e ∈ E, theta e / (e : ℝ)) = 1 / (b : ℝ)
+  hpart : Finset.range L = SM ∪ Sm
+  hdisj : Disjoint SM Sm
+  hN : (1:ℝ) / Real.sqrt (sigmaE2 E theta) ≤ (N:ℝ)
+  htw : ∀ m ∈ Finset.Icc (-N) N, ∀ e ∈ E, |(m : ℝ) / (e : ℝ)| ≤ 1/10
+  hsmall : ∀ m ∈ Finset.Icc (-N) N, (∑ e ∈ E, 100000 * |(m:ℝ)/(e:ℝ)|^3) ≤ 1/10
+  hmaps : ∀ h ∈ SM, lbl h ∈ Finset.Icc (-N) N
+  hinj : ∀ h₁ ∈ SM, ∀ h₂ ∈ SM, lbl h₁ = lbl h₂ → h₁ = h₂
+  hsurj : ∀ m ∈ Finset.Icc (-N) N, ∃ h ∈ SM, lbl h = m
+  hterm : ∀ h ∈ SM, fourierTerm E theta b L h = term_label E theta b (lbl h)
+  hminor : ‖∑ h ∈ Sm, fourierTerm E theta b L h‖ ≤ Bm
+  hbeat : Bm < 0.8 * (Real.exp (-(Real.pi^2/2)) / 2) / Real.sqrt (sigmaE2 E theta)
+
+/-- **R2 (the remaining geometric construction gap).**  For squarefree `b ≥ 2`
+there is a block-aligned construction whose minor arc is beaten by the main term.
+This packages the C1 edge construction aligned to a block system (`E`-primes ⊆
+`blockSupport`, `ctrlPairs ⊆ E`), the CRT main-arc bijection, and the
+`σ_E ≍ σ_ctrl` / large-`k0,C` separation. -/
+theorem exists_arcConstruction (T : Finset ℕ) (b : ℕ) (hb : 2 ≤ b)
+    (hbsf : Squarefree b) : Nonempty (ArcConstruction T b) := by
+  sorry
+
+/-- **The `b = 1` case** (target `1/1 = 1`).  Outside the single-block circle
+method (mass `1` forces reciprocal load `> 1`, violating the no-wraparound bound);
+handled by a separate distinct-semiprime Egyptian representation of `1`. -/
+theorem exists_positive_weighted_construction_one (T : Finset ℕ) :
+    ∃ (E : Finset ℕ) (theta : ℕ → ℝ),
+      (∀ e ∈ E, IsSemiprime e) ∧ (∀ e ∈ E, e ∉ T) ∧ 0 < Wcount E theta 1 := by
+  sorry
+
+/-- **C1–C4 (analytic heart), assembled.**  For squarefree `b > 0` and finite `T`,
+there are semiprime edges avoiding `T` with weights making `Wcount > 0`.  For
+`b ≥ 2` this is the verified circle-method assembly applied to the R2 construction;
+`b = 1` is the separate case. -/
+theorem exists_positive_weighted_construction
+    (T : Finset ℕ) (b : ℕ) (hb : 0 < b) (hbsf : Squarefree b) :
+    ∃ (E : Finset ℕ) (theta : ℕ → ℝ),
+      (∀ e ∈ E, IsSemiprime e) ∧ (∀ e ∈ E, e ∉ T) ∧
+      0 < Wcount E theta b := by
+  rcases Nat.lt_or_ge b 2 with hb1 | hb2
+  · have hb1' : b = 1 := by omega
+    subst hb1'
+    exact exists_positive_weighted_construction_one T
+  · obtain ⟨c⟩ := exists_arcConstruction T b hb2 hbsf
+    exact ⟨c.E, c.theta, c.hsemi, c.havoid,
+      exists_pos_weighted_of_construction T b hb2 c.E c.theta c.L c.N c.SM c.Sm c.lbl c.Bm
+        c.hsemi c.havoid c.hne c.hL c.hbL c.heL c.he0 c.hbound c.hlb c.hub c.hmass
+        c.hpart c.hdisj c.hN c.htw c.hsmall c.hmaps c.hinj c.hsurj c.hterm c.hminor c.hbeat⟩
+
+/-- **C5 (positivity ⟹ representation).**  Assembles the analytic positivity with
+the extraction principle `Wcount_pos_imp_repr`. -/
+theorem circle_method_positivity
+    (T : Finset ℕ) (b : ℕ) (hb : 0 < b) (hbsf : Squarefree b) :
+    HasEgyptianSemiprimeReprAvoiding T ((1 : ℚ) / (b : ℚ)) := by
+  obtain ⟨E, theta, hsemi, hdisj, hW⟩ :=
+    exists_positive_weighted_construction T b hb hbsf
+  exact Wcount_pos_imp_repr T E theta b hsemi hdisj hW
+
 end CircleMethod
 
 end

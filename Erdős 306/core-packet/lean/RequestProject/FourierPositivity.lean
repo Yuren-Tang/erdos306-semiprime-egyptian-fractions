@@ -131,6 +131,7 @@ import RequestProject.LatticeSpan
 import RequestProject.BernoulliFourier
 import RequestProject.CrossLabelEnergy
 import RequestProject.CircleMethod
+import RequestProject.CircleMethodAssembly
 
 open scoped BigOperators Classical
 
