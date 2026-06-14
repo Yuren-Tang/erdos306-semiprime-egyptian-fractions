@@ -10,10 +10,15 @@ admissibility facts, `hrhs_inner`, `global_levelset_route`) are PROVED. The ONLY
 remaining Phase-G sorry is `global_levelset` (G5).
 
 ## Startup — DO NOT rebuild the verified core (follow ORDER)
+The upload typically DROPS the hidden `.lake/` dir — that is expected; the
+prebuilt oleans are shipped in `prebuilt-oleans.tar.gz` (a normal file that
+survives upload). Recreate `.lake` from it:
 1. `lake exe cache get`  (Mathlib only)
 2. if sources were flattened to repo root, move them back under `RequestProject/` FIRST
-3. `tar xzf prebuilt-oleans.tar.gz -C .lake/build/lib/lean/`  (refreshes olean mtimes
-   so lake replays instead of rebuilding the ~40-min core)
+3. `mkdir -p .lake/build/lib/lean && tar xzf prebuilt-oleans.tar.gz -C .lake/build/lib/lean/`
+   (creates `.lake/build/lib/lean/RequestProject/*.olean`; if `.lake` was dropped on
+   upload this RESTORES it, and it also refreshes olean mtimes so lake replays the
+   ~40-min verified core instead of rebuilding it)
 4. `lake build RequestProject.GlobalControlG5Assembly`  (should elaborate only your work)
 
 ## Work ONLY in the leaf `RequestProject/GlobalControlG5Assembly.lean`
