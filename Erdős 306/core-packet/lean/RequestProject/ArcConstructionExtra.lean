@@ -46,10 +46,8 @@ lemma semiprime_dvd_edgePrimeSupport_prod {E : Finset ℕ} {e : ℕ}
     e ∣ ∏ p ∈ edgePrimeSupport E, p := by
   classical
   rw [← Nat.prod_primeFactors_of_squarefree hsemi.squarefree]
-  exact Finset.prod_dvd_prod_of_subset
-    (by
-      intro p hp
-      exact mem_edgePrimeSupport.mpr ⟨e, he, hp⟩)
+  exact Finset.prod_dvd_prod_of_subset (Nat.primeFactors e) (edgePrimeSupport E) id
+    (fun p hp => mem_edgePrimeSupport.mpr ⟨e, he, hp⟩)
 
 end CircleMethod
 
