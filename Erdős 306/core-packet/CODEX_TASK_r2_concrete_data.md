@@ -37,6 +37,7 @@ Use the already verified pieces:
 
 ```lean
 CircleMethod.exists_blockAligned_mass_batch
+CircleMethod.exists_subset_recip_window
 CircleMethod.r2Edges
 CircleMethod.r2_edges_semiprime
 CircleMethod.r2_edges_avoid
@@ -96,6 +97,50 @@ or a more abstract `theta` wrapper whose hypotheses are exactly:
 ```
 
 Do not spend long on exact mass if it becomes coupled to final parameter choices.
+
+## Important Mass Correction
+
+Do **not** directly use `exists_blockAligned_mass_batch` as the final mass batch
+for `E = ctrlEdges ∪ Q ∪ gadgetEdges`.  That lemma makes the `Q`-load itself lie
+in `[3/(2b), 3/b]`; after adding control and gadget edges, the total load could
+exceed `3/b`.
+
+The final common-theta construction needs the **total** load:
+
+```lean
+loadE := ∑ e ∈ E, (1 : ℝ) / (e : ℝ)
+```
+
+to satisfy:
+
+```text
+3/(2b) ≤ loadE ≤ 3/b.
+```
+
+If you touch mass at all, prove a residual wrapper instead.  Given a fixed
+nonnegative base load
+
+```lean
+baseLoad :=
+  ∑ e ∈ ctrlEdges BS ∪ gadgetEdges R S, (1 : ℝ) / (e : ℝ)
+```
+
+and `baseLoad < 3/(2b)`, apply `exists_subset_recip_window` with:
+
+```text
+target = 3/(2b) - baseLoad
+gap    = 3/(2b)
+```
+
+to obtain `Q` with:
+
+```text
+3/(2b) ≤ baseLoad + loadQ
+baseLoad + loadQ ≤ 3/b
+```
+
+This residual lemma is more valuable than a direct call to
+`exists_blockAligned_mass_batch`.
 
 ## Deliverable
 
