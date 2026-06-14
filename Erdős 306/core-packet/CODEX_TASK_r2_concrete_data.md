@@ -136,11 +136,17 @@ to obtain `Q` with:
 
 ```text
 3/(2b) ≤ baseLoad + loadQ
-baseLoad + loadQ ≤ 3/b
+baseLoad + loadQ < 3/b
 ```
 
 This residual lemma is more valuable than a direct call to
 `exists_blockAligned_mass_batch`.
+
+The strict upper bound matters for `hbound`: when `b = 3`, `3/b = 1`, while
+`ArcConstruction.hbound` needs `∑ e∈E L/e < L`.  The existing greedy proof of
+`exists_subset_recip_window` should strengthen to strict upper because the
+minimal subset argument has previous load `< target` and last reciprocal
+`< gap`.
 
 ## Deliverable
 

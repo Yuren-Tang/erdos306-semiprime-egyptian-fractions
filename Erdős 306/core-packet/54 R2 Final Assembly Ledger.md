@@ -158,6 +158,30 @@ This residual batch lemma should be a separate small Lean target.  It can reuse
 large-scale input is `baseLoad < 3/(2b)`, supplied later by making control and
 gadget edges sufficiently high-scale/light.
 
+For the final `hbound`, the upper inequality should preferably be strict.  The
+generic greedy proof already has the ingredients for a strict variant:
+
+```lean
+lemma exists_subset_recip_window_strict_upper ...
+```
+
+with conclusion:
+
+```text
+target ≤ loadQ ∧ loadQ < target + gap
+```
+
+because the minimal subset proof removes a last element with previous load
+`< target`, and the final element has individual reciprocal `< gap`.
+
+Using the strict variant gives:
+
+```text
+baseLoad + loadQ < 3/b ≤ 1
+```
+
+and therefore `loadE < 1`, including the tight case `b = 3`.
+
 The formal target is:
 
 ```lean
@@ -167,6 +191,53 @@ hmass : (∑ e ∈ E, theta e / (e : ℝ)) = 1 / (b : ℝ)
 ```
 
 This remains one of the genuine assembly obligations.
+
+### Period-Sum Bound
+
+The field:
+
+```lean
+hbound : (∑ e ∈ E, (L / e : ℕ)) < L
+```
+
+should not be proved by expanding the concrete edge set.  It follows from a
+generic reciprocal-load lemma:
+
+```lean
+lemma period_div_sum_lt_of_recip_sum_lt
+    (E : Finset ℕ) (L : ℕ)
+    (hL : 0 < L)
+    (hepos : ∀ e ∈ E, 0 < e)
+    (heL : ∀ e ∈ E, e ∣ L)
+    (hload : ∑ e ∈ E, (1 : ℝ) / (e : ℝ) < 1) :
+    (∑ e ∈ E, (L / e : ℕ)) < L
+```
+
+Proof: cast to `ℝ`; since `e ∣ L`,
+
+```text
+(L / e : ℝ) = (L : ℝ) / (e : ℝ)
+```
+
+and therefore:
+
+```text
+∑ e, L/e = L * ∑ e, 1/e < L.
+```
+
+For the final construction, the strict common-theta upper window gives:
+
+```text
+loadE < 3/b ≤ 1
+```
+
+and since `b ≥ 3`, this gives:
+
+```text
+loadE < 1.
+```
+
+This avoids the equality obstruction when `b = 3`.
 
 ### Main-Arc Fields
 
