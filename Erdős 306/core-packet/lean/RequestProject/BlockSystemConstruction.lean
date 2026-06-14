@@ -30,36 +30,43 @@ available in Mathlib (cf. the `PrimeNumberTheoremAnd` project). -/
 axiom dyadic_prime_density (k : ℕ) (hk : 5 ≤ k) :
     (2 ^ k : ℝ) / (2 * Real.log (2 ^ k)) ≤ ((dyadicBlock k).card : ℝ)
 
-/-- **Dyadic Mertens lower bound** (classical input for R2 block-aligned mass —
-*named, not proved*).
+/-- **Dyadic Mertens lower bound, cumulative form** (classical input for R2
+block-aligned mass — *named, not proved*).
 
-By Mertens' theorem (`∑_{p≤x} 1/p = log log x + B + o(1)`), the reciprocal sum
-over a single dyadic block is
-`∑_{p∈[2ᵏ,2ᵏ⁺¹)} 1/p = log log 2ᵏ⁺¹ − log log 2ᵏ + o(1) ≈ 1/k`.  We record the
-honest lower bound `∑_{p∈block k} 1/p ≥ 1/(2k)` for `k ≥ 5` (constant `c₀=1/2`,
-comfortably below the true `≈1/k`).  This is **strictly stronger** than what the
-prime-*count* axiom `dyadic_prime_density` yields by worst-case bounding (which
-only gives `≈1/(4k log 2)` and is too weak — see note 50 §2).  It is needed so
-that the block-aligned mass over `[2^{k₀},2^{3k₀}]` reaches the common-θ window
-`[3/(2b),3/b]` for squarefree `b ≥ 3` (product-load `≈ (log 3)²/2 ≈ 0.60`).
+By Mertens (`∑_{p≤x} 1/p = log log x + M + o(1)`), the reciprocal sum of the
+primes in the dyadic range `[2^{k₀}, 2^{3k₀})` is
+`∑ = log log 2^{3k₀} − log log 2^{k₀} + o(1) = log 3 + o(1) ≈ 1.0986`.  We record
+the honest cumulative lower bound `≥ 21/20 = 1.05` for all large `k₀` (true since
+`1.05 < log 3`; the `o(1)` is absorbed by taking `k₀` large — hence the
+`∃ k₁, ∀ k₀ ≥ k₁` shape, the same threshold form the construction already uses).
+
+The *cumulative* form is essential: a per-block bound with the true constant
+`c₀ ≈ 1` is **false for small `k`** (e.g. `∑_{p∈[32,64)} 1/p ≈ 0.148 < 1/6`), and
+the count axiom `dyadic_prime_density` only yields the far-too-weak `≈ 1/(4k log2)`
+per block (total `≈ 0.40`, product-load `≈ 0.08`).  With `≥ 1.05` here the
+block-aligned product-load is `≥ (1.05² − ∑1/p²)/2 > 0.5`, clearing the common-θ
+window `[3/(2b),3/b]` for squarefree `b ≥ 3` (`b=3` needs `0.5`).
 
 Provenance: Rosser–Schoenfeld (1962) / Mertens; same status as
 `dyadic_prime_density`, to be discharged once Mertens-level estimates upstream to
 Mathlib. -/
-axiom dyadic_mertens_lower (k : ℕ) (hk : 5 ≤ k) :
-    (1 : ℝ) / (2 * (k : ℝ)) ≤ ∑ p ∈ dyadicBlock k, (1 : ℝ) / (p : ℝ)
+axiom dyadic_mertens_cumulative :
+    ∃ k1 : ℕ, 5 ≤ k1 ∧ ∀ k0 : ℕ, k1 ≤ k0 →
+      (21 : ℝ) / 20 ≤
+        ∑ p ∈ (Finset.Icc k0 (3 * k0)).biUnion dyadicBlock, (1 : ℝ) / (p : ℝ)
 
 /-- **R2 (a): block-system existence.**  For every target `k₀min` there is a
 `BlockSystem` with `k₀min ≤ k₀` and `admissibleGlobalRange`, namely the dyadic
-prime blocks with `K = 2·k₀`.  All fields are elementary except `hdensity`, supplied
-by `dyadic_prime_density`. -/
+prime blocks with `K = 3·k₀` (the maximal admissible range, so the block-aligned
+mass over `[2^{k₀},2^{3k₀}]` reaches the common-θ window for `b ≥ 3`).  All fields
+are elementary except `hdensity`, supplied by `dyadic_prime_density`. -/
 theorem exists_blockSystem (k0min : ℕ) :
     ∃ BS : BlockSystem, k0min ≤ BS.k0 ∧ admissibleGlobalRange BS := by
   set k0 : ℕ := max k0min 5 with hk0def
   have h5 : 5 ≤ k0 := le_max_right _ _
   refine ⟨{
     k0 := k0
-    K := 2 * k0
+    K := 3 * k0
     hk := by omega
     hk0 := by omega
     P := dyadicBlock

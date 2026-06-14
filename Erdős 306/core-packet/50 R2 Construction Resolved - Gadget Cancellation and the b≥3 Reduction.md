@@ -69,18 +69,20 @@ For `b≥3`, `3/(2b)≤0.5≤0.60`, so a greedy subset hits the window (`b=3` is
 tightest, `0.50<0.60`, margin `~0.10` for large `k0`). **For `b=2` the window is
 `[0.75,1.5]` and `0.60<0.75`: block-aligned mass is provably insufficient.**
 
-> **Correction / classical-input caveat.** The current Lean axiom
-> `dyadic_prime_density` bounds only the prime *count*
-> `(P k).card ≥ 2^k/(2 log 2^k)`. From the count alone the *worst-case*
-> `∑_{p∈block} 1/p ≥ card·2^{-(k+1)} ≈ 1/(4k log 2)` gives total `≈ 0.40` and
-> product-load only `≈ 0.08` — too small. The `0.60` figure needs the **dyadic
-> Mertens sum** `∑_{p∈[2^k,2^{k+1})} 1/p ≥ (1-o(1))/k`, a *second* classical
-> input (Rosser–Schoenfeld / Mertens by partial summation, the same provenance
-> as `dyadic_prime_density`). R2-mass must therefore introduce a named axiom
-> `dyadic_mertens_lower` (≈ `∑_{p∈block k} 1/p ≥ c₀/k`, `c₀` close to `1`)
-> alongside `dyadic_prime_density`, or `K=3k0` and `b=3` will fail. This does
-> **not** affect `b≥3` once that axiom is in place, since the product-load limit
-> `(\log 3)^2/2 ≈ 0.60 > 0.50` is a fixed constant `> 3/(2b)`.
+> **Correction / classical-input caveat (resolved, committed).** Two errors in a
+> first pass, now fixed in `BlockSystemConstruction.lean`:
+> 1. The count axiom `dyadic_prime_density` (`card ≥ 2^k/(2 log 2^k)`) alone gives
+>    only the worst-case `∑_{p∈block}1/p ≥ card·2^{-(k+1)} ≈ 1/(4k log2)`, total
+>    `≈ 0.40`, product-load `≈ 0.08` — too small. A *per-block* bound with the
+>    true constant `c₀≈1` is **false for small k** (`∑_{p∈[32,64)}1/p ≈ 0.148 <
+>    1/6`). So the right input is the **cumulative** Mertens bound over the whole
+>    range: new axiom `dyadic_mertens_cumulative` — `∃ k₁, ∀ k₀≥k₁`,
+>    `∑_{p∈[2^{k₀},2^{3k₀})} 1/p ≥ 21/20` (true since `→ log 3 ≈ 1.0986`; the
+>    `o(1)` absorbed by large `k₀`). Then product-load `≥ (1.05² − ∑1/p²)/2 > 0.5`.
+> 2. `exists_blockSystem` originally took `K = 2k₀` (mass range `[k₀,2k₀]`, load
+>    `≈ (log2)²/2 ≈ 0.24`, insufficient for `b<7`). Changed to **`K = 3k₀`** (the
+>    maximal `admissibleGlobalRange`), giving the full `log 3` range. So `b ≥ 3`
+>    clears `[3/(2b),3/b]` (`b=3` needs `0.5 < 0.55`). Both committed.
 
 **Why block-alignment is forced (the fiber-tail `K` cannot absorb extra mass).**
 For *any* extra (non-block) prime `q` in a mass edge, the fiber-tail factor over
@@ -166,10 +168,11 @@ and the C1 mass package `circle_method_edge_mass_package` (common-θ, exact mass
 **Remaining (real Lean work, design now fixed):**
 - **(R2-mass)** a *block-aligned* mass batch: products of two block primes,
   reciprocal load in `[3/(2b),3/b]`, avoiding `T` and `ctrlEdges` (adapt the
-  greedy `exists_finset_primes_recip_between` to draw from `blockSupport`).
-  **Requires** the named classical input `dyadic_mertens_lower`
-  (`∑_{p∈block k} 1/p ≥ c₀/k`) — *not* derivable from the count axiom alone;
-  add it next to `dyadic_prime_density` in `BlockSystemConstruction.lean`.
+  greedy `exists_finset_primes_recip_between` to draw from `blockSupport`). The
+  classical input `dyadic_mertens_cumulative` and `K=3k₀` are **done/committed**;
+  remaining: (i) the pool lower bound — product-load
+  `∑_{p<q∈blockPrimes}1/(pq) = ((∑1/p)²−∑1/p²)/2 ≥ 0.5` from the axiom; (ii) the
+  greedy minimal subset hitting `[3/(2b),3/b]` with bounded overshoot.
 - **(R2-extra-minor)** the new lemma of §4: `‖∑_{extra-minor} fourierTerm‖ ≤ c₃/(2σ)`
   via `G` gadgets — the genuinely new estimate (a CRT/product damping bound).
   This is note 46 §4's "extra-minor direct estimate", now with the explicit
