@@ -250,6 +250,76 @@ lemma fourierTerm_eq_term_label_of_modL
     (fun e he => dvd_trans (Int.natCast_dvd_natCast.mpr (heL e he)) hmodL)
     (dvd_trans (Int.natCast_dvd_natCast.mpr hbL) hmodL)
 
+/-- **Main-arc frequency/label bijection.**  For a period `L ≥ 2N+1`, the labels
+`[-N, N]` correspond bijectively to frequencies `(m mod L) ∈ range L`, with each
+frequency `h` congruent to its label `lbl h` modulo `L` (so `hterm` applies). -/
+lemma exists_mainArc_bijection (L : ℕ) (N : ℤ) (hN : 0 ≤ N) (hNL : 2 * N + 1 ≤ (L : ℤ)) :
+    ∃ (SM : Finset ℕ) (lbl : ℕ → ℤ),
+      SM ⊆ Finset.range L ∧
+      (∀ h ∈ SM, lbl h ∈ Finset.Icc (-N) N) ∧
+      (∀ h₁ ∈ SM, ∀ h₂ ∈ SM, lbl h₁ = lbl h₂ → h₁ = h₂) ∧
+      (∀ m ∈ Finset.Icc (-N) N, ∃ h ∈ SM, lbl h = m) ∧
+      (∀ h ∈ SM, (L : ℤ) ∣ ((h : ℤ) - lbl h)) := by
+  classical
+  have hLZ : (0 : ℤ) < (L : ℤ) := by linarith
+  have key : ∀ m : ℤ, -N ≤ m → m ≤ N →
+      (m % (L : ℤ)).toNat < L ∧
+      (if 2 * ((m % (L : ℤ)).toNat : ℤ) < (L : ℤ) then ((m % (L : ℤ)).toNat : ℤ)
+        else ((m % (L : ℤ)).toNat : ℤ) - (L : ℤ)) = m ∧
+      (L : ℤ) ∣ (((m % (L : ℤ)).toNat : ℤ) - m) := by
+    intro m hm1 hm2
+    have he1 : 0 ≤ m % (L : ℤ) := Int.emod_nonneg m hLZ.ne'
+    have he2 : m % (L : ℤ) < (L : ℤ) := Int.emod_lt_of_pos m hLZ
+    have hfZ : ((m % (L : ℤ)).toNat : ℤ) = m % (L : ℤ) := Int.toNat_of_nonneg he1
+    refine ⟨?_, ?_, ?_⟩
+    · have : ((m % (L : ℤ)).toNat : ℤ) < (L : ℤ) := by rw [hfZ]; exact he2
+      exact_mod_cast this
+    · rw [hfZ]
+      by_cases hm0 : 0 ≤ m
+      · have hmm : m % (L : ℤ) = m := Int.emod_eq_of_lt hm0 (by linarith)
+        rw [hmm, if_pos (by linarith)]
+      · have hm0' : m < 0 := not_le.mp hm0
+        have hmm : m % (L : ℤ) = m + (L : ℤ) := by
+          rw [← Int.add_emod_right m (L : ℤ), Int.emod_eq_of_lt (by linarith) (by linarith)]
+        rw [hmm, if_neg (by linarith)]; ring
+    · rw [hfZ]
+      exact ⟨-(m / (L : ℤ)), by linear_combination Int.ediv_add_emod m (L : ℤ)⟩
+  refine ⟨(Finset.Icc (-N) N).image (fun m => (m % (L : ℤ)).toNat),
+    fun h => if 2 * (h : ℤ) < (L : ℤ) then (h : ℤ) else (h : ℤ) - (L : ℤ),
+    ?_, ?_, ?_, ?_, ?_⟩
+  · intro h hh
+    rw [Finset.mem_image] at hh
+    obtain ⟨m, hm, rfl⟩ := hh
+    rw [Finset.mem_Icc] at hm
+    exact Finset.mem_range.mpr (key m hm.1 hm.2).1
+  · intro h hh
+    rw [Finset.mem_image] at hh
+    obtain ⟨m, hm, rfl⟩ := hh
+    rw [Finset.mem_Icc] at hm ⊢
+    simp only []
+    rw [(key m hm.1 hm.2).2.1]
+    exact hm
+  · intro h1 hh1 h2 hh2 heq
+    rw [Finset.mem_image] at hh1 hh2
+    obtain ⟨m1, hm1, rfl⟩ := hh1
+    obtain ⟨m2, hm2, rfl⟩ := hh2
+    rw [Finset.mem_Icc] at hm1 hm2
+    have e1 := (key m1 hm1.1 hm1.2).2.1
+    have e2 := (key m2 hm2.1 hm2.2).2.1
+    have hm12 : m1 = m2 := e1.symm.trans (heq.trans e2)
+    rw [hm12]
+  · intro m hm
+    rw [Finset.mem_Icc] at hm
+    exact ⟨(m % (L : ℤ)).toNat,
+      Finset.mem_image_of_mem _ (Finset.mem_Icc.mpr hm), (key m hm.1 hm.2).2.1⟩
+  · intro h hh
+    rw [Finset.mem_image] at hh
+    obtain ⟨m, hm, rfl⟩ := hh
+    rw [Finset.mem_Icc] at hm
+    simp only []
+    rw [(key m hm.1 hm.2).2.1]
+    exact (key m hm.1 hm.2).2.2
+
 end CircleMethod
 
 end
