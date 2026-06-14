@@ -59,6 +59,42 @@ lemma gadget_nndist1_lower (r s : ℕ) (hr : Nat.Prime r) (hs : Nat.Prime s)
   rw [hsimp]
   linarith [hkeyR]
 
+/-- **Single-gadget damping factor.**  Under the sibling hypotheses, the gadget's
+Bernoulli character factor has norm `≤ √(1 − (8/9)/r²) < 1` (a constant `< 1`
+depending only on `r`).  Using `G` such gadgets per prime `r ∣ b` gives damping
+`(√(1−(8/9)/r²))^G → 0` (note 50 §4). -/
+lemma gadget_charFun_damp (r s : ℕ) (hr : Nat.Prime r) (hs : Nat.Prime s)
+    (hrs : r ≠ s) (θ : ℝ) (hθlb : 1/3 ≤ θ) (hθub : θ ≤ 2/3)
+    (h : ℕ) (m : ℤ)
+    (hm_s : (h : ZMod s) = (m : ZMod s)) (hm_r : (h : ZMod r) ≠ (m : ZMod r))
+    (hm_small : 2 * |m| < (s : ℤ)) :
+    ‖bernoulliCharFun θ ((h : ℝ) / ((r : ℝ) * (s : ℝ)))‖
+      ≤ Real.sqrt (1 - (8/9) / (r : ℝ)^2) := by
+  set t : ℝ := (h : ℝ) / ((r : ℝ) * (s : ℝ)) with ht
+  have hr0 : (0 : ℝ) < (r : ℝ) := by exact_mod_cast hr.pos
+  have hnd : 1 / (2 * (r : ℝ)) ≤ GlobalControl.nndist1 t :=
+    gadget_nndist1_lower r s hr hs hrs h m hm_s hm_r hm_small
+  -- sin²(πt) ≥ 1/r²
+  have hsin : (1 : ℝ) / (r : ℝ)^2 ≤ Real.sin (Real.pi * t)^2 := by
+    have h4 := sin_sq_pi_ge_four_nndist_sq t
+    have hnd2 : (1 / (2 * (r : ℝ)))^2 ≤ (GlobalControl.nndist1 t)^2 :=
+      pow_le_pow_left₀ (by positivity) hnd 2
+    have heq : (1 : ℝ) / (r : ℝ)^2 = 4 * (1 / (2 * (r : ℝ)))^2 := by field_simp; ring
+    rw [heq]; nlinarith [h4, hnd2]
+  -- normSq ≤ 1 - (8/9)/r²
+  have hnsq : Complex.normSq (bernoulliCharFun θ t) ≤ 1 - (8/9) / (r : ℝ)^2 := by
+    have hb := bernoulliCharFun_normSq_le (1/3) θ t (by norm_num) (by norm_num)
+      hθlb (by linarith)
+    have hcoef : 4 * (1/3 : ℝ) * (1 - 1/3) = 8/9 := by norm_num
+    rw [hcoef] at hb
+    have hscaled : (8/9 : ℝ) * (1/(r : ℝ)^2) ≤ (8/9) * Real.sin (Real.pi * t)^2 :=
+      mul_le_mul_of_nonneg_left hsin (by norm_num)
+    have hdiv : (8/9 : ℝ) / (r : ℝ)^2 = (8/9) * (1/(r : ℝ)^2) := by ring
+    rw [hdiv]; linarith [hb, hscaled]
+  -- ‖·‖ = √normSq ≤ √(…)
+  rw [Complex.norm_def]
+  exact Real.sqrt_le_sqrt hnsq
+
 end CircleMethod
 
 end
