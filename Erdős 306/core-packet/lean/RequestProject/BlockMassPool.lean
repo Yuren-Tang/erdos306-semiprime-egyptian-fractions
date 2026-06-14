@@ -160,6 +160,37 @@ Generic greedy window: from a finite set `P` of positive naturals whose
 reciprocal load reaches `target`, with every individual reciprocal below `gap`,
 one can select a subset whose reciprocal load lands in `[target, target+gap]`.
 -/
+lemma exists_subset_recip_window_strict_upper (P : Finset ℕ) (target gap : ℝ)
+    (htarget : 0 ≤ target) (hgap : 0 < gap)
+    (hsmall : ∀ e ∈ P, (1 : ℝ) / (e : ℝ) < gap)
+    (hsum : target ≤ ∑ e ∈ P, (1 : ℝ) / (e : ℝ)) :
+    ∃ Q : Finset ℕ, Q ⊆ P ∧
+      target ≤ ∑ e ∈ Q, (1 : ℝ) / (e : ℝ) ∧
+      ∑ e ∈ Q, (1 : ℝ) / (e : ℝ) < target + gap := by
+  classical
+  obtain ⟨Q, hQ⟩ : ∃ Q : Finset ℕ, Q ⊆ P ∧
+      (∑ e ∈ Q, (1 : ℝ) / (e : ℝ)) ≥ target ∧
+      ∀ S ⊂ Q, (∑ e ∈ S, (1 : ℝ) / (e : ℝ)) < target := by
+    have h_well_ordering : ∃ Q ∈ {S : Finset ℕ | S ⊆ P ∧ (∑ e ∈ S, (1 : ℝ) / (e : ℝ)) ≥ target},
+        ∀ T ∈ {S : Finset ℕ | S ⊆ P ∧ (∑ e ∈ S, (1 : ℝ) / (e : ℝ)) ≥ target}, Q.card ≤ T.card := by
+      apply_rules [Set.exists_min_image]
+      · exact Set.finite_iff_bddAbove.mpr ⟨P, fun S hS => Finset.le_iff_subset.mpr hS.1⟩
+      · exact ⟨P, Finset.Subset.refl _, hsum⟩
+    obtain ⟨Q, hQ₁, hQ₂⟩ := h_well_ordering
+    exact ⟨Q, hQ₁.1, hQ₁.2, fun S hS =>
+      not_le.mp fun hS' =>
+        not_lt_of_ge
+          (hQ₂ S ⟨Finset.Subset.trans hS.1 hQ₁.1, hS'⟩)
+          (Finset.card_lt_card hS)⟩
+  rcases Q.eq_empty_or_nonempty with rfl | ⟨x, hx⟩
+  · simp_all +decide [Finset.subset_iff]
+    exact ⟨∅, by norm_num, by linarith, by linarith⟩
+  · refine ⟨Q, hQ.1, hQ.2.1, ?_⟩
+    have hprev := hQ.2.2 (Q.erase x) (Finset.erase_ssubset hx)
+    rw [Finset.sum_erase_eq_sub hx] at hprev
+    have hxP : x ∈ P := hQ.1 hx
+    linarith [hsmall x hxP]
+
 lemma exists_subset_recip_window (P : Finset ℕ) (target gap : ℝ)
     (htarget : 0 ≤ target) (hgap : 0 < gap)
     (hsmall : ∀ e ∈ P, (1 : ℝ) / (e : ℝ) < gap)
@@ -167,16 +198,27 @@ lemma exists_subset_recip_window (P : Finset ℕ) (target gap : ℝ)
     ∃ Q : Finset ℕ, Q ⊆ P ∧
       target ≤ ∑ e ∈ Q, (1 : ℝ) / (e : ℝ) ∧
       ∑ e ∈ Q, (1 : ℝ) / (e : ℝ) ≤ target + gap := by
-  -- By the well-ordering principle, there exists a minimal subset $Q$ of $P$ such that $\sum_{e \in Q} \frac{1}{e} \geq target$.
-  obtain ⟨Q, hQ⟩ : ∃ Q : Finset ℕ, Q ⊆ P ∧ (∑ e ∈ Q, (1 : ℝ) / e) ≥ target ∧ ∀ S ⊂ Q, (∑ e ∈ S, (1 : ℝ) / e) < target := by
-    have h_well_ordering : ∃ Q ∈ {S : Finset ℕ | S ⊆ P ∧ (∑ e ∈ S, (1 : ℝ) / e) ≥ target}, ∀ T ∈ {S : Finset ℕ | S ⊆ P ∧ (∑ e ∈ S, (1 : ℝ) / e) ≥ target}, Q.card ≤ T.card := by
-      apply_rules [ Set.exists_min_image ];
-      · exact Set.finite_iff_bddAbove.mpr ⟨ P, fun S hS => Finset.le_iff_subset.mpr hS.1 ⟩;
-      · exact ⟨ P, Finset.Subset.refl _, hsum ⟩;
-    obtain ⟨ Q, hQ₁, hQ₂ ⟩ := h_well_ordering; exact ⟨ Q, hQ₁.1, hQ₁.2, fun S hS => not_le.1 fun hS' => not_lt_of_ge ( hQ₂ S ⟨ Finset.Subset.trans hS.1 hQ₁.1, hS' ⟩ ) ( Finset.card_lt_card hS ) ⟩ ;
-  rcases Q.eq_empty_or_nonempty with ( rfl | ⟨ x, hx ⟩ ) <;> simp_all +decide [ Finset.subset_iff ];
-  · exact ⟨ ∅, by norm_num, by norm_num; linarith, by norm_num; linarith ⟩;
-  · exact ⟨ Q, hQ.1, hQ.2.1, by have := hQ.2.2 ( Q.erase x ) ( Finset.erase_ssubset hx ) ; rw [ Finset.sum_erase_eq_sub hx ] at this; linarith [ hsmall x ( hQ.1 hx ) ] ⟩
+  obtain ⟨Q, hQP, hQlo, hQhi⟩ :=
+    exists_subset_recip_window_strict_upper P target gap htarget hgap hsmall hsum
+  exact ⟨Q, hQP, hQlo, le_of_lt hQhi⟩
+
+/-- Residual version of the greedy window.  A fixed base load has already been
+spent by control and gadget edges; choose a subset whose additional load makes
+the total land in `[lo, hi)` strictly. -/
+lemma exists_subset_recip_residual_window (P : Finset ℕ) (base lo hi gap : ℝ)
+    (hlo : base ≤ lo) (hgap_eq : gap = hi - lo) (hgap : 0 < gap)
+    (hsmall : ∀ e ∈ P, (1 : ℝ) / (e : ℝ) < gap)
+    (hsum : lo - base ≤ ∑ e ∈ P, (1 : ℝ) / (e : ℝ)) :
+    ∃ Q : Finset ℕ, Q ⊆ P ∧
+      lo ≤ base + ∑ e ∈ Q, (1 : ℝ) / (e : ℝ) ∧
+      base + ∑ e ∈ Q, (1 : ℝ) / (e : ℝ) < hi := by
+  have htarget : 0 ≤ lo - base := sub_nonneg.mpr hlo
+  obtain ⟨Q, hQP, hQlo, hQhi⟩ :=
+    exists_subset_recip_window_strict_upper P (lo - base) gap htarget hgap hsmall hsum
+  refine ⟨Q, hQP, ?_, ?_⟩
+  · linarith
+  · rw [hgap_eq] at hQhi
+    linarith
 
 /-! ## T3 — the block-aligned mass batch -/
 

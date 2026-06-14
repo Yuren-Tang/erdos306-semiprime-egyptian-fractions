@@ -162,7 +162,7 @@ For the final `hbound`, the upper inequality should preferably be strict.  The
 generic greedy proof already has the ingredients for a strict variant:
 
 ```lean
-lemma exists_subset_recip_window_strict_upper ...
+CircleMethod.exists_subset_recip_window_strict_upper
 ```
 
 with conclusion:
@@ -238,6 +238,19 @@ loadE < 1.
 ```
 
 This avoids the equality obstruction when `b = 3`.
+
+Lean status: this strict variant is now proved in `BlockMassPool.lean`, together
+with the residual wrapper:
+
+```lean
+CircleMethod.exists_subset_recip_residual_window
+```
+
+Both build with standard axioms only:
+
+```text
+[propext, Classical.choice, Quot.sound]
+```
 
 ### Main-Arc Fields
 
