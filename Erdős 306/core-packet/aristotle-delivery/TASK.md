@@ -1,9 +1,9 @@
 # Aristotle delivery — current task
 
-**CURRENT TASK = `ACTIVE_PROMPT.md`: R2-mass — the block-aligned mass batch
-(T1 S₂ tail, T2 product-load ≥ 1/2, T3 greedy window) extending
-`RequestProject/BlockMassPool.lean`.** (Note 49's extra-energy minor arc was
-already integrated; do not redo it.)
+**CURRENT TASK = `ACTIVE_PROMPT.md`: create the R2 assembly skeleton from note 52
+in a new leaf `RequestProject/R2AssemblySkeleton.lean`.** The R2-mass batch and
+note-49 extra-energy minor-arc interface are already integrated; do not redo
+them.
 
 Work in this folder as the Lake project root.  The Lean package is already in
 the expected layout:
@@ -34,19 +34,24 @@ The current R2 foundation includes:
 - `RequestProject.ArcConstructionExtra`, with support split definitions,
   `edgePrimeSupport_ctrlEdges_subset_blockSupport`, period divisibility helpers,
   and `blockSupport_frequency_fiber_card_le`;
+- `RequestProject.BlockMassPool`, with `exists_blockAligned_mass_batch`;
+- `RequestProject.ExtraEnergyMinorArc`, with `minor_arc_bound_fiber_tail`;
+- `RequestProject.ExtraMinorDamping`, with `gadget_charFun_damp`;
 - `lake build RequestProject.ArcConstructionExtra` green in the warm build
   project;
 - key new endpoints depending only on standard axioms
   `[propext, Classical.choice, Quot.sound]`.
 
-## Immediate target: note 49
+## Immediate target: note 52
 
 Use `ACTIVE_PROMPT.md` as the direct instruction.  Create
-`RequestProject/ExtraEnergyMinorArc.lean` and prove:
+`RequestProject/R2AssemblySkeleton.lean` and prove the first assembly
+bookkeeping layer:
 
-1. `minor_energy_sum_le_fiber_tail`;
-2. if possible, `minor_arc_bound_fiber_tail`.
+1. gadget edge definitions and support/semiprime/divisibility lemmas;
+2. union edge-set bookkeeping for `ctrlEdges ∪ Q ∪ gadgetEdges`;
+3. if possible, a block-minor wrapper around `minor_arc_bound_fiber_tail`.
 
 Do not attempt `CircleMethod.exists_arcConstruction` directly in this round.
-Keep the file sorry-free if possible; if Target 2 is too slow, return Target 1
-green with a precise explanation.
+Keep the file sorry-free if possible; if the block-minor wrapper is too large,
+return the gadget/union bookkeeping green with a precise explanation.

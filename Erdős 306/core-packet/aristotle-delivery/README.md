@@ -32,7 +32,7 @@ rebuild that file normally.
 ## Active Task
 
 Read `TASK.md` first, then `ACTIVE_PROMPT.md`.  The current active mathematical
-instruction is note `49 R2 Extra-Energy Minor Arc Interface Task.md`, with notes
-46 and 48 as the surrounding proof map.  The former note-47 support task has
-already been completed locally and is included here only as context.  The latest
-machine-generated status is recorded in `ARISTOTLE_SUMMARY.md`.
+instruction is note `52 R2 Assembly Skeleton Next Task.md`, with notes 50 and 51
+as the surrounding proof map.  The former note-47, note-49, and R2-mass tasks
+have already been completed locally and are included here only as context.  The
+latest machine-generated status is recorded in `ARISTOTLE_SUMMARY.md`.
