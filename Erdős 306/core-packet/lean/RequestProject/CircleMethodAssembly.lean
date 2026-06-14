@@ -62,6 +62,47 @@ lemma wcount_pos_of_split
   exact positivity_from_arcs L hL (Wcount E theta b) main (Bm + Bi) minorSum
     hident hmainpos' hminorbnd hbeat'
 
+/-- **C5 full assembly (b ≥ 2).**  From a circle-method construction — semiprime
+edges `E` avoiding `T` with weights `θ ∈ [1/3,2/3]`, exact mass `∑θ_e/e = 1/b`, a
+common period `L`, the main-arc label bijection (CRT/periodicity), the main-arc
+smallness conditions, and a minor-arc bound `Bm` beaten by the Gaussian main term
+`c₃/σ_E` — the deterministic weighted count is strictly positive.  This is the
+verified circle-method core: main arc (`main_sum_re_lower`, real by
+`main_sum_im_zero`) beats minor arc, via `wcount_pos_of_split`. -/
+theorem exists_pos_weighted_of_construction
+    (T : Finset ℕ) (b : ℕ) (hb : 2 ≤ b)
+    (E : Finset ℕ) (theta : ℕ → ℝ) (L : ℕ) (N : ℤ) (SM Sm : Finset ℕ) (lbl : ℕ → ℤ)
+    (Bm : ℝ)
+    (hsemi : ∀ e ∈ E, IsSemiprime e) (havoid : ∀ e ∈ E, e ∉ T)
+    (hne : E.Nonempty) (hL : 0 < L) (hbL : b ∣ L) (heL : ∀ e ∈ E, e ∣ L)
+    (he0 : ∀ e ∈ E, 0 < e) (hbound : (∑ e ∈ E, (L / e : ℕ)) < L)
+    (hlb : ∀ e ∈ E, 1/3 ≤ theta e) (hub : ∀ e ∈ E, theta e ≤ 2/3)
+    (hmass : (∑ e ∈ E, theta e / (e : ℝ)) = 1 / (b : ℝ))
+    (hpart : Finset.range L = SM ∪ Sm) (hdisj : Disjoint SM Sm)
+    (hN : (1:ℝ) / Real.sqrt (sigmaE2 E theta) ≤ (N:ℝ))
+    (htw : ∀ m ∈ Finset.Icc (-N) N, ∀ e ∈ E, |(m : ℝ) / (e : ℝ)| ≤ 1/10)
+    (hsmall : ∀ m ∈ Finset.Icc (-N) N, (∑ e ∈ E, 100000 * |(m:ℝ)/(e:ℝ)|^3) ≤ 1/10)
+    (hmaps : ∀ h ∈ SM, lbl h ∈ Finset.Icc (-N) N)
+    (hinj : ∀ h₁ ∈ SM, ∀ h₂ ∈ SM, lbl h₁ = lbl h₂ → h₁ = h₂)
+    (hsurj : ∀ m ∈ Finset.Icc (-N) N, ∃ h ∈ SM, lbl h = m)
+    (hterm : ∀ h ∈ SM, fourierTerm E theta b L h = term_label E theta b (lbl h))
+    (hminor : ‖∑ h ∈ Sm, fourierTerm E theta b L h‖ ≤ Bm)
+    (hbeat : Bm < 0.8 * (Real.exp (-(Real.pi^2/2)) / 2) / Real.sqrt (sigmaE2 E theta)) :
+    0 < Wcount E theta b := by
+  have hσ2pos : 0 < sigmaE2 E theta := sigmaE2_pos E theta hne he0 hlb hub
+  have hσpos : 0 < Real.sqrt (sigmaE2 E theta) := Real.sqrt_pos.mpr hσ2pos
+  set mainPos : ℝ := 0.8 * (Real.exp (-(Real.pi^2/2)) / 2) / Real.sqrt (sigmaE2 E theta)
+    with hmainPosDef
+  have hmainPos : 0 < mainPos := by
+    rw [hmainPosDef]; positivity
+  have hmain_re : mainPos ≤ (∑ h ∈ SM, fourierTerm E theta b L h).re :=
+    main_sum_re_lower E theta b L N SM lbl hne he0 hlb hub hmass hN htw hsmall
+      hmaps hinj hsurj hterm
+  have hmain_im : |(∑ h ∈ SM, fourierTerm E theta b L h).im| ≤ 0 := by
+    rw [main_sum_im_zero E theta b L N SM lbl hmaps hinj hsurj hterm, abs_zero]
+  exact wcount_pos_of_split E theta b L hb hL hbL heL he0 hbound SM Sm hpart hdisj
+    mainPos Bm 0 hmainPos hmain_re hminor hmain_im (by linarith [hbeat])
+
 end CircleMethod
 
 end
