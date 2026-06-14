@@ -86,6 +86,96 @@ lemma QE_ge_Qctrl (BS : BlockSystem) (E : Finset ℕ) (hsub : ctrlEdges BS ⊆ E
         unfold QE
         exact Finset.sum_le_sum_of_subset_of_nonneg hsub (fun e _ _ => by positivity)
 
+set_option maxHeartbeats 4000000 in
+/-- **Bounded-multiplicity minor energy reindex.**  Generalizes
+`minor_energy_sum_le`: if the frequency-to-assignment map `h ↦ (h mod p)_p` is at
+most `M`-to-1 on `Sm` (instead of injective), the energy sum is bounded by `M` times
+the off-main-arc control sum.  This is needed because the construction's period
+`L = ∏ P_E` makes the map over `blockSupport` exactly `b`-to-1 (the `b`-primes and
+gadget primes are not in the blocks). -/
+lemma minor_energy_sum_le_mult (BS : BlockSystem) (E : Finset ℕ) (c C : ℝ) (Sm : Finset ℕ)
+    (M : ℕ) (hc : 0 ≤ c)
+    (hQE : ∀ h ∈ Sm, Qctrl BS (fun p => ((h : ZMod p.1))) ≤ QE E h)
+    (hnotmain : ∀ h ∈ Sm,
+      (fun p => ((h : ZMod p.1)) : GlobalAssignment BS) ∉ mainArc BS C)
+    (hmult : ∀ a : GlobalAssignment BS,
+      ((Sm.filter (fun h => (fun p => ((h : ZMod p.1)) : GlobalAssignment BS) = a)).card : ℝ)
+        ≤ (M : ℝ)) :
+    ∑ h ∈ Sm, Real.exp (-c * QE E h) ≤
+      (M : ℝ) * ∑' a : {a : GlobalAssignment BS // a ∉ mainArc BS C},
+        Real.exp (-c * Qctrl BS a.1) := by
+  classical
+  set af : ℕ → GlobalAssignment BS := fun h => (fun p => ((h : ZMod p.1))) with haf
+  rw [fintype_subtype_tsum_eq (fun a => a ∉ mainArc BS C)
+    (fun a => Real.exp (-c * Qctrl BS a))]
+  have step1 : ∑ h ∈ Sm, Real.exp (-c * QE E h)
+      ≤ ∑ h ∈ Sm, Real.exp (-c * Qctrl BS (af h)) :=
+    Finset.sum_le_sum (fun h hh => Real.exp_le_exp.mpr (by nlinarith [hQE h hh, hc]))
+  refine le_trans step1 ?_
+  have hmaps : ∀ h ∈ Sm, af h ∈ Sm.image af := fun h hh => Finset.mem_image_of_mem af hh
+  rw [← Finset.sum_fiberwise_of_maps_to' hmaps (fun a => Real.exp (-c * Qctrl BS a))]
+  calc ∑ j ∈ Sm.image af, ∑ _h ∈ Sm.filter (fun h => af h = j),
+          Real.exp (-c * Qctrl BS j)
+      ≤ ∑ j ∈ Sm.image af, (M : ℝ) * Real.exp (-c * Qctrl BS j) := by
+        refine Finset.sum_le_sum (fun j _ => ?_)
+        rw [Finset.sum_const, nsmul_eq_mul]
+        exact mul_le_mul_of_nonneg_right (hmult j) (Real.exp_nonneg _)
+    _ = (M : ℝ) * ∑ j ∈ Sm.image af, Real.exp (-c * Qctrl BS j) := by rw [Finset.mul_sum]
+    _ ≤ (M : ℝ) * ∑ j ∈ Finset.univ.filter (fun a => a ∉ mainArc BS C),
+          Real.exp (-c * Qctrl BS j) := by
+        refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+        refine Finset.sum_le_sum_of_subset_of_nonneg ?_ (fun a _ _ => Real.exp_nonneg _)
+        intro a ha
+        rw [Finset.mem_image] at ha
+        obtain ⟨h, hh, rfl⟩ := ha
+        exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, hnotmain h hh⟩
+
+set_option maxHeartbeats 4000000 in
+/-- **Bounded-multiplicity minor-arc bound.**  Like `minor_arc_bound`, but the
+frequency map need only be `≤ M`-to-1 (hypothesis `hmult`); the bound then carries a
+factor `M`.  This is the version the block-aligned construction can satisfy. -/
+theorem minor_arc_bound_mult (eps : ℝ) (heps : 0 < eps) :
+    ∀ η : ℝ, 0 < η →
+    ∃ (k0min : ℕ) (Ctail : ℝ), 0 < Ctail ∧
+      ∀ (BS : BlockSystem), k0min ≤ BS.k0 → admissibleGlobalRange BS →
+      ∀ (C : ℝ), 1 ≤ C →
+      ∀ (E : Finset ℕ) (theta : ℕ → ℝ) (b L : ℕ) (Sm : Finset ℕ) (M : ℕ),
+      (∀ e ∈ E, (1 / 3 : ℝ) ≤ theta e) → (∀ e ∈ E, theta e ≤ 2 / 3) →
+      (∀ e ∈ E, e ∣ L) → (∀ e ∈ E, 0 < e) → 0 < L →
+      (∀ h ∈ Sm, Qctrl BS (fun p => ((h : ZMod p.1))) ≤ QE E h) →
+      (∀ h ∈ Sm, (fun p => ((h : ZMod p.1)) : GlobalAssignment BS) ∉ mainArc BS C) →
+      (∀ a : GlobalAssignment BS,
+        ((Sm.filter (fun h => (fun p => ((h : ZMod p.1)) : GlobalAssignment BS) = a)).card : ℝ)
+          ≤ (M : ℝ)) →
+      ‖∑ h ∈ Sm,
+          (∏ e ∈ E, ((theta e : ℂ) *
+              Complex.exp (2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+              + (1 - theta e)))
+          * Complex.exp (-(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ)))‖
+        ≤ (M : ℝ) * (η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl BS := by
+  intro η hη
+  obtain ⟨k0min, Ctail, hCtail, hgcp⟩ :=
+    global_control_partition_final (16 / 9) (by norm_num) eps heps η hη
+  refine ⟨k0min, Ctail, hCtail, ?_⟩
+  intro BS hk0 hadm C hC E theta b L Sm M hlb hub heL he0 hL hQE hnotmain hmult
+  have hconst : (8 * (1 / 3 : ℝ) * (1 - 1 / 3)) = 16 / 9 := by norm_num
+  calc ‖∑ h ∈ Sm,
+          (∏ e ∈ E, ((theta e : ℂ) *
+              Complex.exp (2 * Real.pi * Complex.I * (h : ℂ) * ((L / e : ℕ) : ℂ) / (L : ℂ))
+              + (1 - theta e)))
+          * Complex.exp (-(2 * Real.pi * Complex.I * (h : ℂ) * ((L / b : ℕ) : ℂ) / (L : ℂ)))‖
+      ≤ ∑ h ∈ Sm, Real.exp (-(8 * (1 / 3 : ℝ) * (1 - 1 / 3)) * QE E h) :=
+        minor_arc_norm_le (1 / 3) (by norm_num) (by norm_num) E theta b L
+          hlb (by intro e he; have := hub e he; linarith) heL he0 hL Sm
+    _ = ∑ h ∈ Sm, Real.exp (-(16 / 9 : ℝ) * QE E h) := by rw [hconst]
+    _ ≤ (M : ℝ) * ∑' a : {a : GlobalAssignment BS // a ∉ mainArc BS C},
+          Real.exp (-(16 / 9 : ℝ) * Qctrl BS a.1) :=
+        minor_energy_sum_le_mult BS E (16 / 9) C Sm M (by norm_num) hQE hnotmain hmult
+    _ ≤ (M : ℝ) * ((η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl BS) :=
+        mul_le_mul_of_nonneg_left (hgcp BS hk0 hadm C hC) (by positivity)
+    _ = (M : ℝ) * (η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl BS := by
+        ring
+
 end CircleMethod
 
 end
