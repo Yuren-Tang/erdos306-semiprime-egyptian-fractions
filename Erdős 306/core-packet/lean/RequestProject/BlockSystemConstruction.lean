@@ -30,6 +30,25 @@ available in Mathlib (cf. the `PrimeNumberTheoremAnd` project). -/
 axiom dyadic_prime_density (k : ℕ) (hk : 5 ≤ k) :
     (2 ^ k : ℝ) / (2 * Real.log (2 ^ k)) ≤ ((dyadicBlock k).card : ℝ)
 
+/-- **Dyadic Mertens lower bound** (classical input for R2 block-aligned mass —
+*named, not proved*).
+
+By Mertens' theorem (`∑_{p≤x} 1/p = log log x + B + o(1)`), the reciprocal sum
+over a single dyadic block is
+`∑_{p∈[2ᵏ,2ᵏ⁺¹)} 1/p = log log 2ᵏ⁺¹ − log log 2ᵏ + o(1) ≈ 1/k`.  We record the
+honest lower bound `∑_{p∈block k} 1/p ≥ 1/(2k)` for `k ≥ 5` (constant `c₀=1/2`,
+comfortably below the true `≈1/k`).  This is **strictly stronger** than what the
+prime-*count* axiom `dyadic_prime_density` yields by worst-case bounding (which
+only gives `≈1/(4k log 2)` and is too weak — see note 50 §2).  It is needed so
+that the block-aligned mass over `[2^{k₀},2^{3k₀}]` reaches the common-θ window
+`[3/(2b),3/b]` for squarefree `b ≥ 3` (product-load `≈ (log 3)²/2 ≈ 0.60`).
+
+Provenance: Rosser–Schoenfeld (1962) / Mertens; same status as
+`dyadic_prime_density`, to be discharged once Mertens-level estimates upstream to
+Mathlib. -/
+axiom dyadic_mertens_lower (k : ℕ) (hk : 5 ≤ k) :
+    (1 : ℝ) / (2 * (k : ℝ)) ≤ ∑ p ∈ dyadicBlock k, (1 : ℝ) / (p : ℝ)
+
 /-- **R2 (a): block-system existence.**  For every target `k₀min` there is a
 `BlockSystem` with `k₀min ≤ k₀` and `admissibleGlobalRange`, namely the dyadic
 prime blocks with `K = 2·k₀`.  All fields are elementary except `hdensity`, supplied

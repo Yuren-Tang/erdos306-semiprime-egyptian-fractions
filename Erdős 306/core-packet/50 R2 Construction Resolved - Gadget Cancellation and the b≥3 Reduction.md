@@ -63,10 +63,35 @@ This needs block-aligned mass to reach the common-θ load window
 under `admissibleGlobalRange` (`k0 ≤ k ≤ K=3k0`) is
 $$\sum_{\substack{p<q\\ \text{block primes}}}\frac1{pq}
   \approx\tfrac12\Big(\sum_{p}\tfrac1p\Big)^2
-  \approx\tfrac12(\log3)^2\approx0.60.$$
-For `b≥3`, `3/(2b)≤0.5≤0.60`, so a greedy subset hits the window. **For `b=2`
-the window is `[0.75,1.5]` and `0.60<0.75`: block-aligned mass is provably
-insufficient.**
+  \approx\tfrac12(\log3)^2\approx0.60,$$
+**using the true Mertens value** `∑_{p∈[2^{k0},2^{3k0}]} 1/p ≈ log 3 ≈ 1.10`.
+For `b≥3`, `3/(2b)≤0.5≤0.60`, so a greedy subset hits the window (`b=3` is
+tightest, `0.50<0.60`, margin `~0.10` for large `k0`). **For `b=2` the window is
+`[0.75,1.5]` and `0.60<0.75`: block-aligned mass is provably insufficient.**
+
+> **Correction / classical-input caveat.** The current Lean axiom
+> `dyadic_prime_density` bounds only the prime *count*
+> `(P k).card ≥ 2^k/(2 log 2^k)`. From the count alone the *worst-case*
+> `∑_{p∈block} 1/p ≥ card·2^{-(k+1)} ≈ 1/(4k log 2)` gives total `≈ 0.40` and
+> product-load only `≈ 0.08` — too small. The `0.60` figure needs the **dyadic
+> Mertens sum** `∑_{p∈[2^k,2^{k+1})} 1/p ≥ (1-o(1))/k`, a *second* classical
+> input (Rosser–Schoenfeld / Mertens by partial summation, the same provenance
+> as `dyadic_prime_density`). R2-mass must therefore introduce a named axiom
+> `dyadic_mertens_lower` (≈ `∑_{p∈block k} 1/p ≥ c₀/k`, `c₀` close to `1`)
+> alongside `dyadic_prime_density`, or `K=3k0` and `b=3` will fail. This does
+> **not** affect `b≥3` once that axiom is in place, since the product-load limit
+> `(\log 3)^2/2 ≈ 0.60 > 0.50` is a fixed constant `> 3/(2b)`.
+
+**Why block-alignment is forced (the fiber-tail `K` cannot absorb extra mass).**
+For *any* extra (non-block) prime `q` in a mass edge, the fiber-tail factor over
+`q` is `∑_{j mod q} exp(-c·(H/val)^2) ≈ q·∫e^{-cx²}dx ≈ 0.66 q`, since the phase
+`H/val` spreads roughly uniformly over `[-1/2,1/2]` as `j` ranges over `ZMod q`.
+So `K ≈ ∏_{extra primes}(0.66·q)` grows with *both* the number and size of extra
+primes. Substantial extra mass needs many or large extra primes ⟹ `K` explodes.
+Hence the only way to keep `K` a constant is `extraPrimeSupport = {primes of b}`
+(size `ω(b)`, `K = b`), i.e. **all mass primes must be block primes.** This is
+why the C1 window route (`2p`, small `p`) is unusable here despite proving exact
+mass: its primes are extra, so its `K` is astronomical.
 
 ## 3. The b = 2 reduction (sidestep the deficit)
 
@@ -140,8 +165,11 @@ and the C1 mass package `circle_method_edge_mass_package` (common-θ, exact mass
 
 **Remaining (real Lean work, design now fixed):**
 - **(R2-mass)** a *block-aligned* mass batch: products of two block primes,
-  reciprocal load in `[3/(2b),3/b]`, avoiding `T` and `ctrlEdges` (adapt
-  `MassBatch`/`exists_finset_primes_recip_between` to draw from `blockSupport`).
+  reciprocal load in `[3/(2b),3/b]`, avoiding `T` and `ctrlEdges` (adapt the
+  greedy `exists_finset_primes_recip_between` to draw from `blockSupport`).
+  **Requires** the named classical input `dyadic_mertens_lower`
+  (`∑_{p∈block k} 1/p ≥ c₀/k`) — *not* derivable from the count axiom alone;
+  add it next to `dyadic_prime_density` in `BlockSystemConstruction.lean`.
 - **(R2-extra-minor)** the new lemma of §4: `‖∑_{extra-minor} fourierTerm‖ ≤ c₃/(2σ)`
   via `G` gadgets — the genuinely new estimate (a CRT/product damping bound).
   This is note 46 §4's "extra-minor direct estimate", now with the explicit
