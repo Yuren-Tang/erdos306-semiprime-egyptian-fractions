@@ -142,33 +142,65 @@ structure ArcConstruction (T : Finset ℕ) (b : ℕ) where
   hminor : ‖∑ h ∈ Sm, fourierTerm E theta b L h‖ ≤ Bm
   hbeat : Bm < 0.8 * (Real.exp (-(Real.pi^2/2)) / 2) / Real.sqrt (sigmaE2 E theta)
 
-/-- **R2 (the remaining geometric construction gap).**  For squarefree `b ≥ 2`
+/-- **R2 (the remaining geometric construction gap).**  For squarefree `b ≥ 3`
 there is a block-aligned construction whose minor arc is beaten by the main term.
 This packages the C1 edge construction aligned to a block system (`E`-primes ⊆
-`blockSupport`, `ctrlPairs ⊆ E`), the CRT main-arc bijection, and the
-`σ_E ≍ σ_ctrl` / large-`k0,C` separation. -/
-theorem exists_arcConstruction (T : Finset ℕ) (b : ℕ) (hb : 2 ≤ b)
+`blockSupport`, `ctrlEdges ⊆ E`), the CRT main-arc bijection, and the
+`σ_E ≍ σ_ctrl` / large-`k0,C` separation.  (`b = 2` is handled separately by the
+`1/2 = 1/3 + 1/6` reduction; see note 50 §3 — block-aligned mass cannot reach the
+common-θ window for `b = 2`.) -/
+theorem exists_arcConstruction (T : Finset ℕ) (b : ℕ) (hb : 3 ≤ b)
     (hbsf : Squarefree b) : Nonempty (ArcConstruction T b) := by
   sorry
 
-/-- **C5 (b ≥ 2)**, assembled from the R2 construction via the verified analytic
+/-- **C5 (b ≥ 3)**, assembled from the R2 construction via the verified analytic
 core `exists_pos_weighted_of_construction`. -/
-theorem exists_pos_weighted_ge2 (T : Finset ℕ) (b : ℕ) (hb : 2 ≤ b)
+theorem exists_pos_weighted_ge3 (T : Finset ℕ) (b : ℕ) (hb : 3 ≤ b)
     (hbsf : Squarefree b) :
     ∃ (E : Finset ℕ) (theta : ℕ → ℝ),
       (∀ e ∈ E, IsSemiprime e) ∧ (∀ e ∈ E, e ∉ T) ∧ 0 < Wcount E theta b := by
   obtain ⟨c⟩ := exists_arcConstruction T b hb hbsf
   exact ⟨c.E, c.theta, c.hsemi, c.havoid,
-    exists_pos_weighted_of_construction T b hb c.E c.theta c.L c.N c.SM c.Sm c.lbl c.Bm
+    exists_pos_weighted_of_construction T b (le_trans (by norm_num) hb)
+      c.E c.theta c.L c.N c.SM c.Sm c.lbl c.Bm
       c.hsemi c.havoid c.hne c.hL c.hbL c.heL c.he0 c.hbound c.hlb c.hub c.hmass
       c.hpart c.hdisj c.hN c.htw c.hsmall c.hmaps c.hinj c.hsurj c.hterm c.hminor c.hbeat⟩
 
 /-- A semiprime Egyptian representation of `1/b` avoiding `T`, for squarefree
-`b ≥ 2` (positivity ⟹ extraction). -/
+`b ≥ 3` (positivity ⟹ extraction). -/
+theorem egyptian_rep_ge3 (T : Finset ℕ) (b : ℕ) (hb : 3 ≤ b) (hbsf : Squarefree b) :
+    HasEgyptianSemiprimeReprAvoiding T ((1:ℚ) / (b:ℚ)) := by
+  obtain ⟨E, theta, hsemi, hdisj, hW⟩ := exists_pos_weighted_ge3 T b hb hbsf
+  exact Wcount_pos_imp_repr T E theta b hsemi hdisj hW
+
+/-- **The `b = 2` reduction (note 50 §3).**  `1/2 = 1/3 + 1/6`; both `3` and `6`
+are squarefree `≥ 3`, so they get circle-method representations on cumulative
+obstruction sets, disjoint-unioned. -/
+theorem egyptian_rep_eq2 (T : Finset ℕ) :
+    HasEgyptianSemiprimeReprAvoiding T ((1:ℚ) / (2:ℚ)) := by
+  have sf6 : Squarefree 6 := by
+    show Squarefree (2 * 3)
+    rw [Nat.squarefree_mul_iff]
+    exact ⟨by norm_num, Nat.prime_two.squarefree, Nat.prime_three.squarefree⟩
+  obtain ⟨S3, hs3semi, hs3disj, hs3sum⟩ :=
+    egyptian_rep_ge3 T 3 (by norm_num) Nat.prime_three.squarefree
+  obtain ⟨S6, hs6semi, hs6disj, hs6sum⟩ :=
+    egyptian_rep_ge3 (T ∪ S3) 6 (by norm_num) sf6
+  obtain ⟨hs6T, hs6S3⟩ := Finset.disjoint_union_right.mp hs6disj
+  refine ⟨S3 ∪ S6, ?_, Finset.disjoint_union_left.mpr ⟨hs3disj, hs6T⟩, ?_⟩
+  · intro e he
+    rcases Finset.mem_union.mp he with h | h
+    · exact hs3semi e h
+    · exact hs6semi e h
+  · rw [Finset.sum_union hs6S3.symm, hs3sum, hs6sum]; norm_num
+
+/-- A semiprime Egyptian representation of `1/b` avoiding `T`, for squarefree
+`b ≥ 2`: `b = 2` via the `1/3 + 1/6` reduction, `b ≥ 3` via the circle method. -/
 theorem egyptian_rep_ge2 (T : Finset ℕ) (b : ℕ) (hb : 2 ≤ b) (hbsf : Squarefree b) :
     HasEgyptianSemiprimeReprAvoiding T ((1:ℚ) / (b:ℚ)) := by
-  obtain ⟨E, theta, hsemi, hdisj, hW⟩ := exists_pos_weighted_ge2 T b hb hbsf
-  exact Wcount_pos_imp_repr T E theta b hsemi hdisj hW
+  rcases Nat.eq_or_lt_of_le hb with hb2 | hb3
+  · rw [← hb2]; exact egyptian_rep_eq2 T
+  · exact egyptian_rep_ge3 T b hb3 hbsf
 
 /-- **The `b = 1` input, PROVED via `1 = 1/2 + 1/3 + 1/6`.**  Each `1/bᵢ`
 (`bᵢ ∈ {2,3,6}`, all squarefree `≥ 2`) gets a semiprime representation avoiding the
@@ -235,29 +267,20 @@ theorem exists_positive_weighted_construction_one (T : Finset ℕ) :
     · exact le_refl 0
   exact lt_of_lt_of_le hGterm (Finset.single_le_sum hnonneg hmem)
 
-/-- **C1–C4 (analytic heart), assembled.**  For squarefree `b > 0` and finite `T`,
-there are semiprime edges avoiding `T` with weights making `Wcount > 0`.  For
-`b ≥ 2` this is the verified circle-method assembly applied to the R2 construction;
-`b = 1` is the separate case. -/
-theorem exists_positive_weighted_construction
-    (T : Finset ℕ) (b : ℕ) (hb : 0 < b) (hbsf : Squarefree b) :
-    ∃ (E : Finset ℕ) (theta : ℕ → ℝ),
-      (∀ e ∈ E, IsSemiprime e) ∧ (∀ e ∈ E, e ∉ T) ∧
-      0 < Wcount E theta b := by
-  rcases Nat.lt_or_ge b 2 with hb1 | hb2
-  · have hb1' : b = 1 := by omega
-    subst hb1'
-    exact exists_positive_weighted_construction_one T
-  · exact exists_pos_weighted_ge2 T b hb2 hbsf
-
-/-- **C5 (positivity ⟹ representation).**  Assembles the analytic positivity with
-the extraction principle `Wcount_pos_imp_repr`. -/
+/-- **C5 (positivity ⟹ representation).**  For squarefree `b > 0` and finite `T`,
+`1/b` has a distinct-semiprime Egyptian representation avoiding `T`.  Dispatched by
+size: `b = 1` via the explicit `1 = 1/2 + 1/3 + 1/6` weighted construction; `b ≥ 2`
+via `egyptian_rep_ge2` (`b = 2` is the `1/3 + 1/6` reduction, `b ≥ 3` is the circle
+method on the R2 construction). -/
 theorem circle_method_positivity
     (T : Finset ℕ) (b : ℕ) (hb : 0 < b) (hbsf : Squarefree b) :
     HasEgyptianSemiprimeReprAvoiding T ((1 : ℚ) / (b : ℚ)) := by
-  obtain ⟨E, theta, hsemi, hdisj, hW⟩ :=
-    exists_positive_weighted_construction T b hb hbsf
-  exact Wcount_pos_imp_repr T E theta b hsemi hdisj hW
+  rcases Nat.lt_or_ge b 2 with hb1 | hb2
+  · have hb1' : b = 1 := by omega
+    subst hb1'
+    obtain ⟨E, theta, hsemi, hdisj, hW⟩ := exists_positive_weighted_construction_one T
+    exact Wcount_pos_imp_repr T E theta 1 hsemi hdisj hW
+  · exact egyptian_rep_ge2 T b hb2 hbsf
 
 end CircleMethod
 
