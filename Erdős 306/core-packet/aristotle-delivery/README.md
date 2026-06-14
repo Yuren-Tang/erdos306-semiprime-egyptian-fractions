@@ -32,6 +32,7 @@ rebuild that file normally.
 ## Active Task
 
 Read `TASK.md` first, then `ACTIVE_PROMPT.md`.  The current active mathematical
-instruction is note `40 G5 Endgame - Remaining Holes Quartered.md`, with notes
-38 and 39 as the surrounding proof map.  The latest machine-generated status is
-recorded in `ARISTOTLE_SUMMARY.md`.
+instruction is note `49 R2 Extra-Energy Minor Arc Interface Task.md`, with notes
+46 and 48 as the surrounding proof map.  The former note-47 support task has
+already been completed locally and is included here only as context.  The latest
+machine-generated status is recorded in `ARISTOTLE_SUMMARY.md`.

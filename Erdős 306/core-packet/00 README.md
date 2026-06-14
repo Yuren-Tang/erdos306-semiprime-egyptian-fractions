@@ -81,6 +81,8 @@ verification.
 35. [[35 Circle Method - Detailed Spec (Translation-Ready)]] — CP 01 deterministically restated: weighted count W, finite Fourier identity, Bernoulli bound (c=16/9, computed), main-arc Taylor (explicit errors), minor arc = G7, positivity ⟹ closes `fourier_positivity_unconditional`. One external input: Chebyshev block density.
 46. [[46 R2 Construction Design - Multiplicity Is Not Enough]] — current R2 design correction after the 2026-06-14 handoff: `exists_arcConstruction` is the remaining circle-method construction gap; pure block-aligned mass is numerically suspect under `K ≤ 3k0`, while out-of-block mass primes make the current `minor_arc_bound_mult` multiplicity too crude. Next honest task: strengthen the minor-arc interface to retain extra-edge `QE` damping, or prove a quantified multiplicity fixed point.
 47. [[47 R2 Extra Support Bookkeeping Task]] — bounded outsource task for Aristotle/another Codex: extend `ArcConstructionExtra.lean` with support monotonicity/union lemmas, control-edge support inside `blockSupport`, period divisibility helpers, and a fiber-count alias. This deliberately avoids the hard extra-energy minor-arc estimate.
+48. [[48 R2 Extra Support Bookkeeping Completed]] — note 47 is now completed locally and Lean-verified in `RequestProject.ArcConstructionExtra`: support monotonicity/union/insert, `edgePrimeSupport_ctrlEdges_subset_blockSupport`, period divisibility helpers, and `blockSupport_frequency_fiber_card_le` all build; key endpoints have standard axiom traces. The next frontier is the extra-energy minor-arc interface.
+49. [[49 R2 Extra-Energy Minor Arc Interface Task]] — next bounded Lean task: prove a `fiber-tail` replacement for `minor_energy_sum_le_mult`, then wrap it into `minor_arc_bound_fiber_tail`. This is the first real extra-energy interface needed to replace crude multiplicity in R2.
 41. [[41 G5 Cover Layer - Local Proof Memo]] — current local memo after the latest engineering pass: G5 data should use total-function shell/label Finsets matching `fiber`; the cover lemma is isolated as pure finite-union bookkeeping; remaining post-cover work is exactly initial-label cardinality, non-initial label-product absorption, and final constant absorption.
 40. [[40 G5 Endgame - Remaining Holes Quartered]] — **current binding G5 document**: the G5 monolith is quartered into small sub-lemmas. The hot-factor glue and much of the energy/cold/boundary support layer are now machine-verified; remaining work is concentrated in the data-Finset/covering layer, label-product numerics, and final G5 assembly. Three structural corrections vs note 38: no trivial-regime split needed; shell data must carry hot-consistency; initial segment label ranges over the `√R`-window `L0`, not `labelRange`.
 39. [[39 G5 Lean Skeleton - Twelve Named Holes]] — the G5 decomposition that broke the monolith deadlock: setup definitions (`isHot`/`coldLabel`/`boundarySet`/`segStart`/…) + twelve named holes with proof instructions. Skeleton instantiated and holes 1, 2, 4, 5, 7, 9, 11 + `hot_threshold` machine-verified.
@@ -98,12 +100,11 @@ verification.
 ## Aristotle delivery
 
 `aristotle-delivery/` is the stable, self-contained upload bundle (Lean package +
-`TASK.md` + latest notes). It has been refreshed to the latest recovery state:
-faithful finite `GlobalAssignment`, G2/G3, `mismatch_penalty_with_exceptions`,
-`GlobalPeierlsBookkeeping.lean`, and the note-40 support layer are present.
-Remaining named targets are G5, G7, and Phase C. For the next Aristotle round,
-upload this folder and use note **40** as the active G5 instruction, with notes
-38/39 as the surrounding proof map.
+`TASK.md` + latest notes). It has been refreshed to the R2 state around notes
+46–49, including `ArcConstructionExtra.lean` and `FiberCount.lean`. The former
+note-47 support task is now completed locally; do not send it as new work unless
+an independent duplicate check is desired. The next useful external task is note
+49: the extra-energy minor-arc interface.
 
 Lean-side work should use:
 
