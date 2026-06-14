@@ -1,52 +1,43 @@
-# ACTIVE TASK: close G5 — prove `global_levelset_final` (hrhs N5 assembly)
+# ACTIVE TASK: close `hrhs_final` (the last G5 residual) — see note 45
 
 ## DONE already — do NOT redo
-`g6_localization` (now in `RequestProject/GlobalControlG6.lean`) is COMPLETE and
-integrated. `GlobalControlSectorI.lean` is complete. The hrhs sub-lemmas N1–N4 in
-`RequestProject/GlobalControlG5Assembly.lean` (`pow_beats_poly_log`,
-`labelBound_charge_hot`, `label_product_le`, `fiber_card_exp_bound`, plus the
-frozen cover layer in `GlobalControlG5Data.lean`: `cover_card_le`, the 5
-admissibility facts, `hrhs_inner`, `global_levelset_route`) are PROVED. The ONLY
-remaining Phase-G sorry is `global_levelset` (G5).
+`global_levelset_final`, `cold_master`, `hadmL_final` are assembled and integrated
+(your previous round). The ONLY remaining sorry under `global_levelset_final` is
+`hrhs_final` in `RequestProject/GlobalControlG5Assembly.lean`. g6, Sector-I, the
+N1–N4 layer, and the cover/route layer are all proved.
 
-## Startup — DO NOT rebuild the verified core (follow ORDER)
-The upload typically DROPS the hidden `.lake/` dir — that is expected; the
-prebuilt oleans are shipped in `prebuilt-oleans.tar.gz` (a normal file that
-survives upload). Recreate `.lake` from it:
+## Startup (the upload drops `.lake`; restore it from the tar)
 1. `lake exe cache get`  (Mathlib only)
 2. if sources were flattened to repo root, move them back under `RequestProject/` FIRST
 3. `mkdir -p .lake/build/lib/lean && tar xzf prebuilt-oleans.tar.gz -C .lake/build/lib/lean/`
-   (creates `.lake/build/lib/lean/RequestProject/*.olean`; if `.lake` was dropped on
-   upload this RESTORES it, and it also refreshes olean mtimes so lake replays the
-   ~40-min verified core instead of rebuilding it)
-4. `lake build RequestProject.GlobalControlG5Assembly`  (should elaborate only your work)
+4. `lake build RequestProject.GlobalControlG5Assembly`
 
-## Work ONLY in the leaf `RequestProject/GlobalControlG5Assembly.lean`
-Do NOT edit `GlobalControl.lean`, `GlobalControlG5Data.lean`, `GlobalControlG6.lean`,
-`GlobalControlSectorI.lean`, `GlobalControlG7.lean`, `CircleMethod*.lean`.
+## Work ONLY in `RequestProject/GlobalControlG5Assembly.lean`
+(do NOT edit `GlobalControl.lean`, `GlobalControlG5Data.lean`, or the other files.)
 
-## Task: prove `global_levelset_final` (= the hrhs N5 assembly)
-State and prove, in namespace `GlobalControl`, a lemma with the EXACT signature of
-`GlobalControl.global_levelset` (copy it from `GlobalControl.lean` — the
-`∃ k0min A, 0 < A ∧ ∀ BS, k0min ≤ k0 → admissibleGlobalRange BS → ∀ R ≥ 1,
-ncard{a | Qctrl ≤ R} ≤ exp(A·numBlocks)·exp(8εR)·(1+√R/σ)` statement), named
-`global_levelset_final`, sorry-free. (We keep it in the leaf to avoid the cyclic
-import; G7 will be repointed to it.)
+## Task: close `hrhs_final` — read note `45 hrhs_final via Theorem-A (G5 last residual).md`
+Your own diagnosis was correct: the first-segment large label (`L0 ≈ √R/σ_{k0}`)
+breaks `fiber_card_exp_bound`'s `hlabsize`. **The fix is NOT new math** — it routes
+the first segment through the ALREADY-VERIFIED `theorem_A_dominant_count` /
+`fixed_label_count`:
 
-**Proof = N5 assembly** (note `42 hrhs Completion Spec for Aristotle.md`, the N5
-section, + notes 39/40 for the skeleton). Use the verified inputs:
-- `global_levelset_route` (GlobalControlG5Data) reduces the target to `hrhs`
-  (the ∑∑∑∑ fiber.card bound) + existential facts.
-- `hrhs` = the ε-budget assembly: per-block `fiber_card_le` + `hot_factor`/
-  `cold_factor` → `fiber_card_exp_bound` (N3, done); `label_product_le` (N4, done);
-  `labelBound_charge_hot` (N1, done); `shell_sum_bound`/`weighted_subset_entropy`
-  for the H- and B-sums; combine constants → `exp(A·numBlocks)`, budget 6ε ≤ 8ε.
-- **The first-segment subtlety (the N5 obstruction you flagged before):** the initial
-  segment (`segStart = k0`) label window is `L0 ≈ √R/σ_{k0}`, paid ONCE as the
-  `√R/σctrl` factor in the target (NOT block-by-block). Route it via
-  `sigmaCtrl_le_sigmaP_k0` (σctrl ≤ c_σ·k0·σ_{k0}, so `L0 = 7√R/σ_{k0} ≤
-  7 c_σ k0 · √R/σctrl`); the extra `k0` factor is absorbed into `exp(A·numBlocks)`
-  since `numBlocks ≥ k0` (admissible). This is bookkeeping, not new math.
+- **Key fact (note 45): the fixed-label fiber count is label-translation-invariant.**
+  For a *fixed* dominant label `m` of block `P_k`, the count of conforming
+  block-assignments does NOT depend on `|m|` (the bijection `a_p ↦ a_p + (m'-m)` on
+  the `(1-ρ)N_k` conforming primes). So the per-fiber bound `∏_k exp(2ε(v_k+1))`
+  holds for ANY `ℓ` — `hlabsize` is unnecessary. This is exactly the content of
+  `fixed_label_count` (the `theorem_A_dominant_count` component you already have,
+  proved for `|m| ≤ X²/2`).
+- **Plan:**
+  1. `fiber_card_exp_bound'` — re-prove `fiber_card_exp_bound` WITHOUT the
+     `hlabsize` hypothesis (cold blocks via `fixed_label_count` for any label; hot
+     blocks via `hot_factor` as before).
+  2. `hrhs_final` — re-run your `hrhs_inner` assembly with `fiber_card_exp_bound'`,
+     so the first-segment large label is admissible. The `√R/σctrl` slot comes from
+     `admLabels_card`'s initial window `L0` via `sigmaCtrl_le_sigmaP_k0`
+     (`σctrl ≤ c_σ·k0·σ_{k0}`); the `k0` factor folds into `exp(A·numBlocks)`
+     (admissible ⇒ `numBlocks ≥ k0`). NO regime split needed — one route for all `R`.
 
-If a sub-step genuinely resists, isolate it as ONE precisely-named `sorry` and close
-everything else; report the residual. Axiom-check `global_levelset_final`.
+If a step resists, isolate the SMALLEST precisely-named sorry and close the rest.
+Axiom-check `global_levelset_final` (should be sorry-free if `hrhs_final` closes).
+Keep it focused — this is the endgame.
