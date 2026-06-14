@@ -227,6 +227,51 @@ lemma main_re_lower (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (N : ℤ)
         rw [hgauss]
         exact term_label_re_lower E θ b m he0 hlb hub hmass (ht m hm) (hsmall m hm)
 
+/-- Conjugating a Bernoulli factor reflects the frequency: `conj φ_θ(t) = φ_θ(−t)`. -/
+lemma bernoulliCharFun_conj (θ t : ℝ) :
+    (starRingEnd ℂ) (bernoulliCharFun θ t) = bernoulliCharFun θ (-t) := by
+  unfold bernoulliCharFun
+  rw [map_add, map_mul, ← Complex.exp_conj]
+  congr 1
+  · rw [Complex.conj_ofReal]
+  · congr 1
+    · rw [Complex.conj_ofReal]
+    · congr 1
+      simp only [map_mul, map_neg, map_div₀, map_inv₀, Complex.conj_ofReal,
+        map_intCast, map_natCast, Complex.conj_I, map_ofNat]
+      push_cast; ring
+
+/-- **Conjugate symmetry** of the label term: `term_label(−m) = conj(term_label m)`.
+The Bernoulli factors and the target phase are each conjugated by `m ↦ −m`. -/
+lemma term_label_conj (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ) :
+    term_label E θ b (-m) = (starRingEnd ℂ) (term_label E θ b m) := by
+  unfold term_label
+  rw [map_mul, map_prod, ← Complex.exp_conj]
+  congr 1
+  · refine Finset.prod_congr rfl (fun e he => ?_)
+    rw [bernoulliCharFun_conj]
+    congr 1
+    push_cast; ring
+  · congr 1
+    simp only [map_mul, map_neg, map_div₀, map_inv₀, Complex.conj_ofReal,
+      map_intCast, map_natCast, Complex.conj_I, map_ofNat]
+    push_cast; ring
+
+/-- The diagonal main label sum over the symmetric window `[-N, N]` is **real**
+(`Im = 0`), by pairing `m` with `−m`. -/
+lemma term_label_sum_im_zero (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (N : ℤ) :
+    (∑ m ∈ Finset.Icc (-N) N, term_label E θ b m).im = 0 := by
+  rw [← Complex.conj_eq_iff_im]
+  rw [map_sum]
+  calc ∑ x ∈ Finset.Icc (-N) N, (starRingEnd ℂ) (term_label E θ b x)
+      = ∑ x ∈ Finset.Icc (-N) N, term_label E θ b (-x) :=
+        Finset.sum_congr rfl (fun x _ => (term_label_conj E θ b x).symm)
+    _ = ∑ x ∈ Finset.Icc (-N) N, term_label E θ b x := by
+        refine Finset.sum_equiv (Equiv.neg ℤ) ?_ ?_
+        · intro i; simp only [Equiv.neg_apply, Finset.mem_Icc, neg_le, le_neg]
+          omega
+        · intro i _; rfl
+
 /-- The Fourier-identity summand at frequency `h` (matches `wcount_fourier_identity`). -/
 def fourierTerm (E : Finset ℕ) (theta : ℕ → ℝ) (b L h : ℕ) : ℂ :=
   (∏ e ∈ E, ((theta e : ℂ) *
@@ -260,6 +305,25 @@ lemma main_sum_re_lower (E : Finset ℕ) (θ : ℕ → ℝ) (b L : ℕ) (N : ℤ
       (fun h _ => rfl)
   rw [hsum]
   exact main_re_lower E θ b N hne he0 hlb hub hmass hN htw hsmall
+
+/-- **R3 main-arc imaginary part vanishes.**  Under the same label bijection, the
+main-arc Fourier sum is real, so its imaginary part is `0` (note 44 L4: the `m ↔ −m`
+pairing). This removes the imaginary remainder from the arc separation. -/
+lemma main_sum_im_zero (E : Finset ℕ) (θ : ℕ → ℝ) (b L : ℕ) (N : ℤ) (SM : Finset ℕ)
+    (lbl : ℕ → ℤ)
+    (hmaps : ∀ h ∈ SM, lbl h ∈ Finset.Icc (-N) N)
+    (hinj : ∀ h₁ ∈ SM, ∀ h₂ ∈ SM, lbl h₁ = lbl h₂ → h₁ = h₂)
+    (hsurj : ∀ m ∈ Finset.Icc (-N) N, ∃ h ∈ SM, lbl h = m)
+    (hterm : ∀ h ∈ SM, fourierTerm E θ b L h = term_label E θ b (lbl h)) :
+    (∑ h ∈ SM, fourierTerm E θ b L h).im = 0 := by
+  have hsum : (∑ h ∈ SM, fourierTerm E θ b L h)
+      = ∑ m ∈ Finset.Icc (-N) N, term_label E θ b m := by
+    rw [Finset.sum_congr rfl hterm]
+    exact Finset.sum_bij (fun h _ => lbl h) hmaps hinj
+      (fun m hm => by obtain ⟨h, hh, he⟩ := hsurj m hm; exact ⟨h, hh, he⟩)
+      (fun h _ => rfl)
+  rw [hsum]
+  exact term_label_sum_im_zero E θ b N
 
 end CircleMethod
 
