@@ -152,6 +152,20 @@ lemma prod_eq_exp_sum_log {ι : Type*} (E : Finset ι) (f : ι → ℂ)
   rw [Complex.exp_sum]
   exact Finset.prod_congr rfl (fun e he => (Complex.exp_log (hf e he)).symm)
 
+/-- **L2 (generic): summed Bernoulli Taylor.** Summing `bernoulli_log_taylor` over
+any edge set with weights in `[1/3,2/3]` and `|t e| ≤ 1/10`. -/
+lemma sum_bernoulli_log_taylor {ι : Type*} (E : Finset ι) (θ t : ι → ℝ)
+    (hlb : ∀ e ∈ E, 1/3 ≤ θ e) (hub : ∀ e ∈ E, θ e ≤ 2/3)
+    (ht : ∀ e ∈ E, |t e| ≤ 1/10) :
+    ‖(∑ e ∈ E, Complex.log (bernoulliCharFun (θ e) (t e))) -
+        ∑ e ∈ E, (2*Real.pi*(θ e)*(t e)*Complex.I
+          - 2*Real.pi^2*(θ e)*(1-(θ e))*(t e)^2)‖
+      ≤ ∑ e ∈ E, 100000 * |t e|^3 := by
+  rw [← Finset.sum_sub_distrib]
+  refine le_trans (norm_sum_le _ _) ?_
+  exact Finset.sum_le_sum (fun e he =>
+    bernoulli_log_taylor (θ e) (t e) (hlb e he) (hub e he) (ht e he))
+
 end CircleMethod
 
 end
