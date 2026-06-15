@@ -191,6 +191,15 @@ blockSupportPairPool_inter_T_eq_empty_of_lt_k0_square
 baseLoad_eq_ctrl_add_gadget_of_disjoint
 R2ForbiddenBudget.of_basePieces
 exists_massBatchSupply_of_basePieces_forbiddenBudget
+RequestProject/R2ComponentDisjoint.lean
+mem_ctrlEdges_support_pair
+ctrlEdges_disjoint_gadgetEdges_of_R_outside_blockSupport
+r2Concrete_ctrl_gadget_disjoint_of_R_outside_blockSupport
+RequestProject/R2EventualScale.lean
+exists_k0_square_gt_nat
+eventually_T_lt_k0_square
+eventually_two_mul_b_lt_three_k0_square
+exists_k0_scale_for_T_and_b
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -313,6 +322,21 @@ all old obstruction edges in `T` lie below the bottom pair scale
 the `T` overlap is zero while the control/gadget forbidden pieces are absorbed
 by `D.baseLoad`.  The final mass-batch budget then follows from `b ≥ 3`.
 
+`R2ComponentDisjoint.lean` closes the disjointness input used by
+`R2ForbiddenBaseBudget`: if every `r ∈ D.R` is prime and lies outside
+`blockSupport D.BS`, then `ctrlEdges D.BS` and `gadgetEdges D.R D.S` are
+disjoint.  The proof is pure prime-factor bookkeeping: a common edge would make
+some `r ∈ D.R` divide a product `p*q` of block-support primes, hence force
+`r = p` or `r = q`.
+
+The still-open finite scale inputs for this branch are now only:
+
+- `2*b < 3*(2^D.BS.k0 * 2^D.BS.k0)`;
+- `∀ e ∈ T, e < 2^D.BS.k0 * 2^D.BS.k0`.
+
+These are independent large-`k0` natural-number facts and are now proved in the
+thin `R2EventualScale.lean` leaf.
+
 The remaining nontrivial mass-batch input is therefore `D.baseLoad < 3/(2b)`.
 This is **not** mere finite-set bookkeeping.  The control part requires a
 one-reciprocal upper estimate for dyadic prime blocks: heuristically
@@ -331,15 +355,20 @@ weak.  Thus the next mainline analytic socket is either:
 
 The next parallel split should be:
 
-1. **Component numeric/cardinality lane**: prove practical hypotheses feeding
+1. **Base-load upper lane**: split `D.baseLoad` into control and gadget
+   reciprocal loads, expose the exact dyadic reciprocal upper input needed for
+   control edges, and expose the exact high-scale/sparse-gadget input needed for
+   gadget edges.  This is now the main mathematical socket for mass-batch
+   completion.
+2. **Component numeric/cardinality lane**: prove practical hypotheses feeding
    `exists_arcConstruction_of_component_numeric_minor_sets`, especially
    component-wise edge lower bounds, ratio bounds, and an upper bound strong
    enough for `(D.E.card : ℝ) * 100000 * ρ^3 <= 1/10`.
-2. **Minor support/budget lane**: define the actual `Sblock` and `Sextra`
+3. **Minor support/budget lane**: define the actual `Sblock` and `Sextra`
    families for each `MainArcFields`, prove `Sm ⊆ Sblock ∪ Sextra`, and expose
    block/extra norm-sum bounds in the exact form consumed by
    `exists_arcConstruction_of_component_numeric_minor_sets`.
-3. **Local mainline lane**: keep connecting concrete construction data,
+4. **Local mainline lane**: keep connecting concrete construction data,
    residual `Q` selection, and weight/mass construction into the component
    socket.  This should stay in thin downstream files unless a thick module is
    already on the critical path.
