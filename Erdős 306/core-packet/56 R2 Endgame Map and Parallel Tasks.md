@@ -146,6 +146,8 @@ A thin downstream wrapper has also been added:
 ```lean
 RequestProject/R2FinalAssemblyRaw.lean
 exists_arcConstruction_of_componentData_raw_numeric_minor_window
+RequestProject/R2ComponentBounds.lean
+exists_arcConstruction_of_component_numeric_minor_sets
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -158,6 +160,29 @@ This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
 
 This is the preferred next socket for parameter-selection work, because it is a
 small leaf file downstream of the expensive assembly spine.
+
+`R2ComponentBounds.lean` adds one more layer: instead of proving numeric bounds
+for every `e ∈ D.E`, it accepts separate bounds on the three components
+`ctrlEdges D.BS`, `D.Q`, and `gadgetEdges D.R D.S`.  This is the preferred
+socket for split work, because the three edge families can be treated
+independently.
+
+## Next Split
+
+The next parallel split should be:
+
+1. **Component numeric/cardinality lane**: prove practical hypotheses feeding
+   `exists_arcConstruction_of_component_numeric_minor_sets`, especially
+   component-wise edge lower bounds, ratio bounds, and an upper bound strong
+   enough for `(D.E.card : ℝ) * 100000 * ρ^3 <= 1/10`.
+2. **Minor support/budget lane**: define the actual `Sblock` and `Sextra`
+   families for each `MainArcFields`, prove `Sm ⊆ Sblock ∪ Sextra`, and expose
+   block/extra norm-sum bounds in the exact form consumed by
+   `exists_arcConstruction_of_component_numeric_minor_sets`.
+3. **Local mainline lane**: keep connecting concrete construction data,
+   residual `Q` selection, and weight/mass construction into the component
+   socket.  This should stay in thin downstream files unless a thick module is
+   already on the critical path.
 
 ## Build Discipline
 
