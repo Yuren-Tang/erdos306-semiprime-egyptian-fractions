@@ -259,6 +259,13 @@ This is currently the cleanest numeric interface for the final sprint.
 wrappers for the control and gadget components, including constructors for
 `R2ControlSupply` and `R2GadgetSupply`.
 
+`R2ComponentSupplyReady.lean` is the current component-lane socket.  It packages
+the scale, avoidance, prime/order/divisibility, and combined cardinality
+hypotheses into one record
+`R2ComponentScaleCardSupply`, and its endpoint
+`exists_arcConstruction_of_componentScaleCardSupply` feeds this record directly
+into `exists_arcConstruction_of_componentSupplies`.
+
 `R2MinorSupportBudget.lean` packages the minor support lane into
 `R2MinorSupportBudgetData`, with fields `Sblock`, `Sextra`, `hcover`, `hblock`,
 and `hextra`.  The endpoint
