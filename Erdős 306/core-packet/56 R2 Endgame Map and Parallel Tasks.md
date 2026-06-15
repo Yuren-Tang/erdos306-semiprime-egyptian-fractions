@@ -141,6 +141,24 @@ window for `D.E`, or the final `hbeat` directly.  Instead it consumes:
 
 This is the right socket for the final sprint.
 
+A thin downstream wrapper has also been added:
+
+```lean
+RequestProject/R2FinalAssemblyRaw.lean
+exists_arcConstruction_of_componentData_raw_numeric_minor_window
+```
+
+This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
+`MainArcNumericFields` into raw numeric hypotheses:
+
+- scale: `1 / sqrt(sigmaE2 D.E W.theta) <= N`;
+- edge lower bound: `10*N <= e` for every `e ∈ D.E`;
+- ratio bound by a parameter `ρ`;
+- cubic cardinality bound `|E| * 100000 * ρ^3 <= 1/10`.
+
+This is the preferred next socket for parameter-selection work, because it is a
+small leaf file downstream of the expensive assembly spine.
+
 ## Build Discipline
 
 The last R2 integration proved that even a target build with only a few dozen
