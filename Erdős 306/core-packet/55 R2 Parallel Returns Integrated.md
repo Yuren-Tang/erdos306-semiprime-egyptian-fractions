@@ -163,6 +163,10 @@ has been added with generic lemmas for:
 2. `r2Concrete_hbound_of_recipLoad_lt_one` in the concrete-data language;
 3. `hbeat_of_sigma_le_sigmaCtrl`;
 4. `hbeat_of_block_extra_sigmaCtrl`.
+5. `MainArcFields` and `exists_mainArcFields`, packaging `SM`, `Sm`, `lbl`,
+   `hpart`, `hdisj`, `hmaps`, `hinj`, `hsurj`, and `hterm` from
+   `exists_mainArc_bijection` plus `fourierTerm_eq_term_label_of_modL`.
 
-The next local target is the main-arc record-field package, consuming
-`exists_mainArc_bijection` and `fourierTerm_eq_term_label_of_modL`.
+The next local target is the concrete large-parameter/numeric package feeding
+`N`, `hN`, `htw`, `hsmall`, and the concrete `sigmaE ≤ sigmaCtrl` comparison into
+the already isolated field helpers.
