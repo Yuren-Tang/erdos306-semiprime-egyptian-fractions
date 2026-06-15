@@ -43,7 +43,9 @@ for note in \
   "56 R2 Endgame Map and Parallel Tasks.md" \
   "CODEX_TASK_r2_numeric_fields.md" \
   "CODEX_TASK_r2_minor_support_budget.md" \
-  "ARISTOTLE_TASK_r2_component_numeric.md"
+  "CODEX_TASK_r2_pair_pool_full_lower.md" \
+  "ARISTOTLE_TASK_r2_component_numeric.md" \
+  "ARISTOTLE_TASK_r2_forbidden_pool_budget.md"
 do
   [ -f "$core/$note" ] && cp "$core/$note" "$here/"
 done

@@ -1,11 +1,11 @@
 # Aristotle delivery — current task
 
-**CURRENT TASK = `ACTIVE_PROMPT.md`: prove the R2 component numeric/cardinality
-helpers in a new leaf `RequestProject/R2ComponentNumeric.lean`.**
+**CURRENT TASK = `ACTIVE_PROMPT.md`: prove the R2 forbidden-pool budget
+bookkeeping in a new leaf `RequestProject/R2ForbiddenPoolBudget.lean`.**
 
-This is the clean Aristotle lane for the next parallel round: short,
-independent, downstream of the final assembly spine, and not coupled to the
-minor-arc support proof.
+This is a clean Aristotle lane for the next parallel round: finite-set
+bookkeeping only, downstream of the mass-batch candidate-pool interface, and not
+coupled to analytic estimates.
 
 Work in this folder as the Lake project root.  The Lean package is already in
 the expected layout:
@@ -13,47 +13,50 @@ the expected layout:
 - `RequestProject/` contains the Lean sources.
 - `lakefile.toml`, `lake-manifest.json`, and `lean-toolchain` are at the root.
 - `.lake/build/lib/lean/RequestProject/` contains compiled `RequestProject`
-  oleans for this source state.
-- `prebuilt-oleans.tar.gz` is a backup copy of the same project cache; extract
-  it into `.lake/build/lib/lean/` only if the `.lake` directory was not
-  preserved by upload.
-- This cache is not a full Mathlib cache.  Before `lake build`, run
-  `lake exe cache get` to fetch Mathlib's binary cache when the environment
-  supports it.
+  oleans for an older source state.
+- `prebuilt-oleans.tar.gz` is a backup copy of that cache; extract it into
+  `.lake/build/lib/lean/` only if the `.lake` directory was not preserved by
+  upload.
+- This cache may not include the newest R2 leaf files.  Build only the requested
+  target; if Mathlib cache is missing, run `lake exe cache get` first when the
+  environment supports it.
 
 ## Binding rules
 
-Do not weaken theorem statements or move constants behind the objects they must
-control uniformly.  If a proof step is wrong, say so explicitly.  If a step
-resists, isolate it as a precisely named `sorry` with a short reason and keep
-the build green.
+Do not weaken theorem statements.  If a proof step is wrong, say so explicitly.
+If a step resists, isolate it as a precisely named `sorry` with a short reason
+and keep the build green.
 
-## Verified current state
+## Verified current local state before this task
 
-The current R2 foundation includes:
+The local Codex build has verified:
 
-- `RequestProject.R2ConcreteData`;
-- `RequestProject.R2MinorEstimateInterface`;
-- `RequestProject.R2AssemblyFields`, including:
-  - `period_div_sum_lt_of_recip_sum_lt`;
-  - `r2Concrete_hbound_of_recipLoad_lt_one`;
-  - `recipLoad_lt_one_of_lt_three_div`;
-  - `r2Concrete_hbound_of_recipLoad_window`;
-  - `sigmaE_sqrt_pos_of_weights`;
-  - `hbeat_of_sigma_le_sigmaCtrl`;
-  - `hbeat_of_block_extra_sigmaCtrl`;
-  - `MainArcFields`;
-  - `exists_mainArcFields`;
-- `RequestProject.R2NumericFields`, including `MainArcNumericFields`;
-- `RequestProject.R2FinalAssemblyRaw`;
-- `RequestProject.R2ComponentBounds`, including
-  `exists_arcConstruction_of_component_numeric_minor_sets`.
+```text
+lake build RequestProject.R2MassBatchCandidatePool
+```
+
+This confirms the chain through:
+
+- `RequestProject.R2ComponentNumeric`;
+- `RequestProject.R2ComponentNumericAssembly`;
+- `RequestProject.R2MinorSupportBudget`;
+- `RequestProject.R2MassBatchSupply`;
+- `RequestProject.R2ComponentSupply`;
+- `RequestProject.R2MassBatchPoolSupply`;
+- `RequestProject.R2MassBatchCandidatePool`.
+
+The exact downstream socket to support is:
+
+```lean
+CircleMethod.exists_massBatchSupply_of_pairPool_separate_bounds
+```
 
 ## Immediate target
 
-Use `ACTIVE_PROMPT.md` and `ARISTOTLE_TASK_r2_component_numeric.md` as the direct
-instructions.  Create `RequestProject/R2ComponentNumeric.lean` and prove
-component-level numeric/cardinality helpers.
+Use `ACTIVE_PROMPT.md` and `ARISTOTLE_TASK_r2_forbidden_pool_budget.md` as the
+direct instructions.  Create `RequestProject/R2ForbiddenPoolBudget.lean` and
+prove the finite-set reciprocal-load decomposition for `residualForbidden`.
 
 Do not attempt the final `CircleMethod.exists_arcConstruction` directly in this
 round.
+

@@ -1,31 +1,35 @@
-# Aristotle Task: R2 Component Numeric Bounds
+# Aristotle Task: R2 Forbidden Pool Budget
 
-Use `ARISTOTLE_TASK_r2_component_numeric.md` as the detailed specification.
+Use `ARISTOTLE_TASK_r2_forbidden_pool_budget.md` as the detailed specification.
 
 Create a new thin Lean file:
 
 ```lean
-RequestProject/R2ComponentNumeric.lean
+RequestProject/R2ForbiddenPoolBudget.lean
 ```
 
 Import:
 
 ```lean
-import RequestProject.R2ComponentBounds
+import RequestProject.R2MassBatchCandidatePool
 ```
 
 This is a bounded downstream task.  Do **not** attempt the full
 `exists_arcConstruction`; do **not** edit thick upstream files.  The goal is to
-prove reusable numeric/cardinality helpers feeding
+prove the finite-set reciprocal-load bookkeeping that decomposes
 
 ```lean
-CircleMethod.exists_arcConstruction_of_component_numeric_minor_sets
+R2ConcreteData.recipLoad
+  (blockSupportPairPool D.BS ∩ residualForbidden D)
 ```
+
+into obstruction/control/gadget pieces.
 
 Preferred final check:
 
 ```bash
-lake build RequestProject.R2ComponentNumeric
+lake build RequestProject.R2ForbiddenPoolBudget
 ```
 
 Report theorem names, build status, and any remaining gaps.
+
