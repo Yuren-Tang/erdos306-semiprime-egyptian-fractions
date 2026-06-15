@@ -38,7 +38,10 @@ for note in \
   "50 R2 Construction Resolved - Gadget Cancellation and the b≥3 Reduction.md" \
   "51 R2 Mass Batch Completed.md" \
   "52 R2 Assembly Skeleton Next Task.md" \
-  "53 R2 Assembly Skeleton Bookkeeping Completed.md"
+  "53 R2 Assembly Skeleton Bookkeeping Completed.md" \
+  "55 R2 Parallel Returns Integrated.md" \
+  "56 R2 Endgame Map and Parallel Tasks.md" \
+  "CODEX_TASK_r2_numeric_fields.md"
 do
   [ -f "$core/$note" ] && cp "$core/$note" "$here/"
 done

@@ -1,68 +1,39 @@
-# R2 Minor Estimates Into Split Wrapper
+# Aristotle Task: R2 Numeric/Main-Arc Field Helpers
 
-`RequestProject/R2MinorAssembly.lean` is now present.  It proves the pure
-finite-sum splitter:
-
-```lean
-CircleMethod.blockMinorPart
-CircleMethod.extraMinorPart
-CircleMethod.minorParts_union_eq_of_cover
-CircleMethod.sum_le_of_minor_split_bounds
-CircleMethod.r2_minor_bound_split
-```
-
-Do **not** redo this finite-sum lemma.  The next task is to connect the two real
-minor estimates to this wrapper.
-
-## Task
-
-Create or extend:
-
-```text
-RequestProject/R2MinorEstimateInterface.lean
-```
-
-with imports:
+Create a new Lean file:
 
 ```lean
-import RequestProject.R2MinorAssembly
-import RequestProject.ExtraEnergyMinorArc
-import RequestProject.ExtraMinorDamping
+RequestProject/R2NumericFields.lean
 ```
 
-Prove two wrapper lemmas, with theorem statements as concrete as possible:
-
-1. a `block_part_bound` wrapper that rewrites the hypotheses of
-   `CircleMethod.minor_arc_bound_fiber_tail` into a bound over
-   `blockMinorPart Sm Sblock`;
-2. an `extra_part_bound` wrapper that rewrites the hypotheses of
-   `CircleMethod.gadget_charFun_damp` into a bound over
-   `extraMinorPart Sm Sblock Sextra`.
-
-Then prove a combined theorem, for example:
+Import:
 
 ```lean
-theorem r2_hminor_bound_from_block_and_extra
-  ...
+import RequestProject.R2AssemblyFields
 ```
 
-whose proof is:
+This is an intentionally independent, time-controlled task.  Do **not** attempt
+`exists_arcConstruction`; do **not** touch the minor arc; do **not** modify large
+existing files unless Lean absolutely forces a tiny import-level correction.
 
-```lean
-exact CircleMethod.r2_minor_bound_split ... hcover hblock hextra
+The goal is to prove abstract helper lemmas for the large-window fields
+`hN`, `htw`, and `hsmall` in `ArcConstruction`.
+
+Use `CODEX_TASK_r2_numeric_fields.md` as the detailed specification.
+
+## Required output
+
+1. `RequestProject/R2NumericFields.lean`;
+2. no `sorry` if possible;
+3. build command:
+
+```bash
+lake build RequestProject.R2NumericFields
 ```
 
-## Important
+4. brief summary of theorem names and any deviations from the requested
+statements.
 
-The goal is interface discovery, not final constants.  It is acceptable for the
-combined theorem to take explicit numeric/analytic bounds as hypotheses, as long
-as the statement shows exactly what final `exists_arcConstruction` still has to
-supply.
+No axiom trace is required unless a theorem unexpectedly depends on nonstandard
+assumptions.
 
-Return:
-
-1. file(s) changed;
-2. theorem names;
-3. build result for `lake build RequestProject.R2MinorEstimateInterface`;
-4. axiom traces for endpoint lemmas;
-5. the final remaining hypothesis list.
