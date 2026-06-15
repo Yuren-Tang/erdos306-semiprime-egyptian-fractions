@@ -157,6 +157,10 @@ exists_arcConstruction_of_component_rho_numeric_minor_budget
 RequestProject/R2MassBatchSupply.lean
 R2MassBatchSupply
 exists_arcConstruction_of_massBatchSupply
+RequestProject/R2ComponentSupply.lean
+R2ControlSupply
+R2GadgetSupply
+exists_arcConstruction_of_componentSupplies
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -206,6 +210,12 @@ the file derives `Qsemi`, `Qpos`, and `Qdvd` automatically.  The endpoint
 `exists_arcConstruction_of_massBatchSupply` now consumes one `QB :
 R2MassBatchSupply D` instead of the scattered Q structural and load-window
 hypotheses.
+
+`R2ComponentSupply.lean` packages the remaining control and gadget lanes:
+`R2ControlSupply` stores the control scale/avoidance conditions, and
+`R2GadgetSupply` stores the gadget prime/order/period/scale/avoidance
+conditions.  The endpoint `exists_arcConstruction_of_componentSupplies` is now
+the cleanest record-level assembly theorem.
 
 ## Next Split
 
