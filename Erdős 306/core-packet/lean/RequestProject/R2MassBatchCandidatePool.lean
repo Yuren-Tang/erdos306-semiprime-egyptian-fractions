@@ -181,6 +181,24 @@ theorem exists_massBatchSupply_of_pairPool_forbidden_budget
   · exact residualPairPool_load_lower_of_forbidden_budget D
       (3 / (2 * (b : ℝ)) - D.baseLoad) hbudget
 
+/-- Variant with the full-pool lower bound and forbidden-pool upper bound split
+as separate estimates.  This is the preferred interface for parallel work. -/
+theorem exists_massBatchSupply_of_pairPool_separate_bounds
+    {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b)
+    (hb : 0 < b)
+    (hbase : D.baseLoad < 3 / (2 * (b : ℝ)))
+    (hlarge : 2 * b < 3 * (2 ^ D.BS.k0 * 2 ^ D.BS.k0))
+    (M F : ℝ)
+    (hfull : M ≤ R2ConcreteData.recipLoad (blockSupportPairPool D.BS))
+    (hforbidden :
+      R2ConcreteData.recipLoad
+          (blockSupportPairPool D.BS ∩ residualForbidden D) ≤ F)
+    (hbudget : (3 / (2 * (b : ℝ)) - D.baseLoad) + F ≤ M) :
+    ∃ Q : Finset ℕ, R2MassBatchSupply (D.withQ Q) := by
+  refine exists_massBatchSupply_of_pairPool_forbidden_budget D hb hbase hlarge ?_
+  linarith
+
 end CircleMethod
 
 end
