@@ -41,6 +41,7 @@ for note in \
   "53 R2 Assembly Skeleton Bookkeeping Completed.md" \
   "55 R2 Parallel Returns Integrated.md" \
   "56 R2 Endgame Map and Parallel Tasks.md" \
+  "57 R2 Minor Lane Plan.md" \
   "CODEX_TASK_r2_numeric_fields.md" \
   "CODEX_TASK_r2_minor_support_budget.md" \
   "CODEX_TASK_r2_pair_pool_full_lower.md" \
@@ -50,7 +51,9 @@ for note in \
   "ARISTOTLE_TASK_r2_forbidden_pool_budget.md" \
   "ARISTOTLE_TASK_r2_component_disjoint.md" \
   "ARISTOTLE_TASK_r2_component_scale_card.md" \
-  "ARISTOTLE_TASK_r2_mass_batch_base_budget_ready.md"
+  "ARISTOTLE_TASK_r2_mass_batch_base_budget_ready.md" \
+  "ARISTOTLE_TASK_r2_extra_minor_lane.md" \
+  "CODEX_TASK_r2_minor_classification.md"
 do
   [ -f "$core/$note" ] && cp "$core/$note" "$here/"
 done
