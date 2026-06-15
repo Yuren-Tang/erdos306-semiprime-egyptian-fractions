@@ -184,6 +184,13 @@ RequestProject/R2MassBatchFinalBudget.lean
 exists_massBatchSupply_of_half_fullPool_forbiddenBudget
 exists_massBatchSupply_of_blockPrimes_forbiddenBudget
 exists_massBatchSupply_of_eventual_blockPrimes_forbiddenBudget
+RequestProject/R2DyadicBlockSupport.lean
+exists_blockSystem_with_blockPrimes_subset
+RequestProject/R2ForbiddenBaseBudget.lean
+blockSupportPairPool_inter_T_eq_empty_of_lt_k0_square
+baseLoad_eq_ctrl_add_gadget_of_disjoint
+R2ForbiddenBudget.of_basePieces
+exists_massBatchSupply_of_basePieces_forbiddenBudget
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -295,6 +302,16 @@ forbidden budgets.
 inequality holds, and the three forbidden budgets satisfy
 `(3/(2b) - D.baseLoad) + FT + Fctrl + Fgadget ≤ 1/2`, the residual `Q` batch
 exists after choosing `D.BS.k0` beyond the existing `blockPrimes` load threshold.
+
+`R2DyadicBlockSupport.lean` exposes the corresponding support fact for the
+concrete dyadic block systems used by the construction:
+`blockPrimes BS.k0 ⊆ blockSupport BS`.
+
+`R2ForbiddenBaseBudget.lean` removes most of the forbidden-budget mystery.  If
+all old obstruction edges in `T` lie below the bottom pair scale
+`2^k0 * 2^k0`, and the fixed control/gadget edge families are disjoint, then
+the `T` overlap is zero while the control/gadget forbidden pieces are absorbed
+by `D.baseLoad`.  The final mass-batch budget then follows from `b ≥ 3`.
 
 ## Next Split
 
