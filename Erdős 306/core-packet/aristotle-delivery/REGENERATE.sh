@@ -41,7 +41,9 @@ for note in \
   "53 R2 Assembly Skeleton Bookkeeping Completed.md" \
   "55 R2 Parallel Returns Integrated.md" \
   "56 R2 Endgame Map and Parallel Tasks.md" \
-  "CODEX_TASK_r2_numeric_fields.md"
+  "CODEX_TASK_r2_numeric_fields.md" \
+  "CODEX_TASK_r2_minor_support_budget.md" \
+  "ARISTOTLE_TASK_r2_component_numeric.md"
 do
   [ -f "$core/$note" ] && cp "$core/$note" "$here/"
 done

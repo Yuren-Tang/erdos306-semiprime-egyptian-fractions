@@ -1,39 +1,31 @@
-# Aristotle Task: R2 Numeric/Main-Arc Field Helpers
+# Aristotle Task: R2 Component Numeric Bounds
 
-Create a new Lean file:
+Use `ARISTOTLE_TASK_r2_component_numeric.md` as the detailed specification.
+
+Create a new thin Lean file:
 
 ```lean
-RequestProject/R2NumericFields.lean
+RequestProject/R2ComponentNumeric.lean
 ```
 
 Import:
 
 ```lean
-import RequestProject.R2AssemblyFields
+import RequestProject.R2ComponentBounds
 ```
 
-This is an intentionally independent, time-controlled task.  Do **not** attempt
-`exists_arcConstruction`; do **not** touch the minor arc; do **not** modify large
-existing files unless Lean absolutely forces a tiny import-level correction.
+This is a bounded downstream task.  Do **not** attempt the full
+`exists_arcConstruction`; do **not** edit thick upstream files.  The goal is to
+prove reusable numeric/cardinality helpers feeding
 
-The goal is to prove abstract helper lemmas for the large-window fields
-`hN`, `htw`, and `hsmall` in `ArcConstruction`.
+```lean
+CircleMethod.exists_arcConstruction_of_component_numeric_minor_sets
+```
 
-Use `CODEX_TASK_r2_numeric_fields.md` as the detailed specification.
-
-## Required output
-
-1. `RequestProject/R2NumericFields.lean`;
-2. no `sorry` if possible;
-3. build command:
+Preferred final check:
 
 ```bash
-lake build RequestProject.R2NumericFields
+lake build RequestProject.R2ComponentNumeric
 ```
 
-4. brief summary of theorem names and any deviations from the requested
-statements.
-
-No axiom trace is required unless a theorem unexpectedly depends on nonstandard
-assumptions.
-
+Report theorem names, build status, and any remaining gaps.

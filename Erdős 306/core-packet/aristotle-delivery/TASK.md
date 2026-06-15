@@ -1,10 +1,11 @@
 # Aristotle delivery — current task
 
-**CURRENT TASK = `ACTIVE_PROMPT.md`: prove the R2 numeric/main-arc field helpers
-in a new leaf `RequestProject/R2NumericFields.lean`.**
+**CURRENT TASK = `ACTIVE_PROMPT.md`: prove the R2 component numeric/cardinality
+helpers in a new leaf `RequestProject/R2ComponentNumeric.lean`.**
 
-This is the clean Aristotle lane for the next parallel round: short, independent,
-and not coupled to the final `exists_arcConstruction` assembly.
+This is the clean Aristotle lane for the next parallel round: short,
+independent, downstream of the final assembly spine, and not coupled to the
+minor-arc support proof.
 
 Work in this folder as the Lake project root.  The Lean package is already in
 the expected layout:
@@ -42,19 +43,17 @@ The current R2 foundation includes:
   - `hbeat_of_sigma_le_sigmaCtrl`;
   - `hbeat_of_block_extra_sigmaCtrl`;
   - `MainArcFields`;
-  - `exists_mainArcFields`.
+  - `exists_mainArcFields`;
+- `RequestProject.R2NumericFields`, including `MainArcNumericFields`;
+- `RequestProject.R2FinalAssemblyRaw`;
+- `RequestProject.R2ComponentBounds`, including
+  `exists_arcConstruction_of_component_numeric_minor_sets`.
 
 ## Immediate target
 
-Use `ACTIVE_PROMPT.md` and `CODEX_TASK_r2_numeric_fields.md` as the direct
-instructions.  Create `RequestProject/R2NumericFields.lean` and prove the
-numeric/main-arc helpers for:
-
-1. deriving `0 ≤ N` from the main-arc scale hypothesis;
-2. deriving `htw` from a uniform edge lower bound;
-3. deriving `hsmall` from a uniform ratio/cubic-load bound;
-4. packaging these in `MainArcNumericFields`.
+Use `ACTIVE_PROMPT.md` and `ARISTOTLE_TASK_r2_component_numeric.md` as the direct
+instructions.  Create `RequestProject/R2ComponentNumeric.lean` and prove
+component-level numeric/cardinality helpers.
 
 Do not attempt the final `CircleMethod.exists_arcConstruction` directly in this
 round.
-
