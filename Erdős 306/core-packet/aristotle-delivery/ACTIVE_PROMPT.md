@@ -1,34 +1,18 @@
-# Aristotle Task: R2 Control/Gadget Disjointness
+Read `ARISTOTLE_TASK_r2_component_scale_card.md` and execute it.
 
-Use `ARISTOTLE_TASK_r2_component_disjoint.md` as the detailed specification.
+Work only on the requested finite component scale/cardinality supplies.  Do not
+work on the base-load upper socket, G5, G7, or Phase C.
 
-Create a new thin Lean file:
-
-```lean
-RequestProject/R2ComponentDisjoint.lean
-```
-
-Import:
+Preferred new file:
 
 ```lean
-import RequestProject.R2ForbiddenBaseBudget
+RequestProject/R2ComponentScaleCard.lean
 ```
 
-This is a bounded downstream task.  Do **not** attempt the full
-`exists_arcConstruction`; do **not** edit thick upstream files.  The goal is to
-prove the prime-factor bookkeeping that shows
-
-```lean
-Disjoint (ctrlEdges BS) (gadgetEdges R S)
-```
-
-from the natural hypothesis that every denominator-side gadget prime `r ∈ R` is
-outside `blockSupport BS`.
-
-Preferred final check:
+Build target:
 
 ```bash
-lake build RequestProject.R2ComponentDisjoint
+lake build RequestProject.R2ComponentScaleCard
 ```
 
-Report theorem names, build status, and any remaining gaps.
+No `sorry`, `admit`, or new axioms.

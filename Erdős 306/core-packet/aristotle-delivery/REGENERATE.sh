@@ -44,10 +44,12 @@ for note in \
   "CODEX_TASK_r2_numeric_fields.md" \
   "CODEX_TASK_r2_minor_support_budget.md" \
   "CODEX_TASK_r2_pair_pool_full_lower.md" \
+  "CODEX_TASK_r2_base_load_upper.md" \
   "CODEX_TASK_r2_eventual_scale.md" \
   "ARISTOTLE_TASK_r2_component_numeric.md" \
   "ARISTOTLE_TASK_r2_forbidden_pool_budget.md" \
-  "ARISTOTLE_TASK_r2_component_disjoint.md"
+  "ARISTOTLE_TASK_r2_component_disjoint.md" \
+  "ARISTOTLE_TASK_r2_component_scale_card.md"
 do
   [ -f "$core/$note" ] && cp "$core/$note" "$here/"
 done
