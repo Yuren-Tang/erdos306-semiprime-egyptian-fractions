@@ -209,6 +209,16 @@ baseLoad_lt_of_budget
 dyadic_control_recipLoad_eventually_small
 RequestProject/R2MassBatchBaseLoadBudget.lean
 exists_massBatchSupply_of_baseLoadBudget_eventual
+RequestProject/R2ComponentScaleCard.lean
+ctrlEdges_ge_k0_square
+ctrlEdges_scale_of_k0_square
+gadgetEdges_ge_mul
+gadgetEdges_scale_of_mul
+ctrlEdges_card_le_ctrlPairs_card
+gadgetEdges_card_le_product
+ctrlPairs_card_le_support_square
+r2ControlSupply_of_k0_square
+r2GadgetSupply_of_mul_scale
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -244,6 +254,10 @@ the separate `10*N <= e`, ratio, and `D.E.card` hypotheses by:
 - cubic budget `K * 100000 * rho^3 <= 1/10`.
 
 This is currently the cleanest numeric interface for the final sprint.
+
+`R2ComponentScaleCard.lean` supplies the finite lower-scale and cardinality
+wrappers for the control and gadget components, including constructors for
+`R2ControlSupply` and `R2GadgetSupply`.
 
 `R2MinorSupportBudget.lean` packages the minor support lane into
 `R2MinorSupportBudgetData`, with fields `Sblock`, `Sextra`, `hcover`, `hblock`,

@@ -18,6 +18,7 @@ Recommended import:
 
 ```lean
 import RequestProject.R2BaseLoadUpper
+import RequestProject.R2ComponentScaleCard
 ```
 
 No `sorry`, `admit`, or new axioms.
@@ -36,6 +37,10 @@ theorem exists_k0_controlLoad_lt
 
 We now need a clean finite gadget-load bound and a constructor for
 `R2BaseLoadBudget D`.
+
+`R2ComponentScaleCard.lean` is now available and can be reused for
+`gadgetEdges_ge_mul`, `gadgetEdges_card_le_product`, and related component
+scale/cardinality facts.  Do not reprove those if importing them is enough.
 
 ## Desired Endpoints
 
@@ -113,6 +118,28 @@ theorem baseLoadBudget_of_control_and_gadget
 where the control bound is supplied as
 `R2ConcreteData.recipLoad (ctrlEdges D.BS) ≤ Cctrl`.
 
+### 4. Concrete gadget-card constructor
+
+If possible, combine the gadget card/load bound with an explicit inequality:
+
+```lean
+theorem baseLoadBudget_of_control_epsilon_and_gadget_scale
+    {T : Finset ℕ} {b : ℕ} (D : R2ConcreteData T b)
+    (ε : ℝ) (r0 s0 : ℕ)
+    (hr0 : 0 < r0) (hs0 : 0 < s0)
+    (hctrl : R2ConcreteData.recipLoad (ctrlEdges D.BS) ≤ ε)
+    (hRlow : ∀ r ∈ D.R, r0 ≤ r)
+    (hSlow : ∀ s ∈ D.S, s0 ≤ s)
+    (hsum :
+      ε + ((D.R.card * D.S.card : ℕ) : ℝ) / ((r0 * s0 : ℕ) : ℝ)
+        < 3 / (2 * (b : ℝ))) :
+    R2BaseLoadBudget D
+```
+
+This is the most useful endpoint for the mainline: the control load is handled
+by the named dyadic input, while the gadget load is handled by finite size/scale
+data.
+
 ## Build
 
 Build only the new target:
@@ -122,4 +149,3 @@ lake build RequestProject.R2BaseBudgetAssembly
 ```
 
 Poll at minute scale; do not repeatedly build tiny edits.
-
