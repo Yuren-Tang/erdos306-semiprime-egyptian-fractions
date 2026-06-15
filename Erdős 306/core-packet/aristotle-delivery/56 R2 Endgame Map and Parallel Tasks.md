@@ -282,6 +282,11 @@ transported across `D.withQ Q`, then converted back into
 `R2ComponentScaleCardSupply` once the final `Q.card` budget is known.  This is
 the intended interface after the mass-batch selector chooses `Q`.
 
+`R2SelectedQReady.lean` is the selected-batch downstream socket.  Its endpoint
+`exists_arcConstruction_of_selectedQ_coreSupply` consumes a pre-selection
+`D`, a selected `Q`, a `R2MassBatchSupply (D.withQ Q)`, and a transported
+component-core supply, then calls the current final component/mass socket.
+
 `R2MinorSupportBudget.lean` packages the minor support lane into
 `R2MinorSupportBudgetData`, with fields `Sblock`, `Sextra`, `hcover`, `hblock`,
 and `hextra`.  The endpoint
