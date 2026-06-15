@@ -1,0 +1,68 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["5c85c23a43425432.olean"],
+  "i": "1f9e3ff34e248a4a.ilean",
+  "c": "09de8f50aab70014.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Users/david/erdos-lean-build/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/erdos-lean-build/RequestProject/CircleMethodMainTerm.lean -o /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/CircleMethodMainTerm.olean -i /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/CircleMethodMainTerm.ilean -c /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/CircleMethodMainTerm.c --setup /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/CircleMethodMainTerm.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "RequestProject/CircleMethodMainTerm.lean:90:5: unused variable `he0`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodMainTerm.lean:141:5: unused variable `he0`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodMainTerm.lean:143:5: unused variable `hmass`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodMainTerm.lean:240:26: This simp argument is unused:\n  map_neg\n\nHint: Omit it from the simp argument list.\n  simp only [map_mul, m̵a̵p̵_̵n̵e̵g̵,̵ ̵map_div₀, map_inv₀, Complex.conj_ofReal, map_intCast, map_natCast,\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲Complex.conj_I, map_ofNat]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodMainTerm.lean:240:35: This simp argument is unused:\n  map_div₀\n\nHint: Omit it from the simp argument list.\n  simp only [map_mul, map_neg, m̵a̵p̵_̵d̵i̵v̵₀̵,̵ ̵map_inv₀, Complex.conj_ofReal, map_intCast, map_natCast,\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲Complex.conj_I, map_ofNat]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodMainTerm.lean:240:45: This simp argument is unused:\n  map_inv₀\n\nHint: Omit it from the simp argument list.\n  simp only [map_mul, map_neg, map_div₀, m̵a̵p̵_̵i̵n̵v̵₀̵,̵ ̵Complex.conj_ofReal, map_intCast, map_natCast,\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲Complex.conj_I, map_ofNat]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodMainTerm.lean:241:8: This simp argument is unused:\n  map_intCast\n\nHint: Omit it from the simp argument list.\n  simp only [map_mul, map_neg, map_div₀, map_inv₀, Complex.conj_ofReal, m̵a̵p̵_̵i̵n̵t̵C̵a̵s̵t̵,̵ ̵map_natCast,\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲Complex.conj_I, map_ofNat]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodMainTerm.lean:241:21: This simp argument is unused:\n  map_natCast\n\nHint: Omit it from the simp argument list.\n  simp only [map_mul, map_neg, map_div₀, map_inv₀, Complex.conj_ofReal, map_intCast,\n  ̲  ̲ ̲ ̲ ̲ ̲ ̲ ̲m̵a̵p̵_̵n̵a̵t̵C̵a̵s̵t̵,̵ ̵Complex.conj_I, map_ofNat]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodMainTerm.lean:256:43: This simp argument is unused:\n  map_inv₀\n\nHint: Omit it from the simp argument list.\n  simp only [map_mul, map_neg, map_div₀, m̵a̵p̵_̵i̵n̵v̵₀̵,̵ ̵Complex.conj_ofReal,\n  ̵  ̵ ̵ ̵ ̵ ̵map_intCast, map_natCast,\n  ̲  ̲ ̲ ̲ ̲ ̲Complex.conj_I, map_ofNat]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodMainTerm.lean:257:6: This simp argument is unused:\n  map_intCast\n\nHint: Omit it from the simp argument list.\n  simp only [map_mul, map_neg, map_div₀, map_inv₀, Complex.conj_ofReal, m̵a̵p̵_̵i̵n̵t̵C̵a̵s̵t̵,̵ ̵map_natCast,\n  ̲  ̲ ̲ ̲ ̲ ̲Complex.conj_I, map_ofNat]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodMainTerm.lean:257:19: This simp argument is unused:\n  map_natCast\n\nHint: Omit it from the simp argument list.\n  simp only [map_mul, map_neg, map_div₀, map_inv₀, Complex.conj_ofReal,\n  ̵  ̵ ̵ ̵ ̵ ̵map_intCast,\n  ̲ m̵a̵p̵_̵n̵a̵t̵C̵a̵s̵t̵,̵  ̲ ̲ ̲ ̲Complex.conj_I, map_ofNat]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodMainTerm.lean:271:71: This simp argument is unused:\n  le_neg\n\nHint: Omit it from the simp argument list.\n  simp only [Equiv.neg_apply, Finset.mem_Icc, neg_le,̵ ̵l̵e̵_̵n̵e̵g̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"}],
+ "inputs":
+ [["RequestProject.CircleMethodMainTerm:deps",
+   [["deps",
+     [["RequestProject/RequestProject:extraDep",
+       [["@RequestProject:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["RequestProject.CircleMethodMainArc transitive imports (legacy)",
+         "56d5eec1d8a19105"],
+        ["RequestProject.CircleMethodMainArc:importAllArts",
+         "edfbec07d0062fb9"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
+   "a96bc04a2e5e9630"],
+  ["/Users/david/erdos-lean-build/RequestProject/CircleMethodMainTerm.lean",
+   "6fcf6dabeed12958"],
+  ["options", "00000000000006bb"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "b1a283a68481df76"}

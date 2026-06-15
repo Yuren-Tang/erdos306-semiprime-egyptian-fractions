@@ -1,0 +1,32 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["d7bd0cf46ec827cf.olean"],
+  "i": "414be76f7d9ec314.ilean",
+  "c": "e31a48b5df99e851.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Users/david/erdos-lean-build/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/erdos-lean-build/RequestProject/ExtraEnergyMinorArc.lean -o /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/ExtraEnergyMinorArc.olean -i /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/ExtraEnergyMinorArc.ilean -c /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/ExtraEnergyMinorArc.c --setup /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/ExtraEnergyMinorArc.setup.json --json",
+   "level": "trace"}],
+ "inputs":
+ [["RequestProject.ExtraEnergyMinorArc:deps",
+   [["deps",
+     [["RequestProject/RequestProject:extraDep",
+       [["@RequestProject:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["RequestProject.ArcConstructionExtra transitive imports (legacy)",
+         "dd60d3e6ccd0ab52"],
+        ["RequestProject.ArcConstructionExtra:importAllArts",
+         "c69d405dcf9cad55"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
+   "a96bc04a2e5e9630"],
+  ["/Users/david/erdos-lean-build/RequestProject/ExtraEnergyMinorArc.lean",
+   "3c403c4b77d5906b"],
+  ["options", "00000000000006bb"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "5670900fda0feff8"}

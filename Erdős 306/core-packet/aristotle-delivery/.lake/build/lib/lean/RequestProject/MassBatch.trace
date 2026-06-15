@@ -1,0 +1,32 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["e6a3f2471cbd68af.olean"],
+  "i": "bf1b91018b58233d.ilean",
+  "c": "92aef8762fde94d1.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Users/david/erdos-lean-build/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/erdos-lean-build/RequestProject/MassBatch.lean -o /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/MassBatch.olean -i /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/MassBatch.ilean -c /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/MassBatch.c --setup /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/MassBatch.setup.json --json",
+   "level": "trace"}],
+ "inputs":
+ [["RequestProject.MassBatch:deps",
+   [["deps",
+     [["RequestProject/RequestProject:extraDep",
+       [["@RequestProject:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["RequestProject.CircleMethodConstruction transitive imports (legacy)",
+         "ae498e0787da18e5"],
+        ["RequestProject.CircleMethodConstruction:importAllArts",
+         "631a09d7854cda6a"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
+   "a96bc04a2e5e9630"],
+  ["/Users/david/erdos-lean-build/RequestProject/MassBatch.lean",
+   "ec88a7f2453d80f6"],
+  ["options", "00000000000006bb"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "f715e5e75af2a5bc"}

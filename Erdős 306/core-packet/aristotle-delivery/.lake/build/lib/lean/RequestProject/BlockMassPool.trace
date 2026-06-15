@@ -1,15 +1,15 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["3bb548884a6f22ce.olean"],
-  "i": "6235d6b7eddb4e62.ilean",
+ {"o": ["c2bcf4b50e4993e3.olean"],
+  "i": "3f19b7a553436764.ilean",
   "c": "54e201af73adb5ee.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/Users/david/erdos-lean-build/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/erdos-lean-build/RequestProject/BlockMassPool.lean -o /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/BlockMassPool.olean -i /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/BlockMassPool.ilean -c /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/BlockMassPool.c --setup /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/BlockMassPool.setup.json --json",
    "level": "trace"},
   {"message":
-   "RequestProject/BlockMassPool.lean:262:59: unused variable `hbsf`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "RequestProject/BlockMassPool.lean:309:59: unused variable `hbsf`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["RequestProject.BlockMassPool:deps",
@@ -28,7 +28,7 @@
   ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
    "a96bc04a2e5e9630"],
   ["/Users/david/erdos-lean-build/RequestProject/BlockMassPool.lean",
-   "9d581555dbed2e94"],
+   "3ee20fcf1d77b70e"],
   ["options", "00000000000006bb"],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "5a4b4c16c339e832"}
+ "depHash": "8ef9bc1f2cd7997c"}

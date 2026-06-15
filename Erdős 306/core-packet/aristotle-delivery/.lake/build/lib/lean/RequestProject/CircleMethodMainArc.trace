@@ -15,9 +15,9 @@
        [["@RequestProject:extraDep", "00000000000006bb"]]],
       ["imports",
        [["RequestProject.CircleMethodArcs transitive imports (legacy)",
-         "d447ee2be5618414"],
+         "607a5e2343e3af2b"],
         ["RequestProject.CircleMethodArcs:importAllArts",
-         "a87bfe81a5c34c0f"]]]]],
+         "e64d519c64ac6717"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -29,4 +29,4 @@
    "1c5a2ee71a6b6b21"],
   ["options", "00000000000006bb"],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "6be5b2e33e2a174b"}
+ "depHash": "d8d04d8c654e77fa"}

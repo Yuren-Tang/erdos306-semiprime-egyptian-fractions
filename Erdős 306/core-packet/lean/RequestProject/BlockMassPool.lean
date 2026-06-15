@@ -168,27 +168,32 @@ lemma exists_subset_recip_window_strict_upper (P : Finset ℕ) (target gap : ℝ
       target ≤ ∑ e ∈ Q, (1 : ℝ) / (e : ℝ) ∧
       ∑ e ∈ Q, (1 : ℝ) / (e : ℝ) < target + gap := by
   classical
-  obtain ⟨Q, hQ⟩ : ∃ Q : Finset ℕ, Q ⊆ P ∧
-      (∑ e ∈ Q, (1 : ℝ) / (e : ℝ)) ≥ target ∧
+  let goodSubsets : Finset (Finset ℕ) :=
+    P.powerset.filter (fun Q => target ≤ ∑ e ∈ Q, (1 : ℝ) / (e : ℝ))
+  have hgood_nonempty : goodSubsets.Nonempty := by
+    refine ⟨P, ?_⟩
+    exact Finset.mem_filter.mpr ⟨Finset.mem_powerset.mpr subset_rfl, hsum⟩
+  obtain ⟨Q, hQgood, hQmin⟩ :=
+    goodSubsets.exists_minimalFor (fun Q : Finset ℕ => Q.card) hgood_nonempty
+  have hQsubset : Q ⊆ P := Finset.mem_powerset.mp (Finset.mem_filter.mp hQgood).1
+  have hQsum_lb : target ≤ ∑ e ∈ Q, (1 : ℝ) / (e : ℝ) :=
+    (Finset.mem_filter.mp hQgood).2
+  have hproper_lt :
       ∀ S ⊂ Q, (∑ e ∈ S, (1 : ℝ) / (e : ℝ)) < target := by
-    have h_well_ordering : ∃ Q ∈ {S : Finset ℕ | S ⊆ P ∧ (∑ e ∈ S, (1 : ℝ) / (e : ℝ)) ≥ target},
-        ∀ T ∈ {S : Finset ℕ | S ⊆ P ∧ (∑ e ∈ S, (1 : ℝ) / (e : ℝ)) ≥ target}, Q.card ≤ T.card := by
-      apply_rules [Set.exists_min_image]
-      · exact Set.finite_iff_bddAbove.mpr ⟨P, fun S hS => Finset.le_iff_subset.mpr hS.1⟩
-      · exact ⟨P, Finset.Subset.refl _, hsum⟩
-    obtain ⟨Q, hQ₁, hQ₂⟩ := h_well_ordering
-    exact ⟨Q, hQ₁.1, hQ₁.2, fun S hS =>
-      not_le.mp fun hS' =>
-        not_lt_of_ge
-          (hQ₂ S ⟨Finset.Subset.trans hS.1 hQ₁.1, hS'⟩)
-          (Finset.card_lt_card hS)⟩
+    intro S hS
+    exact not_le.mp fun hSsum => by
+      have hSgood : S ∈ goodSubsets := by
+        exact Finset.mem_filter.mpr
+          ⟨Finset.mem_powerset.mpr (Finset.Subset.trans hS.1 hQsubset), hSsum⟩
+      have hcard_lt : S.card < Q.card := Finset.card_lt_card hS
+      exact (not_lt_of_ge (hQmin hSgood (le_of_lt hcard_lt))) hcard_lt
   rcases Q.eq_empty_or_nonempty with rfl | ⟨x, hx⟩
   · simp_all +decide [Finset.subset_iff]
     exact ⟨∅, by norm_num, by linarith, by linarith⟩
-  · refine ⟨Q, hQ.1, hQ.2.1, ?_⟩
-    have hprev := hQ.2.2 (Q.erase x) (Finset.erase_ssubset hx)
+  · refine ⟨Q, hQsubset, hQsum_lb, ?_⟩
+    have hprev := hproper_lt (Q.erase x) (Finset.erase_ssubset hx)
     rw [Finset.sum_erase_eq_sub hx] at hprev
-    have hxP : x ∈ P := hQ.1 hx
+    have hxP : x ∈ P := hQsubset hx
     linarith [hsmall x hxP]
 
 lemma exists_subset_recip_window (P : Finset ℕ) (target gap : ℝ)

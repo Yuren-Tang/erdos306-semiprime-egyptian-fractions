@@ -1,16 +1,13 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["5fdb3c60729ec7eb.olean"],
-  "i": "fb751020a5ad3d1f.ilean",
+ {"o": ["ff3f5ebf227b7dd7.olean"],
+  "i": "1487034302410b71.ilean",
   "c": "eaef20ae6a09bd1f.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/Users/david/erdos-lean-build/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/erdos-lean-build/RequestProject/CircleMethodConstruction.lean -o /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/CircleMethodConstruction.olean -i /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/CircleMethodConstruction.ilean -c /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/CircleMethodConstruction.c --setup /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/CircleMethodConstruction.setup.json --json",
-   "level": "trace"},
-  {"message":
-   "RequestProject/CircleMethodConstruction.lean:111:8: declaration uses `sorry`",
-   "level": "warning"}],
+   "level": "trace"}],
  "inputs":
  [["RequestProject.CircleMethodConstruction:deps",
    [["deps",
@@ -29,7 +26,7 @@
   ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
    "a96bc04a2e5e9630"],
   ["/Users/david/erdos-lean-build/RequestProject/CircleMethodConstruction.lean",
-   "db74500586e3d577"],
+   "7e36a07769ce0fff"],
   ["options", "00000000000006bb"],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "079099ebec5bc43d"}
+ "depHash": "9e86317aeab4be5a"}

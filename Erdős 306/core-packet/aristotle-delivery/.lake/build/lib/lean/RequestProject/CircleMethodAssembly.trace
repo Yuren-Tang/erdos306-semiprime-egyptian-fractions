@@ -1,0 +1,44 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["11ac044f061c1906.olean"],
+  "i": "d501aa703ab4aa30.ilean",
+  "c": "e0c3d75054ba36fd.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Users/david/erdos-lean-build/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/erdos-lean-build/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/erdos-lean-build/RequestProject/CircleMethodAssembly.lean -o /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/CircleMethodAssembly.olean -i /Users/david/erdos-lean-build/.lake/build/lib/lean/RequestProject/CircleMethodAssembly.ilean -c /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/CircleMethodAssembly.c --setup /Users/david/erdos-lean-build/.lake/build/ir/RequestProject/CircleMethodAssembly.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "RequestProject/CircleMethodAssembly.lean:76:5: unused variable `hsemi`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodAssembly.lean:76:38: unused variable `havoid`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/CircleMethodAssembly.lean:152:8: declaration uses `sorry`",
+   "level": "warning"}],
+ "inputs":
+ [["RequestProject.CircleMethodAssembly:deps",
+   [["deps",
+     [["RequestProject/RequestProject:extraDep",
+       [["@RequestProject:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["RequestProject.CircleMethod transitive imports (legacy)",
+         "a52c407e78a016d0"],
+        ["RequestProject.CircleMethod:importAllArts", "8df6b3293f16b506"],
+        ["RequestProject.CircleMethodMainTerm transitive imports (legacy)",
+         "0a51fe725f188a94"],
+        ["RequestProject.CircleMethodMainTerm:importAllArts",
+         "66192210c38a1aeb"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
+   "a96bc04a2e5e9630"],
+  ["/Users/david/erdos-lean-build/RequestProject/CircleMethodAssembly.lean",
+   "f2d4463fdfbb4d08"],
+  ["options", "00000000000006bb"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "138d9c6a472dad03"}

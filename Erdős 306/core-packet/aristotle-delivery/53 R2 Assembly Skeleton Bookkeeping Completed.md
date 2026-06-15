@@ -70,6 +70,23 @@ The work is therefore not blocked by semiprime/period bookkeeping anymore.  It
 is concentrated in the monolithic construction of the final edge set and the
 minor-arc split.
 
+## Local Follow-Up
+
+`RequestProject/R2MinorAssembly.lean` has also been started locally.  It proves
+the pure finite-sum partition needed for the final `hminor` split:
+
+```lean
+CircleMethod.blockMinorPart
+CircleMethod.extraMinorPart
+CircleMethod.minorParts_union_eq_of_cover
+CircleMethod.sum_le_of_minor_split_bounds
+CircleMethod.r2_minor_bound_split
+```
+
+This is deliberately only the finite bookkeeping layer.  It does not yet invoke
+`minor_arc_bound_fiber_tail` or `gadget_charFun_damp`; it provides the wrapper
+shape into which those two estimates should feed.
+
 ## Suggested Next Prompt
 
 Ask for a new file or extension, still avoiding the whole theorem in one jump:

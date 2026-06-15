@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["58d950bc82f0d557.olean"],
-  "i": "5263712afd22f1ba.ilean",
+ {"o": ["34da9a5235dbc92d.olean"],
+  "i": "e9b95eeb624e5739.ilean",
   "c": "c9ab1d945dab1f54.c"},
  "log":
  [{"message":
@@ -19,9 +19,6 @@
    "level": "info"},
   {"message":
    "RequestProject/CircleMethod.lean:261:5: unused variable `hmainpos`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "RequestProject/CircleMethod.lean:297:8: declaration uses `sorry`",
    "level": "warning"}],
  "inputs":
  [["RequestProject.CircleMethod:deps",
@@ -41,7 +38,7 @@
   ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
    "a96bc04a2e5e9630"],
   ["/Users/david/erdos-lean-build/RequestProject/CircleMethod.lean",
-   "224cf1a5b76bfd7a"],
+   "55c6deb9b35c8854"],
   ["options", "00000000000006bb"],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "472f6d646f0ae4b6"}
+ "depHash": "145eda9a14a1ea11"}
