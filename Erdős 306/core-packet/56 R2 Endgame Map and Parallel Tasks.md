@@ -313,6 +313,20 @@ all old obstruction edges in `T` lie below the bottom pair scale
 the `T` overlap is zero while the control/gadget forbidden pieces are absorbed
 by `D.baseLoad`.  The final mass-batch budget then follows from `b ≥ 3`.
 
+The remaining nontrivial mass-batch input is therefore `D.baseLoad < 3/(2b)`.
+This is **not** mere finite-set bookkeeping.  The control part requires a
+one-reciprocal upper estimate for dyadic prime blocks: heuristically
+`∑_{p∈P_k} 1/p = O(1/k)`, so the internal/bipartite control reciprocal load is
+`O(∑_{k=k0}^{3k0} 1/k^2) = O(1/k0)`.  The existing `dyadic_prime_density` and
+`dyadic_mertens_cumulative` inputs are lower-bound inputs; by themselves they do
+not give this upper estimate.  A crude interval-cardinality upper bound is too
+weak.  Thus the next mainline analytic socket is either:
+
+- add/prove a named classical dyadic reciprocal upper input and derive
+  `recipLoad (ctrlEdges BS) → 0`; or
+- state the final R2 assembly conditionally on this explicit control-load upper
+  and then discharge it later from Rosser/Mertens upper estimates.
+
 ## Next Split
 
 The next parallel split should be:
