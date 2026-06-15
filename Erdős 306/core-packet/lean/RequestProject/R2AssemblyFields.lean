@@ -54,6 +54,39 @@ lemma r2Concrete_hbound_of_recipLoad_lt_one {T : Finset ℕ} {b : ℕ}
   exact period_div_sum_lt_of_recip_sum_lt D.E D.L hL hepos heL (by
     simpa [R2ConcreteData.recipLoad] using hload)
 
+/-- For `b ≥ 3`, the R2 reciprocal-load upper window `< 3/b` implies the
+strict `< 1` load needed by `hbound`. -/
+lemma recipLoad_lt_one_of_lt_three_div
+    (E : Finset ℕ) (b : ℕ)
+    (hb : 3 ≤ b)
+    (hub : R2ConcreteData.recipLoad E < 3 / (b : ℝ)) :
+    R2ConcreteData.recipLoad E < 1 := by
+  have hbR : (3 : ℝ) ≤ (b : ℝ) := by exact_mod_cast hb
+  have hbpos : (0 : ℝ) < (b : ℝ) := by positivity
+  have hthree : 3 / (b : ℝ) ≤ 1 := by
+    rw [div_le_one hbpos]
+    exact hbR
+  exact lt_of_lt_of_le hub hthree
+
+/-- Concrete `hbound` from the R2 strict reciprocal-load upper window. -/
+lemma r2Concrete_hbound_of_recipLoad_window {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b)
+    (hb : 3 ≤ b)
+    (hL : 0 < D.L)
+    (hepos : ∀ e ∈ D.E, 0 < e)
+    (heL : ∀ e ∈ D.E, e ∣ D.L)
+    (hub : R2ConcreteData.recipLoad D.E < 3 / (b : ℝ)) :
+    (∑ e ∈ D.E, (D.L / e : ℕ)) < D.L :=
+  r2Concrete_hbound_of_recipLoad_lt_one D hL hepos heL
+    (recipLoad_lt_one_of_lt_three_div D.E b hb hub)
+
+/-- Positivity of the concrete Gaussian scale. -/
+lemma sigmaE_sqrt_pos_of_weights {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b) (W : R2ConcreteData.Weights D)
+    (hne : D.E.Nonempty) (he0 : ∀ e ∈ D.E, 0 < e) :
+    0 < Real.sqrt (sigmaE2 D.E W.theta) := by
+  exact Real.sqrt_pos.mpr (sigmaE2_pos D.E W.theta hne he0 W.hlb W.hub)
+
 /-- If the total minor budget is already beaten at `sigmaCtrl`, and
 `sigmaE ≤ sigmaCtrl`, then it is beaten at `sigmaE`. -/
 lemma hbeat_of_sigma_le_sigmaCtrl
