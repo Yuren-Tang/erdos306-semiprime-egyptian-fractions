@@ -148,6 +148,9 @@ RequestProject/R2FinalAssemblyRaw.lean
 exists_arcConstruction_of_componentData_raw_numeric_minor_window
 RequestProject/R2ComponentBounds.lean
 exists_arcConstruction_of_component_numeric_minor_sets
+RequestProject/R2ComponentNumeric.lean
+RequestProject/R2ComponentNumericAssembly.lean
+exists_arcConstruction_of_component_rho_numeric_minor_sets
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -166,6 +169,23 @@ for every `e ∈ D.E`, it accepts separate bounds on the three components
 `ctrlEdges D.BS`, `D.Q`, and `gadgetEdges D.R D.S`.  This is the preferred
 socket for split work, because the three edge families can be treated
 independently.
+
+`R2ComponentNumeric.lean` is the Aristotle-returned numeric/cardinality layer:
+it proves ratio bounds from `N <= rho * e`, component cardinality control, and
+the cubic-card transfer
+`(D.E.card : ℝ) * 100000 * rho^3 <= 1/10`.
+
+`R2ComponentNumericAssembly.lean` is the current local downstream socket.  Its
+endpoint `exists_arcConstruction_of_component_rho_numeric_minor_sets` replaces
+the separate `10*N <= e`, ratio, and `D.E.card` hypotheses by:
+
+- `0 <= rho` and `rho <= 1/10`;
+- component-wise positivity and scale bounds `N <= rho * e`;
+- component-cardinality bound
+  `(ctrl.card + Q.card + gadget.card : ℝ) <= K`;
+- cubic budget `K * 100000 * rho^3 <= 1/10`.
+
+This is currently the cleanest numeric interface for the final sprint.
 
 ## Next Split
 
