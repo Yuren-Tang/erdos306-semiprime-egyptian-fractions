@@ -180,6 +180,10 @@ RequestProject/R2ForbiddenPoolBudget.lean
 residualForbidden_recipLoad_le_components
 R2ForbiddenBudget
 residualForbidden_recipLoad_le_budget
+RequestProject/R2MassBatchFinalBudget.lean
+exists_massBatchSupply_of_half_fullPool_forbiddenBudget
+exists_massBatchSupply_of_blockPrimes_forbiddenBudget
+exists_massBatchSupply_of_eventual_blockPrimes_forbiddenBudget
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -284,6 +288,13 @@ load budgets for overlap with `T`, `ctrlEdges D.BS`, and `gadgetEdges D.R D.S`.
 Thus the mass-batch construction is now reduced to a final arithmetic bridge:
 compare the half-mass full pool with `3/(2b) - D.baseLoad` plus those three
 forbidden budgets.
+
+`R2MassBatchFinalBudget.lean` closes that bridge.  Its endpoint
+`exists_massBatchSupply_of_eventual_blockPrimes_forbiddenBudget` says: once
+`blockPrimes D.BS.k0 ⊆ blockSupport D.BS`, the bottom-scale edge-smallness
+inequality holds, and the three forbidden budgets satisfy
+`(3/(2b) - D.baseLoad) + FT + Fctrl + Fgadget ≤ 1/2`, the residual `Q` batch
+exists after choosing `D.BS.k0` beyond the existing `blockPrimes` load threshold.
 
 ## Next Split
 
