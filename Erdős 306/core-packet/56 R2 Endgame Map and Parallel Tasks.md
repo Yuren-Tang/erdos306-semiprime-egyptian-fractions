@@ -151,6 +151,9 @@ exists_arcConstruction_of_component_numeric_minor_sets
 RequestProject/R2ComponentNumeric.lean
 RequestProject/R2ComponentNumericAssembly.lean
 exists_arcConstruction_of_component_rho_numeric_minor_sets
+RequestProject/R2MinorSupportBudget.lean
+R2MinorSupportBudgetData
+exists_arcConstruction_of_component_rho_numeric_minor_budget
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -186,6 +189,13 @@ the separate `10*N <= e`, ratio, and `D.E.card` hypotheses by:
 - cubic budget `K * 100000 * rho^3 <= 1/10`.
 
 This is currently the cleanest numeric interface for the final sprint.
+
+`R2MinorSupportBudget.lean` packages the minor support lane into
+`R2MinorSupportBudgetData`, with fields `Sblock`, `Sextra`, `hcover`, `hblock`,
+and `hextra`.  The endpoint
+`exists_arcConstruction_of_component_rho_numeric_minor_budget` is now the best
+record-level socket: the remaining minor task is to construct this record and
+prove the strict combined budget.
 
 ## Next Split
 
