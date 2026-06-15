@@ -154,6 +154,9 @@ exists_arcConstruction_of_component_rho_numeric_minor_sets
 RequestProject/R2MinorSupportBudget.lean
 R2MinorSupportBudgetData
 exists_arcConstruction_of_component_rho_numeric_minor_budget
+RequestProject/R2MassBatchSupply.lean
+R2MassBatchSupply
+exists_arcConstruction_of_massBatchSupply
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -196,6 +199,13 @@ and `hextra`.  The endpoint
 `exists_arcConstruction_of_component_rho_numeric_minor_budget` is now the best
 record-level socket: the remaining minor task is to construct this record and
 prove the strict combined budget.
+
+`R2MassBatchSupply.lean` packages the residual mass-batch lane.  If every
+`e ∈ D.Q` is a product `p*q` of two ordered primes in `blockSupport D.BS`, then
+the file derives `Qsemi`, `Qpos`, and `Qdvd` automatically.  The endpoint
+`exists_arcConstruction_of_massBatchSupply` now consumes one `QB :
+R2MassBatchSupply D` instead of the scattered Q structural and load-window
+hypotheses.
 
 ## Next Split
 
