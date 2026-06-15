@@ -88,8 +88,33 @@ and extra-minor frequency supports used by the R2 construction, prove
 
 ## Local Next Step
 
-The best local step is to write the hypothesis-heavy
-`exists_arcConstruction_of_R2FinalData` theorem.  This will expose exactly which
-construction facts remain, without forcing every supply theorem to be solved in
-the same edit.  It is the right "spine" for the final sprint.
+The local spine is now:
 
+```lean
+RequestProject/R2FinalAssembly.lean
+```
+
+It defines:
+
+```lean
+R2FinalSupply
+R2FinalSupply.toArcConstruction
+exists_arcConstruction_of_R2FinalSupply
+exists_R2FinalSupply_of_mainArcParams
+exists_arcConstruction_of_mainArcParams
+exists_arcConstruction_of_blockExtraBudget
+exists_arcConstruction_of_componentData
+```
+
+The strongest current local endpoint is
+`exists_arcConstruction_of_componentData`: it no longer asks for structural edge
+fields or the final `hbeat` directly.  Instead it consumes:
+
+- component-level semiprime/avoid/divisibility hypotheses for `Q`, `R`, `S`;
+- `N >= 0` and `2*N+1 <= L` to build the main-arc fields internally;
+- `hN`, `htw`, `hsmall` from the numeric lane;
+- `hminor` with bound `Bblock+Bextra` from the minor-cover lane;
+- `sigmaE <= sigmaCtrl` and the strict budget
+  `Bblock+Bextra < c3 / sigmaCtrl`.
+
+This is the right socket for the final sprint.
