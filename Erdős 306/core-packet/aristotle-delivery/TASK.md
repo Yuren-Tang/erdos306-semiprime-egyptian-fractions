@@ -1,11 +1,11 @@
 # Aristotle delivery — current task
 
-**CURRENT TASK = `ACTIVE_PROMPT.md`: prove the R2 forbidden-pool budget
-bookkeeping in a new leaf `RequestProject/R2ForbiddenPoolBudget.lean`.**
+**CURRENT TASK = `ACTIVE_PROMPT.md`: prove the R2 control/gadget disjointness
+bookkeeping in a new leaf `RequestProject/R2ComponentDisjoint.lean`.**
 
 This is a clean Aristotle lane for the next parallel round: finite-set
-bookkeeping only, downstream of the mass-batch candidate-pool interface, and not
-coupled to analytic estimates.
+prime-factor bookkeeping only, downstream of the mass-batch budget interface,
+and not coupled to analytic estimates.
 
 Work in this folder as the Lake project root.  The Lean package is already in
 the expected layout:
@@ -32,31 +32,27 @@ and keep the build green.
 The local Codex build has verified:
 
 ```text
-lake build RequestProject.R2MassBatchCandidatePool
+lake build RequestProject.R2ForbiddenBaseBudget
 ```
 
 This confirms the chain through:
 
-- `RequestProject.R2ComponentNumeric`;
-- `RequestProject.R2ComponentNumericAssembly`;
-- `RequestProject.R2MinorSupportBudget`;
-- `RequestProject.R2MassBatchSupply`;
-- `RequestProject.R2ComponentSupply`;
-- `RequestProject.R2MassBatchPoolSupply`;
-- `RequestProject.R2MassBatchCandidatePool`.
+- `RequestProject.R2MassBatchFinalBudget`;
+- `RequestProject.R2DyadicBlockSupport`;
+- `RequestProject.R2ForbiddenBaseBudget`.
 
 The exact downstream socket to support is:
 
 ```lean
-CircleMethod.exists_massBatchSupply_of_pairPool_separate_bounds
+CircleMethod.exists_massBatchSupply_of_basePieces_forbiddenBudget
 ```
 
 ## Immediate target
 
-Use `ACTIVE_PROMPT.md` and `ARISTOTLE_TASK_r2_forbidden_pool_budget.md` as the
-direct instructions.  Create `RequestProject/R2ForbiddenPoolBudget.lean` and
-prove the finite-set reciprocal-load decomposition for `residualForbidden`.
+Use `ACTIVE_PROMPT.md` and `ARISTOTLE_TASK_r2_component_disjoint.md` as the
+direct instructions.  Create `RequestProject/R2ComponentDisjoint.lean` and
+prove `ctrlEdges`/`gadgetEdges` disjointness from `R` being outside block
+support.
 
 Do not attempt the final `CircleMethod.exists_arcConstruction` directly in this
 round.
-

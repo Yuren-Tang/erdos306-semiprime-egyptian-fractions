@@ -1,35 +1,34 @@
-# Aristotle Task: R2 Forbidden Pool Budget
+# Aristotle Task: R2 Control/Gadget Disjointness
 
-Use `ARISTOTLE_TASK_r2_forbidden_pool_budget.md` as the detailed specification.
+Use `ARISTOTLE_TASK_r2_component_disjoint.md` as the detailed specification.
 
 Create a new thin Lean file:
 
 ```lean
-RequestProject/R2ForbiddenPoolBudget.lean
+RequestProject/R2ComponentDisjoint.lean
 ```
 
 Import:
 
 ```lean
-import RequestProject.R2MassBatchCandidatePool
+import RequestProject.R2ForbiddenBaseBudget
 ```
 
 This is a bounded downstream task.  Do **not** attempt the full
 `exists_arcConstruction`; do **not** edit thick upstream files.  The goal is to
-prove the finite-set reciprocal-load bookkeeping that decomposes
+prove the prime-factor bookkeeping that shows
 
 ```lean
-R2ConcreteData.recipLoad
-  (blockSupportPairPool D.BS ∩ residualForbidden D)
+Disjoint (ctrlEdges BS) (gadgetEdges R S)
 ```
 
-into obstruction/control/gadget pieces.
+from the natural hypothesis that every denominator-side gadget prime `r ∈ R` is
+outside `blockSupport BS`.
 
 Preferred final check:
 
 ```bash
-lake build RequestProject.R2ForbiddenPoolBudget
+lake build RequestProject.R2ComponentDisjoint
 ```
 
 Report theorem names, build status, and any remaining gaps.
-

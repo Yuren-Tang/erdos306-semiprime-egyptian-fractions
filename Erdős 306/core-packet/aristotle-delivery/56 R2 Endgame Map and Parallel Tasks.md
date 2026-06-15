@@ -171,6 +171,26 @@ residualPairPool_small_of_k0_square
 residualPairPool_load_lower_of_forbidden_budget
 exists_massBatchSupply_of_residualPairPool
 exists_massBatchSupply_of_pairPool_forbidden_budget
+exists_massBatchSupply_of_pairPool_separate_bounds
+RequestProject/R2PairPoolFullLower.lean
+blockSupportPairPool_load_ge_of_blockPrimes_subset
+blockSupportPairPool_load_ge_half_of_contains_large_blockPrimes
+exists_k1_blockSupportPairPool_load_ge_half
+RequestProject/R2ForbiddenPoolBudget.lean
+residualForbidden_recipLoad_le_components
+R2ForbiddenBudget
+residualForbidden_recipLoad_le_budget
+RequestProject/R2MassBatchFinalBudget.lean
+exists_massBatchSupply_of_half_fullPool_forbiddenBudget
+exists_massBatchSupply_of_blockPrimes_forbiddenBudget
+exists_massBatchSupply_of_eventual_blockPrimes_forbiddenBudget
+RequestProject/R2DyadicBlockSupport.lean
+exists_blockSystem_with_blockPrimes_subset
+RequestProject/R2ForbiddenBaseBudget.lean
+blockSupportPairPool_inter_T_eq_empty_of_lt_k0_square
+baseLoad_eq_ctrl_add_gadget_of_disjoint
+R2ForbiddenBudget.of_basePieces
+exists_massBatchSupply_of_basePieces_forbiddenBudget
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -261,6 +281,37 @@ That lower bound has also been normalized by
 
 plus the bottom-scale inequality above.  This is the current exact mass-batch
 target.
+
+`R2PairPoolFullLower.lean` proves the full-pool lower-bound half of this target:
+if `blockPrimes k0 ⊆ blockSupport BS`, then the existing `BlockMassPool`
+product-load lower bound transfers to
+`R2ConcreteData.recipLoad (blockSupportPairPool BS)`.  In particular,
+`blockSupportPairPool_load_ge_half_of_contains_large_blockPrimes` gives the
+clean lower bound `1/2 ≤ ...` from the large-scale `blockPrimes` estimate.
+
+`R2ForbiddenPoolBudget.lean` proves the complementary upper-bound bookkeeping:
+the forbidden part of the residual pair pool is bounded by separate reciprocal
+load budgets for overlap with `T`, `ctrlEdges D.BS`, and `gadgetEdges D.R D.S`.
+Thus the mass-batch construction is now reduced to a final arithmetic bridge:
+compare the half-mass full pool with `3/(2b) - D.baseLoad` plus those three
+forbidden budgets.
+
+`R2MassBatchFinalBudget.lean` closes that bridge.  Its endpoint
+`exists_massBatchSupply_of_eventual_blockPrimes_forbiddenBudget` says: once
+`blockPrimes D.BS.k0 ⊆ blockSupport D.BS`, the bottom-scale edge-smallness
+inequality holds, and the three forbidden budgets satisfy
+`(3/(2b) - D.baseLoad) + FT + Fctrl + Fgadget ≤ 1/2`, the residual `Q` batch
+exists after choosing `D.BS.k0` beyond the existing `blockPrimes` load threshold.
+
+`R2DyadicBlockSupport.lean` exposes the corresponding support fact for the
+concrete dyadic block systems used by the construction:
+`blockPrimes BS.k0 ⊆ blockSupport BS`.
+
+`R2ForbiddenBaseBudget.lean` removes most of the forbidden-budget mystery.  If
+all old obstruction edges in `T` lie below the bottom pair scale
+`2^k0 * 2^k0`, and the fixed control/gadget edge families are disjoint, then
+the `T` overlap is zero while the control/gadget forbidden pieces are absorbed
+by `D.baseLoad`.  The final mass-batch budget then follows from `b ≥ 3`.
 
 ## Next Split
 
