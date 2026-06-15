@@ -171,6 +171,11 @@ residualPairPool_small_of_k0_square
 residualPairPool_load_lower_of_forbidden_budget
 exists_massBatchSupply_of_residualPairPool
 exists_massBatchSupply_of_pairPool_forbidden_budget
+exists_massBatchSupply_of_pairPool_separate_bounds
+RequestProject/R2PairPoolFullLower.lean
+blockSupportPairPool_load_ge_of_blockPrimes_subset
+blockSupportPairPool_load_ge_half_of_contains_large_blockPrimes
+exists_k1_blockSupportPairPool_load_ge_half
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -261,6 +266,13 @@ That lower bound has also been normalized by
 
 plus the bottom-scale inequality above.  This is the current exact mass-batch
 target.
+
+`R2PairPoolFullLower.lean` proves the full-pool lower-bound half of this target:
+if `blockPrimes k0 ⊆ blockSupport BS`, then the existing `BlockMassPool`
+product-load lower bound transfers to
+`R2ConcreteData.recipLoad (blockSupportPairPool BS)`.  In particular,
+`blockSupportPairPool_load_ge_half_of_contains_large_blockPrimes` gives the
+clean lower bound `1/2 ≤ ...` from the large-scale `blockPrimes` estimate.
 
 ## Next Split
 
