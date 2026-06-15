@@ -79,8 +79,13 @@ lemma recipLoad_eq_sdiff_add_inter (A B : Finset ℕ) :
     by_cases hxA : x ∈ A
     · by_cases hxB : x ∈ B <;> simp [hxA, hxB]
     · simp [hxA]
-  rw [← hunion, R2ConcreteData.recipLoad, Finset.sum_union hdisj]
-  rfl
+  calc
+    R2ConcreteData.recipLoad A =
+        R2ConcreteData.recipLoad ((A \ B) ∪ (A ∩ B)) := by rw [hunion]
+    _ = R2ConcreteData.recipLoad (A \ B) +
+          R2ConcreteData.recipLoad (A ∩ B) := by
+        unfold R2ConcreteData.recipLoad
+        rw [Finset.sum_union hdisj]
 
 /-- If the full block-support pair pool beats the target plus the forbidden
 budget, then the residual pool beats the target. -/
@@ -154,7 +159,7 @@ theorem exists_massBatchSupply_of_residualPairPool
       ≤ R2ConcreteData.recipLoad (residualPairPool D)) :
     ∃ Q : Finset ℕ, R2MassBatchSupply (D.withQ Q) := by
   exact exists_massBatchSupply_of_pool D (residualPairPool D) hb hbase
-    (residualPairPool_pair D) (residualPairPool_avoid D)
+    (fun e he => residualPairPool_pair D he) (residualPairPool_avoid D)
     (residualPairPool_disjoint_fixed D) hsmall hsum
 
 /-- Final candidate-pool mass-batch endpoint: it is enough to prove one lower
