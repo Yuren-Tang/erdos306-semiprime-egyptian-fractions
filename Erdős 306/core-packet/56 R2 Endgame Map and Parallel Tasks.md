@@ -167,6 +167,7 @@ exists_massBatchSupply_of_pool
 RequestProject/R2MassBatchCandidatePool.lean
 blockSupportPairPool
 residualPairPool
+residualPairPool_small_of_k0_square
 exists_massBatchSupply_of_residualPairPool
 ```
 
@@ -240,6 +241,11 @@ supplies `Q` once two numerical facts are proved:
 
 - each surviving edge has reciprocal `< 3/(2b)`;
 - its total reciprocal load is at least `3/(2b) - D.baseLoad`.
+
+The first bullet is now reduced by `residualPairPool_small_of_k0_square`: it is
+enough to impose the bottom-scale inequality
+`2*b < 3*(2^D.BS.k0 * 2^D.BS.k0)`.  Thus the genuinely remaining mass-batch
+estimate is the trimmed-pool load lower bound.
 
 ## Next Split
 
