@@ -161,6 +161,13 @@ RequestProject/R2ComponentSupply.lean
 R2ControlSupply
 R2GadgetSupply
 exists_arcConstruction_of_componentSupplies
+RequestProject/R2MassBatchPoolSupply.lean
+R2ConcreteData.withQ
+exists_massBatchSupply_of_pool
+RequestProject/R2MassBatchCandidatePool.lean
+blockSupportPairPool
+residualPairPool
+exists_massBatchSupply_of_residualPairPool
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -216,6 +223,23 @@ hypotheses.
 `R2GadgetSupply` stores the gadget prime/order/period/scale/avoidance
 conditions.  The endpoint `exists_arcConstruction_of_componentSupplies` is now
 the cleanest record-level assembly theorem.
+
+`R2MassBatchPoolSupply.lean` adds the selection bridge before
+`R2MassBatchSupply`: from a finite candidate pool `P` whose elements are
+block-support prime products, avoid the obstruction set, are disjoint from the
+fixed control/gadget edges, are individually small, and have enough residual
+reciprocal load, it chooses a subset `Q` and produces
+`R2MassBatchSupply (D.withQ Q)`.  This turns the mass-batch lane into a clean
+candidate-pool construction problem rather than a preselected-`Q` problem.
+
+`R2MassBatchCandidatePool.lean` names the canonical pool
+`residualPairPool D`: all products `p*q` of ordered distinct block-support
+primes, after removing `T` and the fixed control/gadget edges.  Its endpoint
+`exists_massBatchSupply_of_residualPairPool` shows that this canonical pool
+supplies `Q` once two numerical facts are proved:
+
+- each surviving edge has reciprocal `< 3/(2b)`;
+- its total reciprocal load is at least `3/(2b) - D.baseLoad`.
 
 ## Next Split
 
