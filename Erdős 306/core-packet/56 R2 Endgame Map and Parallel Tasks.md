@@ -176,6 +176,10 @@ RequestProject/R2PairPoolFullLower.lean
 blockSupportPairPool_load_ge_of_blockPrimes_subset
 blockSupportPairPool_load_ge_half_of_contains_large_blockPrimes
 exists_k1_blockSupportPairPool_load_ge_half
+RequestProject/R2ForbiddenPoolBudget.lean
+residualForbidden_recipLoad_le_components
+R2ForbiddenBudget
+residualForbidden_recipLoad_le_budget
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -273,6 +277,13 @@ product-load lower bound transfers to
 `R2ConcreteData.recipLoad (blockSupportPairPool BS)`.  In particular,
 `blockSupportPairPool_load_ge_half_of_contains_large_blockPrimes` gives the
 clean lower bound `1/2 ≤ ...` from the large-scale `blockPrimes` estimate.
+
+`R2ForbiddenPoolBudget.lean` proves the complementary upper-bound bookkeeping:
+the forbidden part of the residual pair pool is bounded by separate reciprocal
+load budgets for overlap with `T`, `ctrlEdges D.BS`, and `gadgetEdges D.R D.S`.
+Thus the mass-batch construction is now reduced to a final arithmetic bridge:
+compare the half-mass full pool with `3/(2b) - D.baseLoad` plus those three
+forbidden budgets.
 
 ## Next Split
 

@@ -77,10 +77,8 @@ theorem exists_arcConstruction_of_massBatchSupply
     (hNscale : (1 : ℝ) / Real.sqrt (sigmaE2 D.E W.theta) ≤ (N : ℝ))
     (hρnonneg : 0 ≤ ρ)
     (hρle : ρ ≤ 1 / 10)
-    (hctrlpos : ∀ e ∈ ctrlEdges D.BS, 0 < e)
     (hctrledge : ∀ e ∈ ctrlEdges D.BS, (N : ℝ) ≤ ρ * (e : ℝ))
     (hQedge : ∀ e ∈ D.Q, (N : ℝ) ≤ ρ * (e : ℝ))
-    (hgadgetpos : ∀ e ∈ gadgetEdges D.R D.S, 0 < e)
     (hgadgetedge : ∀ e ∈ gadgetEdges D.R D.S, (N : ℝ) ≤ ρ * (e : ℝ))
     (hcomponentCard :
       ((ctrlEdges D.BS).card + D.Q.card + (gadgetEdges D.R D.S).card : ℝ) ≤ K)
@@ -101,6 +99,12 @@ theorem exists_arcConstruction_of_massBatchSupply
       Bblock + Bextra <
         (0.8 * (Real.exp (-(Real.pi ^ 2 / 2)) / 2)) / sigmaCtrl D.BS) :
     Nonempty (ArcConstruction T b) := by
+  have hctrlpos : ∀ e ∈ ctrlEdges D.BS, 0 < e := by
+    intro e he
+    exact (ctrlEdges_semiprime D.BS he).pos
+  have hgadgetpos : ∀ e ∈ gadgetEdges D.R D.S, 0 < e := by
+    intro e he
+    exact (gadgetEdges_semiprime hRprime hSprime hlt e he).pos
   exact exists_arcConstruction_of_component_rho_numeric_minor_budget hb D W N
     Bblock Bextra ρ K hadm hNscale hρnonneg hρle
     hctrlpos hctrledge (QB.q_pos) hQedge hgadgetpos hgadgetedge
