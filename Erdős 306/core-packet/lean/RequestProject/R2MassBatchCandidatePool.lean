@@ -22,11 +22,17 @@ def blockSupportPairPool (BS : BlockSystem) : Finset ℕ :=
   ((blockSupport BS).offDiag.filter (fun pq : ℕ × ℕ => pq.1 < pq.2)).image
     (fun pq : ℕ × ℕ => pq.1 * pq.2)
 
+/-- Edges forbidden for the residual mass batch: the obstruction set plus the
+already-fixed control/gadget products. -/
+def residualForbidden {T : Finset ℕ} {b : ℕ} (D : R2ConcreteData T b) :
+    Finset ℕ :=
+  T ∪ (ctrlEdges D.BS ∪ gadgetEdges D.R D.S)
+
 /-- The residual mass-batch pool after deleting the obstruction set and the
 already-fixed control/gadget edge products. -/
 def residualPairPool {T : Finset ℕ} {b : ℕ} (D : R2ConcreteData T b) :
     Finset ℕ :=
-  blockSupportPairPool D.BS \ (T ∪ (ctrlEdges D.BS ∪ gadgetEdges D.R D.S))
+  blockSupportPairPool D.BS \ residualForbidden D
 
 lemma blockSupportPairPool_pair {BS : BlockSystem} {e : ℕ}
     (he : e ∈ blockSupportPairPool BS) :
@@ -47,7 +53,7 @@ lemma residualPairPool_avoid {T : Finset ℕ} {b : ℕ}
     ∀ e ∈ residualPairPool D, e ∉ T := by
   intro e he hT
   rw [residualPairPool, Finset.mem_sdiff] at he
-  exact he.2 (by simp [hT])
+  exact he.2 (by simp [residualForbidden, hT])
 
 lemma residualPairPool_disjoint_fixed {T : Finset ℕ} {b : ℕ}
     (D : R2ConcreteData T b) :
@@ -55,7 +61,42 @@ lemma residualPairPool_disjoint_fixed {T : Finset ℕ} {b : ℕ}
   rw [Finset.disjoint_left]
   intro e he hfixed
   rw [residualPairPool, Finset.mem_sdiff] at he
-  exact he.2 (by simp [hfixed])
+  exact he.2 (by simp [residualForbidden, hfixed])
+
+/-- Reciprocal load splits into the part outside `B` and the part inside `B`. -/
+lemma recipLoad_eq_sdiff_add_inter (A B : Finset ℕ) :
+    R2ConcreteData.recipLoad A =
+      R2ConcreteData.recipLoad (A \ B) +
+        R2ConcreteData.recipLoad (A ∩ B) := by
+  have hdisj : Disjoint (A \ B) (A ∩ B) := by
+    rw [Finset.disjoint_left]
+    intro x hx hxint
+    rw [Finset.mem_sdiff] at hx
+    rw [Finset.mem_inter] at hxint
+    exact hx.2 hxint.2
+  have hunion : (A \ B) ∪ (A ∩ B) = A := by
+    ext x
+    by_cases hxA : x ∈ A
+    · by_cases hxB : x ∈ B <;> simp [hxA, hxB]
+    · simp [hxA]
+  rw [← hunion, R2ConcreteData.recipLoad, Finset.sum_union hdisj]
+  rfl
+
+/-- If the full block-support pair pool beats the target plus the forbidden
+budget, then the residual pool beats the target. -/
+lemma residualPairPool_load_lower_of_forbidden_budget
+    {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b) (target : ℝ)
+    (hbudget :
+      target +
+          R2ConcreteData.recipLoad
+            (blockSupportPairPool D.BS ∩ residualForbidden D)
+        ≤ R2ConcreteData.recipLoad (blockSupportPairPool D.BS)) :
+    target ≤ R2ConcreteData.recipLoad (residualPairPool D) := by
+  have hsplit :=
+    recipLoad_eq_sdiff_add_inter (blockSupportPairPool D.BS) (residualForbidden D)
+  rw [residualPairPool] at *
+  linarith
 
 /-- Every block-support prime is at least the bottom dyadic scale. -/
 lemma blockSupport_ge_k0 {BS : BlockSystem} {p : ℕ}
@@ -115,6 +156,25 @@ theorem exists_massBatchSupply_of_residualPairPool
   exact exists_massBatchSupply_of_pool D (residualPairPool D) hb hbase
     (residualPairPool_pair D) (residualPairPool_avoid D)
     (residualPairPool_disjoint_fixed D) hsmall hsum
+
+/-- Final candidate-pool mass-batch endpoint: it is enough to prove one lower
+bound for the full block-support pair pool after budgeting the forbidden edges. -/
+theorem exists_massBatchSupply_of_pairPool_forbidden_budget
+    {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b)
+    (hb : 0 < b)
+    (hbase : D.baseLoad < 3 / (2 * (b : ℝ)))
+    (hlarge : 2 * b < 3 * (2 ^ D.BS.k0 * 2 ^ D.BS.k0))
+    (hbudget :
+      (3 / (2 * (b : ℝ)) - D.baseLoad) +
+          R2ConcreteData.recipLoad
+            (blockSupportPairPool D.BS ∩ residualForbidden D)
+        ≤ R2ConcreteData.recipLoad (blockSupportPairPool D.BS)) :
+    ∃ Q : Finset ℕ, R2MassBatchSupply (D.withQ Q) := by
+  refine exists_massBatchSupply_of_residualPairPool D hb hbase ?_ ?_
+  · exact residualPairPool_small_of_k0_square D hb hlarge
+  · exact residualPairPool_load_lower_of_forbidden_budget D
+      (3 / (2 * (b : ℝ)) - D.baseLoad) hbudget
 
 end CircleMethod
 

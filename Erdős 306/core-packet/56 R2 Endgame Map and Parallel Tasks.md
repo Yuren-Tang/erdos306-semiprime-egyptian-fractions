@@ -168,7 +168,9 @@ RequestProject/R2MassBatchCandidatePool.lean
 blockSupportPairPool
 residualPairPool
 residualPairPool_small_of_k0_square
+residualPairPool_load_lower_of_forbidden_budget
 exists_massBatchSupply_of_residualPairPool
+exists_massBatchSupply_of_pairPool_forbidden_budget
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -246,6 +248,19 @@ The first bullet is now reduced by `residualPairPool_small_of_k0_square`: it is
 enough to impose the bottom-scale inequality
 `2*b < 3*(2^D.BS.k0 * 2^D.BS.k0)`.  Thus the genuinely remaining mass-batch
 estimate is the trimmed-pool load lower bound.
+
+That lower bound has also been normalized by
+`residualPairPool_load_lower_of_forbidden_budget` and
+`exists_massBatchSupply_of_pairPool_forbidden_budget`: it is enough to show
+
+```lean
+(3 / (2 * (b : ℝ)) - D.baseLoad)
+  + R2ConcreteData.recipLoad (blockSupportPairPool D.BS ∩ residualForbidden D)
+  ≤ R2ConcreteData.recipLoad (blockSupportPairPool D.BS)
+```
+
+plus the bottom-scale inequality above.  This is the current exact mass-batch
+target.
 
 ## Next Split
 
