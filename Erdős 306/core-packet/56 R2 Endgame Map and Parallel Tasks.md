@@ -104,17 +104,20 @@ exists_R2FinalSupply_of_mainArcParams
 exists_arcConstruction_of_mainArcParams
 exists_arcConstruction_of_blockExtraBudget
 exists_arcConstruction_of_componentData
+exists_arcConstruction_of_componentData_light
 ```
 
 The strongest current local endpoint is
-`exists_arcConstruction_of_componentData`: it no longer asks for structural edge
-fields or the final `hbeat` directly.  Instead it consumes:
+`exists_arcConstruction_of_componentData_light`: it no longer asks for structural
+edge fields, `sigmaE <= sigmaCtrl`, `sigmaCtrl > 0`, or the final `hbeat`
+directly.  Instead it consumes:
 
 - component-level semiprime/avoid/divisibility hypotheses for `Q`, `R`, `S`;
 - `N >= 0` and `2*N+1 <= L` to build the main-arc fields internally;
 - `hN`, `htw`, `hsmall` from the numeric lane;
 - `hminor` with bound `Bblock+Bextra` from the minor-cover lane;
-- `sigmaE <= sigmaCtrl` and the strict budget
-  `Bblock+Bextra < c3 / sigmaCtrl`.
+- `admissibleGlobalRange D.BS`;
+- the explicit light-extra inverse-square estimate;
+- the strict budget `Bblock+Bextra < c3 / sigmaCtrl`.
 
 This is the right socket for the final sprint.

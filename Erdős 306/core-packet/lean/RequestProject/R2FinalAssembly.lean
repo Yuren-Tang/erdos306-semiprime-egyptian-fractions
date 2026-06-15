@@ -250,6 +250,48 @@ theorem exists_arcConstruction_of_componentData
     hNnonneg hNL hsemi havoid hne heL he0 hloadUpper hN htw hsmall hminor
     hσctrl hσle hminorCtrl
 
+/-- Component-data endpoint with the sigma hypotheses generated from the
+admissible block system and the explicit light-extra condition. -/
+theorem exists_arcConstruction_of_componentData_light
+    {T : Finset ℕ} {b : ℕ}
+    (hb : 3 ≤ b)
+    (D : R2ConcreteData T b) (W : R2ConcreteData.Weights D) (N : ℤ)
+    (Bblock Bextra : ℝ)
+    (hadm : admissibleGlobalRange D.BS)
+    (hNnonneg : 0 ≤ N)
+    (hNL : 2 * N + 1 ≤ (D.L : ℤ))
+    (hQsemi : ∀ e ∈ D.Q, IsSemiprime e)
+    (hRprime : ∀ r ∈ D.R, Nat.Prime r)
+    (hSprime : ∀ s ∈ D.S, Nat.Prime s)
+    (hlt : ∀ r ∈ D.R, ∀ s ∈ D.S, r < s)
+    (hctrlAvoid : ∀ e ∈ ctrlEdges D.BS, e ∉ T)
+    (hQavoid : ∀ e ∈ D.Q, e ∉ T)
+    (hgadgetAvoid : ∀ e ∈ gadgetEdges D.R D.S, e ∉ T)
+    (hQne : D.Q.Nonempty)
+    (hQdvd : ∀ e ∈ D.Q, e ∣ D.L)
+    (hRdvd : ∀ r ∈ D.R, r ∣ b)
+    (hSblock : D.S ⊆ blockSupport D.BS)
+    (hloadUpper : R2ConcreteData.recipLoad D.E < 3 / (b : ℝ))
+    (hN : (1 : ℝ) / Real.sqrt (sigmaE2 D.E W.theta) ≤ (N : ℝ))
+    (htw : ∀ m ∈ Finset.Icc (-N) N, ∀ e ∈ D.E,
+      |(m : ℝ) / (e : ℝ)| ≤ 1 / 10)
+    (hsmall : ∀ m ∈ Finset.Icc (-N) N,
+      (∑ e ∈ D.E, 100000 * |(m : ℝ) / (e : ℝ)| ^ 3) ≤ 1 / 10)
+    (hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
+      ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bblock + Bextra)
+    (hextraLight : ∑ e ∈ D.E \ ctrlEdges D.BS, 1 / (e : ℝ) ^ 2
+        ≤ 3 * (sigmaCtrl D.BS) ^ 2)
+    (hminorCtrl :
+      Bblock + Bextra <
+        (0.8 * (Real.exp (-(Real.pi ^ 2 / 2)) / 2)) / sigmaCtrl D.BS) :
+    Nonempty (ArcConstruction T b) := by
+  exact exists_arcConstruction_of_componentData hb D W N Bblock Bextra
+    hNnonneg hNL hQsemi hRprime hSprime hlt hctrlAvoid hQavoid hgadgetAvoid
+    hQne hQdvd hRdvd hSblock hloadUpper hN htw hsmall hminor
+    (sigmaCtrl_pos D.BS hadm)
+    (D.sigma_le_sigmaCtrl_of_light W.theta hextraLight)
+    hminorCtrl
+
 end CircleMethod
 
 end
