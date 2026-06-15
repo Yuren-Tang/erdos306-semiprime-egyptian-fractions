@@ -73,18 +73,31 @@ from the existing construction lemmas.
 
 See [[CODEX_TASK_r2_numeric_fields]].
 
-This is cleanly independent.  It should create abstract helper lemmas for
-`hN`, `htw`, and `hsmall`, from simple lower-bound/cardinality hypotheses.
-It should not touch the minor arc.
+Completed and integrated as:
+
+```lean
+RequestProject/R2NumericFields.lean
+MainArcNumericFields
+mainArcNumericFields_of
+```
+
+This now packages `hN`, `hNnonneg`, `htw`, and `hsmall` for the final assembly.
 
 ## Parallel Task B
 
 See [[CODEX_TASK_r2_minor_cover]].
 
-This is the coupled-but-isolatable minor side: define the concrete block-minor
-and extra-minor frequency supports used by the R2 construction, prove
-`Sm ⊆ Sblock ∪ Sextra`, and expose the hypotheses needed by
-`r2_hminor_bound_from_block_and_extra`.
+Completed and integrated as:
+
+```lean
+RequestProject/R2MinorCover.lean
+R2MinorCoverData
+fourierNormWeight
+hminor_of_block_extra_norm_bounds
+```
+
+This now turns a cover of `Sm` plus block/extra norm-sum bounds into the final
+minor norm estimate.
 
 ## Local Next Step
 
@@ -105,19 +118,45 @@ exists_arcConstruction_of_mainArcParams
 exists_arcConstruction_of_blockExtraBudget
 exists_arcConstruction_of_componentData
 exists_arcConstruction_of_componentData_light
+exists_arcConstruction_of_componentData_light_window
+exists_arcConstruction_of_componentData_numeric_minor_window
 ```
 
 The strongest current local endpoint is
-`exists_arcConstruction_of_componentData_light`: it no longer asks for structural
-edge fields, `sigmaE <= sigmaCtrl`, `sigmaCtrl > 0`, or the final `hbeat`
-directly.  Instead it consumes:
+`exists_arcConstruction_of_componentData_numeric_minor_window`: it no longer
+asks for structural edge fields, numeric main-window fields one by one,
+`hminor`, `sigmaE <= sigmaCtrl`, `sigmaCtrl > 0`, the reciprocal-load upper
+window for `D.E`, or the final `hbeat` directly.  Instead it consumes:
 
 - component-level semiprime/avoid/divisibility hypotheses for `Q`, `R`, `S`;
-- `N >= 0` and `2*N+1 <= L` to build the main-arc fields internally;
-- `hN`, `htw`, `hsmall` from the numeric lane;
-- `hminor` with bound `Bblock+Bextra` from the minor-cover lane;
+- `MainArcNumericFields D.E W.theta N`;
+- `2*N+1 <= L` to build the main-arc fields internally;
+- residual load-window data
+  `D.baseLoad + recipLoad D.Q ∈ [3/(2b), 3/b)`;
+- a minor cover for each generated `MainArcFields`, plus block/extra norm-sum
+  bounds;
 - `admissibleGlobalRange D.BS`;
 - the explicit light-extra inverse-square estimate;
 - the strict budget `Bblock+Bextra < c3 / sigmaCtrl`.
 
 This is the right socket for the final sprint.
+
+## Build Discipline
+
+The last R2 integration proved that even a target build with only a few dozen
+jobs can cost close to an hour if it replays thick dependencies.  Going forward:
+
+- Do not use a big build after every small edit.  Build only at real integration
+  nodes, or when a local proof cannot be checked by reading.
+- Before touching a thick file, inspect the previous build warnings for that
+  file and its direct downstream users.  If the file is already being edited,
+  clean mechanical warnings such as `ring`→`ring_nf`, unused simp arguments, and
+  unused variables when this is low risk.
+- Prefer thin leaf files for high-churn endpoints.  If a thick module must be
+  changed repeatedly, first split out the active lemma/interface layer so cache
+  invalidation stays local.
+- Parallel task packets should also prefer split helper files and stable
+  interfaces, not one monolithic file.  This makes Aristotle/Codex work more
+  independent and makes local cache behavior better.
+- Do not rewrite cached old modules merely to silence warnings.  Clean warnings
+  opportunistically when those modules are already on the critical path.

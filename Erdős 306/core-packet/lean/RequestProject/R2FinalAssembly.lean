@@ -1,4 +1,6 @@
 import RequestProject.R2AssemblyFields
+import RequestProject.R2MinorCover
+import RequestProject.R2NumericFields
 
 open Finset BigOperators GlobalControl
 
@@ -291,6 +293,110 @@ theorem exists_arcConstruction_of_componentData_light
     (sigmaCtrl_pos D.BS hadm)
     (D.sigma_le_sigmaCtrl_of_light W.theta hextraLight)
     hminorCtrl
+
+/-- Component-data endpoint with both the sigma hypotheses and the final
+reciprocal-load upper bound generated from concrete construction data.
+
+This is the natural interface for the mass-pool lane: it supplies a residual
+batch `D.Q` whose load, together with the fixed base load, lies in the required
+window. -/
+theorem exists_arcConstruction_of_componentData_light_window
+    {T : Finset ℕ} {b : ℕ}
+    (hb : 3 ≤ b)
+    (D : R2ConcreteData T b) (W : R2ConcreteData.Weights D) (N : ℤ)
+    (Bblock Bextra : ℝ)
+    (hadm : admissibleGlobalRange D.BS)
+    (hNnonneg : 0 ≤ N)
+    (hNL : 2 * N + 1 ≤ (D.L : ℤ))
+    (hQsemi : ∀ e ∈ D.Q, IsSemiprime e)
+    (hRprime : ∀ r ∈ D.R, Nat.Prime r)
+    (hSprime : ∀ s ∈ D.S, Nat.Prime s)
+    (hlt : ∀ r ∈ D.R, ∀ s ∈ D.S, r < s)
+    (hctrlAvoid : ∀ e ∈ ctrlEdges D.BS, e ∉ T)
+    (hQavoid : ∀ e ∈ D.Q, e ∉ T)
+    (hgadgetAvoid : ∀ e ∈ gadgetEdges D.R D.S, e ∉ T)
+    (hQne : D.Q.Nonempty)
+    (hQdvd : ∀ e ∈ D.Q, e ∣ D.L)
+    (hRdvd : ∀ r ∈ D.R, r ∣ b)
+    (hSblock : D.S ⊆ blockSupport D.BS)
+    (hloadDisj : Disjoint D.Q (ctrlEdges D.BS ∪ gadgetEdges D.R D.S))
+    (hloadLower :
+      3 / (2 * (b : ℝ)) ≤ D.baseLoad + R2ConcreteData.recipLoad D.Q)
+    (hloadUpper :
+      D.baseLoad + R2ConcreteData.recipLoad D.Q < 3 / (b : ℝ))
+    (hN : (1 : ℝ) / Real.sqrt (sigmaE2 D.E W.theta) ≤ (N : ℝ))
+    (htw : ∀ m ∈ Finset.Icc (-N) N, ∀ e ∈ D.E,
+      |(m : ℝ) / (e : ℝ)| ≤ 1 / 10)
+    (hsmall : ∀ m ∈ Finset.Icc (-N) N,
+      (∑ e ∈ D.E, 100000 * |(m : ℝ) / (e : ℝ)| ^ 3) ≤ 1 / 10)
+    (hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
+      ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bblock + Bextra)
+    (hextraLight : ∑ e ∈ D.E \ ctrlEdges D.BS, 1 / (e : ℝ) ^ 2
+        ≤ 3 * (sigmaCtrl D.BS) ^ 2)
+    (hminorCtrl :
+      Bblock + Bextra <
+        (0.8 * (Real.exp (-(Real.pi ^ 2 / 2)) / 2)) / sigmaCtrl D.BS) :
+    Nonempty (ArcConstruction T b) := by
+  have hloadWindow :=
+    D.total_recipLoad_window_of_residual hloadDisj hloadLower hloadUpper
+  exact exists_arcConstruction_of_componentData_light hb D W N Bblock Bextra hadm
+    hNnonneg hNL hQsemi hRprime hSprime hlt hctrlAvoid hQavoid hgadgetAvoid
+    hQne hQdvd hRdvd hSblock hloadWindow.2 hN htw hsmall hminor
+    hextraLight hminorCtrl
+
+/-- Current strongest R2 assembly endpoint.
+
+It consumes the three independent lanes in their natural forms:
+* `MainArcNumericFields` for the large-window fields `hN`, `hNnonneg`, `htw`,
+  and `hsmall`;
+* a `R2MinorCoverData` plus block/extra norm-sum estimates for every generated
+  minor arc;
+* the concrete residual load window and light-extra sigma condition.
+-/
+theorem exists_arcConstruction_of_componentData_numeric_minor_window
+    {T : Finset ℕ} {b : ℕ}
+    (hb : 3 ≤ b)
+    (D : R2ConcreteData T b) (W : R2ConcreteData.Weights D) (N : ℤ)
+    (Bblock Bextra : ℝ)
+    (hadm : admissibleGlobalRange D.BS)
+    (NF : MainArcNumericFields D.E W.theta N)
+    (hNL : 2 * N + 1 ≤ (D.L : ℤ))
+    (hQsemi : ∀ e ∈ D.Q, IsSemiprime e)
+    (hRprime : ∀ r ∈ D.R, Nat.Prime r)
+    (hSprime : ∀ s ∈ D.S, Nat.Prime s)
+    (hlt : ∀ r ∈ D.R, ∀ s ∈ D.S, r < s)
+    (hctrlAvoid : ∀ e ∈ ctrlEdges D.BS, e ∉ T)
+    (hQavoid : ∀ e ∈ D.Q, e ∉ T)
+    (hgadgetAvoid : ∀ e ∈ gadgetEdges D.R D.S, e ∉ T)
+    (hQne : D.Q.Nonempty)
+    (hQdvd : ∀ e ∈ D.Q, e ∣ D.L)
+    (hRdvd : ∀ r ∈ D.R, r ∣ b)
+    (hSblock : D.S ⊆ blockSupport D.BS)
+    (hloadDisj : Disjoint D.Q (ctrlEdges D.BS ∪ gadgetEdges D.R D.S))
+    (hloadLower :
+      3 / (2 * (b : ℝ)) ≤ D.baseLoad + R2ConcreteData.recipLoad D.Q)
+    (hloadUpper :
+      D.baseLoad + R2ConcreteData.recipLoad D.Q < 3 / (b : ℝ))
+    (C : ∀ MA : MainArcFields D.E W.theta b D.L N, R2MinorCoverData MA.Sm)
+    (hblock : ∀ MA : MainArcFields D.E W.theta b D.L N,
+      ∑ h ∈ blockMinorPart MA.Sm (C MA).Sblock,
+        fourierNormWeight D.E W.theta b D.L h ≤ Bblock)
+    (hextra : ∀ MA : MainArcFields D.E W.theta b D.L N,
+      ∑ h ∈ extraMinorPart MA.Sm (C MA).Sblock (C MA).Sextra,
+        fourierNormWeight D.E W.theta b D.L h ≤ Bextra)
+    (hextraLight : ∑ e ∈ D.E \ ctrlEdges D.BS, 1 / (e : ℝ) ^ 2
+        ≤ 3 * (sigmaCtrl D.BS) ^ 2)
+    (hminorCtrl :
+      Bblock + Bextra <
+        (0.8 * (Real.exp (-(Real.pi ^ 2 / 2)) / 2)) / sigmaCtrl D.BS) :
+    Nonempty (ArcConstruction T b) := by
+  refine exists_arcConstruction_of_componentData_light_window hb D W N Bblock Bextra
+    hadm NF.hNnonneg hNL hQsemi hRprime hSprime hlt hctrlAvoid hQavoid
+    hgadgetAvoid hQne hQdvd hRdvd hSblock hloadDisj hloadLower hloadUpper
+    NF.hN NF.htw NF.hsmall ?_ hextraLight hminorCtrl
+  intro MA
+  exact hminor_of_block_extra_norm_bounds D.E W.theta b D.L MA.Sm (C MA)
+    Bblock Bextra (Bblock + Bextra) (hblock MA) (hextra MA) le_rfl
 
 end CircleMethod
 
