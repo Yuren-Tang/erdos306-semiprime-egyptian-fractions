@@ -266,6 +266,16 @@ hypotheses into one record
 `exists_arcConstruction_of_componentScaleCardSupply` feeds this record directly
 into `exists_arcConstruction_of_componentSupplies`.
 
+`R2MassBatchScale.lean` proves that the residual mass batch `Q` inherits the
+same bottom block-support scale bound from `R2MassBatchSupply.hQpair`.  Its
+endpoint is `massBatchEdges_scale_of_k0_square`.
+
+`R2ComponentMassReady.lean` is now the cleanest downstream R2 socket before
+minor-budget and base-load closure.  Its endpoint
+`exists_arcConstruction_of_componentScaleCardMassSupply` consumes just
+`R2ComponentScaleCardSupply`, `R2MassBatchSupply`, and the minor-budget data;
+the separate `hQedge` hypothesis is discharged internally.
+
 `R2MinorSupportBudget.lean` packages the minor support lane into
 `R2MinorSupportBudgetData`, with fields `Sblock`, `Sextra`, `hcover`, `hblock`,
 and `hextra`.  The endpoint
@@ -381,6 +391,16 @@ weak.
 `dyadic_control_recipLoad_eventually_small`, while keeping the gadget budget
 separate.  `R2MassBatchBaseLoadBudget.lean` feeds `R2BaseLoadBudget` directly
 into the mass-batch existence theorem.
+
+`R2BaseBudgetAssembly.lean` is the Codex-returned base-budget layer.  It proves
+the finite gadget reciprocal-load estimate
+`gadget_recipLoad_le_card_div`, packages arbitrary control/gadget bounds into
+`R2BaseLoadBudget`, and exposes
+`baseLoadBudget_of_control_epsilon_and_gadget_scale`.  Thus the base-load lane
+is now reduced to choosing an epsilon from
+`dyadic_control_recipLoad_eventually_small` and checking the explicit finite
+inequality
+`epsilon + |R|*|S|/(r0*s0) < 3/(2b)`.
 
 ## Next Split
 

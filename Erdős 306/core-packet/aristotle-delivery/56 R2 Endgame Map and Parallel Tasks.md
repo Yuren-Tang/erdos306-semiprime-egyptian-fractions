@@ -200,6 +200,25 @@ exists_k0_square_gt_nat
 eventually_T_lt_k0_square
 eventually_two_mul_b_lt_three_k0_square
 exists_k0_scale_for_T_and_b
+RequestProject/R2MassBatchReady.lean
+exists_massBatchSupply_of_basePieces_eventual
+RequestProject/R2BaseLoadUpper.lean
+R2BaseLoadBudget
+baseLoad_eq_ctrl_add_gadget_of_R_outside
+baseLoad_lt_of_budget
+dyadic_control_recipLoad_eventually_small
+RequestProject/R2MassBatchBaseLoadBudget.lean
+exists_massBatchSupply_of_baseLoadBudget_eventual
+RequestProject/R2ComponentScaleCard.lean
+ctrlEdges_ge_k0_square
+ctrlEdges_scale_of_k0_square
+gadgetEdges_ge_mul
+gadgetEdges_scale_of_mul
+ctrlEdges_card_le_ctrlPairs_card
+gadgetEdges_card_le_product
+ctrlPairs_card_le_support_square
+r2ControlSupply_of_k0_square
+r2GadgetSupply_of_mul_scale
 ```
 
 This wrapper leaves the green `R2FinalAssembly` spine untouched and expands
@@ -235,6 +254,27 @@ the separate `10*N <= e`, ratio, and `D.E.card` hypotheses by:
 - cubic budget `K * 100000 * rho^3 <= 1/10`.
 
 This is currently the cleanest numeric interface for the final sprint.
+
+`R2ComponentScaleCard.lean` supplies the finite lower-scale and cardinality
+wrappers for the control and gadget components, including constructors for
+`R2ControlSupply` and `R2GadgetSupply`.
+
+`R2ComponentSupplyReady.lean` is the current component-lane socket.  It packages
+the scale, avoidance, prime/order/divisibility, and combined cardinality
+hypotheses into one record
+`R2ComponentScaleCardSupply`, and its endpoint
+`exists_arcConstruction_of_componentScaleCardSupply` feeds this record directly
+into `exists_arcConstruction_of_componentSupplies`.
+
+`R2MassBatchScale.lean` proves that the residual mass batch `Q` inherits the
+same bottom block-support scale bound from `R2MassBatchSupply.hQpair`.  Its
+endpoint is `massBatchEdges_scale_of_k0_square`.
+
+`R2ComponentMassReady.lean` is now the cleanest downstream R2 socket before
+minor-budget and base-load closure.  Its endpoint
+`exists_arcConstruction_of_componentScaleCardMassSupply` consumes just
+`R2ComponentScaleCardSupply`, `R2MassBatchSupply`, and the minor-budget data;
+the separate `hQedge` hypothesis is discharged internally.
 
 `R2MinorSupportBudget.lean` packages the minor support lane into
 `R2MinorSupportBudgetData`, with fields `Sblock`, `Sextra`, `hcover`, `hblock`,
@@ -337,29 +377,37 @@ The still-open finite scale inputs for this branch are now only:
 These are independent large-`k0` natural-number facts and are now proved in the
 thin `R2EventualScale.lean` leaf.
 
-The remaining nontrivial mass-batch input is therefore `D.baseLoad < 3/(2b)`.
-This is **not** mere finite-set bookkeeping.  The control part requires a
+The remaining nontrivial mass-batch input is therefore split into
+`R2BaseLoadBudget D`: a control reciprocal-load budget and a gadget
+reciprocal-load budget whose sum is `< 3/(2b)`.  The control part requires a
 one-reciprocal upper estimate for dyadic prime blocks: heuristically
 `∑_{p∈P_k} 1/p = O(1/k)`, so the internal/bipartite control reciprocal load is
 `O(∑_{k=k0}^{3k0} 1/k^2) = O(1/k0)`.  The existing `dyadic_prime_density` and
 `dyadic_mertens_cumulative` inputs are lower-bound inputs; by themselves they do
 not give this upper estimate.  A crude interval-cardinality upper bound is too
-weak.  Thus the next mainline analytic socket is either:
+weak.
 
-- add/prove a named classical dyadic reciprocal upper input and derive
-  `recipLoad (ctrlEdges BS) → 0`; or
-- state the final R2 assembly conditionally on this explicit control-load upper
-  and then discharge it later from Rosser/Mertens upper estimates.
+`R2BaseLoadUpper.lean` now names this exact analytic socket as
+`dyadic_control_recipLoad_eventually_small`, while keeping the gadget budget
+separate.  `R2MassBatchBaseLoadBudget.lean` feeds `R2BaseLoadBudget` directly
+into the mass-batch existence theorem.
+
+`R2BaseBudgetAssembly.lean` is the Codex-returned base-budget layer.  It proves
+the finite gadget reciprocal-load estimate
+`gadget_recipLoad_le_card_div`, packages arbitrary control/gadget bounds into
+`R2BaseLoadBudget`, and exposes
+`baseLoadBudget_of_control_epsilon_and_gadget_scale`.  Thus the base-load lane
+is now reduced to choosing an epsilon from
+`dyadic_control_recipLoad_eventually_small` and checking the explicit finite
+inequality
+`epsilon + |R|*|S|/(r0*s0) < 3/(2b)`.
 
 ## Next Split
 
 The next parallel split should be:
 
-1. **Base-load upper lane**: split `D.baseLoad` into control and gadget
-   reciprocal loads, expose the exact dyadic reciprocal upper input needed for
-   control edges, and expose the exact high-scale/sparse-gadget input needed for
-   gadget edges.  This is now the main mathematical socket for mass-batch
-   completion.
+1. **Base-load upper lane**: use the named control analytic input plus a
+   concrete gadget load budget to produce `R2BaseLoadBudget D`.
 2. **Component numeric/cardinality lane**: prove practical hypotheses feeding
    `exists_arcConstruction_of_component_numeric_minor_sets`, especially
    component-wise edge lower bounds, ratio bounds, and an upper bound strong
@@ -392,3 +440,7 @@ jobs can cost close to an hour if it replays thick dependencies.  Going forward:
   independent and makes local cache behavior better.
 - Do not rewrite cached old modules merely to silence warnings.  Clean warnings
   opportunistically when those modules are already on the critical path.
+- Keep `/Users/david/erdos-lean-build` synchronized with the live source packet
+  before assigning external Codex tasks.  If task files mention new R2 leaves
+  such as `R2ComponentDisjoint`, `R2EventualScale`, or `R2MassBatchReady`, those
+  files must already exist in that worktree.

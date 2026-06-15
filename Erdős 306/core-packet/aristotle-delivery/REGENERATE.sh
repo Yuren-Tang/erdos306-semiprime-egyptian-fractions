@@ -49,7 +49,8 @@ for note in \
   "ARISTOTLE_TASK_r2_component_numeric.md" \
   "ARISTOTLE_TASK_r2_forbidden_pool_budget.md" \
   "ARISTOTLE_TASK_r2_component_disjoint.md" \
-  "ARISTOTLE_TASK_r2_component_scale_card.md"
+  "ARISTOTLE_TASK_r2_component_scale_card.md" \
+  "ARISTOTLE_TASK_r2_mass_batch_base_budget_ready.md"
 do
   [ -f "$core/$note" ] && cp "$core/$note" "$here/"
 done
