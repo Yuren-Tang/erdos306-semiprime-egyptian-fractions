@@ -276,6 +276,12 @@ minor-budget and base-load closure.  Its endpoint
 `R2ComponentScaleCardSupply`, `R2MassBatchSupply`, and the minor-budget data;
 the separate `hQedge` hypothesis is discharged internally.
 
+`R2ComponentCoreSupply.lean` separates the stable control/gadget component data
+from the selected residual batch `Q`.  Its `R2ComponentScaleCoreSupply` can be
+transported across `D.withQ Q`, then converted back into
+`R2ComponentScaleCardSupply` once the final `Q.card` budget is known.  This is
+the intended interface after the mass-batch selector chooses `Q`.
+
 `R2MinorSupportBudget.lean` packages the minor support lane into
 `R2MinorSupportBudgetData`, with fields `Sblock`, `Sextra`, `hcover`, `hblock`,
 and `hextra`.  The endpoint
