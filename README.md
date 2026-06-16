@@ -28,14 +28,22 @@ from the existing literature:
   ("SBEE") that, at the block level, replaces Kloosterman/Irving input with an
   elementary dispersion lemma.
 
-**It is not a finished proof.** The current Lean development contains **76 `sorry`
-placeholders across 30 files** and **3 explicitly declared classical axioms**
-(dyadic prime density / a cumulative Mertens bound). Several self-contained
-components *are* machine-verified sorry-free (e.g. the SBEE dispersion and
-"fingerprint" counting core, the abstract Peierls bookkeeping layer, and concrete
-small-denominator instances), but the headline statement is **not yet machine-checked**.
-The honest remaining targets are the R2 arc construction (`exists_arcConstruction`),
-the G5/G7 global-control endgame, and Phase C of the circle method. See
+**It is not yet a finished proof, but it is close.** The main theorem `erdos_306`
+reduces, through a machine-verified (`sorry`-free) chain, to **exactly two open Lean
+lemmas** plus **3 cited classical axioms** (dyadic prime density and a cumulative
+Mertens bound). The two open lemmas are:
+
+1. `exists_arcConstruction` — the R2 circle-method arc construction for `b ≥ 3`
+   (`CircleMethodAssembly.lean`); and
+2. `wrapped_count_le_small_fixed_label` — one G5 counting kernel: a "wrapped"
+   (large) label's low-energy fiber is dominated by a small-label fiber
+   (`GlobalControlG5Assembly.lean`).
+
+Everything else on the critical path — the `a/b → 1/b` reduction, the circle-method
+positivity assembly, the main- and minor-arc estimates (Phase C, G7), and the
+Bernoulli/Fourier machinery — is machine-verified `sorry`-free. (The repository
+also contains a disconnected, exploratory SBEE/rational-collision route with its own
+open lemmas; the main theorem does **not** depend on it.) See
 [`proof-notes/00 README.md`](proof-notes/00%20README.md) and
 [`proof-notes/04 Failure and Risk Ledger.md`](proof-notes/04%20Failure%20and%20Risk%20Ledger.md)
 for the candid status, and [`proof-notes/20 Lean Core Audit and Dependency Map.md`](proof-notes/20%20Lean%20Core%20Audit%20and%20Dependency%20Map.md)
