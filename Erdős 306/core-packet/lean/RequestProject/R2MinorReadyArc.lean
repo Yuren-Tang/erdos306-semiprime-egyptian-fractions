@@ -1,5 +1,6 @@
 import RequestProject.R2MinorEndgameGadget
 import RequestProject.R2MinorEndgameMultiGadget
+import RequestProject.R2MinorEndgameFrequency
 import RequestProject.R2MassBatchWeights
 
 open Finset BigOperators GlobalControl
@@ -134,6 +135,43 @@ theorem exists_arcConstruction_of_selectedQ_coreSupply_autoWeights_multiGadgetMi
     S hcomponentCard hNscale Lanes hscaled hextraLight
   obtain ⟨MR⟩ := hminor (D.withQ Q) (QB.weights hbpos) N Ablock Aextra ρ Cls
     hk0 hadm Lanes hscaled
+  exact exists_arcConstruction_of_selectedQ_coreSupply_autoWeights_minorReady hb hbpos
+    D Q N ρ K hadm hρle hK hNL S hcomponentCard QB hNscale MR hextraLight
+
+/-- Selected-`Q` endpoint whose minor arc is supplied by frequency-label lanes:
+block-lane data plus extra-frequency labels and gadget reservoirs. -/
+theorem exists_arcConstruction_of_selectedQ_coreSupply_autoWeights_frequencyMinor
+    (eps : ℝ) (heps : 0 < eps) (η : ℝ) (hη : 0 < η) :
+    ∃ (k0min : ℕ) (Ctail : ℝ), 0 < Ctail ∧
+      ∀ {T : Finset ℕ} {b : ℕ}
+      (_hb : 3 ≤ b) (hbpos : 0 < b)
+      (D : R2ConcreteData T b) (Q : Finset ℕ) (N : ℤ)
+      (Ablock Aextra ρ K Cextra : ℝ)
+      (QB : R2MassBatchSupply (D.withQ Q))
+      (Cls : R2MinorClassificationData (D.withQ Q) (QB.weights hbpos) N),
+      k0min ≤ (D.withQ Q).BS.k0 →
+      admissibleGlobalRange (D.withQ Q).BS →
+      ρ ≤ 1 / 10 →
+      K * 100000 * ρ ^ 3 ≤ 1 / 10 →
+      2 * N + 1 ≤ ((D.withQ Q).L : ℤ) →
+      R2ComponentScaleCoreSupply D N ρ →
+      ((ctrlEdges D.BS).card + Q.card + (gadgetEdges D.R D.S).card : ℝ) ≤ K →
+      (1 : ℝ) / Real.sqrt (sigmaE2 (D.withQ Q).E (QB.weights hbpos).theta)
+        ≤ (N : ℝ) →
+      R2MinorEndgameFrequencyLanes (D.withQ Q) (QB.weights hbpos) N
+        (Ablock / sigmaCtrl (D.withQ Q).BS)
+        (Aextra / sigmaCtrl (D.withQ Q).BS) η Ctail ρ Cextra Cls →
+      Ablock + Aextra < r2MinorMainCtrlConstant →
+      (∑ e ∈ (D.withQ Q).E \ ctrlEdges (D.withQ Q).BS, 1 / (e : ℝ) ^ 2
+        ≤ 3 * (sigmaCtrl (D.withQ Q).BS) ^ 2) →
+      Nonempty (ArcConstruction T b) := by
+  obtain ⟨k0min, Ctail, hCtail, hminor⟩ :=
+    exists_r2_minorReady_from_frequency_lanes eps heps η hη
+  refine ⟨k0min, Ctail, hCtail, ?_⟩
+  intro T b hb hbpos D Q N Ablock Aextra ρ K Cextra QB Cls hk0 hadm hρle hK
+    hNL S hcomponentCard hNscale Lanes hscaled hextraLight
+  obtain ⟨MR⟩ := hminor (D.withQ Q) (QB.weights hbpos) N Ablock Aextra ρ Cextra
+    Cls hk0 hadm Lanes hscaled
   exact exists_arcConstruction_of_selectedQ_coreSupply_autoWeights_minorReady hb hbpos
     D Q N ρ K hadm hρle hK hNL S hcomponentCard QB hNscale MR hextraLight
 

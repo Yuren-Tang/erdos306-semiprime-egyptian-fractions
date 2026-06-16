@@ -126,6 +126,7 @@ structure MainArcFields (E : Finset ℕ) (theta : ℕ → ℝ) (b L : ℕ) (N : 
   hmaps : ∀ h ∈ SM, lbl h ∈ Finset.Icc (-N) N
   hinj : ∀ h₁ ∈ SM, ∀ h₂ ∈ SM, lbl h₁ = lbl h₂ → h₁ = h₂
   hsurj : ∀ m ∈ Finset.Icc (-N) N, ∃ h ∈ SM, lbl h = m
+  hmod : ∀ h ∈ SM, (L : ℤ) ∣ ((h : ℤ) - lbl h)
   hterm : ∀ h ∈ SM, fourierTerm E theta b L h = term_label E theta b (lbl h)
 
 /-- Package the existing main-arc bijection as the exact record fields consumed
@@ -149,6 +150,7 @@ lemma exists_mainArcFields
     hmaps := hmaps
     hinj := hinj
     hsurj := hsurj
+    hmod := hmod
     hterm := ?_
   }⟩
   · exact (Finset.union_sdiff_of_subset hsub).symm

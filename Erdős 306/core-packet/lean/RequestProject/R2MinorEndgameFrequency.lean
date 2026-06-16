@@ -1,5 +1,5 @@
 import RequestProject.R2MinorEndgameMultiGadget
-import RequestProject.R2ExtraFrequencyChoice
+import RequestProject.R2ExtraFrequencyChoiceInt
 
 open Finset BigOperators GlobalControl
 
@@ -11,7 +11,7 @@ namespace CircleMethod
 # R2 minor endgame from extra-frequency labels
 
 This leaf replaces the abstract multi-gadget reservoir field by the concrete
-CRT label data proved in `R2ExtraFrequencyChoice`.
+CRT label data proved in `R2ExtraFrequencyChoiceInt`.
 -/
 
 /-- Endgame lanes where the extra-minor side is supplied by block-label data and
@@ -30,7 +30,7 @@ structure R2MinorEndgameFrequencyLanes
   block : ∀ MA : MainArcFields D.E W.theta b D.L N,
     R2BlockFiberTailData D W N MA (Cls.Sblock MA) Bblock η Ctail
   label : ∀ MA : MainArcFields D.E W.theta b D.L N,
-    R2ExtraFrequencyLabelData D W N MA (Cls.Sblock MA) (Cls.Sextra MA)
+    R2ExtraIntFrequencyLabelData D W N MA (Cls.Sblock MA) (Cls.Sextra MA)
   Gset : (MainArcFields D.E W.theta b D.L N) → ℕ → Finset ℕ
   hSmem : ∀ MA : MainArcFields D.E W.theta b D.L N,
     ∀ h ∈ extraMinorPart MA.Sm (Cls.Sblock MA) (Cls.Sextra MA),
@@ -38,14 +38,14 @@ structure R2MinorEndgameFrequencyLanes
   hm_small : ∀ MA : MainArcFields D.E W.theta b D.L N,
     ∀ h ∈ extraMinorPart MA.Sm (Cls.Sblock MA) (Cls.Sextra MA),
       ∀ s ∈ Gset MA h,
-        2 * |((label MA).mfun h : ℤ)| < (s : ℤ)
+        2 * |(label MA).mfun h| < (s : ℤ)
   hcard : ∀ MA : MainArcFields D.E W.theta b D.L N,
       ((extraMinorPart MA.Sm (Cls.Sblock MA) (Cls.Sextra MA)).card : ℝ) *
           Cextra ≤ Bextra
   hpt : ∀ MA : MainArcFields D.E W.theta b D.L N,
     ∀ h ∈ extraMinorPart MA.Sm (Cls.Sblock MA) (Cls.Sextra MA),
       (Real.sqrt (1 - (8 / 9) /
-        (((r2ExtraSiblingChoice_of_labelData D W N MA (Cls.Sblock MA)
+        (((r2ExtraSiblingChoice_of_intLabelData D W N MA (Cls.Sblock MA)
           (Cls.Sextra MA) (label MA) hbpos
           hsqfree hcoverR hcopBlock).rfun h : ℝ) ^ 2))) ^
             (Gset MA h).card ≤ Cextra
@@ -62,7 +62,7 @@ def R2MinorEndgameFrequencyLanes.toMultiGadget
   block := L.block
   extra := by
     intro MA
-    exact r2MultiGadgetReservoir_of_extraFrequencyLabelData D W N MA
+    exact r2MultiGadgetReservoir_of_intExtraFrequencyLabelData D W N MA
       (Cls.Sblock MA) (Cls.Sextra MA) Cextra Bextra (L.label MA) (L.Gset MA)
       L.hbpos L.hsqfree L.hcoverR L.hcopBlock L.component.hSblock
       (L.hSmem MA) (L.hm_small MA) (L.hcard MA) (L.hpt MA)
