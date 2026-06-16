@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+title: "Erdős Problem 306 — A Semiprime Egyptian-Fraction Program"
+message: "If you use this work, please cite it as below."
+type: software
+authors:
+  - given-names: Yuren
+    family-names: Tang
+version: 0.0.1
+date-released: 2026-06-16
+abstract: >-
+  A preliminary research log and in-progress Lean 4 formalisation of an
+  independent approach to Erdős Problem 306 (every positive rational with
+  squarefree denominator is a finite sum of reciprocals of distinct squarefree
+  semiprimes), via a circle-method weighted-positivity reduction and a
+  deterministic-dispersion treatment of the single-block counting condition.
+  This is a work in progress, not a completed proof. Released as a dated,
+  citable record of the approach; it makes no claim of priority over the
+  concurrent complete proof by S. Li (arXiv:2606.15159, 13 June 2026).
+keywords:
+  - Erdős problem 306
+  - Egyptian fractions
+  - unit fractions
+  - semiprimes
+  - additive number theory
+  - Lean 4
+  - formalization
+license: CC-BY-4.0
