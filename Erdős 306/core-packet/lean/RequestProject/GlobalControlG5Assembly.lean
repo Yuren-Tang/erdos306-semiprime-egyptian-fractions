@@ -58,7 +58,7 @@ Now CLOSED (this round), completing the G5 chain:
     minimum of the boundary constant and Theorem-B's constant).  Supporting
     lemmas added: `two_prime_label_eq` (two-prime CRT label rigidity),
     `cold_small_label_agree` (per-assignment small-label extraction with residue
-    agreement), and `Rw_mono_c2` / `not_isHot_mono` / `boundarySet_mono`.
+    agreement), and `Rw_mono_c2` / `not_isHot_mono_cold` / `boundarySet_mono`.
     The entire G5 chain (cover, admissibility, route closure, N1–N5,
     `cold_master`, `hadmL_final`, the per-fiber discharge, the charge assembly,
     and `global_levelset_final`) is now proved and axiom-clean
@@ -324,7 +324,7 @@ lemma Rw_mono_c2 {c2 c2' : ℝ} (hc : c2 ≤ c2') (hc0 : 0 ≤ c2) (k : ℕ) :
 
 /-- Coldness only strengthens as `c2` shrinks: `¬ isHot` at the smaller constant
     implies `¬ isHot` at the larger one. -/
-lemma not_isHot_mono {c2 c2' : ℝ} (hc : c2 ≤ c2') (hc0 : 0 ≤ c2)
+lemma not_isHot_mono_cold {c2 c2' : ℝ} (hc : c2 ≤ c2') (hc0 : 0 ≤ c2)
     (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) :
     ¬ isHot BS c2 a k → ¬ isHot BS c2' a k := by
   intro h hHot
@@ -336,8 +336,8 @@ lemma boundarySet_mono {c2 c2' : ℝ} (hc : c2 ≤ c2') (hc0 : 0 ≤ c2)
     boundarySet BS c2 a ⊆ boundarySet BS c2' a := by
   intro k hk
   rw [boundarySet, Finset.mem_filter] at hk ⊢
-  exact ⟨hk.1, not_isHot_mono hc hc0 BS a k hk.2.1,
-    not_isHot_mono hc hc0 BS a (k+1) hk.2.2.1, hk.2.2.2⟩
+  exact ⟨hk.1, not_isHot_mono_cold hc hc0 BS a k hk.2.1,
+    not_isHot_mono_cold hc hc0 BS a (k+1) hk.2.2.1, hk.2.2.2⟩
 
 /-
 **Two-prime label rigidity.**  Two integer labels agreeing modulo at least
@@ -426,7 +426,7 @@ lemma cold_master :
   refine' ⟨ Min.min c2P c2B, e0, Max.max X0P ( Max.max X0B 1 ), _, _, _, _, _, _ ⟩ <;> norm_num [ hc2P, he0, hX0P, hc2B, hX0B ];
   · intro BS a k hk1 hk2 hX0P hX0B h1 hnh;
     apply hdomR BS a k hk1 hk2 hX0P;
-    exact not_isHot_mono ( min_le_left _ _ ) ( le_of_lt ( lt_min hc2P hc2B ) ) BS a k hnh;
+    exact not_isHot_mono_cold ( min_le_left _ _ ) ( le_of_lt ( lt_min hc2P hc2B ) ) BS a k hnh;
   · intro BS a k hk1 hk2 hX0P hX0B h1 hk; exact hpen BS a k hk1 hk2 hX0P ( boundarySet_mono ( min_le_left _ _ ) ( le_of_lt ( lt_min hc2P hc2B ) ) BS a hk ) ;
   · refine' ⟨ Max.max X0B 1, by positivity, _ ⟩;
     intro BS k hk1 hk2 hk3 b Rb hQ hRb;
