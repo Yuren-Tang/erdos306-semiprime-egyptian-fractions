@@ -1,0 +1,37 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["a9c489eee24aa41f.olean"],
+  "i": "5227e874bc7dfa8c.ilean",
+  "c": "5e93d7891a6c96d0.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/RequestProject/GlobalControlG5Data.lean -o /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/lib/lean/RequestProject/GlobalControlG5Data.olean -i /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/lib/lean/RequestProject/GlobalControlG5Data.ilean -c /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/ir/RequestProject/GlobalControlG5Data.c --setup /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/ir/RequestProject/GlobalControlG5Data.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "RequestProject/GlobalControlG5Data.lean:121:46: unused variable `R`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/GlobalControlG5Data.lean:319:48: unused variable `hR0`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"}],
+ "inputs":
+ [["RequestProject.GlobalControlG5Data:deps",
+   [["deps",
+     [["RequestProject/RequestProject:extraDep",
+       [["@RequestProject:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["RequestProject.GlobalControl transitive imports (legacy)",
+         "fc806912ec3ab3b9"],
+        ["RequestProject.GlobalControl:importAllArts", "d7f072fda1246bcf"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
+   "a96bc04a2e5e9630"],
+  ["/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/RequestProject/GlobalControlG5Data.lean",
+   "7905328146486b2d"],
+  ["options", "00000000000006bb"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "6f83e0027560dd71"}

@@ -1,7 +1,5 @@
 .DS_Store
 **/.DS_Store
-.lake/
-**/.lake/
 !Erdős 306/core-packet/aristotle-delivery/.lake/
 !Erdős 306/core-packet/aristotle-delivery/.lake/build/
 !Erdős 306/core-packet/aristotle-delivery/.lake/build/lib/
