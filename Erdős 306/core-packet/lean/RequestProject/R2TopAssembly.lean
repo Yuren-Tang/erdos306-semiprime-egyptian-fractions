@@ -695,6 +695,10 @@ theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
     have : (0 : ℝ) ≤ C / σ := by positivity
     have := le_trans this hNlo
     exact_mod_cast this
+  -- Freeze the `set` definitions as opaque atoms: their unfolded forms
+  -- (`σ = √(big sum)`, `C = max (choose …) 3`, `N = ⌈C/σ⌉`) blow up `nlinarith`'s
+  -- `isDefEq` atom comparison.  The defining equations (`hσdef`, …) are retained.
+  clear_value N σ Dmp η C base_b c3
   -- structural facts about `D` (using `D.BS = BS`, `D.R = b.primeFactors`, `D.S = S` defeq)
   have hb2k0 : b < 2 ^ BS.k0 := lt_of_le_of_lt (by omega) (Nat.lt_two_pow_self)
   have hRpos' : ∀ r ∈ D.R, 2 ≤ r := fun r hr => (hRp r hr).two_le
@@ -740,29 +744,42 @@ theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
           + ∑ e ∈ D.E \ ctrlEdges D.BS, (1 : ℝ) / (e : ℝ) ^ 2 := by
       rw [← Finset.sum_sdiff D.ctrlEdges_subset_E]; ring
     rw [hsplit, sum_inv_sq_ctrlEdges_eq_sigmaCtrl_sq]
-    have hextra := r2_extra_inv_sq_le D (by omega) (by rw [hScard] at hk0big ⊢; exact hk0big)
-      QB hSge hRp hSprime hRpos' (by rw [show D.R = b.primeFactors from rfl];
-        exact le_trans (Finset.card_le_card (fun x hx => Finset.mem_Icc.mpr
-          ⟨Nat.pos_of_mem_primeFactors hx, Nat.le_of_mem_primeFactors hx⟩)) (by simp))
-    have : σ = sigmaCtrl D.BS := rfl
-    rw [this]; nlinarith [hextra]
+    have hextra := r2_extra_inv_sq_le D
+      (show 14 ≤ BS.k0 by omega)
+      (show 1000 * S.card + 1000 * b + 100000 ≤ BS.k0 by rw [hScard]; exact hk0big)
+      QB hSge (fun r hr => hRp r hr) hSprime hRpos'
+      (show b.primeFactors.card ≤ b from
+        le_trans (Finset.card_le_card (fun x hx => Finset.mem_Icc.mpr
+          ⟨Nat.pos_of_mem_primeFactors hx, Nat.le_of_mem_primeFactors hx⟩))
+          (by rw [Nat.card_Icc]; omega))
+    have hσDBS : σ = sigmaCtrl D.BS := hσdef
+    rw [hσDBS]; nlinarith [hextra]
   have hsigmaE2_le : sigmaE2 D.E W.theta ≤ 250001 * σ ^ 2 := by
     have h := sigmaE2_le_quarter_sum_inv_sq D.E W.theta
-    nlinarith [hsumE, h]
+    nlinarith [hsumE, h, sq_nonneg σ]
   have hsigmaE_ub : Real.sqrt (sigmaE2 D.E W.theta) ≤ 501 * σ := by
     rw [show (501 : ℝ) * σ = Real.sqrt ((501 * σ) ^ 2) by
       rw [Real.sqrt_sq (by positivity)]]
-    apply Real.sqrt_le_sqrt; nlinarith [hsigmaE2_le]
+    apply Real.sqrt_le_sqrt; nlinarith [hsigmaE2_le, sq_nonneg σ]
   have hsigmaE_lb : Real.sqrt (2 / 9) * σ ≤ Real.sqrt (sigmaE2 D.E W.theta) := by
     rw [show Real.sqrt (2 / 9) * σ = Real.sqrt ((2 / 9) * σ ^ 2) by
       rw [Real.sqrt_mul (by norm_num), Real.sqrt_sq hσpos.le]]
     apply Real.sqrt_le_sqrt
-    have := sigmaE2_ge_ctrl D W; rw [show σ = sigmaCtrl D.BS from rfl]; linarith
+    have := sigmaE2_ge_ctrl D W; rw [show σ = sigmaCtrl D.BS from hσdef]; linarith
   have hsigmaEpos : 0 < Real.sqrt (sigmaE2 D.E W.theta) :=
     lt_of_lt_of_le (by positivity) hsigmaE_lb
   -- N bounds
-  have hNsigma : (N : ℝ) * σ ≤ C + 1 := by nlinarith [hNhi, hσpos, hσle1, hNnonneg]
-  have h2N1sigma : (2 * (N : ℝ) + 1) * σ ≤ 2 * C + 3 := by nlinarith [hNhi, hσpos, hσle1, hNnonneg, hCge1]
+  have hNsigma : (N : ℝ) * σ ≤ C + 1 := by
+    have h1 : (N : ℝ) * σ ≤ (C / σ + 1) * σ := mul_le_mul_of_nonneg_right hNhi hσpos.le
+    rw [add_mul, one_mul, div_mul_cancel₀ C (ne_of_gt hσpos)] at h1
+    linarith [h1, hσle1]
+  have h2N1sigma : (2 * (N : ℝ) + 1) * σ ≤ 2 * C + 3 := by
+    have h1 : (2 * (N : ℝ) + 1) * σ ≤ (2 * (C / σ + 1) + 1) * σ := by
+      apply mul_le_mul_of_nonneg_right _ hσpos.le; linarith [hNhi]
+    have h2 : (2 * (C / σ + 1) + 1) * σ = 2 * C + 3 * σ := by
+      have hσne : σ ≠ 0 := ne_of_gt hσpos; field_simp; ring
+    rw [h2] at h1
+    linarith [h1, hσle1]
 
 end CircleMethod
 
