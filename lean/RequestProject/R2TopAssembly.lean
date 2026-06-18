@@ -753,14 +753,19 @@ theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
           ⟨Nat.pos_of_mem_primeFactors hx, Nat.le_of_mem_primeFactors hx⟩))
           (by rw [Nat.card_Icc]; omega))
     have hσDBS : σ = sigmaCtrl D.BS := hσdef
-    rw [hσDBS]; nlinarith [hextra]
+    rw [← hσDBS] at hextra ⊢; linarith [hextra]
   have hsigmaE2_le : sigmaE2 D.E W.theta ≤ 250001 * σ ^ 2 := by
     have h := sigmaE2_le_quarter_sum_inv_sq D.E W.theta
-    nlinarith [hsumE, h, sq_nonneg σ]
+    have h2 : (1 / 4 : ℝ) * ∑ e ∈ D.E, (1 : ℝ) / (e : ℝ) ^ 2
+        ≤ (1 / 4 : ℝ) * (1000001 * σ ^ 2) :=
+      mul_le_mul_of_nonneg_left hsumE (by norm_num)
+    linarith [h, h2, sq_nonneg σ]
   have hsigmaE_ub : Real.sqrt (sigmaE2 D.E W.theta) ≤ 501 * σ := by
     rw [show (501 : ℝ) * σ = Real.sqrt ((501 * σ) ^ 2) by
       rw [Real.sqrt_sq (by positivity)]]
-    apply Real.sqrt_le_sqrt; nlinarith [hsigmaE2_le, sq_nonneg σ]
+    apply Real.sqrt_le_sqrt
+    calc sigmaE2 D.E W.theta ≤ 250001 * σ ^ 2 := hsigmaE2_le
+      _ ≤ (501 * σ) ^ 2 := by nlinarith only [sq_nonneg σ]
   have hsigmaE_lb : Real.sqrt (2 / 9) * σ ≤ Real.sqrt (sigmaE2 D.E W.theta) := by
     rw [show Real.sqrt (2 / 9) * σ = Real.sqrt ((2 / 9) * σ ^ 2) by
       rw [Real.sqrt_mul (by norm_num), Real.sqrt_sq hσpos.le]]
