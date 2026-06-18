@@ -2,6 +2,7 @@ import RequestProject.R2MinorReadyArc
 import RequestProject.R2MassBatchBaseLoadBudget
 import RequestProject.R2BaseBudgetAssembly
 import RequestProject.R2DyadicBlockSupport
+import RequestProject.R2LargeK0
 import RequestProject.R2MainArcClassification
 import RequestProject.R2ForbiddenBaseBudget
 
@@ -821,6 +822,52 @@ theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
     rw [← hc3eq]
     exact hbeat_of_sigma_le_sigmaCtrl c3 (Real.sqrt (sigmaE2 D.E W.theta)) (501 * σ) Bm
       hc3pos hsigmaEpos (by positivity) hsigmaE_ub hBm501
+  -- large-k0: 2N < 2^{2k0}
+  have hk0big6 : 1000000 ≤ BS.k0 := by
+    have h1 : 1 ≤ (Nat.ceil C + 1) ^ 4 := Nat.one_le_pow _ _ (by omega)
+    nlinarith only [hk0dom, h1]
+  have hN2nat : 200 * BS.k0 ^ 2 * 2 ^ BS.k0 + 2 < 2 ^ (2 * BS.k0) := by
+    have hsq := two_hundred_sq_lt_two_pow BS.k0 hk0big6
+    have h2le : 2 ≤ 2 ^ BS.k0 := by
+      calc 2 = 2 ^ 1 := by norm_num
+        _ ≤ 2 ^ BS.k0 := Nat.pow_le_pow_right (by norm_num) (by omega)
+    have hpoweq : 2 ^ (2 * BS.k0) = 2 ^ BS.k0 * 2 ^ BS.k0 := by rw [two_mul, pow_add]
+    calc 200 * BS.k0 ^ 2 * 2 ^ BS.k0 + 2
+        ≤ 200 * BS.k0 ^ 2 * 2 ^ BS.k0 + 2 ^ BS.k0 := by omega
+      _ = (200 * BS.k0 ^ 2 + 1) * 2 ^ BS.k0 := by ring
+      _ < 2 ^ BS.k0 * 2 ^ BS.k0 := mul_lt_mul_of_pos_right hsq (by positivity)
+      _ = 2 ^ (2 * BS.k0) := hpoweq.symm
+  have hNreal : (N : ℝ) ≤ 100 * (BS.k0 : ℝ) ^ 2 * (2 : ℝ) ^ BS.k0 + 1 := by
+    have hinvσ : (1 : ℝ) / σ ≤ 100 * (BS.k0 : ℝ) * (2 : ℝ) ^ BS.k0 := by
+      rw [div_le_iff₀ hσpos]
+      have hs := hσstrong
+      rw [div_le_iff₀ (by positivity)] at hs
+      nlinarith only [hs, hσpos]
+    have hCk0 : C ≤ (BS.k0 : ℝ) := by
+      have hCm : C ≤ (Nat.ceil C : ℝ) := Nat.le_ceil C
+      have hmk0 : (Nat.ceil C : ℝ) ≤ (BS.k0 : ℝ) := by
+        have hnat : Nat.ceil C ≤ BS.k0 := by
+          have hp : Nat.ceil C + 1 ≤ (Nat.ceil C + 1) ^ 4 := Nat.le_self_pow (by norm_num) _
+          nlinarith only [hp, hk0dom]
+        exact_mod_cast hnat
+      linarith
+    have hCσ : C / σ ≤ 100 * (BS.k0 : ℝ) ^ 2 * (2 : ℝ) ^ BS.k0 := by
+      rw [div_eq_mul_one_div]
+      calc C * (1 / σ)
+          ≤ (BS.k0 : ℝ) * (100 * (BS.k0 : ℝ) * (2 : ℝ) ^ BS.k0) :=
+            mul_le_mul hCk0 hinvσ (by positivity) (by positivity)
+        _ = 100 * (BS.k0 : ℝ) ^ 2 * (2 : ℝ) ^ BS.k0 := by ring
+    linarith [hNhi, hCσ]
+  have hN2 : 2 * N < (2 : ℤ) ^ (2 * BS.k0) := by
+    have hNint : N ≤ (100 * BS.k0 ^ 2 * 2 ^ BS.k0 + 1 : ℕ) := by
+      have hcast : (N : ℝ) ≤ ((100 * BS.k0 ^ 2 * 2 ^ BS.k0 + 1 : ℕ) : ℝ) := by
+        push_cast; linarith [hNreal]
+      exact_mod_cast hcast
+    calc 2 * N ≤ (200 * BS.k0 ^ 2 * 2 ^ BS.k0 + 2 : ℕ) := by
+          have hi : (N : ℤ) ≤ (100 * BS.k0 ^ 2 * 2 ^ BS.k0 + 1 : ℕ) := by exact_mod_cast hNint
+          push_cast at hi ⊢; linarith [hi]
+      _ < ((2 ^ (2 * BS.k0) : ℕ) : ℤ) := by exact_mod_cast hN2nat
+      _ = (2 : ℤ) ^ (2 * BS.k0) := by push_cast; ring
   have hNL : 2 * N + 1 ≤ (D.L : ℤ) := by sorry
   have havoid : ∀ e ∈ D.E, e ∉ T :=
     D.avoid hctrlAvoid QB.hQavoid hgadgetAvoid
