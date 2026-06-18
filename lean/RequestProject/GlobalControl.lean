@@ -1792,15 +1792,6 @@ lemma boundary_penalty_per_k :
       have := hden ( 2 ^ k ) ( mod_cast hk4 ) ; norm_num at *;
       rw [ div_le_iff₀ ] at * <;> nlinarith [ show ( k : ℝ ) ≥ 1 by norm_cast; linarith [ show k > 0 from Nat.pos_of_ne_zero ( by rintro rfl; linarith [ Nat.le_ceil X0cbf ] ) ], Real.log_pos one_lt_two, mul_pos ( show ( k : ℝ ) > 0 by norm_cast; linarith [ show k > 0 from Nat.pos_of_ne_zero ( by rintro rfl; linarith [ Nat.le_ceil X0cbf ] ) ] ) ( Real.log_pos one_lt_two ) ])
 
-theorem global_levelset (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1) :
-    ∃ (k0min : ℕ) (A : ℝ), 0 < A ∧
-      ∀ (BS : BlockSystem), k0min ≤ BS.k0 → admissibleGlobalRange BS →
-      ∀ R : ℝ, 1 ≤ R →
-        (Set.ncard {a : GlobalAssignment BS | Qctrl BS a ≤ R} : ℝ) ≤
-          Real.exp (A * (numBlocks BS : ℝ)) *
-            Real.exp (8 * eps * R) * (1 + Real.sqrt R / sigmaCtrl BS) := by
-  sorry
-
 /-! ## G7 support. Elementary Gaussian integer-sum bound (note 38 §7) -/
 
 /-
@@ -1881,27 +1872,6 @@ lemma gaussian_int_sum_le (A : ℝ) (hA0 : 0 < A) (hA1 : A ≤ 1) :
 def mainArc (BS : BlockSystem) (C : ℝ) : Set (GlobalAssignment BS) :=
   {a | ∃ m : ℤ, |(m : ℝ)| ≤ C / sigmaCtrl BS ∧
         ∀ p : {p : ℕ // p ∈ blockSupport BS}, (a p : ZMod p.1) = (m : ZMod p.1)}
-
-/-- **G7 (global control partition, Prop 8.1), final useful form.**  With the
-    construction fixed (`k₀ ≥ k₀(c,η)`), the Peierls floor beats the
-    `exp(A * numBlocks BS)` factor.  Thus the off-main-arc Laplace sum is bounded
-    by an arbitrarily small `η/sigmaCtrl` term plus the one-dimensional Gaussian
-    tail.
-
-    **Status**: named `sorry` — Laplace/dyadic summation of `global_levelset`
-    (via `SBEEAssembly.partfun_series_bound`) plus the G6 main-arc localization
-    (note 34 G7).  Depends on the still-open `global_levelset`. -/
-theorem global_control_partition (c : ℝ) (hc : 0 < c)
-    (eps : ℝ) (heps : 0 < eps) :
-    ∀ η : ℝ, 0 < η →
-    ∃ (k0min : ℕ) (Ctail : ℝ), 0 < Ctail ∧
-      ∀ (BS : BlockSystem), k0min ≤ BS.k0 → admissibleGlobalRange BS →
-      ∀ (C : ℝ), 1 ≤ C →
-      ∑' a : {a : GlobalAssignment BS // a ∉ mainArc BS C},
-          Real.exp (-c * Qctrl BS a.1) ≤
-        (η + Ctail * Real.exp (-C ^ 2 * c / 2)) /
-          sigmaCtrl BS := by
-  sorry
 
 end GlobalControl
 
