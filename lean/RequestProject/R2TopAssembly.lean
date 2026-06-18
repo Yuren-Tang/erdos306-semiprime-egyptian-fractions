@@ -763,8 +763,8 @@ theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
   set c3 := r2MinorMainCtrlConstant with hc3def
   set η : ℝ := c3 / (2004 * (b : ℝ)) with hηdef
   have hηpos : 0 < η := by rw [hηdef]; positivity
-  obtain ⟨k0minM, Ctail, hCtail, hMR⟩ :=
-    exists_r2_minorReady_from_frequency_lanes (1 : ℝ) one_pos η hηpos
+  obtain ⟨k0minM, Ctail, hCtail, hSB⟩ :=
+    exists_r2_minorSupportBudget_from_multiGadget_lanes (1 : ℝ) one_pos η hηpos
   obtain ⟨C0, hC0one, hC0bd⟩ := r2_exists_C Ctail (c3 / 501) b hCtail (by positivity) hbpos
   set C : ℝ := max C0 3 with hCdef
   have hCge3 : (3 : ℝ) ≤ C := le_max_right _ _
@@ -1026,7 +1026,19 @@ theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
     r2_close_numericFields D W N σ C hσpos he0 QB hSge hRpos' hsumE hsigmaE_lb
       hNnonneg hCge3 hNlo hNsigma hk0dom hNreal
   have hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
-      ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bm := by sorry
+      ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bm := by
+    obtain ⟨L⟩ := r2_buildFreqLanes D W N C η Ctail Dmp G hbpos hbsf hcovR hcopB
+      hRp hSprime hRdvd hSblock hlt' hctrlAvoid hgadgetAvoid heL he0 hL hLeq
+      hCge1 hNnonneg hSge hScard (hσdef ▸ hNlo) hN2 (le_of_lt hDmppos) (hbbdef ▸ hG)
+    obtain ⟨MB⟩ := hSB D W N
+      ((b : ℝ) * (η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl D.BS)
+      ((b : ℝ) * (2 * (N : ℝ) + 1) * Dmp) (N : ℝ)
+      (mainArcClassificationData D W N C) hk0minM hadm L.toMultiGadget
+    intro MA
+    refine hminor_of_block_extra_norm_bounds D.E W.theta b D.L MA.Sm
+      ⟨MB.Sblock MA, MB.Sextra MA, MB.hcover MA⟩ _ _ Bm
+      (MB.hblock MA) (MB.hextra MA) (le_of_eq ?_)
+    rw [hBmdef, show sigmaCtrl D.BS = σ from hσdef.symm]; ring
   exact exists_arcConstruction_of_mainArcParams hb D W N Bm hNnonneg hNL hsemi
     havoid hne heL he0 hloadUpper hNF.hN hNF.htw hNF.hsmall hminor hbeat
 
