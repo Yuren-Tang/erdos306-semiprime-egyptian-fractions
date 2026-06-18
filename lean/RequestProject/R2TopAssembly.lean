@@ -627,6 +627,132 @@ by instantiating the `frequencyMinor` endpoint with a concrete construction.
 In progress: foundation layer (`exists_r2_foundation`) done; the concrete data
 `D, Q, N`, supplies, lanes, and the parameter chase remain.
 -/
+/-- Numeric main-arc fields for the R2 construction, extracted as its own
+declaration so `D` stays opaque (no `Classical.choose` unfolding / `isDefEq`
+blow-up) and it gets its own elaboration budget. -/
+lemma r2_close_numericFields {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b) (W : R2ConcreteData.Weights D) (N : ℤ) (σ C : ℝ)
+    (hσpos : 0 < σ)
+    (he0 : ∀ e ∈ D.E, 0 < e)
+    (QB : R2MassBatchSupply D)
+    (hSge : ∀ s ∈ D.S, 2 ^ (2 * D.BS.k0) ≤ s)
+    (hRpos' : ∀ r ∈ D.R, 2 ≤ r)
+    (hsumE : ∑ e ∈ D.E, (1 : ℝ) / (e : ℝ) ^ 2 ≤ 1000001 * σ ^ 2)
+    (hsigmaE_lb : Real.sqrt (2 / 9) * σ ≤ Real.sqrt (sigmaE2 D.E W.theta))
+    (hNnonneg : 0 ≤ N) (hCge3 : (3 : ℝ) ≤ C)
+    (hNlo : C / σ ≤ (N : ℝ)) (hNsigma : (N : ℝ) * σ ≤ C + 1)
+    (hk0dom : 1000000 * (Nat.ceil C + 1) ^ 4 ≤ D.BS.k0)
+    (hNreal : (N : ℝ) ≤ 100 * (D.BS.k0 : ℝ) ^ 2 * (2 : ℝ) ^ D.BS.k0 + 1) :
+    MainArcNumericFields D.E W.theta N := by
+  have hk0big6 : 1000000 ≤ D.BS.k0 := by
+    have h1 : 1 ≤ (Nat.ceil C + 1) ^ 4 := Nat.one_le_pow _ _ (by omega)
+    nlinarith only [hk0dom, h1]
+  have hNpos : (0 : ℝ) < (N : ℝ) := lt_of_lt_of_le (by positivity) hNlo
+  have hEminN : ∀ e ∈ D.E, 2 ^ (2 * D.BS.k0) ≤ e := by
+    intro e he
+    rw [R2ConcreteData.E, r2Edges] at he
+    have hpoweq : (2 : ℕ) ^ (2 * D.BS.k0) = 2 ^ D.BS.k0 * 2 ^ D.BS.k0 := by rw [two_mul, pow_add]
+    rcases Finset.mem_union.mp he with hcQ | hg
+    · rcases Finset.mem_union.mp hcQ with hc | hq
+      · rw [hpoweq]; exact ctrlEdges_ge_k0_square D.BS hc
+      · obtain ⟨p, q, hp, hq', _, rfl⟩ := QB.hQpair e hq
+        rw [hpoweq]
+        exact Nat.mul_le_mul (blockSupport_ge_pow_k0 D.BS hp) (blockSupport_ge_pow_k0 D.BS hq')
+    · rw [mem_gadgetEdges] at hg
+      obtain ⟨r, hr, s, hs, rfl⟩ := hg
+      exact le_trans (hSge s hs) (Nat.le_mul_of_pos_left _ (by have := hRpos' r hr; omega))
+  have hEmin : ∀ e ∈ D.E, (2 : ℝ) ^ (2 * D.BS.k0) ≤ (e : ℝ) := by
+    intro e he; exact_mod_cast hEminN e he
+  have hN10nat : 10 * (100 * D.BS.k0 ^ 2 * 2 ^ D.BS.k0 + 1) ≤ 2 ^ (2 * D.BS.k0) := by
+    have hc := cube_lt_two_pow D.BS.k0 (by omega)
+    have hpoweq : (2 : ℕ) ^ (2 * D.BS.k0) = 2 ^ D.BS.k0 * 2 ^ D.BS.k0 := by rw [two_mul, pow_add]
+    have h2le : 2 ≤ 2 ^ D.BS.k0 := by
+      calc 2 = 2 ^ 1 := by norm_num
+        _ ≤ 2 ^ D.BS.k0 := Nat.pow_le_pow_right (by norm_num) (by omega)
+    have hkey : 1000 * D.BS.k0 ^ 2 + 10 ≤ 2 ^ D.BS.k0 := by
+      nlinarith only [hc, hk0big6, mul_le_mul_right' hk0big6 (D.BS.k0 ^ 2)]
+    calc 10 * (100 * D.BS.k0 ^ 2 * 2 ^ D.BS.k0 + 1)
+        = (1000 * D.BS.k0 ^ 2) * 2 ^ D.BS.k0 + 10 := by ring
+      _ ≤ (1000 * D.BS.k0 ^ 2) * 2 ^ D.BS.k0 + 10 * 2 ^ D.BS.k0 := by nlinarith only [h2le]
+      _ = (1000 * D.BS.k0 ^ 2 + 10) * 2 ^ D.BS.k0 := by ring
+      _ ≤ 2 ^ D.BS.k0 * 2 ^ D.BS.k0 := Nat.mul_le_mul_right _ hkey
+      _ = 2 ^ (2 * D.BS.k0) := hpoweq.symm
+  have h10N : 10 * (N : ℝ) ≤ (2 : ℝ) ^ (2 * D.BS.k0) := by
+    have hd : 10 * (100 * (D.BS.k0 : ℝ) ^ 2 * (2 : ℝ) ^ D.BS.k0 + 1) ≤ (2 : ℝ) ^ (2 * D.BS.k0) := by
+      calc 10 * (100 * (D.BS.k0 : ℝ) ^ 2 * (2 : ℝ) ^ D.BS.k0 + 1)
+          = ((10 * (100 * D.BS.k0 ^ 2 * 2 ^ D.BS.k0 + 1) : ℕ) : ℝ) := by push_cast; ring
+        _ ≤ ((2 ^ (2 * D.BS.k0) : ℕ) : ℝ) := by exact_mod_cast hN10nat
+        _ = (2 : ℝ) ^ (2 * D.BS.k0) := by push_cast; ring
+    linarith [hNreal, hd]
+  have hN : (1 : ℝ) / Real.sqrt (sigmaE2 D.E W.theta) ≤ (N : ℝ) := by
+    have hlb : (1 : ℝ) / Real.sqrt (sigmaE2 D.E W.theta) ≤ 1 / (Real.sqrt (2 / 9) * σ) :=
+      one_div_le_one_div_of_le (by positivity) hsigmaE_lb
+    have hsq : (1 : ℝ) / 3 ≤ Real.sqrt (2 / 9) := by
+      rw [show (1 : ℝ) / 3 = Real.sqrt (1 / 9) by
+        rw [show (1 : ℝ) / 9 = (1 / 3) ^ 2 by norm_num, Real.sqrt_sq (by norm_num)]]
+      apply Real.sqrt_le_sqrt; norm_num
+    have h2 : 1 / (Real.sqrt (2 / 9) * σ) ≤ 3 / σ := by
+      rw [div_le_div_iff₀ (by positivity) hσpos, one_mul]
+      nlinarith only [hsq, hσpos]
+    have h3 : (3 : ℝ) / σ ≤ (N : ℝ) := by
+      rw [div_le_iff₀ hσpos]
+      have hh := hNlo; rw [div_le_iff₀ hσpos] at hh
+      nlinarith only [hh, hCge3]
+    linarith [hlb, h2, h3]
+  have hsumsq : (N : ℝ) ^ 2 * (∑ e ∈ D.E, (1 : ℝ) / (e : ℝ) ^ 2)
+      ≤ (N : ℝ) ^ 2 * (1000001 * σ ^ 2) :=
+    mul_le_mul_of_nonneg_left hsumE (by positivity)
+  have hsmallN : (N : ℝ) / (2 : ℝ) ^ (2 * D.BS.k0)
+      ≤ 1 / (1000000 * ((N : ℝ) ^ 2 * (1000001 * σ ^ 2))) := by
+    have hCk0' : C ≤ (D.BS.k0 : ℝ) := by
+      have hcl : Nat.ceil C ≤ D.BS.k0 := by
+        have hp : Nat.ceil C + 1 ≤ (Nat.ceil C + 1) ^ 4 := Nat.le_self_pow (by norm_num) _
+        nlinarith only [hp, hk0dom]
+      calc C ≤ (Nat.ceil C : ℝ) := Nat.le_ceil C
+        _ ≤ (D.BS.k0 : ℝ) := by exact_mod_cast hcl
+    have hk0lb : 256000000 ≤ D.BS.k0 := by
+      have hp : (256 : ℕ) ≤ (Nat.ceil C + 1) ^ 4 := by
+        have h3 : 3 ≤ Nat.ceil C := by
+          have : (3 : ℝ) ≤ (Nat.ceil C : ℝ) := le_trans hCge3 (Nat.le_ceil C)
+          exact_mod_cast this
+        calc (256 : ℕ) = 4 ^ 4 := by norm_num
+          _ ≤ (Nat.ceil C + 1) ^ 4 := Nat.pow_le_pow_left (by omega) 4
+      nlinarith only [hp, hk0dom]
+    have htwo : (1 : ℝ) ≤ (2 : ℝ) ^ D.BS.k0 := one_le_pow₀ (by norm_num)
+    have hk0r : (256000000 : ℝ) ≤ (D.BS.k0 : ℝ) := by exact_mod_cast hk0lb
+    have hquart : (500000000000000 : ℕ) * D.BS.k0 ^ 4 ≤ 2 ^ D.BS.k0 :=
+      quartic_le_two_pow_of_le_sq _ D.BS.k0 (by nlinarith only [hk0lb]) (by omega)
+    have hquartr : (500000000000000 : ℝ) * (D.BS.k0 : ℝ) ^ 4 ≤ (2 : ℝ) ^ D.BS.k0 := by
+      exact_mod_cast hquart
+    have hNσ : (N : ℝ) * σ ≤ (D.BS.k0 : ℝ) + 1 := le_trans hNsigma (by linarith [hCk0'])
+    have hNσ2 : ((N : ℝ) * σ) ^ 2 ≤ ((D.BS.k0 : ℝ) + 1) ^ 2 := by
+      have : (0 : ℝ) ≤ (N : ℝ) * σ := by positivity
+      nlinarith only [hNσ, this]
+    rw [div_le_div_iff₀ (by positivity) (by positivity), one_mul]
+    have hlhs : (N : ℝ) * (1000000 * ((N : ℝ) ^ 2 * (1000001 * σ ^ 2)))
+        = 1000000 * 1000001 * ((N : ℝ) * ((N : ℝ) * σ) ^ 2) := by ring
+    rw [hlhs]
+    have hprod : (N : ℝ) * ((N : ℝ) * σ) ^ 2
+        ≤ (101 * (D.BS.k0 : ℝ) ^ 2 * (2 : ℝ) ^ D.BS.k0) * (4 * (D.BS.k0 : ℝ) ^ 2) := by
+      refine mul_le_mul ?_ ?_ (sq_nonneg _) (by positivity)
+      · calc (N : ℝ) ≤ 100 * (D.BS.k0 : ℝ) ^ 2 * (2 : ℝ) ^ D.BS.k0 + 1 := hNreal
+          _ ≤ 101 * (D.BS.k0 : ℝ) ^ 2 * (2 : ℝ) ^ D.BS.k0 := by nlinarith only [hk0r, htwo]
+      · calc ((N : ℝ) * σ) ^ 2 ≤ ((D.BS.k0 : ℝ) + 1) ^ 2 := hNσ2
+          _ ≤ 4 * (D.BS.k0 : ℝ) ^ 2 := by nlinarith only [hk0r]
+    calc 1000000 * 1000001 * ((N : ℝ) * ((N : ℝ) * σ) ^ 2)
+        ≤ 1000000 * 1000001 *
+            ((101 * (D.BS.k0 : ℝ) ^ 2 * (2 : ℝ) ^ D.BS.k0) * (4 * (D.BS.k0 : ℝ) ^ 2)) :=
+          mul_le_mul_of_nonneg_left hprod (by norm_num)
+      _ = (1000000 * 1000001 * 404) * ((D.BS.k0 : ℝ) ^ 4 * (2 : ℝ) ^ D.BS.k0) := by ring
+      _ ≤ 500000000000000 * ((D.BS.k0 : ℝ) ^ 4 * (2 : ℝ) ^ D.BS.k0) :=
+          mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
+      _ = (500000000000000 * (D.BS.k0 : ℝ) ^ 4) * (2 : ℝ) ^ D.BS.k0 := by ring
+      _ ≤ (2 : ℝ) ^ D.BS.k0 * (2 : ℝ) ^ D.BS.k0 :=
+          mul_le_mul_of_nonneg_right hquartr (by positivity)
+      _ = (2 : ℝ) ^ (2 * D.BS.k0) := by rw [two_mul, pow_add]
+  exact r2_numericFields D W N ((2 : ℝ) ^ (2 * D.BS.k0)) ((N : ℝ) ^ 2 * (1000001 * σ ^ 2))
+    (by positivity) he0 (by positivity) hEmin hN hNnonneg h10N hsumsq hsmallN
+
 theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
     (hb : 3 ≤ b) (hbsf : Squarefree b) :
     Nonempty (ArcConstruction T b) := by
@@ -896,7 +1022,9 @@ theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
       _ ≤ (D.L : ℤ) := by exact_mod_cast hLge
   have havoid : ∀ e ∈ D.E, e ∉ T :=
     D.avoid hctrlAvoid QB.hQavoid hgadgetAvoid
-  have hNF : MainArcNumericFields D.E W.theta N := by sorry
+  have hNF : MainArcNumericFields D.E W.theta N :=
+    r2_close_numericFields D W N σ C hσpos he0 QB hSge hRpos' hsumE hsigmaE_lb
+      hNnonneg hCge3 hNlo hNsigma hk0dom hNreal
   have hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
       ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bm := by sorry
   exact exists_arcConstruction_of_mainArcParams hb D W N Bm hNnonneg hNL hsemi
