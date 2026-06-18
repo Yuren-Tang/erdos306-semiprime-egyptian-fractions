@@ -868,7 +868,32 @@ theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
           push_cast at hi ⊢; linarith [hi]
       _ < ((2 ^ (2 * BS.k0) : ℕ) : ℤ) := by exact_mod_cast hN2nat
       _ = (2 : ℤ) ^ (2 * BS.k0) := by push_cast; ring
-  have hNL : 2 * N + 1 ≤ (D.L : ℤ) := by sorry
+  have hNL : 2 * N + 1 ≤ (D.L : ℤ) := by
+    have hc3lt1 : c3 < 1 := by
+      rw [hc3def, r2MinorMainCtrlConstant]
+      have he : Real.exp (-(Real.pi ^ 2 / 2)) < 1 :=
+        Real.exp_lt_one_iff.mpr (neg_lt_zero.mpr (by positivity))
+      nlinarith only [he, Real.exp_pos (-(Real.pi ^ 2 / 2))]
+    have hDmplt1 : Dmp < 1 := by
+      rw [hDmpdef, div_lt_one (by positivity)]
+      have hbr : (3 : ℝ) ≤ (b : ℝ) := by exact_mod_cast hb
+      nlinarith only [hc3lt1, hbr, hCge3]
+    have hG1 : 1 ≤ G := by
+      rcases Nat.eq_zero_or_pos G with hG0 | hGpos
+      · rw [hG0, pow_zero] at hG; linarith [hDmplt1]
+      · exact hGpos
+    have hSne : S.Nonempty := by rw [← Finset.card_pos, hScard]; omega
+    obtain ⟨s, hs⟩ := hSne
+    have hprodpos : 0 < ∏ p ∈ blockSupport BS, p :=
+      Finset.prod_pos (fun p hp => (blockSupport_prime BS hp).pos)
+    have hLge : (2 : ℕ) ^ (2 * BS.k0) ≤ D.L := by
+      rw [hLeq]
+      calc (2 : ℕ) ^ (2 * BS.k0) ≤ s := hSge s hs
+        _ ≤ ∏ p ∈ blockSupport BS, p :=
+            Nat.le_of_dvd hprodpos (Finset.dvd_prod_of_mem _ (hSblock hs))
+        _ ≤ b * ∏ p ∈ blockSupport BS, p := Nat.le_mul_of_pos_left _ hbpos
+    calc 2 * N + 1 ≤ (2 : ℤ) ^ (2 * BS.k0) := by linarith [hN2]
+      _ ≤ (D.L : ℤ) := by exact_mod_cast hLge
   have havoid : ∀ e ∈ D.E, e ∉ T :=
     D.avoid hctrlAvoid QB.hQavoid hgadgetAvoid
   have hNF : MainArcNumericFields D.E W.theta N := by sorry
