@@ -785,6 +785,49 @@ theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
       have hσne : σ ≠ 0 := ne_of_gt hσpos; field_simp; ring
     rw [h2] at h1
     linarith [h1, hσle1]
+  -- ===== minor-lane closing (K=501 loose-σ beat) =====
+  set Bm : ℝ :=
+      ((b : ℝ) * η + (b : ℝ) * (Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2))) / σ
+        + (b : ℝ) * (2 * (N : ℝ) + 1) * Dmp with hBmdef
+  -- the three component budgets, each below c3 / 2004
+  have hb1 : (b : ℝ) * η = c3 / 2004 := by rw [hηdef]; field_simp
+  have hb2 : (b : ℝ) * (Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) < c3 / 2004 := by
+    have hCC0 : C0 ≤ C := by rw [hCdef]; exact le_max_left _ _
+    have hC0nn : (0 : ℝ) ≤ C0 := le_trans (by norm_num) hC0one
+    have hmono : Real.exp (-C ^ 2 * (16 / 9) / 2) ≤ Real.exp (-C0 ^ 2 * (16 / 9) / 2) := by
+      apply Real.exp_le_exp.mpr; nlinarith only [hCC0, hC0nn]
+    calc (b : ℝ) * (Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2))
+        = (b : ℝ) * Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2) := by ring
+      _ ≤ (b : ℝ) * Ctail * Real.exp (-C0 ^ 2 * (16 / 9) / 2) :=
+          mul_le_mul_of_nonneg_left hmono (by positivity)
+      _ < c3 / 501 / 4 := hC0bd
+      _ = c3 / 2004 := by ring
+  have hb3 : (b : ℝ) * (2 * (N : ℝ) + 1) * Dmp * σ ≤ c3 / 2004 := by
+    have hstep : (b : ℝ) * (2 * (N : ℝ) + 1) * Dmp * σ
+        = (b : ℝ) * Dmp * ((2 * (N : ℝ) + 1) * σ) := by ring
+    rw [hstep]
+    have hle : (b : ℝ) * Dmp * ((2 * (N : ℝ) + 1) * σ) ≤ (b : ℝ) * Dmp * (2 * C + 3) :=
+      mul_le_mul_of_nonneg_left h2N1sigma (by rw [hDmpdef]; positivity)
+    refine le_trans hle (le_of_eq ?_)
+    rw [hDmpdef]; field_simp
+  have hbeat : Bm < 0.8 * (Real.exp (-(Real.pi ^ 2 / 2)) / 2) /
+      Real.sqrt (sigmaE2 D.E W.theta) := by
+    have hBm501 : Bm < c3 / (501 * σ) :=
+      r2_close_budget_501 σ ((b : ℝ) * η)
+        ((b : ℝ) * (Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)))
+        ((b : ℝ) * (2 * (N : ℝ) + 1) * Dmp) c3 hσpos hc3pos hb1 hb2 hb3
+    have hc3eq : c3 = 0.8 * (Real.exp (-(Real.pi ^ 2 / 2)) / 2) := by
+      rw [hc3def, r2MinorMainCtrlConstant]
+    rw [← hc3eq]
+    exact hbeat_of_sigma_le_sigmaCtrl c3 (Real.sqrt (sigmaE2 D.E W.theta)) (501 * σ) Bm
+      hc3pos hsigmaEpos (by positivity) hsigmaE_ub hBm501
+  have hNL : 2 * N + 1 ≤ (D.L : ℤ) := by sorry
+  have havoid : ∀ e ∈ D.E, e ∉ T := by sorry
+  have hNF : MainArcNumericFields D.E W.theta N := by sorry
+  have hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
+      ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bm := by sorry
+  exact exists_arcConstruction_of_mainArcParams hb D W N Bm hNnonneg hNL hsemi
+    havoid hne heL he0 hloadUpper hNF.hN hNF.htw hNF.hsmall hminor hbeat
 
 end CircleMethod
 
