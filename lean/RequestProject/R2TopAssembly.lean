@@ -822,7 +822,8 @@ theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
     exact hbeat_of_sigma_le_sigmaCtrl c3 (Real.sqrt (sigmaE2 D.E W.theta)) (501 * σ) Bm
       hc3pos hsigmaEpos (by positivity) hsigmaE_ub hBm501
   have hNL : 2 * N + 1 ≤ (D.L : ℤ) := by sorry
-  have havoid : ∀ e ∈ D.E, e ∉ T := by sorry
+  have havoid : ∀ e ∈ D.E, e ∉ T :=
+    D.avoid hctrlAvoid QB.hQavoid hgadgetAvoid
   have hNF : MainArcNumericFields D.E W.theta N := by sorry
   have hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
       ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bm := by sorry
