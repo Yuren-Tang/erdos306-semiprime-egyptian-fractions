@@ -47,7 +47,7 @@ lemma isSemiprime_one_lt {x : ℕ} (h : IsSemiprime x) : 1 < x := by
 denominator there is a strictly increasing tuple `1 = n₀ < n₁ < … < n_k` whose
 non-initial entries are squarefree semiprimes (`ω = Ω = 2`) with
 `q = ∑_{i=1}^{k} 1/nᵢ`.  Proved here from `erdos_306_unconditional`. -/
-theorem erdos_306_formal_conjectures :
+theorem erdos_306 :
     ∀ (q : ℚ), 0 < q → Squarefree q.den →
       ∃ k : ℕ, ∃ (n : Fin (k + 1) → ℕ), n 0 = 1 ∧ StrictMono n ∧
         (∀ i ∈ Finset.Icc 1 (Fin.last k), ω (n i) = 2 ∧ Ω (n i) = 2) ∧
@@ -133,9 +133,7 @@ theorem erdos_306_formal_conjectures :
     simp only [hn0, Nat.cast_one, div_one] at hins
     linarith [hins]
 
--- The aligned statement is sorry-free and rests on the same two analytic axioms
--- as `erdos_306_unconditional` (propext, Classical.choice, Quot.sound,
--- rosser_schoenfeld_cor3, rosser_schoenfeld_thm5).
-#print axioms erdos_306_formal_conjectures
+-- The axiom audit (`#print axioms erdos_306`) and the verbatim axiom statements
+-- are emitted by `RequestProject.Audit`, which CI runs and gates on.
 
 end Erdos306

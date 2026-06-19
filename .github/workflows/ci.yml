@@ -1,0 +1,73 @@
+name: verify-erdos-306
+
+# Builds the project from a clean checkout (Mathlib via cache) and enforces the
+# audit invariant: the headline theorem `erdos_306` must be sorry-free and depend
+# on no axioms beyond Lean's three standard ones plus the two cited
+# Rosser–Schoenfeld statements. On success it prints the full statements of the
+# theorem and both axioms, with citations.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build (elan + Mathlib cache + lake build)
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: "lean"
+          build-args: "RequestProject.Erdos306FormalConjectures"
+
+      - name: Emit audit (theorem, axioms, verbatim axiom statements)
+        working-directory: lean
+        run: lake env lean RequestProject/Audit.lean 2>&1 | tee audit.log
+
+      - name: Gate — sorry-free and exactly the two cited axioms
+        working-directory: lean
+        run: |
+          log=audit.log
+          grep -A6 "erdos_306' depends on axioms" "$log" || { echo "::error::axiom audit not found"; exit 1; }
+
+          if grep -q "sorryAx" "$log"; then
+            echo "::error::sorryAx present — the proof of erdos_306 is incomplete"; exit 1; fi
+
+          for ax in rosser_schoenfeld_cor3 rosser_schoenfeld_thm5; do
+            grep -q "$ax" "$log" || { echo "::error::missing expected axiom $ax"; exit 1; }
+          done
+
+          unexpected=$(grep -A8 "erdos_306' depends on axioms" "$log" \
+            | tr ',[]' '\n' | sed 's/^ *//; s/ *$//' | grep -E '.' \
+            | grep -vE "^(info:|.*depends on axioms.*|propext|Classical\.choice|Quot\.sound|RosserSchoenfeld\.rosser_schoenfeld_cor3|RosserSchoenfeld\.rosser_schoenfeld_thm5)$" \
+            || true)
+          if [ -n "$unexpected" ]; then
+            echo "::error::unexpected axiom(s) in erdos_306 dependency set:"; echo "$unexpected"; exit 1; fi
+
+      - name: Verification summary
+        if: success()
+        working-directory: lean
+        run: |
+          echo "=================================================================="
+          echo " Erdős Problem 306 — verified in Lean 4 (sorry-free)"
+          echo "=================================================================="
+          echo
+          echo "Theorem and axiom statements (as elaborated by Lean):"
+          echo "------------------------------------------------------------------"
+          sed -n '/erdos_306 :/,$p' audit.log
+          echo "------------------------------------------------------------------"
+          echo
+          echo "The two non-standard axioms are verbatim transcriptions of:"
+          echo "  J. B. Rosser & L. Schoenfeld, Approximate formulas for some"
+          echo "  functions of prime numbers, Illinois J. Math. 6(1) (1962) 64-94,"
+          echo "  DOI 10.1215/ijm/1255631807:"
+          echo "    rosser_schoenfeld_cor3 = Corollary 3, eq. (3.8), p. 69"
+          echo "    rosser_schoenfeld_thm5 = Theorem 5, eqs. (3.17)-(3.18), p. 70"
+          echo
+          echo "Problem source: P. Erdős & R. Graham (1980); erdosproblems.com/306."
+          echo "Statement matches google-deepmind/formal-conjectures ErdosProblems/306.lean."
+          echo "=================================================================="
