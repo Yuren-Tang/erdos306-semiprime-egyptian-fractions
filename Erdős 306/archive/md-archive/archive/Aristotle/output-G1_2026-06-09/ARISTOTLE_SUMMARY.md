@@ -1,0 +1,14 @@
+# Summary of changes for run e57f037e-f148-486d-81dd-c380fa43d16d
+Continued the final-phase task (translate notes 34/35 toward a sorry-free `erdos_306`). The build is **green end-to-end** (`lake build`, 8056 jobs).
+
+**Project layout repaired.** The `.lean` sources were flattened into the repo root, but the lakefile/imports expect them under `RequestProject/`; I moved them there, which is what made the project build at all.
+
+**Circle method — `RequestProject/CircleMethod.lean` (new).** Translated note 35's C0/C5 layer. Proved: `Wcount` (deterministic weighted count over subsets), `exists_subset_of_Wcount_pos` and `Wcount_pos_imp_repr` (the "W>0 ⟹ subset extraction ⟹ representation" step), and `fourier_orthogonality` (finite additive-character orthogonality on `ZMod L`). Assembled `circle_method_positivity`. The analytic heart (C1–C4: edge construction, pointwise/main-arc/minor-arc bounds) is isolated as one precisely-named residual `exists_positive_weighted_construction`.
+
+**Closed the `FourierPositivity` sorry.** `fourier_positivity_unconditional` is no longer a `sorry`; it is now proved via `circle_method_positivity`. Hence the entire downstream wiring of `erdos_306` is sorry-free, and `#print axioms erdos_306` shows only `[propext, sorryAx, Classical.choice, Quot.sound]` — with `sorryAx` entering **solely** through the single analytic statement above.
+
+**Phase-G global control — `RequestProject/GlobalControl.lean` (new).** Translated note 34's G0 data: `BlockSystem`, control pairs, `Qctrl`/`sigmaCtrl`, `mainArc`. Proved the bridge lemma `BlockSystem.irvingGood` (each block is `IrvingGood`, connecting to the verified single-block package) plus the nonnegativity lemmas. Stated the four deep results — `crossblock_dispersion` (G2), `mismatch_penalty` (G3), `global_levelset` (G5), `global_control_partition` (G7 = Prop 8.1) — as precisely-named `sorry`s, each with a one-line reason. (A subagent attempt on G2 reproduced the full residue-counting skeleton but timed out — it is genuinely multi-step.)
+
+**Phase-W cleanup.** Annotated the superseded placeholder files (`SBEE.lean`, `SingleBlockCounting.lean`, and the `*_uniform` stubs in `BlockCRTEnergy.lean`) as DEPRECATED, noting they are off the `erdos_306` path while their CRT-energy definitions remain in active use. Wrote `PHASE_REPORT.md` with the per-phase status, full sorry inventory, and axiom trace.
+
+**Honest status.** This is partial progress on a multi-session research-scale goal (faithfully formalizing Lichtman's circle-method proof). The self-contained pieces are genuinely proved; the labor-heavy analytic content (G2/G3/G5/G7 and C1–C4, including the elementary block-density input `π(2x)−π(x) ≥ x/(2 log x)`) remains as precisely-named residuals, with `erdos_306` reduced to a single one on its dependency path. No axioms or `@[implemented_by]` were introduced; no user content was deleted.

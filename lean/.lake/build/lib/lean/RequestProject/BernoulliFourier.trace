@@ -1,0 +1,48 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["9adc3d639b225070.olean"],
+  "i": "fdb41472476e24ff.ilean",
+  "c": "46359b0c3210f39a.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/RequestProject/BernoulliFourier.lean -o /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/lib/lean/RequestProject/BernoulliFourier.olean -i /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/lib/lean/RequestProject/BernoulliFourier.ilean -c /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/ir/RequestProject/BernoulliFourier.c --setup /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/ir/RequestProject/BernoulliFourier.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "RequestProject/BernoulliFourier.lean:36:89: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/BernoulliFourier.lean:37:36: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/BernoulliFourier.lean:38:36: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/BernoulliFourier.lean:83:111: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/BernoulliFourier.lean:85:8: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"},
+  {"message":
+   "RequestProject/BernoulliFourier.lean:89:122: Try this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.",
+   "level": "info"}],
+ "inputs":
+ [["RequestProject.BernoulliFourier:deps",
+   [["deps",
+     [["RequestProject/RequestProject:extraDep",
+       [["@RequestProject:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Mathlib transitive imports (legacy)", "a11b3bdab9f97163"],
+        ["Mathlib:importAllArts", "8fc2a9ec06d95bdc"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
+   "a96bc04a2e5e9630"],
+  ["/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/RequestProject/BernoulliFourier.lean",
+   "6602c65ee693d5b4"],
+  ["options", "00000000000006bb"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "d7dfd95575badaa5"}

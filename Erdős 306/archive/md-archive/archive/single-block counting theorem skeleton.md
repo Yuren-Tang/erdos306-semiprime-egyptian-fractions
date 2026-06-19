@@ -1,0 +1,263 @@
+好。現在補 **single-block counting theorem** 中「無 dominant label」的 dyadic bookkeeping。目標是把下面這句話寫實：
+
+\text{若沒有 dominant label，則多 label 共存的 entropy 由 cross-label energy 支付。}
+
+---
+
+# **1. 當前局面**
+
+我們已經有：
+
+- prime block  
+    P\subset[X,2X],\qquad N=|P|\asymp X/\log X;
+- low energy condition  
+    Q_P(a)\le R;
+- cutoff  
+    B=A X\log X\sqrt R;
+- regular base vertex p_0;
+- short base list  
+    \mathcal L=\{n\in[-B,B]:n\equiv a_{p_0}\pmod{p_0}\},  
+    with  
+    |\mathcal L|\ll 1+\log X\sqrt R=:s.
+
+大多數 vertices 被 \mathcal L 覆蓋。將 covered vertices 指派到 labels：
+
+C_m=\{p:a_p\equiv m\pmod p\},\qquad m\in\mathcal L.
+
+令
+
+V=\bigcup_{m\in\mathcal L}C_m.
+
+則
+
+|V|\ge (1-\delta)N
+
+其中 \delta=O(\sqrt\eta)，可取很小。
+
+---
+
+# **2. Dominant / non-dominant 分界**
+
+若存在
+
+m_*
+
+使
+
+|C_{m_*}|\ge (1-\rho)N,
+
+則是 dominant case，已處理。
+
+現在假設沒有 dominant label：
+
+\max_m |C_m|<(1-\rho)N.
+
+則 cross mass：
+
+\mathcal M_{\mathrm{cross}} = \sum_{m\ne m'}|C_m||C_{m'}| = |V|^2-\sum_m|C_m|^2.
+
+因 |V|\ge(1-\delta)N 且最大類不超過 (1-\rho)N，若 \delta\ll\rho，則
+
+\mathcal M_{\mathrm{cross}}\gg_\rho N^2.
+
+所以有大量不同 label 類之間的 cross pairs。
+
+---
+
+# **3. Tiny classes**
+
+Cross-label divisor-energy lemma 對兩個 classes A,B 要求
+
+\min(|A|,|B|)\ge C L_X,
+
+其中
+
+L_X=1+\frac{\log(B+X^2+2)}{\log X}.
+
+稱
+
+C_m
+
+為 tiny 若
+
+|C_m|<C L_X.
+
+Tiny classes 的總頂點數最多
+
+C L_X |\mathcal L| \ll L_X(1+\log X\sqrt R).
+
+這未必總是很小，但它們的總 entropy也小。更重要的是：若 non-dominant mass 主要由 tiny classes構成，那麼每個 tiny vertex 對任一 large class 的 cross interaction 會被當作 exception處理。
+
+我們分兩種情形。
+
+---
+
+# **4. 情形 A：substantial classes 承載正比例 mass**
+
+令
+
+V_{\mathrm{sub}}=\bigcup_{m:\ |C_m|\ge C L_X}C_m.
+
+若
+
+|V_{\mathrm{sub}}|\ge c_\rho N,
+
+且其中沒有 dominant class，則 substantial classes 之間有大量 cross mass：
+
+\sum_{\substack{m\ne m'\\ C_m,C_{m'}\ \mathrm{substantial}}} |C_m||C_{m'}| \gg_\rho N^2
+
+除非某一 substantial class 已經接近 N，那又回 dominant case。
+
+對每一對 substantial classes，令
+
+A=C_m,\quad B=C_{m'}.
+
+Cross-label divisor-energy lemma 給：
+
+E(A,B;m,m') \gg M_{m,m'} \min\left( 1,\frac{M_{m,m'}^2}{X^4L_X^4} \right),
+
+其中
+
+M_{m,m'}=|C_m||C_{m'}|.
+
+現在把所有 substantial cross pairs 加總。為避免同一邊重複，每條 unordered cross edge只屬於一對 labels，沒有重複計費。
+
+若 substantial classes 都不是極小，這個總能量至少有一個足以支付 entropy 的下界。
+
+粗略而足夠的估計如下。因 class 數至多
+
+s=|\mathcal L|,
+
+且 substantial cross mass \gg N^2，存在許多 class pairs 有
+
+M_{m,m'}\gg \frac{N^2}{s^2}
+
+或至少經 dyadic pigeonhole 後得到總能量
+
+\gg N^2\min\left( 1,\frac{N^4}{s^4X^4L_X^4} \right)
+
+up to logarithmic factors from dyadic decomposition。
+
+由
+
+N\asymp X/\log X, \qquad s\ll \log X\sqrt R,
+
+此下界在小中等 R 下非常大；若 R 大到使此下界不大於 R，則 e^{-cR} 足以壓住這一 block 的 raw entropy。更乾淨的寫法是把這一步放入 energy-entropy inequality：
+
+\text{number of such multi-label configurations with cross energy }S \le e^{\varepsilon S}.
+
+這由 cross energy lower bound 對每個 dyadic layer 給出。
+
+因此情形 A 的所有配置總數被
+
+e^{\varepsilon R}
+
+吸收，沒有額外 label factor。
+
+---
+
+# **5. 情形 B：substantial classes 不承載正比例 mass**
+
+若
+
+|V_{\mathrm{sub}}|<c_\rho N,
+
+則大部分 covered vertices在 tiny classes 或少數大類中。
+
+若存在一個大類 C_{m_*} 使其大小為
+
+|C_{m_*}|\ge (1-\rho')N
+
+則其實是 dominant case，已處理。
+
+否則，非 dominant 部分大小
+
+t=N-|C_{m_*}|
+
+至少為正比例，且由 tiny classes承載。這時把 tiny-class vertices全部視作 exceptions。
+
+每個 exception vertex q 與最大類 G=C_{m_*} 的 cross edges給能量。因 G 若不是正比例大，則 substantial multi-class case already applies；所以可假設
+
+|G|\gg N.
+
+對 q\notin G，若
+
+a_q\not\equiv m_*\pmod q,
+
+則 majority Irving correction給
+
+\sum_{p\in G} \|\phi_{pq}(a)\|^2 + \sum_{p\in G} \left\|\frac{m_*}{pq}\right\|^2 \gg |G| \gg N.
+
+所以每個 exception成本 \gg N。
+
+而一個 exception vertex的描述熵：
+
+- 選 vertex：\log N;
+- 選 residue：\log X;
+- 或選 tiny label：\log s;
+
+總共
+
+O(\log X+\log s)\ll N.
+
+所以 tiny exceptions 的整體配置數被
+
+e^{\varepsilon R}
+
+吸收。
+
+---
+
+# **6. 因此必有 dominant label**
+
+綜合：
+
+- 若 substantial multi-label 共存，cross-label divisor-energy支付；
+- 若只有 tiny labels作亂，它們作 exceptions，由 majority Irving支付；
+- 若既無 substantial multi-label又無 dominant，矛盾於 covered vertices佔大多數。
+
+故所有 low-energy assignments 都可編碼為：
+
+1. 一個 dominant label m;
+2. energy-paid exception set/residues.
+
+Dominant label 的可能數量：
+
+|m|\le B=A X\log X\sqrt R.
+
+所以
+
+\#m\ll B+1\ll 1+\frac{\sqrt R}{\sigma_P}.
+
+Exceptions給因子
+
+e^{\varepsilon R}.
+
+因此
+
+\#\{a:Q_P(a)\le R\} \le e^{\varepsilon R} \left(1+\frac{\sqrt R}{\sigma_P}\right).
+
+這完成 single-block counting theorem。
+
+---
+
+# **7. 誠實標記**
+
+上面最壓縮的地方是情形 A 中「substantial classes 的 dyadic energy-entropy inequality」。正式寫作時應展開為：
+
+1. 對 class sizes dyadic；
+2. 對每個 dyadic pair size (u,v) 使用 divisor-energy lemma；
+3. 計算該 dyadic layer 的可配置數；
+4. 證能量下界壓過配置熵；
+5. 對所有 dyadic layers求和。
+
+這是標準但繁瑣。核心估計已足夠強，因為 cross energy有 X^2/\log^C X 級別，而 block entropy只有 O(X)。
+
+所以沒有新的概念障礙。
+
+---
+
+# **8. 下一步**
+
+現在 single-block theorem 可以視為已經有完整證明草案。  
+接下來應把 **ordinary diagonal counting lemma** 寫得更實，以免最後在 m\bmod L 的 wrap-around 上留下縫隙。

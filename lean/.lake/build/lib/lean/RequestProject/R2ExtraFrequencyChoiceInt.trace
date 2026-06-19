@@ -1,0 +1,38 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["2829490ad5378f6d.olean"],
+  "i": "85c86ca4ffe4c305.ilean",
+  "c": "6d3788ac5c19674f.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/RequestProject/R2ExtraFrequencyChoiceInt.lean -o /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/lib/lean/RequestProject/R2ExtraFrequencyChoiceInt.olean -i /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/lib/lean/RequestProject/R2ExtraFrequencyChoiceInt.ilean -c /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/ir/RequestProject/R2ExtraFrequencyChoiceInt.c --setup /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/ir/RequestProject/R2ExtraFrequencyChoiceInt.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "RequestProject/R2ExtraFrequencyChoiceInt.lean:67:25: This simp argument is unused:\n  Int.emod_emod_of_dvd (X.mfun h) hsdvd\n\nHint: Omit it from the simp argument list.\n  simp [Int.ModEq,̵ ̵I̵n̵t̵.̵e̵m̵o̵d̵_̵e̵m̵o̵d̵_̵o̵f̵_̵d̵v̵d̵ ̵(̵X̵.̵m̵f̵u̵n̵ ̵h̵)̵ ̵h̵s̵d̵v̵d̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "RequestProject/R2ExtraFrequencyChoiceInt.lean:165:27: This simp argument is unused:\n  Int.emod_emod_of_dvd (X.mfun h) hrdvdLZ\n\nHint: Omit it from the simp argument list.\n  simp [Int.ModEq,̵ ̵I̵n̵t̵.̵e̵m̵o̵d̵_̵e̵m̵o̵d̵_̵o̵f̵_̵d̵v̵d̵ ̵(̵X̵.̵m̵f̵u̵n̵ ̵h̵)̵ ̵h̵r̵d̵v̵d̵L̵Z̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"}],
+ "inputs":
+ [["RequestProject.R2ExtraFrequencyChoiceInt:deps",
+   [["deps",
+     [["RequestProject/RequestProject:extraDep",
+       [["@RequestProject:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["RequestProject.R2ExtraFrequencyChoice transitive imports (legacy)",
+         "e2e1207bc7d18089"],
+        ["RequestProject.R2ExtraFrequencyChoice:importAllArts",
+         "487617c3787053e6"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
+   "a96bc04a2e5e9630"],
+  ["/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/RequestProject/R2ExtraFrequencyChoiceInt.lean",
+   "d69fb17080705a8b"],
+  ["options", "00000000000006bb"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "fd0c9cd861d3c047"}

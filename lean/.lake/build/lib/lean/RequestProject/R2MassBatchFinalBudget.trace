@@ -1,0 +1,32 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["9f4804deb4e99184.olean"],
+  "i": "eced1f9aea527d0f.ilean",
+  "c": "63fbfdb93ed55ae8.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/Cli/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/batteries/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/Qq/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/aesop/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/importGraph/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/plausible/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/packages/mathlib/.lake/build/lib/lean:/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/lib/lean /Users/david/.elan/toolchains/leanprover--lean4---v4.28.0/bin/lean /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/RequestProject/R2MassBatchFinalBudget.lean -o /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/lib/lean/RequestProject/R2MassBatchFinalBudget.olean -i /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/lib/lean/RequestProject/R2MassBatchFinalBudget.ilean -c /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/ir/RequestProject/R2MassBatchFinalBudget.c --setup /Users/david/Obsidian/Math/Erdős 306/core-packet/lean/.lake/build/ir/RequestProject/R2MassBatchFinalBudget.setup.json --json",
+   "level": "trace"}],
+ "inputs":
+ [["RequestProject.R2MassBatchFinalBudget:deps",
+   [["deps",
+     [["RequestProject/RequestProject:extraDep",
+       [["@RequestProject:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["RequestProject.R2ForbiddenPoolBudget transitive imports (legacy)",
+         "48178f5da36b394b"],
+        ["RequestProject.R2ForbiddenPoolBudget:importAllArts",
+         "e380618788cfb46b"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.28.0, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b",
+   "a96bc04a2e5e9630"],
+  ["/Users/david/Obsidian/Math/Erdős 306/core-packet/lean/RequestProject/R2MassBatchFinalBudget.lean",
+   "d7de8a79eb21f1bb"],
+  ["options", "00000000000006bb"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "a3eb48ece92f5cd5"}

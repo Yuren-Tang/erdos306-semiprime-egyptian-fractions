@@ -1,0 +1,35 @@
+\begin{thebibliography}{1}
+
+\bibitem{baker}
+R.~C. Baker.
+\newblock Kloosterman sums with prime variable.
+\newblock {\em Acta Arith.}, 156(3):351--372, 2012.
+
+\bibitem{dav}
+H.~Davenport.
+\newblock {\em Multiplicative number theory}, volume~74 of {\em Graduate Texts
+  in Mathematics}.
+\newblock Springer-Verlag, New York, second edition, 1980.
+\newblock Revised by Hugh L. Montgomery.
+
+\bibitem{dfi}
+W.~Duke, J.~Friedlander, and H.~Iwaniec.
+\newblock Bilinear forms with {K}loosterman fractions.
+\newblock {\em Invent. Math.}, 128(1):23--43, 1997.
+
+\bibitem{foushpar}
+{\'E}.~Fouvry and I.~E. Shparlinski.
+\newblock On a ternary quadratic form over primes.
+\newblock {\em Acta Arith.}, 150(3):285--314, 2011.
+
+\bibitem{garaev}
+M.~Z. Garaev.
+\newblock An estimate for {K}loosterman sums with primes and its application.
+\newblock {\em Mat. Zametki}, 88(3):365--373, 2010.
+
+\bibitem{golomb}
+S.~W. Golomb.
+\newblock Powerful numbers.
+\newblock {\em Amer. Math. Monthly}, 77:848--855, 1970.
+
+\end{thebibliography}

@@ -105,6 +105,19 @@ lemma r2_minor_ctrl_from_g7_block_and_extra_admissible
   r2_minor_ctrl_from_g7_block_and_extra D Bblock Bextra K η Ctail C Aextra
     (sigmaCtrl_pos D.BS hadm) hblock hextra hscaled
 
+/-- **K=501 budget gate (pure scalar, no `D` — avoids `isDefEq` blow-up).**
+With each of the three component budgets below `c3/2004` (the `A1` term exactly,
+`A2` strictly, and the σ-scaled `A3` term), the combined minor budget
+`Bm = (A1 + A2)/σ + A3` lies strictly below `c3/(501 σ)`.  Used to discharge the
+loose-σ beat (`√σ_E ≤ 501 σ`) without the tight `≤ 3σ²` extra-mass bound. -/
+lemma r2_close_budget_501 (σ A1 A2 A3 c3 : ℝ)
+    (hσpos : 0 < σ) (hc3pos : 0 < c3)
+    (h1 : A1 = c3 / 2004) (h2 : A2 < c3 / 2004) (h3 : A3 * σ ≤ c3 / 2004) :
+    (A1 + A2) / σ + A3 < c3 / (501 * σ) := by
+  have hσ501 : (0 : ℝ) < 501 * σ := by positivity
+  rw [div_add' _ _ _ (ne_of_gt hσpos), div_lt_div_iff₀ hσpos hσ501]
+  nlinarith [h1, h2, h3, hσpos, hc3pos, mul_pos hσpos hc3pos]
+
 end CircleMethod
 
 end

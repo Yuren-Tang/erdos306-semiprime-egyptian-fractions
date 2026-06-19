@@ -46,16 +46,23 @@ Now PROVED and axiom-clean (this round), completing the note-45 route:
   * `hrhs_charge_bound` and `hrhs_final` (the full four-fold fiber sum bound),
     hence `global_levelset_final` — all reduced to the single kernel below.
 
-Still open — ONE precisely-named residual `sorry`:
-  * `wrapped_count_le_small_fixed_label` (the wrapped huge-label reduction).
-    `cold_count_wrap` is now a wrapper: it applies this reduction to get a small
-    fixed label `M`, then applies `cold_factor` with `2ε`.  The remaining content
-    is the Theorem-A-internal extraction of `M` and the injection from the wrapped
-    `m`-fiber into the fixed-label `M`-fiber.  It is the single honest, TRUE
-    residual.
-    Everything else in the G5 chain (cover, admissibility, route closure, N1–N5,
+Now CLOSED (this round), completing the G5 chain:
+  * `wrapped_count_le_small_fixed_label` (the wrapped huge-label reduction) is
+    fully proved.  `cold_count_wrap` applies this reduction to get a small fixed
+    label `M`, then `cold_factor` with `2ε`.  The kernel extracts a dominant
+    representative `M` and injects the wrapped `m`-fiber into the fixed-label
+    `M`-fiber.  The extraction needs Theorem-B dominance for arbitrary block
+    assignments in the cold range; since this only holds below Theorem-B's
+    intrinsic constant, it is threaded as the hypothesis `ColdDominance c2`
+    (discharged in `cold_master` via `theorem_B_nondominant_forcing`, taking the
+    minimum of the boundary constant and Theorem-B's constant).  Supporting
+    lemmas added: `two_prime_label_eq` (two-prime CRT label rigidity),
+    `cold_small_label_agree` (per-assignment small-label extraction with residue
+    agreement), and `Rw_mono_c2` / `not_isHot_mono_cold` / `boundarySet_mono`.
+    The entire G5 chain (cover, admissibility, route closure, N1–N5,
     `cold_master`, `hadmL_final`, the per-fiber discharge, the charge assembly,
-    and `global_levelset_final`) is proved and depends only on this one kernel.
+    and `global_levelset_final`) is now proved and axiom-clean
+    (`propext`, `Classical.choice`, `Quot.sound`).
 -/
 import RequestProject.GlobalControlG5Data
 
@@ -291,6 +298,68 @@ lemma fiber_card_exp_bound (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
 
 /-! ### N5 — master constants, label admissibility, and final assembly -/
 
+/-- **Cold-regime dominance for arbitrary block assignments.**
+    At parameter `c2`, eventually every block-assignment of cold energy
+    (`< Rw c2 k`) admits a dominant `(1/4)`-label.  This is
+    `theorem_B_nondominant_forcing` re-routed to `BlockSystem` blocks; it holds
+    only for `c2` at most Theorem-B's intrinsic constant, so it is carried as a
+    hypothesis through the cold-count chain. -/
+def ColdDominance (c2 : ℝ) : Prop :=
+  ∃ X1 : ℝ, 0 < X1 ∧ ∀ (BS : BlockSystem) (k : ℕ),
+    BS.k0 ≤ k → k ≤ BS.K → X1 ≤ (2:ℝ) ^ k →
+    ∀ (b : BlockAssignment (BS.P k)) (Rb : ℝ),
+      QP (BS.P k) b ≤ Rb → Rb < Rw c2 k →
+      SBEEForcing.IsDominant ((2:ℕ) ^ k) (BS.P k) b (1/4)
+
+/-- `Rw` is monotone in the constant `c2`. -/
+lemma Rw_mono_c2 {c2 c2' : ℝ} (hc : c2 ≤ c2') (hc0 : 0 ≤ c2) (k : ℕ) :
+    Rw c2 k ≤ Rw c2' k := by
+  have hden : 0 ≤ (Real.log (2 ^ k)) ^ 3 := by
+    have h := Real.log_nonneg (show (1:ℝ) ≤ 2 ^ k from one_le_pow₀ (by norm_num))
+    positivity
+  unfold Rw
+  rcases hden.lt_or_eq with hd | hd
+  · gcongr
+  · rw [← hd]; simp
+
+/-- Coldness only strengthens as `c2` shrinks: `¬ isHot` at the smaller constant
+    implies `¬ isHot` at the larger one. -/
+lemma not_isHot_mono_cold {c2 c2' : ℝ} (hc : c2 ≤ c2') (hc0 : 0 ≤ c2)
+    (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) :
+    ¬ isHot BS c2 a k → ¬ isHot BS c2' a k := by
+  intro h hHot
+  exact h (le_trans (Rw_mono_c2 hc hc0 k) hHot)
+
+/-- The boundary set grows with `c2`. -/
+lemma boundarySet_mono {c2 c2' : ℝ} (hc : c2 ≤ c2') (hc0 : 0 ≤ c2)
+    (BS : BlockSystem) (a : GlobalAssignment BS) :
+    boundarySet BS c2 a ⊆ boundarySet BS c2' a := by
+  intro k hk
+  rw [boundarySet, Finset.mem_filter] at hk ⊢
+  exact ⟨hk.1, not_isHot_mono_cold hc hc0 BS a k hk.2.1,
+    not_isHot_mono_cold hc hc0 BS a (k+1) hk.2.2.1, hk.2.2.2⟩
+
+/-
+**Two-prime label rigidity.**  Two integer labels agreeing modulo at least
+    two distinct primes from a window `[X, 2X]`, and differing by less than `X²`,
+    must be equal.
+-/
+lemma two_prime_label_eq (X : ℕ) (P : Finset ℕ)
+    (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2 * X)
+    (m₁ m₂ : ℤ) (S : Finset { x // x ∈ P }) (hScard : 2 ≤ S.card)
+    (hagree : ∀ p ∈ S, (m₁ : ZMod (p:ℕ)) = (m₂ : ZMod (p:ℕ)))
+    (hbound : |m₁ - m₂| < (X:ℤ)^2) :
+    m₁ = m₂ := by
+  obtain ⟨ p₁, hp₁, p₂, hp₂, hne ⟩ := Finset.one_lt_card.mp hScard; have := hagree p₁ hp₁; have := hagree p₂ hp₂; simp_all +decide [ ZMod.intCast_eq_intCast_iff ] ;
+  -- Since $p₁$ and $p₂$ are distinct primes, their product $p₁ * p₂$ divides $m₁ - m₂$.
+  have h_div : (p₁.val * p₂.val : ℤ) ∣ (m₁ - m₂) := by
+    convert Int.coe_lcm_dvd ( Int.modEq_iff_dvd.mp ( hagree p₁.1 p₁.2 hp₁ |> Int.ModEq.symm ) ) ( Int.modEq_iff_dvd.mp ( hagree p₂.1 p₂.2 hp₂ |> Int.ModEq.symm ) ) using 1 ; norm_cast;
+    exact Eq.symm ( Nat.Coprime.lcm_eq_mul <| by have := Nat.coprime_primes ( hP _ p₁.2 |>.1 ) ( hP _ p₂.2 |>.1 ) ; aesop );
+  -- Since $p₁$ and $p₂$ are distinct primes, their product $p₁ * p₂$ is at least $X^2$.
+  have h_prod_ge_X2 : (p₁.val * p₂.val : ℤ) ≥ X^2 := by
+    exact_mod_cast by nlinarith only [ hP p₁ p₁.2, hP p₂ p₂.2 ] ;
+  exact Classical.not_not.1 fun h => by have := Int.le_of_dvd ( abs_pos.2 ( sub_ne_zero_of_ne h ) ) ( by simpa using h_div ) ; linarith [ abs_lt.mp hbound ] ;
+
 /-
 **Master cold constants.**  A single triple `(c2,e0,X0)` providing both the
     block-dominance (`IsDominant`) used to read off cold labels and the boundary
@@ -298,7 +367,7 @@ lemma fiber_card_exp_bound (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
     facts already expose, for the same `c2`, the residue agreement that yields
     dominance for `X0` large).
 -/
-lemma cold_master :
+lemma cold_master_struct :
     ∃ (c2 e0 X0 : ℝ), 0 < c2 ∧ 0 < e0 ∧ 0 < X0 ∧
       (∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
         BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k → ¬ isHot BS c2 a k →
@@ -336,6 +405,39 @@ lemma cold_master :
       cases h_card_le <;> nlinarith [ Nat.div_add_mod ( ( 2 ^ k ) ^ 2 ) 2, Nat.mod_lt ( ( 2 ^ k ) ^ 2 ) two_pos ];
     · convert h_class_count.le using 1 ; norm_num [ classCount ]);
   · exact fun BS a k hk₁ hk₂ hk₃ hk₄ hk₅ hk₆ => h.2 BS a k hk₁ hk₂ hk₃ hk₆
+
+/-
+**Master cold constants** (with arbitrary-block-assignment cold dominance).
+    Strengthens `cold_master_struct` by shrinking `c2` to also lie below
+    Theorem-B's intrinsic constant, exposing `ColdDominance c2` in addition to
+    the block dominance for restrictions and the boundary penalty floor.
+-/
+lemma cold_master :
+    ∃ (c2 e0 X0 : ℝ), 0 < c2 ∧ 0 < e0 ∧ 0 < X0 ∧
+      (∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
+        BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k → ¬ isHot BS c2 a k →
+        SBEEForcing.IsDominant (2 ^ k) (BS.P k) (restrict BS a k) (1/4)) ∧
+      (∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
+        BS.k0 ≤ k → k < BS.K → X0 ≤ (2:ℝ) ^ k → k ∈ boundarySet BS c2 a →
+        Pifloor BS e0 k ≤ Xen BS a k) ∧
+      ColdDominance c2 := by
+  obtain ⟨c2P, e0, X0P, hc2P, he0, hX0P, hdomR, hpen⟩ := GlobalControl.cold_master_struct
+  obtain ⟨c2B, X0B, hc2B, hX0B, HB⟩ := SBEEForcing.theorem_B_nondominant_forcing (1/4) (by norm_num) (by norm_num);
+  refine' ⟨ Min.min c2P c2B, e0, Max.max X0P ( Max.max X0B 1 ), _, _, _, _, _, _ ⟩ <;> norm_num [ hc2P, he0, hX0P, hc2B, hX0B ];
+  · intro BS a k hk1 hk2 hX0P hX0B h1 hnh;
+    apply hdomR BS a k hk1 hk2 hX0P;
+    exact not_isHot_mono_cold ( min_le_left _ _ ) ( le_of_lt ( lt_min hc2P hc2B ) ) BS a k hnh;
+  · intro BS a k hk1 hk2 hX0P hX0B h1 hk; exact hpen BS a k hk1 hk2 hX0P ( boundarySet_mono ( min_le_left _ _ ) ( le_of_lt ( lt_min hc2P hc2B ) ) BS a hk ) ;
+  · refine' ⟨ Max.max X0B 1, by positivity, _ ⟩;
+    intro BS k hk1 hk2 hk3 b Rb hQ hRb;
+    contrapose! HB;
+    refine' ⟨ 2 ^ k, _, BS.P k, _, _, _, b, Rb, hQ, HB, _ ⟩ <;> norm_num at *;
+    · linarith;
+    · exact fun p hp => ⟨ Nat.Prime.ne_zero ( BS.hprime k p hp ) ⟩;
+    · exact fun p hp => ⟨ BS.hprime k p hp, by linarith [ BS.hwindow k p hp ], by linarith [ BS.hwindow k p hp, pow_succ' ( 2 : ℕ ) k ] ⟩;
+    · convert BS.hdensity k hk1 hk2 using 1 ; norm_num [ Real.log_pow ];
+    · refine' lt_of_lt_of_le hRb _;
+      convert Rw_mono_c2 ( min_le_right c2P c2B ) ( le_of_lt ( lt_min hc2P hc2B ) ) k using 1 ; norm_num [ Rw ]
 
 /-
 **Label admissibility (`hadmL`).**  For `k0` past a uniform threshold, the
@@ -609,12 +711,84 @@ lemma cold_count_nonwrap (c2 : ℝ) (hc2 : 0 < c2) :
     convert hx using 1, by
     exact hn.le
 
+/-
+**Per-assignment small-label extraction with residue agreement (note 45).**
+    For a cold block-assignment `b` conforming to a (possibly wrapped) label `m`
+    on `≥ 3/4·N` primes, Theorem B yields a dominant label `mb` with
+    `|mb| ≤ N·2^k/16`, conforming on `≥ 3/4·N` primes, and agreeing with `m`
+    modulo `≥ 3/4·N - e0` primes (`e0` absolute).
+-/
+lemma cold_small_label_agree (c2 : ℝ) (hc2 : 0 < c2) (hdomB : ColdDominance c2) :
+    ∃ (e0 X0 : ℝ), 0 < e0 ∧ 0 < X0 ∧
+      ∀ (BS : BlockSystem) (k : ℕ), BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k →
+        ∀ (m : ℤ) (n : ℕ), (n : ℝ) + 1 < Rw c2 k →
+        ∀ (b : BlockAssignment (BS.P k)),
+          QP (BS.P k) b ≤ (n : ℝ) + 1 →
+          (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+            (((BS.P k).attach.filter (fun p => b p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ) →
+          ∃ mb : ℤ,
+            |(mb : ℝ)| ≤ ((BS.P k).card : ℝ) * (2 ^ k) / 16 ∧
+            (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+              (((BS.P k).attach.filter (fun p => b p = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) ∧
+            (3/4 : ℝ) * ((BS.P k).card : ℝ) - e0 ≤
+              (((BS.P k).attach.filter
+                (fun (p : {x // x ∈ BS.P k}) =>
+                  ((m : ℤ) : ZMod (p : ℕ)) = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) := by
+  obtain ⟨X1, hX1pos, hdom⟩ := hdomB;
+  obtain ⟨X0s, hX0s0, Hsize⟩ := SBEEForcing.cold_label_size (1/4) (by norm_num) (by norm_num) c2 hc2
+  obtain ⟨e0, X0e, he0pos, hX0e0, Hexc⟩ := SBEEForcing.cold_exception_bound (1/4) (by norm_num) (by norm_num) c2 hc2;
+  refine' ⟨ e0, Max.max X1 ( Max.max X0s ( Max.max X0e 16 ) ), he0pos, _, _ ⟩ <;> norm_num;
+  intro BS k hk1 hk2 hk3 hk4 hk5 hk6 m n hn b hQ hconf
+  obtain ⟨mb, hmb_abs, hmb_conf⟩ := hdom BS k hk1 hk2 hk3 b ((n:ℝ)+1) hQ hn
+  refine' ⟨mb, _, _, _⟩;
+  · convert Hsize ( 2 ^ k ) ( mod_cast hk4 ) ( BS.P k ) _ _ b mb ( n + 1 ) _ _ _ _ using 1 <;> norm_num;
+    any_goals assumption;
+    · exact Or.inl <| le_of_lt <| by simpa [ Rw ] using hn;
+    · exact fun p hp => ⟨ BS.hprime k p hp, BS.hwindow k p hp |>.1, by linarith [ BS.hwindow k p hp |>.2, pow_succ' ( 2 : ℕ ) k ] ⟩;
+    · convert BS.hdensity k hk1 hk2 using 1 ; norm_num [ Real.log_pow ];
+    · linarith;
+  · linarith;
+  · have hmb_small : |(mb : ℝ)| ≤ ((BS.P k).card : ℝ) * (2 ^ k) / 16 := by
+      convert Hsize ( 2 ^ k ) _ ( BS.P k ) _ _ b mb ( n + 1 ) _ _ _ _ using 1 <;> norm_num;
+      any_goals assumption;
+      · exact Or.inl <| le_of_lt <| by simpa [ Rw ] using hn;
+      · exact fun p hp => ⟨ BS.hprime k p hp, by linarith [ BS.hwindow k p hp ], by linarith [ BS.hwindow k p hp, pow_succ' ( 2 : ℕ ) k ] ⟩;
+      · convert BS.hdensity k hk1 hk2 using 1 ; ring;
+        norm_num [ Real.log_pow ] ; ring;
+      · grind +revert;
+    have hmb_small : ((Finset.univ.filter (fun q : {x // x ∈ BS.P k} => b q ≠ ((mb : ℤ) : ZMod (q : ℕ)))).card : ℝ) ≤ e0 := by
+      convert Hexc ( 2 ^ k ) ( mod_cast hk5 ) ( BS.P k ) _ _ b mb ( n + 1 ) _ _ _ _ _ using 1 <;> norm_num;
+      any_goals linarith;
+      · exact fun p hp => ⟨ BS.hprime k p hp, by linarith [ BS.hwindow k p hp ], by linarith [ BS.hwindow k p hp, pow_succ' ( 2 : ℕ ) k ] ⟩;
+      · have := BS.hdensity k hk1 hk2;
+        simpa [ Real.log_pow ] using this;
+      · convert hn.le using 1;
+        unfold Rw; norm_num [ Real.log_pow ] ;
+    have hmb_small : ((Finset.univ.filter (fun p : {x // x ∈ BS.P k} => b p = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) ≥ ((BS.P k).card : ℝ) - e0 := by
+      have hmb_small : ((Finset.univ.filter (fun p : {x // x ∈ BS.P k} => b p = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) + ((Finset.univ.filter (fun q : {x // x ∈ BS.P k} => b q ≠ ((mb : ℤ) : ZMod (q : ℕ)))).card : ℝ) = (BS.P k).card := by
+        rw_mod_cast [ Finset.card_filter_add_card_filter_not ];
+        simp +decide [ Finset.card_univ ];
+      linarith;
+    have hmb_small : ((Finset.univ.filter (fun p : {x // x ∈ BS.P k} => b p = ((m : ℤ) : ZMod (p : ℕ)) ∧ b p = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) ≥ ((Finset.univ.filter (fun p : {x // x ∈ BS.P k} => b p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ) + ((Finset.univ.filter (fun p : {x // x ∈ BS.P k} => b p = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) - ((BS.P k).card : ℝ) := by
+      have hmb_small : ((Finset.univ.filter (fun p : {x // x ∈ BS.P k} => b p = ((m : ℤ) : ZMod (p : ℕ)) ∨ b p = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) ≤ ((BS.P k).card : ℝ) := by
+        exact_mod_cast le_trans ( Finset.card_le_univ _ ) ( by norm_num );
+      have hmb_small : ((Finset.univ.filter (fun p : {x // x ∈ BS.P k} => b p = ((m : ℤ) : ZMod (p : ℕ)) ∨ b p = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) = ((Finset.univ.filter (fun p : {x // x ∈ BS.P k} => b p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ) + ((Finset.univ.filter (fun p : {x // x ∈ BS.P k} => b p = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) - ((Finset.univ.filter (fun p : {x // x ∈ BS.P k} => b p = ((m : ℤ) : ZMod (p : ℕ)) ∧ b p = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) := by
+        rw [ ← Nat.cast_add, ← Finset.card_union_add_card_inter ];
+        simp +decide [ Finset.filter_or, Finset.filter_and ];
+      linarith;
+    have hmb_small : ((Finset.univ.filter (fun p : {x // x ∈ BS.P k} => b p = ((m : ℤ) : ZMod (p : ℕ)) ∧ b p = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) ≤ ((Finset.univ.filter (fun p : {x // x ∈ BS.P k} => ((m : ℤ) : ZMod (p : ℕ)) = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) := by
+      gcongr;
+      exact fun h => h.1.symm.trans h.2;
+    linarith!
+
 /-- **Wrapped-label reduction kernel (note 45).**
     In the low-energy wrapped regime, the assignments conforming to a large
     wrapped label `m` inject into the fixed-label fiber for one small label `M`.
-    This is the missing Theorem-A-internal dominant-representative extraction and
-    transport step; once available, `cold_count_wrap` is just `cold_factor`. -/
-lemma wrapped_count_le_small_fixed_label (c2 : ℝ) (hc2 : 0 < c2) :
+    This is the Theorem-A-internal dominant-representative extraction and
+    transport step; with it, `cold_count_wrap` is just `cold_factor`.  The cold
+    dominance for arbitrary block assignments is supplied via `hdomB`. -/
+lemma wrapped_count_le_small_fixed_label (c2 : ℝ) (hc2 : 0 < c2)
+    (hdomB : ColdDominance c2) :
     ∃ X0 : ℝ, 0 < X0 ∧
       ∀ (BS : BlockSystem) (k : ℕ), BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k →
         ∀ (m : ℤ) (n : ℕ),
@@ -633,7 +807,86 @@ lemma wrapped_count_le_small_fixed_label (c2 : ℝ) (hc2 : 0 < c2) :
               (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
                 (((BS.P k).attach.filter
                   (fun p => b p = ((M : ℤ) : ZMod (p : ℕ)))).card : ℝ))).card : ℝ) := by
-  sorry
+  obtain ⟨e0, X0a, he0, hX0a, Hagree⟩ := cold_small_label_agree c2 hc2 hdomB
+  obtain ⟨X0c, hX0c0, hlog⟩ := SBEEForcing.exists_X0_const_logbnd (8 * e0 + 8)
+  refine ⟨max X0a (max X0c 16), by positivity, fun BS k hk1 hk2 hk3 m n hn _hwrap => ?_⟩
+  have hlogpos : 0 < Real.log ((2:ℝ) ^ k) := by
+    apply Real.log_pos
+    have : (16:ℝ) ≤ (2:ℝ) ^ k := le_trans (le_max_of_le_right (le_max_right _ _)) hk3
+    linarith
+  have hNbig : 4 * e0 + 4 ≤ ((BS.P k).card : ℝ) := by
+    have hdens : (2:ℝ) ^ k / (2 * Real.log ((2:ℝ) ^ k)) ≤ ((BS.P k).card : ℝ) :=
+      BS.hdensity k hk1 hk2
+    have hL : (8 * e0 + 8) * Real.log ((2:ℝ) ^ k) ≤ (2:ℝ) ^ k := by
+      have := hlog (2 ^ k) (by exact_mod_cast le_trans (le_max_of_le_right (le_max_left _ _)) hk3)
+      simpa using this
+    rw [div_le_iff₀ (by positivity)] at hdens
+    nlinarith [hdens, hL, hlogpos]
+  have hNX : ((BS.P k).card : ℤ) ≤ (2 : ℤ) ^ k := by exact_mod_cast GlobalControl.block_card_le BS k
+  have hPwin : ∀ p ∈ BS.P k, Nat.Prime p ∧ 2 ^ k ≤ p ∧ p ≤ 2 * 2 ^ k := by
+    intro p hp
+    refine ⟨BS.hprime k p hp, (BS.hwindow k p hp).1, ?_⟩
+    have h := (BS.hwindow k p hp).2
+    have h2 : p < 2 * 2 ^ k := by rw [← pow_succ']; exact h
+    omega
+  classical
+  by_cases hfe :
+      (Finset.univ.filter (fun b : BlockAssignment (BS.P k) =>
+        QP (BS.P k) b ≤ (n : ℝ) + 1 ∧
+        (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
+          (((BS.P k).attach.filter (fun p => b p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ))).card = 0
+  · refine ⟨0, by simp only [Int.cast_zero, abs_zero]; positivity, ?_⟩
+    rw [hfe, Nat.cast_zero]
+    exact Nat.cast_nonneg _
+  · obtain ⟨b0, hb0mem⟩ := Finset.card_pos.mp (Nat.pos_of_ne_zero hfe)
+    rw [Finset.mem_filter] at hb0mem
+    obtain ⟨M, hM_small, hM_conf, hM_agree⟩ :=
+      Hagree BS k hk1 hk2 (le_trans (le_max_left _ _) hk3) m n hn b0 hb0mem.2.1 hb0mem.2.2
+    refine ⟨M, hM_small, ?_⟩
+    apply Nat.cast_le.mpr
+    apply Finset.card_le_card
+    intro b hb
+    rw [Finset.mem_filter] at hb ⊢
+    obtain ⟨mb, hmb_small, hmb_conf, hmb_agree⟩ :=
+      Hagree BS k hk1 hk2 (le_trans (le_max_left _ _) hk3) m n hn b hb.2.1 hb.2.2
+    set A : Finset {x // x ∈ BS.P k} :=
+      (BS.P k).attach.filter (fun p => ((m : ℤ) : ZMod (p : ℕ)) = ((mb : ℤ) : ZMod (p : ℕ))) with hAdef
+    set B : Finset {x // x ∈ BS.P k} :=
+      (BS.P k).attach.filter (fun p => ((m : ℤ) : ZMod (p : ℕ)) = ((M : ℤ) : ZMod (p : ℕ))) with hBdef
+    have hmbM : mb = M := by
+      apply two_prime_label_eq (2 ^ k) (BS.P k) hPwin mb M (A ∩ B)
+      · have hcards := Finset.card_union_add_card_inter A B
+        have hsub : A ∪ B ⊆ (BS.P k).attach :=
+          Finset.union_subset (Finset.filter_subset _ _) (Finset.filter_subset _ _)
+        have hUle := Finset.card_le_card hsub
+        rw [Finset.card_attach] at hUle
+        have hcardsR : ((A ∪ B).card : ℝ) + ((A ∩ B).card : ℝ)
+            = (A.card : ℝ) + (B.card : ℝ) := by exact_mod_cast hcards
+        have hUleR : ((A ∪ B).card : ℝ) ≤ ((BS.P k).card : ℝ) := by exact_mod_cast hUle
+        have hAc : (3/4 : ℝ) * ((BS.P k).card : ℝ) - e0 ≤ (A.card : ℝ) := by
+          simpa only [hAdef] using hmb_agree
+        have hBc : (3/4 : ℝ) * ((BS.P k).card : ℝ) - e0 ≤ (B.card : ℝ) := by
+          simpa only [hBdef] using hM_agree
+        rw [← Nat.cast_le (α := ℝ)]; push_cast
+        nlinarith [hUleR, hcardsR, hAc, hBc, hNbig]
+      · intro p hp
+        rw [Finset.mem_inter, hAdef, hBdef, Finset.mem_filter, Finset.mem_filter] at hp
+        exact hp.1.2.symm.trans hp.2.2
+      · have hb1 : |(mb : ℝ) - (M : ℝ)| ≤ ((BS.P k).card : ℝ) * 2 ^ k / 8 := by
+          have h1 := abs_le.mp hmb_small; have h2 := abs_le.mp hM_small
+          rw [abs_le]; constructor <;> linarith [h1.1, h1.2, h2.1, h2.2]
+        have hNle : ((BS.P k).card : ℝ) ≤ (2:ℝ) ^ k := by exact_mod_cast hNX
+        have hb2 : |(mb : ℝ) - (M : ℝ)| < ((2:ℝ) ^ k) ^ 2 := by
+          have hpos : (0:ℝ) < (2:ℝ) ^ k := by positivity
+          nlinarith [hb1, hNle, hpos]
+        have e1 : ((|mb - M| : ℤ) : ℝ) = |(mb : ℝ) - (M : ℝ)| := by
+          rw [Int.cast_abs]; push_cast; ring_nf
+        have e2 : (((2 ^ k : ℤ) ^ 2 : ℤ) : ℝ) = ((2:ℝ) ^ k) ^ 2 := by push_cast; ring
+        have hcast : ((|mb - M| : ℤ) : ℝ) < (((2 ^ k : ℤ) ^ 2 : ℤ) : ℝ) := by
+          rw [e1, e2]; exact hb2
+        exact_mod_cast hcast
+    refine ⟨Finset.mem_univ _, hb.2.1, ?_⟩
+    rw [← hmbM]; exact hmb_conf
 
 /-- **Wrapped huge-label cold count (note 45 wrapper).**
     For a label beyond the CRT wrap threshold (`(2^k)²/2 < |m|`), the per-block
@@ -641,7 +894,7 @@ lemma wrapped_count_le_small_fixed_label (c2 : ℝ) (hc2 : 0 < c2) :
     isolated in `wrapped_count_le_small_fixed_label`; this lemma only applies
     `cold_factor` to the resulting small fixed label. -/
 lemma cold_count_wrap (eps : ℝ) (heps : 0 < eps) (_heps1 : eps < 1)
-    (c2 : ℝ) (hc2 : 0 < c2) :
+    (c2 : ℝ) (hc2 : 0 < c2) (hdomB : ColdDominance c2) :
     ∃ X0 : ℝ, 0 < X0 ∧
       ∀ (BS : BlockSystem) (k : ℕ), BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k →
         ∀ (m : ℤ) (n : ℕ),
@@ -653,7 +906,7 @@ lemma cold_count_wrap (eps : ℝ) (heps : 0 < eps) (_heps1 : eps < 1)
                 (((BS.P k).attach.filter
                   (fun p => b p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ))).card : ℝ)
             ≤ Real.exp (2 * eps * ((n : ℝ) + 1)) := by
-  obtain ⟨Xr, hXr0, hReduce⟩ := wrapped_count_le_small_fixed_label c2 hc2
+  obtain ⟨Xr, hXr0, hReduce⟩ := wrapped_count_le_small_fixed_label c2 hc2 hdomB
   obtain ⟨Xc, hXc0, hCold⟩ := cold_factor (2 * eps) (by positivity)
   refine ⟨max Xr Xc, by positivity, ?_⟩
   intro BS k hk1 hk2 hk3 m n hn hwrap
@@ -670,7 +923,7 @@ lemma cold_count_wrap (eps : ℝ) (heps : 0 < eps) (_heps1 : eps < 1)
     wrap threshold `(2^k)²/2`: non-wrapped via `cold_count_nonwrap` (empty fiber),
     wrapped via `cold_count_wrap`. -/
 lemma cold_count_huge_label (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
-    (c2 : ℝ) (hc2 : 0 < c2) :
+    (c2 : ℝ) (hc2 : 0 < c2) (hdomB : ColdDominance c2) :
     ∃ X0 : ℝ, 0 < X0 ∧
       ∀ (BS : BlockSystem) (k : ℕ), BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k →
         ∀ (m : ℤ) (n : ℕ),
@@ -683,7 +936,7 @@ lemma cold_count_huge_label (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
                   (fun p => b p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ))).card : ℝ)
             ≤ Real.exp (2 * eps * ((n : ℝ) + 1)) := by
   obtain ⟨Xnw, hXnw0, hNW⟩ := cold_count_nonwrap c2 hc2
-  obtain ⟨Xw, hXw0, hW⟩ := cold_count_wrap eps heps heps1 c2 hc2
+  obtain ⟨Xw, hXw0, hW⟩ := cold_count_wrap eps heps heps1 c2 hc2 hdomB
   refine ⟨max Xnw Xw, by positivity, fun BS k hk1 hk2 hk3 m n hn hm => ?_⟩
   by_cases hwrap : |((m : ℤ) : ℝ)| ≤ ((2:ℝ) ^ k) ^ 2 / 2
   · rw [hNW BS k hk1 hk2 (le_trans (le_max_left _ _) hk3) m n hn hm hwrap]
@@ -701,7 +954,7 @@ lemma cold_count_huge_label (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
     * else (`|m| > N·2^k/16` and `n+1 < Rw c2 k`) it is `cold_count_huge_label`.
 -/
 lemma cold_count_large (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
-    (c2 : ℝ) (hc2 : 0 < c2) :
+    (c2 : ℝ) (hc2 : 0 < c2) (hdomB : ColdDominance c2) :
     ∃ X0 : ℝ, 0 < X0 ∧
       ∀ (BS : BlockSystem) (k : ℕ), BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k →
         ∀ (m : ℤ) (n : ℕ),
@@ -713,7 +966,7 @@ lemma cold_count_large (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
             ≤ Real.exp (2 * eps * ((n : ℝ) + 1)) := by
   obtain ⟨Xh, hXh0, hHot⟩ := hot_factor eps heps heps1 c2 hc2
   obtain ⟨Xc, hXc0, hCold⟩ := cold_factor eps heps
-  obtain ⟨Xg, hXg0, hHuge⟩ := cold_count_huge_label eps heps heps1 c2 hc2
+  obtain ⟨Xg, hXg0, hHuge⟩ := cold_count_huge_label eps heps heps1 c2 hc2 hdomB
   use max Xh (max Xc Xg);
   refine' ⟨ by positivity, fun BS k hk1 hk2 hk3 m n => _ ⟩;
   by_cases hRw : Rw c2 k ≤ (n : ℝ) + 1;
@@ -731,7 +984,7 @@ lemma cold_count_large (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
     label-uniform `cold_count_large`.
 -/
 lemma fiber_card_exp_bound' (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
-    (c2 : ℝ) (hc2 : 0 < c2) :
+    (c2 : ℝ) (hc2 : 0 < c2) (hdomB : ColdDominance c2) :
     ∃ X0 : ℝ, 0 < X0 ∧
       ∀ (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (ℓ : ℕ → ℤ),
         X0 ≤ (2:ℝ) ^ BS.k0 →
@@ -739,7 +992,7 @@ lemma fiber_card_exp_bound' (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
         ((fiber BS H B v ℓ).card : ℝ) ≤
           ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)) := by
   obtain ⟨Xh, hXh0, hHot⟩ := GlobalControl.hot_factor eps heps heps1 c2 hc2
-  obtain ⟨Xc, hXc0, hCold⟩ := GlobalControl.cold_count_large eps heps heps1 c2 hc2
+  obtain ⟨Xc, hXc0, hCold⟩ := GlobalControl.cold_count_large eps heps heps1 c2 hc2 hdomB
   use max Xh Xc
   constructor
   ·
@@ -866,7 +1119,7 @@ lemma hcharge_le (eps c2 e0 : ℝ) (heps : 0 < eps) (hc2 : 0 < c2) (he0 : 0 < e0
     `label_product_le` (with `hcharge_le`), and `chargeH_le`/`chargeB_le`.
 -/
 lemma hrhs_charge_bound (eps c2 e0 : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
-    (hc2 : 0 < c2) (he0 : 0 < e0) :
+    (hc2 : 0 < c2) (he0 : 0 < e0) (hdomB : ColdDominance c2) :
     ∃ k0min : ℕ, ∀ (BS : BlockSystem), k0min ≤ BS.k0 → ∀ R : ℝ, 0 ≤ R →
       (∑ H ∈ admH BS c2 R, ∑ B ∈ admB BS e0 R, ∑ v ∈ admShells BS c2 R H,
         ∑ ℓ ∈ admLabels BS c2 R H B, (fiber BS H B v ℓ).card : ℝ) ≤
@@ -876,7 +1129,7 @@ lemma hrhs_charge_bound (eps c2 e0 : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
                 (2 * eps + Real.log (1 / (1 - Real.exp (-eps))))))
           * (Real.exp (2 * eps * R) * Real.exp (numBlocks BS))
           * (Real.exp (2 * eps * R) * Real.exp (numBlocks BS)) := by
-  obtain ⟨Xf, hXf0, hfib⟩ := fiber_card_exp_bound' eps heps heps1 c2 hc2;
+  obtain ⟨Xf, hXf0, hfib⟩ := fiber_card_exp_bound' eps heps heps1 c2 hc2 hdomB;
   obtain ⟨kf, hkf⟩ : ∃ kf : ℕ, Xf ≤ 2 ^ kf := by
     exact pow_unbounded_of_one_lt Xf one_lt_two |> fun ⟨ kf, hkf ⟩ => ⟨ kf, le_of_lt hkf ⟩
   obtain ⟨kh, hchg⟩ := hcharge_le eps c2 e0 heps hc2 he0
@@ -908,8 +1161,9 @@ lemma hrhs_charge_bound (eps c2 e0 : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
     refine' le_trans ( mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_left ( hchB BS ( by linarith [ Nat.le_max_right kf ( Max.max kh ( Max.max kb kPnn ) ), Nat.le_max_left kh ( Max.max kb kPnn ), Nat.le_max_right kh ( Max.max kb kPnn ), Nat.le_max_left kb kPnn, Nat.le_max_right kb kPnn ] ) R ) ( by positivity ) ) ( by positivity ) ) _ ; ring_nf ; norm_num
 
 /-
-**N5 `hrhs` assembly (the single residual `sorry`).**  The four-fold fiber
+**N5 `hrhs` assembly.**  The four-fold fiber
     sum is bounded by `exp(A·numBlocks)·exp(8εR)·(1+√R/σctrl)`.
+    (Now fully proved; the cold dominance is supplied via `hdomB`.)
 
     This statement is TRUE (it is the level-set count of G5), but its proof is
     the genuine remaining obstruction.  The hot/boundary blocks and all
@@ -931,7 +1185,8 @@ lemma hrhs_final (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
     (c2 e0 X0 : ℝ) (hc2 : 0 < c2) (he0 : 0 < e0) (hX0 : 0 < X0)
     (hdom : ∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
         BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k → ¬ isHot BS c2 a k →
-        SBEEForcing.IsDominant (2 ^ k) (BS.P k) (restrict BS a k) (1/4)) :
+        SBEEForcing.IsDominant (2 ^ k) (BS.P k) (restrict BS a k) (1/4))
+    (hdomB : ColdDominance c2) :
     ∃ (k0min : ℕ) (A : ℝ), 0 < A ∧
       ∀ (BS : BlockSystem), k0min ≤ BS.k0 → admissibleGlobalRange BS →
       X0 ≤ (2:ℝ) ^ BS.k0 → ∀ R : ℝ, 1 ≤ R →
@@ -939,7 +1194,7 @@ lemma hrhs_final (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
           ∑ ℓ ∈ admLabels BS c2 R H B, (fiber BS H B v ℓ).card : ℝ) ≤
           Real.exp (A * (numBlocks BS : ℝ)) *
             Real.exp (8 * eps * R) * (1 + Real.sqrt R / sigmaCtrl BS) := by
-  obtain ⟨kc, hc⟩ := hrhs_charge_bound eps c2 e0 heps heps1 hc2 he0
+  obtain ⟨kc, hc⟩ := hrhs_charge_bound eps c2 e0 heps heps1 hc2 he0 hdomB
   obtain ⟨csig, hcsig0, hsig⟩ := sigmaCtrl_le_sigmaP_k0
   set A0 := 2 * eps + Real.log (1 / (1 - Real.exp (-eps))) + 2
   set A := A0 + |Real.log (3 + 14 * csig)| + 2
@@ -1005,9 +1260,9 @@ theorem global_levelset_final (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1) :
         (Set.ncard {a : GlobalAssignment BS | Qctrl BS a ≤ R} : ℝ) ≤
           Real.exp (A * (numBlocks BS : ℝ)) *
             Real.exp (8 * eps * R) * (1 + Real.sqrt R / sigmaCtrl BS) := by
-  obtain ⟨c2, e0, X0, hc2, he0, hX0, hdom, hpen⟩ := cold_master
+  obtain ⟨c2, e0, X0, hc2, he0, hX0, hdom, hpen, hdomB⟩ := cold_master
   obtain ⟨k0L, hadmL⟩ := hadmL_final c2 X0 hc2 hdom
-  obtain ⟨k0R, A, hA, hrhs⟩ := hrhs_final eps heps heps1 c2 e0 X0 hc2 he0 hX0 hdom
+  obtain ⟨k0R, A, hA, hrhs⟩ := hrhs_final eps heps heps1 c2 e0 X0 hc2 he0 hX0 hdom hdomB
   obtain ⟨k0X, hX0pow⟩ : ∃ n : ℕ, X0 ≤ (2:ℝ) ^ n := by
     obtain ⟨n, hn⟩ := pow_unbounded_of_one_lt X0 (by norm_num : (1:ℝ) < 2)
     exact ⟨n, le_of_lt hn⟩

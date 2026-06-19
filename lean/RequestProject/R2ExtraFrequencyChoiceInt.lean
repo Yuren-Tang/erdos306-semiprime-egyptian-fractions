@@ -14,6 +14,12 @@ The main-arc labels are integers.  This leaf mirrors
 multi-gadget reservoir.
 -/
 
+lemma r2Concrete_L_pos_of_b_pos {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b) (hbpos : 0 < b) : 0 < D.L := by
+  rw [R2ConcreteData.L]
+  refine Nat.mul_pos hbpos ?_
+  exact Finset.prod_pos (fun s hs => (blockSupport_prime D.BS hs).pos)
+
 /-- Integer block-label data for the extra-minor frequencies. -/
 structure R2ExtraIntFrequencyLabelData
     {T : Finset ℕ} {b : ℕ}
@@ -27,6 +33,63 @@ structure R2ExtraIntFrequencyLabelData
     (h : ZMod s) = (mfun h : ZMod s)
   hnotGlobal : ∀ h ∈ extraMinorPart MA.Sm Sblock Sextra,
     (h : ZMod D.L) ≠ (mfun h : ZMod D.L)
+
+/-- Replace an integer label by its nonnegative representative modulo `D.L`.
+This lets us reuse the already-proved natural-number CRT sibling lemma, while
+preserving all congruences needed downstream. -/
+def intLabelDataToNat
+    {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b)
+    (W : R2ConcreteData.Weights D)
+    (N : ℤ)
+    (MA : MainArcFields D.E W.theta b D.L N)
+    (Sblock Sextra : Finset ℕ)
+    (X : R2ExtraIntFrequencyLabelData D W N MA Sblock Sextra)
+    (hbpos : 0 < b) :
+    R2ExtraFrequencyLabelData D W N MA Sblock Sextra where
+  mfun := fun h => Int.toNat (X.mfun h % D.L)
+  hblock := by
+    intro h hh s hs
+    have hmod := X.hblock h hh s hs
+    have hsdvd : (s : ℤ) ∣ (D.L : ℤ) := by
+      have hsprod : s ∣ ∏ t ∈ blockSupport D.BS, t := Finset.dvd_prod_of_mem id hs
+      have hsL : s ∣ D.L := by
+        rw [R2ConcreteData.L]
+        exact dvd_mul_of_dvd_right hsprod b
+      exact_mod_cast hsL
+    have hLpos : 0 < D.L := by
+      exact r2Concrete_L_pos_of_b_pos D hbpos
+    have hrep : ((Int.toNat (X.mfun h % D.L) : ℤ) : ZMod s) =
+        ((X.mfun h % D.L : ℤ) : ZMod s) := by
+      rw [Int.toNat_of_nonneg (Int.emod_nonneg _ (by exact_mod_cast hLpos.ne'))]
+    have hm : (X.mfun h % D.L : ℤ) ≡ X.mfun h [ZMOD s] := by
+      have hDL : (X.mfun h % D.L : ℤ) ≡ X.mfun h [ZMOD D.L] := by
+        simp [Int.ModEq, Int.emod_emod_of_dvd (X.mfun h) hsdvd]
+      exact Int.ModEq.of_dvd hsdvd hDL
+    have hcast : ((Int.toNat (X.mfun h % D.L) : ℤ) : ZMod s) =
+        (X.mfun h : ZMod s) := by
+      rw [hrep]
+      exact (ZMod.intCast_eq_intCast_iff _ _ s).mpr hm
+    have hcastNat : ((Int.toNat (X.mfun h % D.L) : ℕ) : ZMod s) =
+        (X.mfun h : ZMod s) := by
+      exact_mod_cast hcast
+    exact hmod.trans hcastNat.symm
+  hnotGlobal := by
+    intro h hh hglob
+    apply X.hnotGlobal h hh
+    have hLpos : 0 < D.L := by
+      exact r2Concrete_L_pos_of_b_pos D hbpos
+    have hrep : ((Int.toNat (X.mfun h % D.L) : ℤ) : ZMod D.L) =
+        ((X.mfun h % D.L : ℤ) : ZMod D.L) := by
+      rw [Int.toNat_of_nonneg (Int.emod_nonneg _ (by exact_mod_cast hLpos.ne'))]
+    have hcast : ((Int.toNat (X.mfun h % D.L) : ℤ) : ZMod D.L) =
+        (X.mfun h : ZMod D.L) := by
+      rw [hrep]
+      exact ZMod.intCast_mod (X.mfun h) D.L
+    have hcastNat : ((Int.toNat (X.mfun h % D.L) : ℕ) : ZMod D.L) =
+        (X.mfun h : ZMod D.L) := by
+      exact_mod_cast hcast
+    exact hglob.trans hcastNat
 
 /-- Choose an `R`-prime sibling for every integer-labelled extra frequency. -/
 def r2ExtraSiblingChoice_of_intLabelData
@@ -42,46 +105,10 @@ def r2ExtraSiblingChoice_of_intLabelData
     (hcover : CoversPrimeDivisors D.R b)
     (hcop : BlockSupportCoprimeWith D.BS b) :
     R2ExtraSiblingChoice D W N MA Sblock Sextra
-      { mfun := fun h => Int.toNat (X.mfun h % D.L)
-        hblock := by
-          intro h hh s hs
-          have hmod := X.hblock h hh s hs
-          have hsdvd : (s : ℤ) ∣ (D.L : ℤ) := by
-            have hsprod : s ∣ ∏ t ∈ blockSupport D.BS, t := Finset.dvd_prod_of_mem id hs
-            have hsL : s ∣ D.L := by
-              rw [R2ConcreteData.L]
-              exact dvd_mul_of_dvd_right hsprod b
-            exact_mod_cast hsL
-          have hrep : ((Int.toNat (X.mfun h % D.L) : ℤ) : ZMod s) =
-              ((X.mfun h % D.L : ℤ) : ZMod s) := by
-            rw [Int.toNat_of_nonneg (Int.emod_nonneg _ (by
-              have hLpos : 0 < D.L := by
-                rw [R2ConcreteData.L]
-                positivity
-              exact_mod_cast hLpos.ne'))]
-          rw [← hrep]
-          have hm : (X.mfun h % D.L : ℤ) ≡ X.mfun h [ZMOD s] := by
-            have hDL : (X.mfun h % D.L : ℤ) ≡ X.mfun h [ZMOD D.L] := by
-              simpa [Int.ModEq] using (Int.emod_emod_of_dvd (X.mfun h) hsdvd)
-            exact Int.ModEq.of_dvd hDL hsdvd
-          have hcast := (ZMod.intCast_eq_intCast_iff _ _ s).mpr hm
-          rw [hcast]
-          exact hmod
-        hnotGlobal := by
-          intro h hh hglob
-          apply X.hnotGlobal h hh
-          have hrep : ((Int.toNat (X.mfun h % D.L) : ℤ) : ZMod D.L) =
-              ((X.mfun h % D.L : ℤ) : ZMod D.L) := by
-            rw [Int.toNat_of_nonneg (Int.emod_nonneg _ (by
-              have hLpos : 0 < D.L := by
-                rw [R2ConcreteData.L]
-                positivity
-              exact_mod_cast hLpos.ne'))]
-          have hcast : ((Int.toNat (X.mfun h % D.L) : ℤ) : ZMod D.L) =
-              (X.mfun h : ZMod D.L) := by
-            rw [hrep]
-            exact ZMod.intCast_mod (X.mfun h) D.L
-          rwa [hcast] at hglob } hbpos hsqfree hcover hcop
+      (intLabelDataToNat D W N MA Sblock Sextra X hbpos) :=
+  r2ExtraSiblingChoice_of_labelData D W N MA Sblock Sextra
+    (intLabelDataToNat D W N MA Sblock Sextra X hbpos)
+    hbpos hsqfree hcover hcop
 
 /-- Integer-label data plus gadget sets and a uniform damping budget produce the
 prepared reservoir choice. -/
@@ -99,6 +126,7 @@ def preparedChoice_of_intExtraFrequencyLabelData
     (hsqfree : Squarefree b)
     (hcover : CoversPrimeDivisors D.R b)
     (hcop : BlockSupportCoprimeWith D.BS b)
+    (hSblock : D.S ⊆ blockSupport D.BS)
     (hSmem : ∀ h ∈ extraMinorPart MA.Sm Sblock Sextra, Gset h ⊆ D.S)
     (hm_small : ∀ h ∈ extraMinorPart MA.Sm Sblock Sextra, ∀ s ∈ Gset h,
       2 * |X.mfun h| < (s : ℤ))
@@ -114,7 +142,9 @@ def preparedChoice_of_intExtraFrequencyLabelData
     r2ExtraSiblingChoice_of_intLabelData D W N MA Sblock Sextra X
       hbpos hsqfree hcover hcop
   refine preparedChoice_of_pointwise_budget D W N MA Sblock Sextra C Bextra
-    Sibling.rfun Gset X.mfun Sibling.hRmem hSmem X.hblock ?_ hm_small hcard ?_
+    Sibling.rfun Gset X.mfun Sibling.hRmem hSmem ?_ ?_ hm_small hcard ?_
+  · intro h hh s hs
+    exact X.hblock h hh s (hSblock (hSmem h hh hs))
   · intro h hh hEq
     have hNat := Sibling.hm_r h hh
     apply hNat
@@ -122,23 +152,23 @@ def preparedChoice_of_intExtraFrequencyLabelData
       rw [R2ConcreteData.L]
       exact dvd_mul_of_dvd_left (Sibling.hrdvd h hh) (∏ s ∈ blockSupport D.BS, s)
     have hrdvdLZ : (Sibling.rfun h : ℤ) ∣ (D.L : ℤ) := by exact_mod_cast hrdvdL
+    have hLpos : 0 < D.L := by
+      exact r2Concrete_L_pos_of_b_pos D hbpos
     have hrep : ((Int.toNat (X.mfun h % D.L) : ℤ) : ZMod (Sibling.rfun h)) =
         ((X.mfun h % D.L : ℤ) : ZMod (Sibling.rfun h)) := by
-      rw [Int.toNat_of_nonneg (Int.emod_nonneg _ (by
-        have hLpos : 0 < D.L := by
-          rw [R2ConcreteData.L]
-          positivity
-        exact_mod_cast hLpos.ne'))]
+      rw [Int.toNat_of_nonneg (Int.emod_nonneg _ (by exact_mod_cast hLpos.ne'))]
     have hcast : ((Int.toNat (X.mfun h % D.L) : ℤ) : ZMod (Sibling.rfun h)) =
         (X.mfun h : ZMod (Sibling.rfun h)) := by
       rw [hrep]
       have hm : (X.mfun h % D.L : ℤ) ≡ X.mfun h [ZMOD Sibling.rfun h] := by
         have hDL : (X.mfun h % D.L : ℤ) ≡ X.mfun h [ZMOD D.L] := by
-          simpa [Int.ModEq] using (Int.emod_emod_of_dvd (X.mfun h) hrdvdLZ)
-        exact Int.ModEq.of_dvd hDL hrdvdLZ
+          simp [Int.ModEq, Int.emod_emod_of_dvd (X.mfun h) hrdvdLZ]
+        exact Int.ModEq.of_dvd hrdvdLZ hDL
       exact (ZMod.intCast_eq_intCast_iff _ _ (Sibling.rfun h)).mpr hm
-    rw [hcast]
-    exact hEq
+    have hcastNat : ((Int.toNat (X.mfun h % D.L) : ℕ) : ZMod (Sibling.rfun h)) =
+        (X.mfun h : ZMod (Sibling.rfun h)) := by
+      exact_mod_cast hcast
+    exact hEq.trans hcastNat.symm
   · intro h hh
     simpa [Sibling] using hpt h hh
 
@@ -158,6 +188,7 @@ def r2MultiGadgetReservoir_of_intExtraFrequencyLabelData
     (hsqfree : Squarefree b)
     (hcover : CoversPrimeDivisors D.R b)
     (hcop : BlockSupportCoprimeWith D.BS b)
+    (hSblock : D.S ⊆ blockSupport D.BS)
     (hSmem : ∀ h ∈ extraMinorPart MA.Sm Sblock Sextra, Gset h ⊆ D.S)
     (hm_small : ∀ h ∈ extraMinorPart MA.Sm Sblock Sextra, ∀ s ∈ Gset h,
       2 * |X.mfun h| < (s : ℤ))
@@ -170,7 +201,7 @@ def r2MultiGadgetReservoir_of_intExtraFrequencyLabelData
     R2MultiGadgetReservoir D W N MA Sblock Sextra Bextra := by
   exact r2MultiGadgetReservoir_of_preparedChoice D W N MA Sblock Sextra Bextra
     (preparedChoice_of_intExtraFrequencyLabelData D W N MA Sblock Sextra C Bextra
-      X Gset hbpos hsqfree hcover hcop hSmem hm_small hcard hpt)
+      X Gset hbpos hsqfree hcover hcop hSblock hSmem hm_small hcard hpt)
 
 end CircleMethod
 
