@@ -31,22 +31,28 @@ jobs:
       - name: Gate — sorry-free and exactly the two cited axioms
         working-directory: lean
         run: |
-          log=audit.log
-          grep -A6 "erdos_306' depends on axioms" "$log" || { echo "::error::axiom audit not found"; exit 1; }
+          # Extract *only* the bracketed axiom-dependency list of erdos_306
+          # (from `... depends on axioms: [` to the closing `]`), so the verbatim
+          # axiom statements printed afterwards cannot interfere.
+          axlist=$(sed -n '/depends on axioms: \[/,/\]/p' audit.log)
+          if [ -z "$axlist" ]; then echo "::error::axiom audit not found"; exit 1; fi
+          echo "$axlist"
+          # One axiom name per line.
+          names=$(echo "$axlist" | sed 's/.*depends on axioms: \[//' \
+            | tr ',[]' '\n' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | grep -E '.')
 
-          if grep -q "sorryAx" "$log"; then
+          # (1) sorry-free
+          if echo "$names" | grep -qx 'sorryAx'; then
             echo "::error::sorryAx present — the proof of erdos_306 is incomplete"; exit 1; fi
-
-          for ax in rosser_schoenfeld_cor3 rosser_schoenfeld_thm5; do
-            grep -q "$ax" "$log" || { echo "::error::missing expected axiom $ax"; exit 1; }
+          # (2) both cited axioms present
+          for ax in RosserSchoenfeld.rosser_schoenfeld_cor3 RosserSchoenfeld.rosser_schoenfeld_thm5; do
+            echo "$names" | grep -qx "$ax" || { echo "::error::missing expected axiom $ax"; exit 1; }
           done
-
-          unexpected=$(grep -A8 "erdos_306' depends on axioms" "$log" \
-            | tr ',[]' '\n' | sed 's/^ *//; s/ *$//' | grep -E '.' \
-            | grep -vE "^(info:|.*depends on axioms.*|propext|Classical\.choice|Quot\.sound|RosserSchoenfeld\.rosser_schoenfeld_cor3|RosserSchoenfeld\.rosser_schoenfeld_thm5)$" \
-            || true)
+          # (3) nothing outside the allowed set
+          unexpected=$(echo "$names" | grep -vxE 'propext|Classical\.choice|Quot\.sound|RosserSchoenfeld\.rosser_schoenfeld_cor3|RosserSchoenfeld\.rosser_schoenfeld_thm5' || true)
           if [ -n "$unexpected" ]; then
             echo "::error::unexpected axiom(s) in erdos_306 dependency set:"; echo "$unexpected"; exit 1; fi
+          echo "OK: sorry-free; dependencies = 3 standard Lean axioms + the two cited Rosser–Schoenfeld axioms."
 
       - name: Verification summary
         if: success()

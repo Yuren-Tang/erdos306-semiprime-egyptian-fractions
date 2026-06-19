@@ -42,12 +42,23 @@ A reviewer therefore does not need to read the internal proof. The trust boundar
 is just **two** things:
 
 1. **The statement** expresses Erdős 306 — it is the community formulation above.
-2. **The two axioms** transcribe their source faithfully:
+2. **The two axioms** transcribe their primary source faithfully. Write $\pi$ for
+   the prime-counting function and $B$ for the Mertens constant (defined in RS
+   eq. (2.10), p. 65, $B = 0.26149721284764\ldots$).
 
-   | axiom | Rosser–Schoenfeld (1962) | statement |
-   |---|---|---|
-   | `rosser_schoenfeld_cor3` | Corollary 3, eq. (3.8), p. 69 | `3x/(5 log x) < π(2x) − π(x)`, for `x ≥ 20½` |
-   | `rosser_schoenfeld_thm5` | Theorem 5, eqs. (3.17)–(3.18), p. 70 | `log log x + B − 1/(2 log²x) < ∑_{p≤x} 1/p < log log x + B + 1/(2 log²x)` |
+   - **`rosser_schoenfeld_cor3`** — RS **Corollary 3, eq. (3.8), p. 69**:
+
+     $$\frac{3x}{5\log x} \;<\; \pi(2x) - \pi(x), \qquad 20\tfrac{1}{2} \le x.$$
+
+   - **`rosser_schoenfeld_thm5`** — RS **Theorem 5, p. 70**, the two bounds (3.17)
+     and (3.18), each under its own range:
+
+     $$\log\log x + B - \frac{1}{2\log^2 x} \;<\; \sum_{p \le x} \frac{1}{p} \qquad (1 < x),$$
+
+     $$\sum_{p \le x} \frac{1}{p} \;<\; \log\log x + B + \frac{1}{2\log^2 x} \qquad (286 \le x).$$
+
+     Our axiom states $B$ *existentially* ("there is such a constant"), exactly as
+     Theorem 5 provides, rather than pinning a rounded decimal.
 
    *J. B. Rosser and L. Schoenfeld, "Approximate formulas for some functions of
    prime numbers," Illinois J. Math. **6**(1) (1962), 64–94.
