@@ -46,7 +46,8 @@ axiom rosser_schoenfeld_cor3 (x : ℝ) (hx : (41 : ℝ) / 2 ≤ x) :
 "Approximate formulas for some functions of prime numbers," Illinois J. Math.
 6(1), 64–94.  DOI 10.1215/ijm/1255631807.  Verbatim: there is a constant `B`
 (the Mertens constant; RS eq. (2.10), p. 65, `B = 0.26149721284764…`) such that,
-writing `primeRecipSum x = ∑_{p ≤ x} 1/p`,
+where the sum `∑ p ∈ (Finset.Icc 2 ⌊x⌋₊).filter Nat.Prime, 1/p` below is exactly
+`∑_{p ≤ x} 1/p` (reciprocals of the primes `≤ x`),
 * (3.17) `log log x + B − 1/(2 log²x) < ∑_{p≤x} 1/p` for `1 < x`, and
 * (3.18) `∑_{p≤x} 1/p < log log x + B + 1/(2 log²x)` for `286 ≤ x`.
 
@@ -58,9 +59,11 @@ Zahlentheorie," J. reine angew. Math. 78 (1874), 46–62, eq. (13), p. 52
 axiom rosser_schoenfeld_thm5 :
     ∃ B : ℝ, ∀ x : ℝ,
       (1 < x →
-          Real.log (Real.log x) + B - 1 / (2 * (Real.log x) ^ 2) < primeRecipSum x) ∧
+          Real.log (Real.log x) + B - 1 / (2 * (Real.log x) ^ 2)
+            < ∑ p ∈ (Finset.Icc 2 ⌊x⌋₊).filter Nat.Prime, (1 : ℝ) / (p : ℝ)) ∧
       (286 ≤ x →
-          primeRecipSum x < Real.log (Real.log x) + B + 1 / (2 * (Real.log x) ^ 2))
+          ∑ p ∈ (Finset.Icc 2 ⌊x⌋₊).filter Nat.Prime, (1 : ℝ) / (p : ℝ)
+            < Real.log (Real.log x) + B + 1 / (2 * (Real.log x) ^ 2))
 
 end RosserSchoenfeld
 
@@ -257,8 +260,16 @@ theorem dyadic_mertens_cumulative :
   have hxsmall : (286 : ℝ) ≤ (2 : ℝ) ^ k0 := by
     calc (286 : ℝ) ≤ 2 ^ 20 := by norm_num
       _ ≤ 2 ^ k0 := pow_le_pow_right₀ (by norm_num) hk0
-  have hlow := (hB ((2 : ℝ) ^ (3 * k0 + 1))).1 hxbig
-  have hupp := (hB ((2 : ℝ) ^ k0)).2 hxsmall
+  -- `primeRecipSum` is definitionally the inlined sum in the axiom, so these
+  -- ascriptions just re-expose the bounds in terms of the proof's abbreviation.
+  have hlow : Real.log (Real.log ((2 : ℝ) ^ (3 * k0 + 1))) + B
+        - 1 / (2 * (Real.log ((2 : ℝ) ^ (3 * k0 + 1))) ^ 2)
+        < RosserSchoenfeld.primeRecipSum ((2 : ℝ) ^ (3 * k0 + 1)) :=
+    (hB ((2 : ℝ) ^ (3 * k0 + 1))).1 hxbig
+  have hupp : RosserSchoenfeld.primeRecipSum ((2 : ℝ) ^ k0)
+        < Real.log (Real.log ((2 : ℝ) ^ k0)) + B
+          + 1 / (2 * (Real.log ((2 : ℝ) ^ k0)) ^ 2) :=
+    (hB ((2 : ℝ) ^ k0)).2 hxsmall
   -- `log log` difference ≥ log 3.
   have hLL : Real.log 3 ≤
       Real.log (Real.log ((2 : ℝ) ^ (3 * k0 + 1))) - Real.log (Real.log ((2 : ℝ) ^ k0)) := by

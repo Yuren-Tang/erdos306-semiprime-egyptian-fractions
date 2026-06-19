@@ -46,7 +46,9 @@ nothing else. CI re-checks this from a clean build on every push and prints the
 full statements in its run summary.
 
 So a reviewer need not read the internal proof. Beyond the statement above, the
-sole hand-check is that those **two axioms** transcribe their primary source
+sole hand-check is that those **two axioms** — both stated in
+[`lean/RequestProject/RSPrimeSums.lean`](lean/RequestProject/RSPrimeSums.lean),
+each self-contained in standard Mathlib terms — transcribe their primary source
 faithfully. With $\pi$ the prime-counting function and $B$ the Mertens constant
 (RS eq. (2.10), p. 65, $B = 0.26149721284764\ldots$):
 
@@ -68,13 +70,15 @@ faithfully. With $\pi$ the prime-counting function and $B$ the Mertens constant
   $$\sum_{p \le x} \frac{1}{p} \;<\; \log\log x + B + \frac{1}{2\log^2 x} \qquad (286 \le x).$$
 
   ```lean
-  -- `primeRecipSum x` is `∑ 1/p` over primes p ≤ x.
+  -- `∑ p ∈ (Finset.Icc 2 ⌊x⌋₊).filter Nat.Prime, 1/p` is `∑_{p ≤ x} 1/p`.
   axiom rosser_schoenfeld_thm5 :
       ∃ B : ℝ, ∀ x : ℝ,
         (1 < x →
-            Real.log (Real.log x) + B - 1 / (2 * (Real.log x) ^ 2) < primeRecipSum x) ∧
+            Real.log (Real.log x) + B - 1 / (2 * (Real.log x) ^ 2)
+              < ∑ p ∈ (Finset.Icc 2 ⌊x⌋₊).filter Nat.Prime, (1 : ℝ) / (p : ℝ)) ∧
         (286 ≤ x →
-            primeRecipSum x < Real.log (Real.log x) + B + 1 / (2 * (Real.log x) ^ 2))
+            ∑ p ∈ (Finset.Icc 2 ⌊x⌋₊).filter Nat.Prime, (1 : ℝ) / (p : ℝ)
+              < Real.log (Real.log x) + B + 1 / (2 * (Real.log x) ^ 2))
   ```
 
   (`B` is stated *existentially*, exactly as Theorem 5 provides, rather than pinning
