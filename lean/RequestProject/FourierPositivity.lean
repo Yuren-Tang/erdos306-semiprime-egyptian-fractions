@@ -137,18 +137,5 @@ open scoped BigOperators Classical
 
 noncomputable section
 
-/-- **The Last Sorry: Fourier Positivity (Unconditional).**
-
-For every squarefree b > 0 and every finite obstruction set T,
-there exists a finite set S of distinct squarefree semiprimes,
-disjoint from T, with ∑_{n∈S} 1/n = 1/b.
-
-This is the full content of Erdős Problem 306 (Lichtman 2024).
-See the module docstring for the complete proof sketch and
-dependency analysis. -/
-theorem fourier_positivity_unconditional
-    (T : Finset ℕ) (b : ℕ) (hb : 0 < b) (hbsf : Squarefree b) :
-    HasEgyptianSemiprimeReprAvoiding T ((1 : ℚ) / b) :=
-  CircleMethod.circle_method_positivity T b hb hbsf
 
 end

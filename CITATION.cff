@@ -1,0 +1,87 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file."
+title: "A machine-checked proof of Erdős Problem 306 in Lean 4"
+abstract: >-
+  A sorry-free Lean 4 / Mathlib formalization of Erdős Problem 306: every
+  positive rational with squarefree denominator is a finite sum of distinct unit
+  fractions whose denominators are squarefree semiprimes. The headline theorem is
+  stated identically to the google-deepmind/formal-conjectures formulation and is
+  complete modulo two explicitly named, verbatim Rosser–Schoenfeld (1962) inputs.
+type: software
+authors:
+  - given-names: "Yuren"
+    family-names: "Tang"
+    orcid: "https://orcid.org/0009-0006-0847-3330"
+version: "0.0.3"
+license: "Apache-2.0"
+date-released: "2026-06-19"
+url: "https://github.com/Yuren-Tang/erdos-306"
+repository-code: "https://github.com/Yuren-Tang/erdos-306"
+keywords:
+  - "Erdős problem 306"
+  - "Egyptian fractions"
+  - "formal verification"
+  - "Lean 4"
+  - "Mathlib"
+  - "circle method"
+  - "interactive theorem proving"
+references:
+  - type: article
+    authors:
+      - family-names: "Rosser"
+        given-names: "J. Barkley"
+      - family-names: "Schoenfeld"
+        given-names: "Lowell"
+    title: "Approximate formulas for some functions of prime numbers"
+    journal: "Illinois Journal of Mathematics"
+    volume: 6
+    issue: 1
+    year: 1962
+    start: 64
+    end: 94
+    doi: "10.1215/ijm/1255631807"
+  - type: book
+    authors:
+      - family-names: "Erdős"
+        given-names: "Paul"
+      - family-names: "Graham"
+        given-names: "Ronald"
+    title: "Old and new problems and results in combinatorial number theory"
+    publisher:
+      name: "L'Enseignement Mathématique"
+    year: 1980
+  - type: software
+    authors:
+      - name: "The Formal Conjectures Authors"
+    title: "The Formal Conjectures Repository"
+    year: 2025
+    url: "https://github.com/google-deepmind/formal-conjectures"
+    notes: "Source of the formal statement that `erdos_306` is aligned with."
+  - type: article
+    authors:
+      - family-names: "Firsching"
+        given-names: "Moritz"
+      - family-names: "Lezeau"
+        given-names: "Paul"
+      - family-names: "Mercuri"
+        given-names: "Salvatore"
+      - family-names: "Horváth"
+        given-names: "Miklós Z."
+      - family-names: "Dillies"
+        given-names: "Yaël"
+      - family-names: "Sönne"
+        given-names: "Calle"
+      - family-names: "Wieser"
+        given-names: "Eric"
+      - family-names: "Zhang"
+        given-names: "Fred"
+      - family-names: "Hubert"
+        given-names: "Thomas"
+      - family-names: "Agüera y Arcas"
+        given-names: "Blaise"
+      - family-names: "Kohli"
+        given-names: "Pushmeet"
+    title: "Formal Conjectures: An Open and Evolving Benchmark for Verified Discovery in Mathematics"
+    year: 2026
+    url: "https://arxiv.org/abs/2605.13171"
+    doi: "10.48550/arXiv.2605.13171"

@@ -1,299 +1,0 @@
-好。現在做最後的 **拼裝檢查**：把整個證明合成一條完整論證，並明確標出尚需補寫的技術點。
-
----
-
-# **最終定理草案**
-
-**Theorem.**  
-對任意正有理數
-
-\frac ab
-
-存在有限個互異 squarefree semiprimes
-
-n_i=p_iq_i
-
-使
-
-\frac ab=\sum_i \frac1{n_i}.
-
----
-
-# **1. Reduction to** 1/b
-
-先證對任意 b，存在互異 squarefree semiprimes pq 使
-
-\frac1b=\sum_{pq\in S}\frac1{pq}.
-
-證出後，取 a 批 pairwise disjoint prime blocks，重複構造 a 次，得
-
-\frac ab = \sum_{j=1}^a\sum_{pq\in S_j}\frac1{pq}.
-
-由於每批 primes disjoint，所有 semiprime denominators 互異。
-
----
-
-# **2. Prime blocks and edge set**
-
-選取一族 dyadic prime blocks：
-
-P_k\subset[2^k,2^{k+1}]
-
-經 Irving-good pruning，使對 compatible blocks P,Q 有 inverse-prime equidistribution：
-
-\sum_{p\in P} \left\| \frac{d\bar p}{q} \right\|^2 \gg |P|
-
-for relevant q and all d\not\equiv0\pmod q.
-
-邊集合 E 分為三類：
-
-1. **Internal complete edges**  
-    pq,\qquad p,q\in P_k,\ p<q.
-2. **Cross-scale compatible edges**  
-    pq,\qquad p\in P_k,\ q\in P_\ell.
-3. **Finite lattice-fixing edges**  
-    用來消除 mod-b 或 gcd obstruction。
-
----
-
-# **3. Random subset model**
-
-令
-
-\xi_{pq}\sim\mathrm{Bernoulli}(\theta)
-
-獨立，\theta\in[c,1-c]。定義
-
-X=\sum_{pq\in E}\frac{\xi_{pq}}{pq}.
-
-選擇 edge range / density / \theta，使
-
-\mathbb E X = \theta\sum_{pq\in E}\frac1{pq} = \frac1b.
-
-Internal edges 的 total mass 收斂，不破壞調節；cross edges 提供可調的大 mass。
-
-令
-
-L=b\prod_{p\in\mathcal P}p.
-
-整數化：
-
-Y=LX.
-
-目標：
-
-\mathbb P(Y=L/b)>0.
-
----
-
-# **4. Fourier inversion**
-
-在
-
-\mathbb Z/L\mathbb Z
-
-上：
-
-\mathbb P(Y=L/b) = \frac1L \sum_{\chi} \widehat\mu(\chi)e(-\chi L/bL).
-
-把 character 寫成 prime residue assignment：
-
-a=(a_p)_{p\in\mathcal P},\qquad a_p\in\mathbb F_p.
-
-邊 pq 的 phase 是
-
-\phi_{pq}(a) = \frac{a_p\bar q}{p} + \frac{a_q\bar p}{q} \pmod1.
-
-Fourier coefficient：
-
-\widehat\mu(a) = \prod_{pq\in E} \left( 1-\theta+\theta e(\phi_{pq}(a)) \right).
-
-有標準 bound：
-
-|\widehat\mu(a)| \le \exp(-cQ(a)),
-
-其中
-
-Q(a)=\sum_{pq\in E}\|\phi_{pq}(a)\|^2.
-
----
-
-# **5. 主弧**
-
-主弧 characters 是 ordinary labels：
-
-a_p\equiv m\pmod p,\qquad |m|\le C/\sigma.
-
-此時
-
-\phi_{pq}=\frac{m}{pq}.
-
-令
-
-\sigma^2 = \theta(1-\theta) \sum_{pq\in E}\frac1{p^2q^2}.
-
-對 |m|\le C/\sigma，
-
-\widehat\mu(m)e(-m/b) = \exp(-2\pi^2\sigma^2m^2+o(1)).
-
-故主弧和為
-
-(1+o(1)) \sum_{|m|\le C/\sigma} e^{-2\pi^2\sigma^2m^2} \asymp \frac1\sigma.
-
-並且正。
-
----
-
-# **6. 小弧核心：global partition theorem**
-
-我們建立：
-
-\boxed{ \sum_{a\notin\mathfrak M}e^{-cQ(a)} = o(1/\sigma). }
-
-其中
-
-\mathfrak M= \{a:a_p\equiv m\pmod p,\ |m|\le C/\sigma\}.
-
-更強 counting theorem：
-
-\#\{a:Q(a)\le R\} \le e^{\varepsilon R} \left(1+\frac{\sqrt R}{\sigma}\right).
-
-這由三個引理給出。
-
----
-
-## **Lemma A：single-block counting**
-
-對每個 block P_k，internal complete graph energy
-
-Q_k(a) = \sum_{p<q\in P_k} \left\| \frac{H_{pq}(a)}{pq} \right\|^2
-
-滿足：
-
-\#\{a_{P_k}:Q_k(a)\le R\} \le e^{\varepsilon R} \left(1+\frac{\sqrt R}{\sigma_k}\right),
-
-其中
-
-\sigma_k^2 = \sum_{p<q\in P_k}\frac1{p^2q^2}.
-
-此引理的證明依賴：
-
-- low energy \Rightarrow dense good graph；
-- regular base vertex \Rightarrow short list \mathcal L；
-- CRT list reduction；
-- cross-label divisor-energy lemma；
-- majority label + energy-paid exceptions。
-
-這是核心新機制：  
-同尺度 complete graph 把每個 block 的巨大 CRT residue entropy 壓成 ordinary block label。
-
----
-
-## **Lemma B：cross-block label energy**
-
-若 blocks P_k,P_\ell 分別服從 labels
-
-m_k\ne m_\ell,
-
-則跨邊能量有下界：
-
-Q_{k\ell}(m_k,m_\ell) + Q_{k\ell}^{\mathrm{diag}}(m_k) \gg |P_k||P_\ell|
-
-除非 m_\ell-m_k 被異常多 primes 整除；此類例外由 divisor bound 控制。
-
-證明用 Irving inverse-prime equidistribution。
-
----
-
-## **Lemma C：block-label Peierls collapse**
-
-經 Lemma A，每個 block 有 ordinary label m_k 加 energy-paid exceptions。  
-Lemma B 說不同 m_k 的 boundary cost 巨大。  
-因此 block-label configurations 的 partition function 被 single global label 支配：
-
-\sum_{(m_k)} e^{-c\mathcal Q(m_\bullet)} \ll \sum_m e^{-c'Q_{\mathrm{diag}}(m)}.
-
-右側由 ordinary diagonal counting 給：
-
-\sum_m e^{-c'Q_{\mathrm{diag}}(m)} \ll \frac1\sigma,
-
-且主弧外為 o(1/\sigma)。
-
----
-
-# **7. 小弧結論**
-
-由 Lemma A–C：
-
-\sum_{a}e^{-cQ(a)} \ll \frac1\sigma,
-
-且
-
-\sum_{a\notin\mathfrak M}e^{-cQ(a)} =o(1/\sigma).
-
-因此
-
-\sum_{a\notin\mathfrak M} |\widehat\mu(a)| \le o(1/\sigma).
-
----
-
-# **8. Positivity**
-
-Fourier inversion中：
-
-\sum_{\mathfrak M} \widehat\mu(a)e(-a/b) \asymp \frac1\sigma,
-
-而
-
-\sum_{a\notin\mathfrak M} \widehat\mu(a)e(-a/b) = o(1/\sigma).
-
-所以整個 Fourier sum 為正：
-
-\mathbb P(Y=L/b)>0.
-
-因此存在 subset S\subset E 使
-
-\sum_{pq\in S}\frac1{pq} = \frac1b.
-
-再重複 a 次，得到 a/b。
-
----
-
-# **9. 尚需嚴格補寫的技術項**
-
-現在真正剩下的不是方向，而是嚴格書寫：
-
-### **(1) Irving-good pruning**
-
-需要明確引用 Irving 結果，說明可刪去少量 bad primes，使所有後續 block pairs 有所需 uniform lower bound。
-
-### **(2) Cross-label divisor-energy lemma**
-
-需正式寫：
-
-N(T) \ll T L^2+(|A|+|B|)L
-
-並把它轉成 energy lower bound。這是初等，但要小心 special cases n=m,m'。
-
-### **(3) Single-block dyadic bookkeeping**
-
-無 dominant label時，如何從 class size distribution 得出 energy pays entropy。  
-這是標準但需要完整寫。
-
-### **(4) Ordinary diagonal counting**
-
-要把 global m\bmod L 的 wrap-around尾部嚴格壓住。可用 single-block theorem 的 diagonal specialization與 product rigidity。
-
-### **(5) Lattice span gadgets**
-
-需要具體說明如何加入有限 semiprime edges，使目標 lattice coset可達。
-
-這五點補完後，就是一篇完整 proof attempt。
-
----
-
-# **10. 總體判斷**
-
-現在可以說：我們確實找到了原問題中最核心的壓縮機制。此前最大的敵人是 arbitrary CRT residue entropy；現在它在每個同尺度 block 內被 complete graph internal edges 壓掉。這一點使整個路線從「層變塔」轉為「局部壓縮 + 全局合併」。
-
-所以目前不再像是在繞圈，而是在整理一條可寫成正式證明的路線。

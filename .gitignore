@@ -1,18 +1,3 @@
-.DS_Store
-**/.DS_Store
-!Erdős 306/core-packet/aristotle-delivery/.lake/
-!Erdős 306/core-packet/aristotle-delivery/.lake/build/
-!Erdős 306/core-packet/aristotle-delivery/.lake/build/lib/
-!Erdős 306/core-packet/aristotle-delivery/.lake/build/lib/lean/
-!Erdős 306/core-packet/aristotle-delivery/.lake/build/lib/lean/RequestProject/
-!Erdős 306/core-packet/aristotle-delivery/.lake/build/lib/lean/RequestProject/**
-output-final_aristotle/
-output-final_aristotle_*/
-34 Global Control - Detailed Proof (Translation-Ready)_aristotle/
-Erdős 306/archive/Aristotle/2026-06-15-integrated/
-.smart-env/
-.obsidian/
-.obsidian/plugins/smart-connections/
-Erdős 306/archive/AI對Lean 4支持分析.html
-Erdős 306/archive/AI對Lean 4支持分析.decoded.html
-prebuilt-oleans.tar.gz
+# Lean / Lake build output
+.lake/
+*.olean
