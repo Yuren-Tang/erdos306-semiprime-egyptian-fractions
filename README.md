@@ -54,7 +54,7 @@ faithfully. With $\pi$ the prime-counting function and $B$ the Mertens constant
 
 - **`rosser_schoenfeld_cor3`** — RS **Corollary 3, eq. (3.8), p. 69**:
 
-  $$\frac{3x}{5\log x} \;<\; \pi(2x) - \pi(x), \qquad 20\tfrac{1}{2} \le x.$$
+  $$\frac{3x}{5\log x} < \pi(2x) - \pi(x) \qquad \text{for } 20\tfrac{1}{2} \le x.$$
 
   ```lean
   axiom rosser_schoenfeld_cor3 (x : ℝ) (hx : (41 : ℝ) / 2 ≤ x) :
@@ -65,9 +65,9 @@ faithfully. With $\pi$ the prime-counting function and $B$ the Mertens constant
 - **`rosser_schoenfeld_thm5`** — RS **Theorem 5, p. 70**, the bounds (3.17) and
   (3.18), each under its own range:
 
-  $$\log\log x + B - \frac{1}{2\log^2 x} \;<\; \sum_{p \le x} \frac{1}{p} \qquad (1 < x),$$
+  $$\log\log x + B - \frac{1}{2\log^2 x} < \sum_{p \le x} \frac{1}{p} \qquad \text{for } 1 < x,$$
 
-  $$\sum_{p \le x} \frac{1}{p} \;<\; \log\log x + B + \frac{1}{2\log^2 x} \qquad (286 \le x).$$
+  $$\sum_{p \le x} \frac{1}{p} < \log\log x + B + \frac{1}{2\log^2 x} \qquad \text{for } 286 \le x.$$
 
   ```lean
   -- `∑ p ∈ (Finset.Icc 2 ⌊x⌋₊).filter Nat.Prime, 1/p` is `∑_{p ≤ x} 1/p`.
