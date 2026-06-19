@@ -54,26 +54,28 @@ jobs:
             echo "::error::unexpected axiom(s) in erdos_306 dependency set:"; echo "$unexpected"; exit 1; fi
           echo "OK: sorry-free; dependencies = 3 standard Lean axioms + the two cited Rosser–Schoenfeld axioms."
 
-      - name: Verification summary
+      - name: Verification summary (Job Summary page)
         if: success()
         working-directory: lean
         run: |
-          echo "=================================================================="
-          echo " Erdős Problem 306 — verified in Lean 4 (sorry-free)"
-          echo "=================================================================="
-          echo
-          echo "Theorem and axiom statements (as elaborated by Lean):"
-          echo "------------------------------------------------------------------"
-          sed -n '/erdos_306 :/,$p' audit.log
-          echo "------------------------------------------------------------------"
-          echo
-          echo "The two non-standard axioms are verbatim transcriptions of:"
-          echo "  J. B. Rosser & L. Schoenfeld, Approximate formulas for some"
-          echo "  functions of prime numbers, Illinois J. Math. 6(1) (1962) 64-94,"
-          echo "  DOI 10.1215/ijm/1255631807:"
-          echo "    rosser_schoenfeld_cor3 = Corollary 3, eq. (3.8), p. 69"
-          echo "    rosser_schoenfeld_thm5 = Theorem 5, eqs. (3.17)-(3.18), p. 70"
-          echo
-          echo "Problem source: P. Erdős & R. Graham (1980); erdosproblems.com/306."
-          echo "Statement matches google-deepmind/formal-conjectures ErdosProblems/306.lean."
-          echo "=================================================================="
+          {
+            echo "## ✅ Erdős Problem 306 — verified in Lean 4 (\`sorry\`-free)"
+            echo
+            echo "Statement of \`erdos_306\` and its axiom dependencies, as elaborated by Lean:"
+            echo
+            echo '```'
+            sed -n '/erdos_306 :/,$p' audit.log | sed 's/^info: [^ ]* //'
+            echo '```'
+            echo
+            echo "The two non-standard axioms are **verbatim** transcriptions of"
+            echo "J. B. Rosser & L. Schoenfeld, *Approximate formulas for some functions of"
+            echo "prime numbers*, Illinois J. Math. **6**(1) (1962) 64–94"
+            echo "([DOI 10.1215/ijm/1255631807](https://doi.org/10.1215/ijm/1255631807)):"
+            echo
+            echo "- \`rosser_schoenfeld_cor3\` — Corollary 3, eq. (3.8), p. 69"
+            echo "- \`rosser_schoenfeld_thm5\` — Theorem 5, eqs. (3.17)–(3.18), p. 70"
+            echo
+            echo "Problem: P. Erdős & R. Graham (1980); <https://www.erdosproblems.com/306>."
+            echo "Formal statement from \`google-deepmind/formal-conjectures\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_STEP_SUMMARY"
