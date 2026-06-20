@@ -482,11 +482,136 @@ lemma r2_extra_inv_sq_le {T : Finset ℕ} {b : ℕ} (D : R2ConcreteData T b)
     exact mul_le_mul_of_nonneg_left ( by norm_num ) ( by positivity )
   · linarith
 
+/-- **Main-arc CRT label lane.** Every extra-minor frequency `h` lies on the main
+arc, hence carries an integer block-label `m = mainArcWitnessLabel D C h` with
+`|m| ≤ C/σ ≤ N`. This packages that label data as
+`R2ExtraIntFrequencyLabelData`, the input the gadget reservoir reads when damping
+each extra frequency. -/
+def r2FreqLabelLane {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b) (W : R2ConcreteData.Weights D) (N : ℤ) (C : ℝ)
+    (hCN : C / sigmaCtrl D.BS ≤ (N : ℝ)) :
+    ∀ MA : MainArcFields D.E W.theta b D.L N,
+      R2ExtraIntFrequencyLabelData D W N MA
+        ((mainArcClassificationData D W N C).Sblock MA)
+        ((mainArcClassificationData D W N C).Sextra MA) :=
+  fun MA => intFrequencyLabelData_of_mainArcClassification D W N C MA (by
+    intro m hm
+    exact Finset.mem_Icc.mpr
+      ⟨by exact_mod_cast neg_le_of_abs_le <| hm.trans hCN,
+        by exact_mod_cast le_of_abs_le <| hm.trans hCN⟩)
+
+/-- **Block-lane fibre-tail certificate.** On the block-minor part the
+frequency-to-assignment map is `b`-to-1 (bounded multiplicity from the chosen
+period `L = b · ∏ blockSupport`), so the block fibre tail is controlled by
+`Bblock = b · (η + Ctail·exp(-8C²/9))/σ_ctrl`.  This is the block lane of the
+frequency endgame, produced for every main-arc field `MA`. -/
+def r2_freqLane_block {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b) (W : R2ConcreteData.Weights D) (N : ℤ)
+    (C η Ctail : ℝ) (hC : 1 ≤ C)
+    (heL : ∀ e ∈ D.E, e ∣ D.L) (he0 : ∀ e ∈ D.E, 0 < e) (hL : 0 < D.L)
+    (hLeq : D.L = b * ∏ p ∈ blockSupport D.BS, p) :
+    ∀ MA : MainArcFields D.E W.theta b D.L N,
+      R2BlockFiberTailData D W N MA
+        ((mainArcClassificationData D W N C).Sblock MA)
+        ((b : ℝ) * (η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl D.BS)
+        η Ctail :=
+  fun MA => by
+    apply r2_blockFiberTail D W N MA ((mainArcClassificationData D W N C).Sblock MA) C η Ctail
+      ((b:ℝ)*(η+Ctail*Real.exp (-C^2*(16/9)/2))/sigmaCtrl D.BS) hC heL he0 hL hLeq (by
+      exact fun x hx => mainArcFields_mem_range_of_mem_Sm MA ( mem_blockMinorPart.mp hx |>.1 )) (by
+      intro h hh; exact (by
+      exact Finset.mem_filter.mp ( Finset.mem_filter.mp hh |>.2 ) |>.2)) (by
+      grind +extAll)
+
+/-- **Extra-frequency count certificate.** Each extra-minor frequency is the CRT
+constant assignment of a single label `m` with `|m| ≤ N`, and every label fibre
+has at most `b` frequencies in `range L`; hence at most `b·(2N+1)` extra
+frequencies.  Multiplying by the per-frequency damping budget `Dmp` gives the
+uniform extra-count budget `Bextra = b·(2N+1)·Dmp`. -/
+lemma r2_freqLane_extra_count {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b) (W : R2ConcreteData.Weights D) (N : ℤ)
+    (C Dmp : ℝ) (hNnonneg : 0 ≤ N) (hDmpnn : 0 ≤ Dmp)
+    (hCN : C / sigmaCtrl D.BS ≤ (N : ℝ))
+    (hLeq : D.L = b * ∏ p ∈ blockSupport D.BS, p) :
+    ∀ MA : MainArcFields D.E W.theta b D.L N,
+      ((extraMinorPart MA.Sm ((mainArcClassificationData D W N C).Sblock MA)
+          ((mainArcClassificationData D W N C).Sextra MA)).card : ℝ) * Dmp
+        ≤ (b : ℝ) * (2 * (N : ℝ) + 1) * Dmp :=
+  fun MA => by
+    gcongr
+    convert r2_extra_count_le D W N C hNnonneg hCN hLeq MA using 1
+
+/-- **Gadget pointwise damping certificate.** For every extra-minor frequency the
+chosen `R`-prime sibling has `rfun h ∣ b`, so `1 ≤ rfun h ≤ b`, and damping by
+the `G = |S|` gadget primes drives the per-frequency factor
+`√(1-(8/9)/rfun²)^G` below the worst-case bound `√(1-(8/9)/b²)^G ≤ Dmp`.  This is
+the gadget lane of the frequency endgame, using the labels from
+`r2FreqLabelLane`. -/
+lemma r2_freqLane_gadget_damping {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b) (W : R2ConcreteData.Weights D) (N : ℤ)
+    (C Dmp : ℝ) (G : ℕ)
+    (hbpos : 0 < b) (hsqfree : Squarefree b)
+    (hcovR : CoversPrimeDivisors D.R b) (hcopB : BlockSupportCoprimeWith D.BS b)
+    (hCN : C / sigmaCtrl D.BS ≤ (N : ℝ))
+    (hScard : D.S.card = G)
+    (hG : (Real.sqrt (1 - (8 / 9) / (b : ℝ) ^ 2)) ^ G ≤ Dmp) :
+    ∀ MA : MainArcFields D.E W.theta b D.L N,
+      ∀ h ∈ extraMinorPart MA.Sm ((mainArcClassificationData D W N C).Sblock MA)
+          ((mainArcClassificationData D W N C).Sextra MA),
+        (Real.sqrt (1 - (8 / 9) /
+          (((r2ExtraSiblingChoice_of_intLabelData D W N MA
+            ((mainArcClassificationData D W N C).Sblock MA)
+            ((mainArcClassificationData D W N C).Sextra MA)
+            (r2FreqLabelLane D W N C hCN MA) hbpos hsqfree hcovR hcopB).rfun h : ℝ) ^ 2))) ^
+              D.S.card ≤ Dmp :=
+  fun MA h hh => by
+    refine' le_trans _ hG
+    rw [ hScard ]
+    gcongr
+    · exact sq_pos_of_pos ( Nat.cast_pos.mpr ( Nat.Prime.pos ( by exact ( r2ExtraSiblingChoice_of_intLabelData D W N MA _ _ _ hbpos hsqfree hcovR hcopB ).hrprime h hh ) ) )
+    · exact Nat.le_of_dvd hbpos ( r2ExtraSiblingChoice_of_intLabelData D W N MA _ _ _ hbpos hsqfree hcovR hcopB |>.hrdvd h hh )
+
+/-- **Small-label gap certificate.** Every extra-minor frequency carries a label
+`m` with `|m| ≤ C/σ ≤ N`, while each gadget prime `s ∈ S` satisfies
+`2^{2k₀} ≤ s`; combined with `2N < 2^{2k₀}` this gives the gap `2|m| < s` the
+gadget reservoir needs to read each label modulo `s`. -/
+lemma r2_freqLane_label_small_gap {T : Finset ℕ} {b : ℕ}
+    (D : R2ConcreteData T b) (W : R2ConcreteData.Weights D) (N : ℤ) (C : ℝ)
+    (hCN : C / sigmaCtrl D.BS ≤ (N : ℝ))
+    (hN2 : 2 * N < (2 : ℤ) ^ (2 * D.BS.k0))
+    (hSge : ∀ s ∈ D.S, 2 ^ (2 * D.BS.k0) ≤ s) :
+    ∀ MA : MainArcFields D.E W.theta b D.L N,
+      ∀ h ∈ extraMinorPart MA.Sm ((mainArcClassificationData D W N C).Sblock MA)
+          ((mainArcClassificationData D W N C).Sextra MA),
+        ∀ s ∈ D.S, 2 * |(r2FreqLabelLane D W N C hCN MA).mfun h| < (s : ℤ) := by
+  intro MA h hh s hs
+  -- the label is the main-arc witness, with `|label| ≤ C/σ ≤ N`
+  rw [mem_extraMinorPart] at hh
+  have hmain : freqAssignmentOf D h ∈ mainArc D.BS C := by
+    have h22 := hh.2.2
+    simp only [mainArcClassificationData, mainArcExtraSet, Finset.mem_filter] at h22
+    exact h22.2
+  have hspec := Classical.choose_spec hmain
+  have hlblval : (r2FreqLabelLane D W N C hCN MA).mfun h = Classical.choose hmain := by
+    simp [r2FreqLabelLane, intFrequencyLabelData_of_mainArcClassification,
+      mainArcWitnessLabel, hmain]
+  have hlabel_le : |((Classical.choose hmain : ℤ) : ℝ)| ≤ (N : ℝ) := hspec.1.trans hCN
+  have hlabel_leN : |Classical.choose hmain| ≤ N := by
+    have := hlabel_le
+    rw [← Int.cast_abs] at this
+    exact_mod_cast this
+  have hsge2 : (2 : ℤ) ^ (2 * D.BS.k0) ≤ (s : ℤ) := by exact_mod_cast hSge s hs
+  rw [hlblval]
+  have := abs_le.mp hlabel_leN
+  omega
+
 /-
 Assemble the frequency-minor endgame lanes from the foundation/gadget data and
-the parameter choices: the component scale (ρ = N), the block fiber-tail lane, the
-main-arc CRT label lane, and the `G`-gadget reservoir with its per-frequency
-damping (`hpt`) and uniform count budget (`hcard`).
+the parameter choices: the component scale (ρ = N), the block fiber-tail lane
+(`r2_freqLane_block`), the main-arc CRT label lane (`r2FreqLabelLane`), the
+small-label gap (`r2_freqLane_label_small_gap`), the extra-frequency count budget
+(`r2_freqLane_extra_count`), and the `G`-gadget per-frequency damping
+(`r2_freqLane_gadget_damping`).
 -/
 lemma r2_buildFreqLanes {T : Finset ℕ} {b : ℕ}
     (D : R2ConcreteData T b) (W : R2ConcreteData.Weights D) (N : ℤ)
@@ -517,29 +642,18 @@ lemma r2_buildFreqLanes {T : Finset ℕ} {b : ℕ}
   exact 1;
   exact le_mul_of_one_le_right ( by positivity ) ( mod_cast Nat.one_le_iff_ne_zero.mpr <| by positivity );
   exact fun r hr => Nat.Prime.pos ( hRprime r hr );
-  exact fun MA => by
-    apply r2_blockFiberTail D W N MA ((mainArcClassificationData D W N C).Sblock MA) C η Ctail ((b:ℝ)*(η+Ctail*Real.exp (-C^2*(16/9)/2))/sigmaCtrl D.BS) hC heL he0 hL hLeq (by
-    exact fun x hx => mainArcFields_mem_range_of_mem_Sm MA ( mem_blockMinorPart.mp hx |>.1 )) (by
-    intro h hh; exact (by
-    exact Finset.mem_filter.mp ( Finset.mem_filter.mp hh |>.2 ) |>.2)) (by
-    grind +extAll);
+  -- block lane: block-fibre-tail certificate
+  exact r2_freqLane_block D W N C η Ctail hC heL he0 hL hLeq;
   exact fun MA h hh => Finset.Subset.refl _;
   rotate_right;
-  exact fun MA => intFrequencyLabelData_of_mainArcClassification D W N C MA ( by
-    intro m hm; exact Finset.mem_Icc.mpr ⟨ by exact_mod_cast neg_le_of_abs_le <| hm.trans hCN, by exact_mod_cast le_of_abs_le <| hm.trans hCN ⟩ ; );
-  · all_goals generalize_proofs at *;
-    unfold intFrequencyLabelData_of_mainArcClassification; simp_all +decide;
-    unfold mainArcWitnessLabel; norm_num at *;
-    grind;
-  · intro MA;
-    gcongr;
-    convert r2_extra_count_le D W N C hNnonneg hCN hLeq MA using 1;
-  · intro MA h hh;
-    refine' le_trans _ hG;
-    rw [ hScard ];
-    gcongr;
-    · exact sq_pos_of_pos ( Nat.cast_pos.mpr ( Nat.Prime.pos ( by exact ( r2ExtraSiblingChoice_of_intLabelData D W N MA _ _ _ hbpos hsqfree hcovR hcopB ).hrprime h hh ) ) );
-    · exact Nat.le_of_dvd hbpos ( r2ExtraSiblingChoice_of_intLabelData D W N MA _ _ _ hbpos hsqfree hcovR hcopB |>.hrdvd h hh )
+  -- main-arc CRT label lane
+  exact r2FreqLabelLane D W N C hCN;
+  · -- small-label gap `2|m| < s` for the gadget primes
+    exact r2_freqLane_label_small_gap D W N C hCN hN2 hSge;
+  · -- extra-frequency count budget
+    exact r2_freqLane_extra_count D W N C Dmp hNnonneg hDmpnn hCN hLeq;
+  · -- gadget pointwise damping
+    exact r2_freqLane_gadget_damping D W N C Dmp G hbpos hsqfree hcovR hcopB hCN hScard hG
 
 /-- Numeric main-arc fields for the R2 construction, extracted as its own
 declaration so `D` stays opaque (no `Classical.choose` unfolding / `isDefEq`
