@@ -13,48 +13,6 @@ noncomputable section
 
 namespace CircleMethod
 
-/-- Foundation layer of the R2 construction: a block system at a large bottom
-scale together with the prime-divisor set `R = b.primeFactors`, with all the
-structural facts the terminal supply needs (block primes large enough to be
-coprime to `b` and to keep `R` outside the block support). -/
-lemma exists_r2_foundation (b : ℕ) (hb : 3 ≤ b) (k0min : ℕ) :
-    ∃ BS : BlockSystem,
-      k0min ≤ BS.k0 ∧ admissibleGlobalRange BS ∧
-      blockPrimes BS.k0 ⊆ blockSupport BS ∧
-      BlockSupportCoprimeWith BS b ∧
-      (∀ r ∈ b.primeFactors, Nat.Prime r) ∧
-      (∀ r ∈ b.primeFactors, r ∣ b) ∧
-      CoversPrimeDivisors b.primeFactors b ∧
-      (∀ r ∈ b.primeFactors, r ∉ blockSupport BS) := by
-  obtain ⟨BS, hk0, hadm, hsub⟩ :=
-    exists_blockSystem_with_blockPrimes_subset (max k0min (b + 1))
-  have hk0min : k0min ≤ BS.k0 := le_trans (le_max_left _ _) hk0
-  -- every block-support prime exceeds `b` (since it is ≥ 2^k0 > b)
-  have hslow : ∀ s ∈ blockSupport BS, b < s := by
-    intro s hs
-    simp only [blockSupport, Finset.mem_biUnion, Finset.mem_Icc] at hs
-    obtain ⟨k, ⟨hkk0, _⟩, hsk⟩ := hs
-    have h2k : 2 ^ k ≤ s := (BS.hwindow k s hsk).1
-    have hk0le : 2 ^ BS.k0 ≤ s :=
-      le_trans (Nat.pow_le_pow_right (by norm_num) hkk0) h2k
-    have hbk : b + 1 ≤ BS.k0 := le_trans (le_max_right _ _) hk0
-    have hk0lt : BS.k0 < 2 ^ BS.k0 := Nat.lt_two_pow_self
-    omega
-  have hcop : BlockSupportCoprimeWith BS b := by
-    intro s hs
-    have hsp : Nat.Prime s := blockSupport_prime BS hs
-    exact (hsp.coprime_iff_not_dvd).mpr
-      (fun hdvd => absurd (Nat.le_of_dvd (by omega) hdvd) (by have := hslow s hs; omega))
-  refine ⟨BS, hk0min, hadm, hsub, hcop,
-    fun r hr => Nat.prime_of_mem_primeFactors hr,
-    fun r hr => Nat.dvd_of_mem_primeFactors hr,
-    fun r hrp hrdvd => Nat.mem_primeFactors.mpr ⟨hrp, hrdvd, by omega⟩, ?_⟩
-  intro r hr hrmem
-  have hrdvd : r ∣ b := Nat.dvd_of_mem_primeFactors hr
-  have hrle : r ≤ b := Nat.le_of_dvd (by omega) hrdvd
-  have := hslow r hrmem
-  omega
-
 /-- Mass-batch layer (gate-free): given a concrete `D` whose base load already fits the
 window and whose obstruction edges are below the bottom pair scale, a residual mass batch
 `Q` with `R2MassBatchSupply (D.withQ Q)` exists.  The load threshold `k1` is supplied
@@ -91,41 +49,6 @@ lemma exists_block_primes (k : ℕ) (hk : 5 ≤ k) (G : ℕ)
     · have hs' := hSsub hs
       rw [dyadicBlock, Finset.mem_filter, Finset.mem_Ico] at hs'
       first | exact hs'.2 | exact hs'.1.1
-
-/-- Data layer (threading): from a block system, a gadget prime `s`, and the irreducible
-numeric facts (control load `≤ 3/(4b)` from the cited axiom, and the gadget-scale budget),
-a residual mass batch `Q` with its supply exists, for `D = ⟨BS, ∅, b.primeFactors, {s}⟩`. -/
-lemma exists_r2_data_of_numerics {T : Finset ℕ} {b : ℕ} (hb : 3 ≤ b)
-    (BS : BlockSystem) (s : ℕ)
-    (hsub : blockPrimes BS.k0 ⊆ blockSupport BS)
-    (hs_ge : 2 ^ BS.k0 ≤ s)
-    (hRout : ∀ r ∈ b.primeFactors, r ∉ blockSupport BS)
-    (hctrl : R2ConcreteData.recipLoad (ctrlEdges BS) ≤ 3 / (4 * (b : ℝ)))
-    (hsum : 3 / (4 * (b : ℝ)) +
-        ((b.primeFactors.card * (1 : ℕ) : ℕ) : ℝ) / ((2 * 2 ^ BS.k0 : ℕ) : ℝ)
-        < 3 / (2 * (b : ℝ)))
-    (k1 : ℕ) (_hk15 : 5 ≤ k1) (hk1le : k1 ≤ BS.k0)
-    (hload : ∀ k0 : ℕ, k1 ≤ k0 →
-      (1 : ℝ) / 2 ≤ ∑ pq ∈ (blockPrimes k0).offDiag.filter (fun pq : ℕ × ℕ => pq.1 < pq.2),
-        (1 : ℝ) / ((pq.1 : ℝ) * (pq.2 : ℝ)))
-    (hlarge : 2 * b < 3 * (2 ^ BS.k0 * 2 ^ BS.k0))
-    (hTsmall : ∀ e ∈ T, e < 2 ^ BS.k0 * 2 ^ BS.k0) :
-    ∃ Q : Finset ℕ,
-      R2MassBatchSupply ((⟨BS, ∅, b.primeFactors, {s}⟩ : R2ConcreteData T b).withQ Q) := by
-  set D0 : R2ConcreteData T b := ⟨BS, ∅, b.primeFactors, {s}⟩ with hD0
-  have hRprime : ∀ r ∈ D0.R, Nat.Prime r := fun r hr => Nat.prime_of_mem_primeFactors hr
-  have hRout' : ∀ r ∈ D0.R, r ∉ blockSupport D0.BS := hRout
-  have B0 : R2BaseLoadBudget D0 :=
-    baseLoadBudget_of_control_epsilon_and_gadget_scale D0 (3 / (4 * (b : ℝ))) 2 (2 ^ BS.k0)
-      (by norm_num) (by positivity) hctrl
-      (fun r hr => by
-        have := (Nat.prime_of_mem_primeFactors hr).two_le; exact_mod_cast this)
-      (fun s' hs' => by
-        simp only [hD0, Finset.mem_singleton] at hs'; subst hs'; exact_mod_cast hs_ge)
-      (by simpa [hD0] using hsum)
-  have hbase : D0.baseLoad < 3 / (2 * (b : ℝ)) := baseLoad_lt_of_budget D0 hRprime hRout' B0
-  have hdisj := r2Concrete_ctrl_gadget_disjoint_of_R_outside_blockSupport D0 hRprime hRout'
-  exact exists_r2_massBatch hb D0 hbase hlarge hTsmall hdisj hsub k1 hk1le hload
 
 /-- Data layer for a `G`-element gadget set `S` (generalising the singleton form):
 from a block system and a set `S` of primes `≥ 2^k0`, the residual mass batch `Q`
@@ -499,7 +422,6 @@ lemma r2_extra_inv_sq_le {T : Finset ℕ} {b : ℕ} (D : R2ConcreteData T b)
     (hk0big : 1000 * D.S.card + 1000 * b + 100000 ≤ D.BS.k0)
     (QB : R2MassBatchSupply D)
     (hSge : ∀ s ∈ D.S, 2 ^ (2 * D.BS.k0) ≤ s)
-    (hRprime : ∀ r ∈ D.R, Nat.Prime r) (hSprime : ∀ s ∈ D.S, Nat.Prime s)
     (hRpos : ∀ r ∈ D.R, 2 ≤ r) (hRcard : D.R.card ≤ b) :
     ∑ e ∈ D.E \ ctrlEdges D.BS, (1 : ℝ) / (e : ℝ) ^ 2
       ≤ 1000000 * (sigmaCtrl D.BS) ^ 2 := by
@@ -606,7 +528,7 @@ lemma r2_buildFreqLanes {T : Finset ℕ} {b : ℕ}
   exact fun MA => intFrequencyLabelData_of_mainArcClassification D W N C MA ( by
     intro m hm; exact Finset.mem_Icc.mpr ⟨ by exact_mod_cast neg_le_of_abs_le <| hm.trans hCN, by exact_mod_cast le_of_abs_le <| hm.trans hCN ⟩ ; );
   · all_goals generalize_proofs at *;
-    unfold intFrequencyLabelData_of_mainArcClassification; simp_all +decide [ mainArcExtraSet ] ;
+    unfold intFrequencyLabelData_of_mainArcClassification; simp_all +decide;
     unfold mainArcWitnessLabel; norm_num at *;
     grind;
   · intro MA;
@@ -619,14 +541,6 @@ lemma r2_buildFreqLanes {T : Finset ℕ} {b : ℕ}
     · exact sq_pos_of_pos ( Nat.cast_pos.mpr ( Nat.Prime.pos ( by exact ( r2ExtraSiblingChoice_of_intLabelData D W N MA _ _ _ hbpos hsqfree hcovR hcopB ).hrprime h hh ) ) );
     · exact Nat.le_of_dvd hbpos ( r2ExtraSiblingChoice_of_intLabelData D W N MA _ _ _ hbpos hsqfree hcovR hcopB |>.hrdvd h hh )
 
-
-/-
-Top-level R2 assembly: discharge `exists_arcConstruction` for squarefree `b ≥ 3`
-by instantiating the `frequencyMinor` endpoint with a concrete construction.
-
-In progress: foundation layer (`exists_r2_foundation`) done; the concrete data
-`D, Q, N`, supplies, lanes, and the parameter chase remain.
--/
 /-- Numeric main-arc fields for the R2 construction, extracted as its own
 declaration so `D` stays opaque (no `Classical.choose` unfolding / `isDefEq`
 blow-up) and it gets its own elaboration budget. -/
@@ -670,7 +584,7 @@ lemma r2_close_numericFields {T : Finset ℕ} {b : ℕ}
       calc 2 = 2 ^ 1 := by norm_num
         _ ≤ 2 ^ D.BS.k0 := Nat.pow_le_pow_right (by norm_num) (by omega)
     have hkey : 1000 * D.BS.k0 ^ 2 + 10 ≤ 2 ^ D.BS.k0 := by
-      nlinarith only [hc, hk0big6, mul_le_mul_right' hk0big6 (D.BS.k0 ^ 2)]
+      nlinarith only [hc, hk0big6, mul_le_mul_left hk0big6 (D.BS.k0 ^ 2)]
     calc 10 * (100 * D.BS.k0 ^ 2 * 2 ^ D.BS.k0 + 1)
         = (1000 * D.BS.k0 ^ 2) * 2 ^ D.BS.k0 + 10 := by ring
       _ ≤ (1000 * D.BS.k0 ^ 2) * 2 ^ D.BS.k0 + 10 * 2 ^ D.BS.k0 := by nlinarith only [h2le]

@@ -322,7 +322,7 @@ lemma exists_r2_mass_certificate {T : Finset ℕ} {b : ℕ}
       (show 14 ≤ D.BS.k0 by omega)
       (show 1000 * D.S.card + 1000 * b + 100000 ≤ D.BS.k0 by
         rw [hScardD]; exact hk0bigD)
-      QB Cc.hSge F.hRp Cc.hSprime Cc.hRpos'
+      QB Cc.hSge Cc.hRpos'
       (show D.R.card ≤ b from
         le_trans (Finset.card_le_card (fun x hx => Finset.mem_Icc.mpr
           ⟨Nat.pos_of_mem_primeFactors hx, Nat.le_of_mem_primeFactors hx⟩))
