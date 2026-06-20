@@ -1,5 +1,6 @@
 import RequestProject.R2TopAssembly
 import RequestProject.Erdos306Unconditional
+import RequestProject.CannonBridge
 
 /-!
 # Erdős 306 — unconditional, wired to the R2 construction
@@ -15,23 +16,25 @@ open scoped BigOperators
 
 namespace CircleMethod
 
-/-- `exists_pos_weighted_ge3` wired to the genuine R2 construction. -/
-theorem exists_pos_weighted_ge3_R2 (T : Finset ℕ) (b : ℕ) (hb : 3 ≤ b)
-    (hbsf : Squarefree b) :
-    ∃ (E : Finset ℕ) (theta : ℕ → ℝ),
-      (∀ e ∈ E, IsSemiprime e) ∧ (∀ e ∈ E, e ∉ T) ∧ 0 < Wcount E theta b := by
-  obtain ⟨c⟩ := exists_arcConstruction_final T b hb hbsf
-  exact ⟨c.E, c.theta, c.hsemi, c.havoid,
-    exists_pos_weighted_of_construction T b (le_trans (by norm_num) hb)
-      c.E c.theta c.L c.N c.SM c.Sm c.lbl c.Bm
-      c.hsemi c.havoid c.hne c.hL c.hbL c.heL c.he0 c.hbound c.hlb c.hub c.hmass
-      c.hpart c.hdisj c.hN c.htw c.hsmall c.hmaps c.hinj c.hsurj c.hterm c.hminor c.hbeat⟩
-
-/-- `egyptian_rep_ge3` wired to the R2 construction. -/
+/-- `egyptian_rep_ge3` wired to the R2 construction **through the abstract
+`spectral_existence` cannon** (`CannonBridge.exists_subset_of_fourier_arcs`):
+the genuine R2 `ArcConstruction` supplies the spectral inputs (the low-frequency
+main term via `main_sum_re_lower`, the summed-norm high-frequency tail `c.hminor`,
+and the domination `c.hbeat`), and the cannon yields a hitting subset directly. -/
 theorem egyptian_rep_ge3_R2 (T : Finset ℕ) (b : ℕ) (hb : 3 ≤ b) (hbsf : Squarefree b) :
     HasEgyptianSemiprimeReprAvoiding T ((1 : ℚ) / (b : ℚ)) := by
-  obtain ⟨E, theta, hsemi, hdisj, hW⟩ := exists_pos_weighted_ge3_R2 T b hb hbsf
-  exact Wcount_pos_imp_repr T E theta b hsemi hdisj hW
+  obtain ⟨c⟩ := exists_arcConstruction_final T b hb hbsf
+  obtain ⟨S, hSE, hSsum⟩ :=
+    exists_subset_of_fourier_arcs c.E c.theta b c.L c.SM c.Sm c.Bm
+      (0.8 * (Real.exp (-(Real.pi ^ 2 / 2)) / 2) / Real.sqrt (sigmaE2 c.E c.theta))
+      (by omega) c.hL c.hbL c.heL c.he0 c.hbound
+      (fun e he => by linarith [c.hlb e he])
+      (fun e he => by linarith [c.hub e he])
+      c.hpart c.hdisj
+      (main_sum_re_lower c.E c.theta b c.L c.N c.SM c.lbl c.hne c.he0 c.hlb c.hub
+        c.hmass c.hN c.htw c.hsmall c.hmaps c.hinj c.hsurj c.hterm)
+      c.hminor c.hbeat
+  exact repr_of_subset T c.E b c.hsemi c.havoid S hSE hSsum
 
 /-- `egyptian_rep_eq2` (the `b = 2` reduction `1/2 = 1/3 + 1/6`) wired to the R2
 construction (its `1/3`, `1/6` sub-representations go through `egyptian_rep_ge3_R2`). -/

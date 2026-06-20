@@ -1026,7 +1026,7 @@ theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
     r2_close_numericFields D W N σ C hσpos he0 QB hSge hRpos' hsumE hsigmaE_lb
       hNnonneg hCge3 hNlo hNsigma hk0dom hNreal
   have hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
-      ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bm := by
+      (∑ h ∈ MA.Sm, ‖fourierTerm D.E W.theta b D.L h‖) ≤ Bm := by
     obtain ⟨L⟩ := r2_buildFreqLanes D W N C η Ctail Dmp G hbpos hbsf hcovR hcopB
       hRp hSprime hRdvd hSblock hlt' hctrlAvoid hgadgetAvoid heL he0 hL hLeq
       hCge1 hNnonneg hSge hScard (hσdef ▸ hNlo) hN2 (le_of_lt hDmppos) (hbbdef ▸ hG)
@@ -1035,7 +1035,7 @@ theorem exists_arcConstruction_final (T : Finset ℕ) (b : ℕ)
       ((b : ℝ) * (2 * (N : ℝ) + 1) * Dmp) (N : ℝ)
       (mainArcClassificationData D W N C) hk0minM hadm L.toMultiGadget
     intro MA
-    refine hminor_of_block_extra_norm_bounds D.E W.theta b D.L MA.Sm
+    refine hminorSum_of_block_extra_norm_bounds D.E W.theta b D.L MA.Sm
       ⟨MB.Sblock MA, MB.Sextra MA, MB.hcover MA⟩ _ _ Bm
       (MB.hblock MA) (MB.hextra MA) (le_of_eq ?_)
     rw [hBmdef, show sigmaCtrl D.BS = σ from hσdef.symm]; ring

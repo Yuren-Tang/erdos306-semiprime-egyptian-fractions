@@ -45,6 +45,27 @@ theorem hminor_of_block_extra_norm_bounds
       (fourierNormWeight E theta b L) C.hcover hblock hextra)
     hbudget
 
+/-- Summed-norm minor-arc bound `∑_{h∈Sm} ‖fourierTerm h‖ ≤ Bm` from block/extra
+norm estimates and an additive budget.  This is the form consumed by the
+cannon-based existence step (`exists_subset_of_fourier_arcs`), which needs the
+sum of norms rather than the norm of the sum. -/
+theorem hminorSum_of_block_extra_norm_bounds
+    (E : Finset ℕ) (theta : ℕ → ℝ) (b L : ℕ)
+    (Sm : Finset ℕ) (C : R2MinorCoverData Sm)
+    (Bblock Bextra Bm : ℝ)
+    (hblock :
+      ∑ h ∈ blockMinorPart Sm C.Sblock,
+        fourierNormWeight E theta b L h ≤ Bblock)
+    (hextra :
+      ∑ h ∈ extraMinorPart Sm C.Sblock C.Sextra,
+        fourierNormWeight E theta b L h ≤ Bextra)
+    (hbudget : Bblock + Bextra ≤ Bm) :
+    (∑ h ∈ Sm, ‖fourierTerm E theta b L h‖) ≤ Bm :=
+  le_trans
+    (r2_hminor_bound_from_block_and_extra Sm C.Sblock C.Sextra
+      (fourierNormWeight E theta b L) C.hcover hblock hextra)
+    hbudget
+
 variable {α : Type*} [DecidableEq α]
 
 /-- Data for a finite block/extra cover of the minor frequencies. -/

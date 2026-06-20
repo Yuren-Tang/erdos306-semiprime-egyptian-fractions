@@ -38,7 +38,7 @@ structure R2FinalSupply (T : Finset ℕ) (b : ℕ) where
     |(m : ℝ) / (e : ℝ)| ≤ 1 / 10
   hsmall : ∀ m ∈ Finset.Icc (-N) N,
     (∑ e ∈ D.E, 100000 * |(m : ℝ) / (e : ℝ)| ^ 3) ≤ 1 / 10
-  hminor : ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bm
+  hminor : (∑ h ∈ MA.Sm, ‖fourierTerm D.E W.theta b D.L h‖) ≤ Bm
   hbeat : Bm < 0.8 * (Real.exp (-(Real.pi ^ 2 / 2)) / 2) /
     Real.sqrt (sigmaE2 D.E W.theta)
 
@@ -108,7 +108,7 @@ theorem exists_R2FinalSupply_of_mainArcParams
     (hsmall : ∀ m ∈ Finset.Icc (-N) N,
       (∑ e ∈ D.E, 100000 * |(m : ℝ) / (e : ℝ)| ^ 3) ≤ 1 / 10)
     (hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
-      ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bm)
+      (∑ h ∈ MA.Sm, ‖fourierTerm D.E W.theta b D.L h‖) ≤ Bm)
     (hbeat : Bm < 0.8 * (Real.exp (-(Real.pi ^ 2 / 2)) / 2) /
       Real.sqrt (sigmaE2 D.E W.theta)) :
     Nonempty (R2FinalSupply T b) := by
@@ -152,7 +152,7 @@ theorem exists_arcConstruction_of_mainArcParams
     (hsmall : ∀ m ∈ Finset.Icc (-N) N,
       (∑ e ∈ D.E, 100000 * |(m : ℝ) / (e : ℝ)| ^ 3) ≤ 1 / 10)
     (hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
-      ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bm)
+      (∑ h ∈ MA.Sm, ‖fourierTerm D.E W.theta b D.L h‖) ≤ Bm)
     (hbeat : Bm < 0.8 * (Real.exp (-(Real.pi ^ 2 / 2)) / 2) /
       Real.sqrt (sigmaE2 D.E W.theta)) :
     Nonempty (ArcConstruction T b) := by
@@ -186,7 +186,7 @@ theorem exists_arcConstruction_of_blockExtraBudget
     (hsmall : ∀ m ∈ Finset.Icc (-N) N,
       (∑ e ∈ D.E, 100000 * |(m : ℝ) / (e : ℝ)| ^ 3) ≤ 1 / 10)
     (hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
-      ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bblock + Bextra)
+      (∑ h ∈ MA.Sm, ‖fourierTerm D.E W.theta b D.L h‖) ≤ Bblock + Bextra)
     (hσctrl : 0 < sigmaCtrl D.BS)
     (hσle : Real.sqrt (sigmaE2 D.E W.theta) ≤ sigmaCtrl D.BS)
     (hminorCtrl :
@@ -231,7 +231,7 @@ theorem exists_arcConstruction_of_componentData
     (hsmall : ∀ m ∈ Finset.Icc (-N) N,
       (∑ e ∈ D.E, 100000 * |(m : ℝ) / (e : ℝ)| ^ 3) ≤ 1 / 10)
     (hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
-      ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bblock + Bextra)
+      (∑ h ∈ MA.Sm, ‖fourierTerm D.E W.theta b D.L h‖) ≤ Bblock + Bextra)
     (hσctrl : 0 < sigmaCtrl D.BS)
     (hσle : Real.sqrt (sigmaE2 D.E W.theta) ≤ sigmaCtrl D.BS)
     (hminorCtrl :
@@ -280,7 +280,7 @@ theorem exists_arcConstruction_of_componentData_light
     (hsmall : ∀ m ∈ Finset.Icc (-N) N,
       (∑ e ∈ D.E, 100000 * |(m : ℝ) / (e : ℝ)| ^ 3) ≤ 1 / 10)
     (hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
-      ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bblock + Bextra)
+      (∑ h ∈ MA.Sm, ‖fourierTerm D.E W.theta b D.L h‖) ≤ Bblock + Bextra)
     (hextraLight : ∑ e ∈ D.E \ ctrlEdges D.BS, 1 / (e : ℝ) ^ 2
         ≤ 3 * (sigmaCtrl D.BS) ^ 2)
     (hminorCtrl :
@@ -330,7 +330,7 @@ theorem exists_arcConstruction_of_componentData_light_window
     (hsmall : ∀ m ∈ Finset.Icc (-N) N,
       (∑ e ∈ D.E, 100000 * |(m : ℝ) / (e : ℝ)| ^ 3) ≤ 1 / 10)
     (hminor : ∀ MA : MainArcFields D.E W.theta b D.L N,
-      ‖∑ h ∈ MA.Sm, fourierTerm D.E W.theta b D.L h‖ ≤ Bblock + Bextra)
+      (∑ h ∈ MA.Sm, ‖fourierTerm D.E W.theta b D.L h‖) ≤ Bblock + Bextra)
     (hextraLight : ∑ e ∈ D.E \ ctrlEdges D.BS, 1 / (e : ℝ) ^ 2
         ≤ 3 * (sigmaCtrl D.BS) ^ 2)
     (hminorCtrl :
@@ -395,7 +395,7 @@ theorem exists_arcConstruction_of_componentData_numeric_minor_window
     hgadgetAvoid hQne hQdvd hRdvd hSblock hloadDisj hloadLower hloadUpper
     NF.hN NF.htw NF.hsmall ?_ hextraLight hminorCtrl
   intro MA
-  exact hminor_of_block_extra_norm_bounds D.E W.theta b D.L MA.Sm (C MA)
+  exact hminorSum_of_block_extra_norm_bounds D.E W.theta b D.L MA.Sm (C MA)
     Bblock Bextra (Bblock + Bextra) (hblock MA) (hextra MA) le_rfl
 
 end CircleMethod
