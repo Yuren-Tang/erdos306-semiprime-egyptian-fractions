@@ -103,7 +103,7 @@ The geometric discount in `β` makes the (unconstrained) enumeration of shell
 vectors converge.  This is the energy-shell bookkeeping used by G5.
 -/
 lemma shell_sum_bound {ι : Type*} [Fintype ι] [DecidableEq ι] (c : ι → ℕ → ℝ)
-    (alpha beta R : ℝ) (halpha : 0 < alpha) (hbeta : 0 < beta) (hR : 0 ≤ R)
+    (alpha beta R : ℝ) (halpha : 0 < alpha) (hbeta : 0 < beta) (_hR : 0 ≤ R)
     (hc0 : ∀ k n, 0 ≤ c k n)
     (hcb : ∀ k (n : ℕ), c k n ≤ Real.exp (alpha * (n + 1))) :
     ∑ v ∈ (Fintype.piFinset (fun _ : ι => Finset.range (⌊R⌋₊ + 1))).filter
@@ -137,7 +137,7 @@ lemma shell_sum_bound {ι : Type*} [Fintype ι] [DecidableEq ι] (c : ι → ℕ
       exact Finset.sum_congr rfl fun _ _ => by rw [ ← Real.exp_nat_mul ] ; ring;
     rw [ h_geo_sum, one_div, ← tsum_geometric_of_lt_one ( by positivity ) ( by norm_num; positivity ) ] ; exact Summable.sum_le_tsum ( Finset.range N ) ( fun _ _ => by positivity ) ( by exact summable_geometric_of_lt_one ( by positivity ) ( by norm_num; positivity ) ) ;
   convert h_sum_bound.trans ( mul_le_mul_of_nonneg_left ( Finset.prod_le_prod ( fun _ _ => Finset.sum_nonneg fun _ _ => Real.exp_nonneg _ ) fun _ _ => h_geo_sum _ ) ( by positivity ) ) using 1 ; ring;
-  simp +decide [ mul_assoc, ← Real.exp_add, ← Real.exp_nat_mul ];
+  simp +decide [← Real.exp_add];
   rw [ ← Real.rpow_natCast, Real.rpow_def_of_pos ( sub_pos.mpr <| Real.exp_lt_one_iff.mpr <| neg_lt_zero.mpr hbeta ) ] ; ring;
   rw [ ← Real.exp_neg, ← Real.exp_add ] ; ring
 

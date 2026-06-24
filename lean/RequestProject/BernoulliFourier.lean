@@ -33,9 +33,9 @@ def bernoulliCharFun (θ t : ℝ) : ℂ :=
 theorem bernoulliCharFun_normSq (θ t : ℝ) :
     Complex.normSq (bernoulliCharFun θ t) =
     1 - 4 * θ * (1 - θ) * Real.sin (Real.pi * t) ^ 2 := by
-  unfold bernoulliCharFun; norm_num [ Complex.normSq, Complex.exp_re, Complex.exp_im ] ; ring;
-  rw [ Real.sin_sq, Real.cos_sq ] ; ring;
-  rw [ Real.sin_sq, Real.cos_sq ] ; ring
+  unfold bernoulliCharFun; norm_num [ Complex.normSq, Complex.exp_re, Complex.exp_im ] ; ring_nf;
+  rw [ Real.sin_sq, Real.cos_sq ] ; ring_nf;
+  rw [ Real.sin_sq, Real.cos_sq ] ; ring_nf
 
 /-
 For θ ∈ [θ₀, 1-θ₀] with 0 < θ₀ ≤ 1/2, the Bernoulli characteristic
@@ -80,13 +80,13 @@ theorem product_charFun_bound (θ₀ : ℝ) (hθ₀ : 0 < θ₀) (hθ₀' : θ�
   have h_prod_bound : ∀ e ∈ E, ‖bernoulliCharFun (θ e) (h / e)‖ ≤ Real.exp (-2 * θ₀ * (1 - θ₀) * (Real.sin (Real.pi * h / e)) ^ 2) := by
     intro e he
     have h_char_bound : ‖bernoulliCharFun (θ e) (h / e)‖^2 ≤ 1 - 4 * θ₀ * (1 - θ₀) * (Real.sin (Real.pi * h / e)) ^ 2 := by
-      convert bernoulliCharFun_normSq_le θ₀ ( θ e ) ( h / e ) hθ₀ hθ₀' ( hθ_lb e he ) ( hθ_ub e he ) using 1 ; ring;
+      convert bernoulliCharFun_normSq_le θ₀ ( θ e ) ( h / e ) hθ₀ hθ₀' ( hθ_lb e he ) ( hθ_ub e he ) using 1 ; ring_nf;
       · rw [ Complex.normSq_eq_norm_sq ];
-      · ring;
+      · ring_nf;
     -- Applying the inequality $1 - x \leq e^{-x}$ with $x = 4θ₀(1-θ₀)sin²(πh/e)$.
     have h_exp_bound : 1 - 4 * θ₀ * (1 - θ₀) * (Real.sin (Real.pi * h / e)) ^ 2 ≤ Real.exp (-4 * θ₀ * (1 - θ₀) * (Real.sin (Real.pi * h / e)) ^ 2) := by
       exact le_trans ( by ring_nf; norm_num ) ( Real.add_one_le_exp _ );
-    convert Real.le_sqrt_of_sq_le ( h_char_bound.trans h_exp_bound ) using 1 ; rw [ Real.sqrt_eq_rpow, ← Real.exp_mul ] ; ring;
+    convert Real.le_sqrt_of_sq_le ( h_char_bound.trans h_exp_bound ) using 1 ; rw [ Real.sqrt_eq_rpow, ← Real.exp_mul ] ; ring_nf;
   convert Finset.prod_le_prod ?_ h_prod_bound using 1;
   · norm_num;
   · norm_num [ ← Real.exp_sum, Finset.mul_sum _ _ _ ];

@@ -18,7 +18,7 @@ lemma cube_lt_two_pow : ∀ n : ℕ, 10 ≤ n → n ^ 3 < 2 ^ n := by
   | succ n hn ih =>
     rw [pow_succ]
     have hstep : (n + 1) ^ 3 ≤ 2 * n ^ 3 := by
-      nlinarith [hn, mul_le_mul_right' hn (n ^ 2), mul_le_mul_right' hn n]
+      nlinarith [hn, mul_le_mul_left hn (n ^ 2), mul_le_mul_left hn n]
     calc (n + 1) ^ 3 ≤ 2 * n ^ 3 := hstep
       _ < 2 * 2 ^ n := mul_lt_mul_of_pos_left ih (by norm_num)
       _ = 2 ^ n * 2 := by ring
@@ -30,8 +30,8 @@ lemma six_lt_two_pow : ∀ n : ℕ, 35 ≤ n → n ^ 6 < 2 ^ n := by
   | base => norm_num
   | succ n hn ih =>
     have hstep : (n + 1) ^ 6 ≤ 2 * n ^ 6 := by
-      nlinarith [hn, mul_le_mul_right' hn (n ^ 5), mul_le_mul_right' hn (n ^ 4),
-        mul_le_mul_right' hn (n ^ 3), mul_le_mul_right' hn (n ^ 2), mul_le_mul_right' hn n]
+      nlinarith [hn, mul_le_mul_left hn (n ^ 5), mul_le_mul_left hn (n ^ 4),
+        mul_le_mul_left hn (n ^ 3), mul_le_mul_left hn (n ^ 2), mul_le_mul_left hn n]
     calc (n + 1) ^ 6 ≤ 2 * n ^ 6 := hstep
       _ < 2 * 2 ^ n := mul_lt_mul_of_pos_left ih (by norm_num)
       _ = 2 ^ (n + 1) := by rw [pow_succ]; ring

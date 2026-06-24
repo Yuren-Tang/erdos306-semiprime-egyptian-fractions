@@ -133,7 +133,7 @@ theorem erdos_306 :
     simp only [hn0, Nat.cast_one, div_one] at hins
     linarith [hins]
 
--- The axiom audit (`#print axioms erdos_306`) and the verbatim axiom statements
+-- The axiom audit (`#print axioms erdos_306`) and the structural analytic axiom statements
 -- are emitted by `RequestProject.Audit`, which CI runs and gates on.
 
 end Erdos306

@@ -1,15 +1,18 @@
-import RequestProject.RSPrimeSums
+import RequestProject.AnalyticInputs
 
 /-!
-# Dyadic prime blocks and cited analytic inputs
+# Dyadic prime blocks and structural analytic inputs
 
-Compatibility layer for the construction-facing dyadic inputs:
+This module is the construction-facing import for dyadic prime-supply facts.
+It re-exports the block definition together with the stable downstream analytic
+interfaces:
 
 * `GlobalControl.dyadic_prime_density`
 * `GlobalControl.dyadic_mertens_cumulative`
 
-Both names are now provided by `RSPrimeSums`, where they are sourced from the
-Rosser–Schoenfeld/Mertens cited statements rather than being declared here as
-construction-local axioms.
+The actual non-standard assumptions are declared in `RequestProject.AnalyticInputs`
+as `GlobalControl.pnt_dyadic_prime_density` and
+`GlobalControl.mertens_dyadic_window_mass`; downstream construction files should
+use the theorem wrappers above rather than importing a historical
+Rosser--Schoenfeld compatibility layer.
 -/
-

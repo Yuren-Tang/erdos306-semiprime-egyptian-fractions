@@ -115,11 +115,11 @@ lemma phase_neg (E : ℤ) (q p : ℕ) : phase (-E) q p = phase E q p := by
   unfold phase;
   norm_num [ round_eq ];
   rw [ neg_div, abs_sub_comm ];
-  rw [ show ( - ( ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val / p ) + 1 / 2 : ℝ ) = - ( ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val / p + 1 / 2 ) + 1 by ring ] ; norm_num [ Int.floor_neg ] ; ring;
-  rw [ show ( -1 / 2 - ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) = - ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) by ring, Int.floor_neg ] ; ring; norm_num;
-  rw [ show ( ⌈1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹⌉ : ℤ ) = ⌊1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹⌋ + if ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) ≤ ⌊1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹⌋ then 0 else 1 from ?_ ] ; split_ifs <;> norm_num ; ring;
+  rw [ show ( - ( ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val / p ) + 1 / 2 : ℝ ) = - ( ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val / p + 1 / 2 ) + 1 by ring_nf ] ; norm_num [ Int.floor_neg ] ; ring_nf;
+  rw [ show ( -1 / 2 - ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) = - ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) by ring_nf, Int.floor_neg ] ; ring_nf; norm_num;
+  rw [ show ( ⌈1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹⌉ : ℤ ) = ⌊1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹⌋ + if ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) ≤ ⌊1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹⌋ then 0 else 1 from ?_ ] ; split_ifs <;> norm_num ; ring_nf;
   · rw [ abs_of_nonneg, abs_of_nonpos ] <;> linarith [ Int.floor_le ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ), Int.lt_floor_add_one ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) ];
-  · ring;
+  · ring_nf;
   · split_ifs <;> norm_num [ Int.ceil_eq_iff ] at * <;> constructor <;> linarith [ Int.floor_le ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ), Int.lt_floor_add_one ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) ] ;
 
 /-
@@ -146,9 +146,9 @@ lemma phase_sub_le (A B : ℤ) (q p : ℕ) :
     have h_round : ∀ x : ℝ, ∀ n : ℤ, |x - round x| ≤ |x - n| := by
       intros x n
       apply round_le;
-    convert h_round ( x_A - x_B ) ( round x_A - round x_B ) using 1 ; push_cast ; ring;
+    convert h_round ( x_A - x_B ) ( round x_A - round x_B ) using 1 ; push_cast ; ring_nf;
   convert h_round.trans ( abs_sub _ _ ) using 1;
-  unfold phase; ring;
+  unfold phase; ring_nf;
   grind
 
 /-

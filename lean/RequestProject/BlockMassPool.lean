@@ -306,7 +306,7 @@ This is the `R2-mass` input to the R2 arc construction.
 
 (The `Squarefree b` hypothesis is requested by the R2 interface; the load
 bookkeeping uses only `b ≥ 3`.) -/
-lemma exists_blockAligned_mass_batch (b : ℕ) (hb : 3 ≤ b) (hbsf : Squarefree b)
+lemma exists_blockAligned_mass_batch (b : ℕ) (hb : 3 ≤ b) (_hbsf : Squarefree b)
     (T : Finset ℕ) :
     ∃ (k0 : ℕ) (Q : Finset ℕ),
       (∀ e ∈ Q, ∃ p q, p ∈ blockPrimes k0 ∧ q ∈ blockPrimes k0 ∧ p < q ∧ e = p * q) ∧

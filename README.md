@@ -6,8 +6,9 @@ Yuren Tang — [ORCID 0009-0006-0847-3330](https://orcid.org/0009-0006-0847-3330
 
 This repository contains a **complete, machine-checked proof of Erdős Problem
 306**, formalized in Lean 4 with Mathlib. The proof is `sorry`-free; it is
-complete modulo **two named classical inputs**, each a verbatim transcription of
-a theorem of Rosser–Schoenfeld (1962), cited to its primary source.
+complete modulo **two named structural analytic-number-theory inputs**: a
+PNT-type dyadic prime-density input and a Mertens-type reciprocal-prime window
+input.
 
 ## The statement
 
@@ -45,52 +46,46 @@ The Lean kernel guarantees the proof: `erdos_306` compiles with no `sorry`, and
 nothing else. CI re-checks this from a clean build on every push and prints the
 full statements in its run summary.
 
-So a reviewer need not read the internal proof. Beyond the statement above, the
-sole hand-check is that those **two axioms** — both stated in
-[`lean/RequestProject/RSPrimeSums.lean`](lean/RequestProject/RSPrimeSums.lean),
-each self-contained in standard Mathlib terms — transcribe their primary source
-faithfully. With $\pi$ the prime-counting function and $B$ the Mertens constant
-(RS eq. (2.10), p. 65, $B = 0.26149721284764\ldots$):
+The formal audit boundary is now structural rather than tied to one set of
+explicit numerical Rosser--Schoenfeld estimates.  The two non-standard axioms are
+stated in [`lean/RequestProject/AnalyticInputs.lean`](lean/RequestProject/AnalyticInputs.lean):
 
-- **`rosser_schoenfeld_cor3`** — RS **Corollary 3, eq. (3.8), p. 69**:
-
-  $$\frac{3x}{5\log x} < \pi(2x) - \pi(x) \qquad \text{for } 20\tfrac{1}{2} \le x.$$
+- **`GlobalControl.pnt_dyadic_prime_density`** — a PNT-type dyadic prime-density
+  axiom, exported downstream through `GlobalControl.dyadic_prime_density`:
 
   ```lean
-  axiom rosser_schoenfeld_cor3 (x : ℝ) (hx : (41 : ℝ) / 2 ≤ x) :
-      3 * x / (5 * Real.log x) <
-        (Nat.primeCounting ⌊2 * x⌋₊ : ℝ) - (Nat.primeCounting ⌊x⌋₊ : ℝ)
+  axiom pnt_dyadic_prime_density (k : ℕ) (hk : 5 ≤ k) :
+      (2 ^ k : ℝ) / (2 * Real.log (2 ^ k)) ≤ ((dyadicBlock k).card : ℝ)
   ```
 
-- **`rosser_schoenfeld_thm5`** — RS **Theorem 5, p. 70**, the bounds (3.17) and
-  (3.18), each under its own range:
+  Conceptually, this is a coarse eventual dyadic consequence of the prime number
+  theorem `π(x) ~ x / log x`, namely that `[2^k, 2^(k+1))` contains enough primes
+  for all sufficiently large construction scales.
 
-  $$\log\log x + B - \frac{1}{2\log^2 x} < \sum_{p \le x} \frac{1}{p} \qquad \text{for } 1 < x,$$
-
-  $$\sum_{p \le x} \frac{1}{p} < \log\log x + B + \frac{1}{2\log^2 x} \qquad \text{for } 286 \le x.$$
+- **`GlobalControl.mertens_dyadic_window_mass`** — a Mertens-type reciprocal-prime
+  window axiom, exported downstream through `GlobalControl.dyadic_mertens_cumulative`:
 
   ```lean
-  -- `∑ p ∈ (Finset.Icc 2 ⌊x⌋₊).filter Nat.Prime, 1/p` is `∑_{p ≤ x} 1/p`.
-  axiom rosser_schoenfeld_thm5 :
-      ∃ B : ℝ, ∀ x : ℝ,
-        (1 < x →
-            Real.log (Real.log x) + B - 1 / (2 * (Real.log x) ^ 2)
-              < ∑ p ∈ (Finset.Icc 2 ⌊x⌋₊).filter Nat.Prime, (1 : ℝ) / (p : ℝ)) ∧
-        (286 ≤ x →
-            ∑ p ∈ (Finset.Icc 2 ⌊x⌋₊).filter Nat.Prime, (1 : ℝ) / (p : ℝ)
-              < Real.log (Real.log x) + B + 1 / (2 * (Real.log x) ^ 2))
+  axiom mertens_dyadic_window_mass :
+      ∃ k1 : ℕ, 5 ≤ k1 ∧ ∀ k0 : ℕ, k1 ≤ k0 →
+        (21 : ℝ) / 20 ≤
+          ∑ p ∈ (Finset.Icc k0 (3 * k0)).biUnion dyadicBlock, (1 : ℝ) / (p : ℝ)
   ```
 
-  (`B` is stated *existentially*, exactly as Theorem 5 provides, rather than pinning
-  a rounded decimal.)
+  Conceptually, this follows from Mertens' reciprocal-prime theorem
+  `∑_{p≤x} 1/p = log log x + B + o(1)`: for every fixed `A > 1`, the window
+  `∑_{X≤p<X^A} 1/p` tends to `log A`; the construction uses the case whose mass
+  is bounded below by `21/20`.
 
-J. B. Rosser and L. Schoenfeld, "Approximate formulas for some functions of prime
-numbers," *Illinois Journal of Mathematics* **6**(1) (1962), 64–94.
-[DOI: 10.1215/ijm/1255631807](https://doi.org/10.1215/ijm/1255631807).
+Recommended references for the conceptual analytic inputs are Montgomery--Vaughan
+or Apostol for the prime number theorem, and Mertens/Landau/Tenenbaum for the
+reciprocal-prime theorem.  Rosser--Schoenfeld's explicit estimates remain a
+possible way to instantiate these structural inputs, but are no longer the Lean
+axiom names or the hard-wired dependency chain.
 
-So the entire trust boundary — the problem statement, the Lean theorem, and the two
-axioms with their sources — is visible on this page. Each CI run re-prints the same
-audit, so it can also be checked from a run without opening any file.
+So the entire trust boundary — the problem statement, the Lean theorem, and the
+two structural analytic inputs — is visible on this page. Each CI run re-prints
+the same audit, so it can also be checked from a run without opening any file.
 
 ## Scope of this release (v0.0.3)
 
@@ -109,7 +104,10 @@ lake build RequestProject.Erdos306FormalConjectures  # builds and checks the pro
 lake env lean RequestProject/Audit.lean              # prints the theorem, axioms, and audit
 ```
 
-Toolchain `leanprover/lean4:v4.28.0`, Mathlib `v4.28.0`.
+Toolchain `leanprover/lean4:v4.28.0`, Mathlib `v4.28.0`.  See
+[`docs/environment.md`](docs/environment.md) for local setup notes and the tested
+upgrade attempt to the current Lean/Mathlib release line, and
+[`docs/refactor-roadmap.md`](docs/refactor-roadmap.md) for the staged cleanup plan.
 
 ## Continuous integration
 
@@ -118,7 +116,15 @@ Lean projects are checked by GitHub Actions. The workflow
 pull request: it builds the project **from a clean checkout** and then **fails
 the run** if any `sorry` is reachable from `erdos_306` or if any axiom outside the
 allowed set enters its dependencies. On success it prints the verification
-summary (theorem, both axiom statements, citations).
+summary (theorem and both axiom statements).
+
+On pushes, the same workflow also runs two follow-up checks after verification
+succeeds: Lean's linter over the Lake workspace, and `actionlint` over the
+GitHub Actions workflows. These are deliberately sequenced after the proof
+verification, so a broken verification run does not spend time on cleanup-only
+checks. The separate [`lean-graph`](.github/workflows/lean-graph.yml) workflow is
+manual (`workflow_dispatch`) because dependency-graph extraction can be useful
+for review and refactoring, but is heavier and noisier than the push gate.
 
 Each run appears under the repository's **Actions** tab as its own page; a run is
 tied to the branch (or pull request) that triggered it. The badge above tracks

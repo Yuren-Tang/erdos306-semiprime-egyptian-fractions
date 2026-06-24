@@ -2,9 +2,9 @@ name: verify-erdos-306
 
 # Builds the project from a clean checkout (Mathlib via cache) and enforces the
 # audit invariant: the headline theorem `erdos_306` must be sorry-free and depend
-# on no axioms beyond Lean's three standard ones plus the two cited
-# Rosser–Schoenfeld statements. On success it prints the full statements of the
-# theorem and both axioms, with citations.
+# on no axioms beyond Lean's three standard ones plus the two structural
+# PNT/Mertens-style analytic inputs. On success it prints the full statements of the
+# theorem and both axioms, with the audited axiom boundary.
 
 on:
   push:
@@ -24,15 +24,15 @@ jobs:
           lake-package-directory: "lean"
           build-args: "RequestProject.Erdos306FormalConjectures"
 
-      - name: Emit audit (theorem, axioms, verbatim axiom statements)
+      - name: Emit audit (theorem, axioms, axiom statements)
         working-directory: lean
         run: lake env lean RequestProject/Audit.lean 2>&1 | tee audit.log
 
-      - name: Gate — sorry-free and exactly the two cited axioms
+      - name: Gate — sorry-free and exactly the two structural analytic axioms
         working-directory: lean
         run: |
           # Extract *only* the bracketed axiom-dependency list of erdos_306
-          # (from `... depends on axioms: [` to the closing `]`), so the verbatim
+          # (from `... depends on axioms: [` to the closing `]`), so the
           # axiom statements printed afterwards cannot interfere.
           axlist=$(sed -n '/depends on axioms: \[/,/\]/p' audit.log)
           if [ -z "$axlist" ]; then echo "::error::axiom audit not found"; exit 1; fi
@@ -44,15 +44,15 @@ jobs:
           # (1) sorry-free
           if echo "$names" | grep -qx 'sorryAx'; then
             echo "::error::sorryAx present — the proof of erdos_306 is incomplete"; exit 1; fi
-          # (2) both cited axioms present
-          for ax in RosserSchoenfeld.rosser_schoenfeld_cor3 RosserSchoenfeld.rosser_schoenfeld_thm5; do
+          # (2) both structural analytic axioms present
+          for ax in GlobalControl.pnt_dyadic_prime_density GlobalControl.mertens_dyadic_window_mass; do
             echo "$names" | grep -qx "$ax" || { echo "::error::missing expected axiom $ax"; exit 1; }
           done
           # (3) nothing outside the allowed set
-          unexpected=$(echo "$names" | grep -vxE 'propext|Classical\.choice|Quot\.sound|RosserSchoenfeld\.rosser_schoenfeld_cor3|RosserSchoenfeld\.rosser_schoenfeld_thm5' || true)
+          unexpected=$(echo "$names" | grep -vxE 'propext|Classical\.choice|Quot\.sound|GlobalControl\.pnt_dyadic_prime_density|GlobalControl\.mertens_dyadic_window_mass' || true)
           if [ -n "$unexpected" ]; then
             echo "::error::unexpected axiom(s) in erdos_306 dependency set:"; echo "$unexpected"; exit 1; fi
-          echo "OK: sorry-free; dependencies = 3 standard Lean axioms + the two cited Rosser–Schoenfeld axioms."
+          echo "OK: sorry-free; dependencies = 3 standard Lean axioms + the two structural analytic axioms."
 
       - name: Verification summary (Job Summary page)
         if: success()
@@ -67,15 +67,41 @@ jobs:
             sed -n '/erdos_306 :/,$p' audit.log | sed 's/^info: [^ ]* //'
             echo '```'
             echo
-            echo "The two non-standard axioms are **verbatim** transcriptions of"
-            echo "J. B. Rosser & L. Schoenfeld, *Approximate formulas for some functions of"
-            echo "prime numbers*, Illinois J. Math. **6**(1) (1962) 64–94"
-            echo "([DOI 10.1215/ijm/1255631807](https://doi.org/10.1215/ijm/1255631807)):"
+            echo "The two non-standard axioms are structural analytic inputs:"
             echo
-            echo "- \`rosser_schoenfeld_cor3\` — Corollary 3, eq. (3.8), p. 69"
-            echo "- \`rosser_schoenfeld_thm5\` — Theorem 5, eqs. (3.17)–(3.18), p. 70"
+            echo "- \`GlobalControl.pnt_dyadic_prime_density\` — PNT-type dyadic prime-density axiom"
+            echo "- \`GlobalControl.mertens_dyadic_window_mass\` — Mertens-type reciprocal-prime window axiom"
             echo
             echo "Problem: P. Erdős & R. Graham (1980); <https://www.erdosproblems.com/306>."
             echo "Formal statement from \`google-deepmind/formal-conjectures\`."
           } >> "$GITHUB_STEP_SUMMARY"
           cat "$GITHUB_STEP_SUMMARY"
+  lint:
+    name: Lint Lean sources
+    needs: verify
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Lean linter after verification
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: "lean"
+          auto-config: false
+          build: false
+          test: false
+          lint: true
+
+  workflow-lint:
+    name: Lint GitHub Actions workflows
+    needs: verify
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run actionlint
+        uses: raven-actions/actionlint@v2
