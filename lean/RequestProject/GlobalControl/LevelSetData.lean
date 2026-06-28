@@ -6,6 +6,7 @@ This file keeps the segment-encoding data spaces outside the large
 against the cached core.
 -/
 import RequestProject.GlobalControl.ColdBlockBounds
+import RequestProject.LocalEnergy.DominantLabel
 import RequestProject.GlobalPeierlsBookkeeping
 
 open Finset BigOperators Classical
@@ -269,7 +270,7 @@ lemma extShell_mem_admShells (BS : BlockSystem) (c2 R : ℝ) (a : GlobalAssignme
     from the cold-block dominance (`cold_isDominant`) via `coldLabel_spec`. -/
 lemma cold_class_of_isDominant (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS)
     (hdom : ∀ k, BS.k0 ≤ k → k ≤ BS.K → k ∉ hotSet BS c2 a →
-        SBEEForcing.IsDominant (2 ^ k) (BS.P k) (restrict BS a k) (1/4)) :
+        LocalEnergy.HasDominantLabel (2 ^ k) (BS.P k) (restrict BS a k) (1/4)) :
     ∀ k, BS.k0 ≤ k → k ≤ BS.K → k ∉ hotSet BS c2 a →
       (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
         (classCount BS a k (coldLabel BS a k) : ℝ) := by
@@ -291,7 +292,7 @@ lemma cold_class_of_isDominant (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignme
     `≤ (20/3)·√(blockEnergy)/σ`, via `theoremA_label_range`. -/
 lemma coldLabel_abs_bound (BS : BlockSystem) (a : GlobalAssignment BS) (s : ℕ)
     (hX16 : 16 ≤ (2:ℕ) ^ s) (hN8 : 8 ≤ (BS.P s).card)
-    (hdomk : SBEEForcing.IsDominant (2 ^ s) (BS.P s) (restrict BS a s) (1/4)) :
+    (hdomk : LocalEnergy.HasDominantLabel (2 ^ s) (BS.P s) (restrict BS a s) (1/4)) :
     |(coldLabel BS a s : ℝ)| ≤
       (20/3) * Real.sqrt (blockEnergy BS a s) / sigmaP (BS.P s) := by
   obtain ⟨m, hmsize, hmclass⟩ := hdomk
@@ -309,7 +310,7 @@ lemma coldLabel_abs_bound (BS : BlockSystem) (a : GlobalAssignment BS) (s : ℕ)
     have := (BS.hwindow s p hp).2
     have h2 : (2:ℕ) ^ (s + 1) = 2 * 2 ^ s := by ring
     omega
-  have hbound := SBEEForcing.theoremA_label_range (2 ^ s) hX16 (BS.P s) hP hN8 (1/4)
+  have hbound := LocalEnergy.dominant_label_bound (2 ^ s) hX16 (BS.P s) hP hN8 (1/4)
     (by norm_num) (by norm_num) (restrict BS a s) (coldLabel BS a s)
     (blockEnergy BS a s) hsize hclass (le_of_eq rfl)
   rw [show (5 / (1 - (1/4:ℝ))) = 20/3 by norm_num] at hbound
@@ -319,7 +320,7 @@ lemma coldLabel_abs_bound (BS : BlockSystem) (a : GlobalAssignment BS) (s : ℕ)
 lemma coldLabel_mem_labelFin (BS : BlockSystem) (c2 R : ℝ) (a : GlobalAssignment BS)
     (s : ℕ) (hs1 : BS.k0 ≤ s) (hs2 : s ≤ BS.K) (_hR0 : 0 ≤ R) (hc2 : 0 ≤ c2)
     (hX16 : 16 ≤ (2:ℕ) ^ s) (hN8 : 8 ≤ (BS.P s).card) (hslog : 1 ≤ Real.log (2 ^ s))
-    (hdomk : SBEEForcing.IsDominant (2 ^ s) (BS.P s) (restrict BS a s) (1/4))
+    (hdomk : LocalEnergy.HasDominantLabel (2 ^ s) (BS.P s) (restrict BS a s) (1/4))
     (hcold : ¬ isHot BS c2 a s) (hbR : blockEnergy BS a s ≤ R)
     (hσpos : 0 < sigmaP (BS.P s)) :
     coldLabel BS a s ∈ labelFin BS c2 R s := by
@@ -530,7 +531,7 @@ lemma global_levelset_route (BS : BlockSystem) (eps c2 e0 X0 R A : ℝ)
         k ∈ boundarySet BS c2 a → Pifloor BS e0 k ≤ Xen BS a k)
     (hdom : ∀ a : GlobalAssignment BS, Qctrl BS a ≤ R →
         ∀ k, BS.k0 ≤ k → k ≤ BS.K → k ∉ hotSet BS c2 a →
-        SBEEForcing.IsDominant (2 ^ k) (BS.P k) (restrict BS a k) (1/4))
+        LocalEnergy.HasDominantLabel (2 ^ k) (BS.P k) (restrict BS a k) (1/4))
     (hadmL : ∀ a : GlobalAssignment BS, Qctrl BS a ≤ R →
         extLabel BS a (hotSet BS c2 a) (boundarySet BS c2 a)
           ∈ admLabels BS c2 R (hotSet BS c2 a) (boundarySet BS c2 a))

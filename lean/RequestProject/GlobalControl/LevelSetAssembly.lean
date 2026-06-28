@@ -64,9 +64,11 @@ Now CLOSED (this round), completing the G5 chain:
     and `global_levelset`) is now proved and axiom-clean
     (`propext`, `Classical.choice`, `Quot.sound`).
 -/
+import RequestProject.Core.Asymptotics
 import RequestProject.GlobalControl.LevelSetData
 import RequestProject.GlobalControl.ScaleComparison
 import RequestProject.GlobalPeierlsBookkeeping
+import RequestProject.LocalEnergy.DominantLabel
 
 open Finset BigOperators Classical
 
@@ -311,7 +313,7 @@ def ColdDominance (c2 : ℝ) : Prop :=
     BS.k0 ≤ k → k ≤ BS.K → X1 ≤ (2:ℝ) ^ k →
     ∀ (b : BlockAssignment (BS.P k)) (Rb : ℝ),
       QP (BS.P k) b ≤ Rb → Rb < Rw c2 k →
-      SBEEForcing.IsDominant ((2:ℕ) ^ k) (BS.P k) b (1/4)
+      LocalEnergy.HasDominantLabel ((2:ℕ) ^ k) (BS.P k) b (1/4)
 
 /-- `Rw` is monotone in the constant `c2`. -/
 lemma Rw_mono_c2 {c2 c2' : ℝ} (hc : c2 ≤ c2') (_hc0 : 0 ≤ c2) (k : ℕ) :
@@ -373,13 +375,13 @@ lemma cold_master_struct :
     ∃ (c2 e0 X0 : ℝ), 0 < c2 ∧ 0 < e0 ∧ 0 < X0 ∧
       (∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
         BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k → ¬ isHot BS c2 a k →
-        SBEEForcing.IsDominant (2 ^ k) (BS.P k) (restrict BS a k) (1/4)) ∧
+        LocalEnergy.HasDominantLabel (2 ^ k) (BS.P k) (restrict BS a k) (1/4)) ∧
       (∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
         BS.k0 ≤ k → k < BS.K → X0 ≤ (2:ℝ) ^ k → k ∈ boundarySet BS c2 a →
         Pifloor BS e0 k ≤ Xen BS a k) := by
   obtain ⟨ c2, e0, X0, hc2, he0, hX0, h ⟩ := boundary_penalty_per_k;
   obtain ⟨X0thr, hX0thr⟩ : ∃ X0thr : ℕ, ∀ X : ℕ, X0thr ≤ X → 16 * e0 * Real.log X ≤ X := by
-    have := SBEEForcing.exists_X0_const_logbnd ( 16 * e0 );
+    have := RequestProject.eventually_const_mul_log_le_nat ( 16 * e0 );
     exact ⟨ ⌈this.choose⌉₊, fun X hX => this.choose_spec.2 X <| Nat.le_of_ceil_le hX ⟩;
   refine' ⟨ c2, e0, Max.max X0 ( Max.max 16 X0thr ), hc2, he0, _, _, _ ⟩ <;> norm_num;
   · intro BS a k hk1 hk2 hk3 hk4 hk5 hk6
@@ -419,13 +421,13 @@ lemma cold_master :
     ∃ (c2 e0 X0 : ℝ), 0 < c2 ∧ 0 < e0 ∧ 0 < X0 ∧
       (∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
         BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k → ¬ isHot BS c2 a k →
-        SBEEForcing.IsDominant (2 ^ k) (BS.P k) (restrict BS a k) (1/4)) ∧
+        LocalEnergy.HasDominantLabel (2 ^ k) (BS.P k) (restrict BS a k) (1/4)) ∧
       (∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
         BS.k0 ≤ k → k < BS.K → X0 ≤ (2:ℝ) ^ k → k ∈ boundarySet BS c2 a →
         Pifloor BS e0 k ≤ Xen BS a k) ∧
       ColdDominance c2 := by
   obtain ⟨c2P, e0, X0P, hc2P, he0, hX0P, hdomR, hpen⟩ := GlobalControl.cold_master_struct
-  obtain ⟨c2B, X0B, hc2B, hX0B, HB⟩ := SBEEForcing.theorem_B_nondominant_forcing (1/4) (by norm_num) (by norm_num);
+  obtain ⟨c2B, X0B, hc2B, hX0B, HB⟩ := LocalEnergy.nondominant_energy_lower_bound (1/4) (by norm_num) (by norm_num);
   refine' ⟨ Min.min c2P c2B, e0, Max.max X0P ( Max.max X0B 1 ), _, _, _, _, _, _ ⟩ <;> norm_num [ hc2P, he0, hX0P, hc2B, hX0B ];
   · intro BS a k hk1 hk2 hX0P hX0B h1 hnh;
     apply hdomR BS a k hk1 hk2 hX0P;
@@ -455,7 +457,7 @@ lemma cold_master :
 lemma hadmL_final (c2 X0 : ℝ) (hc2 : 0 < c2)
     (hdom : ∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
         BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k → ¬ isHot BS c2 a k →
-        SBEEForcing.IsDominant (2 ^ k) (BS.P k) (restrict BS a k) (1/4)) :
+        LocalEnergy.HasDominantLabel (2 ^ k) (BS.P k) (restrict BS a k) (1/4)) :
     ∃ k0min : ℕ, ∀ (BS : BlockSystem), k0min ≤ BS.k0 → X0 ≤ (2:ℝ) ^ BS.k0 →
       ∀ (a : GlobalAssignment BS) (R : ℝ), 0 ≤ R → Qctrl BS a ≤ R →
         extLabel BS a (hotSet BS c2 a) (boundarySet BS c2 a)
@@ -493,7 +495,7 @@ lemma hadmL_final (c2 X0 : ℝ) (hc2 : 0 < c2)
   have hcold : ¬ isHot BS c2 a s := by
     have := Finset.mem_filter.mp hs; simp_all +decide [ Finset.mem_sdiff ] ;
     exact fun h => this.1 <| Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ hs1, hs2 ⟩, h ⟩
-  have hdomk : SBEEForcing.IsDominant (2 ^ s) (BS.P s) (restrict BS a s) (1 / 4) := by
+  have hdomk : LocalEnergy.HasDominantLabel (2 ^ s) (BS.P s) (restrict BS a s) (1 / 4) := by
     exact hdom BS a s hs1 hs2 ( by exact le_trans hX0 ( pow_le_pow_right₀ ( by norm_num ) hs1 ) ) hcold;
   apply coldLabel_mem_labelFin BS c2 R a s hs1 hs2 hR0 hc2.le (hk0min s (by linarith)).left hN8 hslog hdomk hcold hbR hσpos
 
@@ -746,8 +748,8 @@ lemma cold_small_label_agree (c2 : ℝ) (hc2 : 0 < c2) (hdomB : ColdDominance c2
                 (fun (p : {x // x ∈ BS.P k}) =>
                   ((m : ℤ) : ZMod (p : ℕ)) = ((mb : ℤ) : ZMod (p : ℕ)))).card : ℝ) := by
   obtain ⟨X1, hX1pos, hdom⟩ := hdomB;
-  obtain ⟨X0s, hX0s0, Hsize⟩ := SBEEForcing.cold_label_size (1/4) (by norm_num) (by norm_num) c2 hc2
-  obtain ⟨e0, X0e, he0pos, hX0e0, Hexc⟩ := SBEEForcing.cold_exception_bound (1/4) (by norm_num) (by norm_num) c2 hc2;
+  obtain ⟨X0s, hX0s0, Hsize⟩ := LocalEnergy.cold_label_bound (1/4) (by norm_num) (by norm_num) c2 hc2
+  obtain ⟨e0, X0e, he0pos, hX0e0, Hexc⟩ := LocalEnergy.cold_exception_count_bound (1/4) (by norm_num) (by norm_num) c2 hc2;
   refine' ⟨ e0, Max.max X1 ( Max.max X0s ( Max.max X0e 16 ) ), he0pos, _, _ ⟩ <;> norm_num;
   intro BS k hk1 hk2 hk3 hk4 hk5 hk6 m n hn b hQ hconf
   obtain ⟨mb, hmb_abs, hmb_conf⟩ := hdom BS k hk1 hk2 hk3 b ((n:ℝ)+1) hQ hn
@@ -818,7 +820,7 @@ lemma wrapped_count_le_small_fixed_label (c2 : ℝ) (hc2 : 0 < c2)
                 (((BS.P k).attach.filter
                   (fun p => b p = ((M : ℤ) : ZMod (p : ℕ)))).card : ℝ))).card : ℝ) := by
   obtain ⟨e0, X0a, he0, hX0a, Hagree⟩ := cold_small_label_agree c2 hc2 hdomB
-  obtain ⟨X0c, hX0c0, hlog⟩ := SBEEForcing.exists_X0_const_logbnd (8 * e0 + 8)
+  obtain ⟨X0c, hX0c0, hlog⟩ := RequestProject.eventually_const_mul_log_le_nat (8 * e0 + 8)
   refine ⟨max X0a (max X0c 16), by positivity, fun BS k hk1 hk2 hk3 m n hn _hwrap => ?_⟩
   have hlogpos : 0 < Real.log ((2:ℝ) ^ k) := by
     apply Real.log_pos
@@ -1197,7 +1199,7 @@ lemma hrhs_final (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
     (c2 e0 X0 : ℝ) (hc2 : 0 < c2) (he0 : 0 < e0) (_hX0 : 0 < X0)
     (_hdom : ∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
         BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k → ¬ isHot BS c2 a k →
-        SBEEForcing.IsDominant (2 ^ k) (BS.P k) (restrict BS a k) (1/4))
+        LocalEnergy.HasDominantLabel (2 ^ k) (BS.P k) (restrict BS a k) (1/4))
     (hdomB : ColdDominance c2) :
     ∃ (k0min : ℕ) (A : ℝ), 0 < A ∧
       ∀ (BS : BlockSystem), k0min ≤ BS.k0 → admissibleGlobalRange BS →

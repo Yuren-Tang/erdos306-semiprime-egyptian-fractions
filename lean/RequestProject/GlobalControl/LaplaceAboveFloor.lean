@@ -1,4 +1,5 @@
 import RequestProject.GlobalControl.Localization
+import RequestProject.LocalEnergy.LevelSet
 
 open Finset BigOperators Classical
 open Filter Topology
@@ -178,7 +179,7 @@ lemma sectorI_fintype_subtype_tsum_eq {α : Type*} [Fintype α] (S : α → Prop
   exact (Finset.sum_subtype (Finset.univ.filter S) (by intro x; simp) f).symm
 
 /-- Convert the `Set.ncard` level-set hypothesis to the finite-filter form used
-by `SBEEAssembly.partfun_series_bound`. -/
+by `LocalEnergy.partition_function_bound_of_level_sets`. -/
 lemma sectorI_global_levelset_finset_bound
     (Cglob eps : ℝ) (BS : BlockSystem)
     (hlevel : ∀ R : ℝ, 1 ≤ R →
@@ -210,7 +211,7 @@ lemma sectorI_full_laplace_bound
       Real.exp (A * (numBlocks BS : ℝ)) * Real.exp (8 * eps) /
         (1 - Real.exp (-(c' - 8 * eps))) ^ 2 *
         (1 + 1 / sigmaCtrl BS) := by
-  exact SBEEAssembly.partfun_series_bound
+  exact LocalEnergy.partition_function_bound_of_level_sets
     (fun a : GlobalAssignment BS => Qctrl BS a)
     (fun a => Qctrl_nonneg BS a)
     c' (8 * eps) (Real.exp (A * (numBlocks BS : ℝ))) (sigmaCtrl BS)

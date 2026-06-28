@@ -5,7 +5,7 @@ Block systems, finite global assignments, the control energy, block restriction,
 and comparison of the global and block scales.
 -/
 import RequestProject.GlobalControl.BlockSystem
-import RequestProject.BlockCRTEnergy
+import RequestProject.LocalEnergy.CRTModel
 
 open Finset BigOperators Classical
 

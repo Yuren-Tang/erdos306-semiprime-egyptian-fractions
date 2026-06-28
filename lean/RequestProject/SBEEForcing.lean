@@ -39,6 +39,7 @@ machine-verified, and (downstream) so is the
 import Mathlib.Analysis.MeanInequalitiesPow
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import RequestProject.BlockCRTEnergy
+import RequestProject.Core.Asymptotics
 import RequestProject.SBEEDispersion
 import RequestProject.SBEEFingerprint
 
@@ -97,11 +98,11 @@ The centered CRT representative lies in `(-pq/2, pq/2]`: equivalently
 lemma crtRepr_two_mul_mem (p q : ℕ) (hcop : Nat.Coprime p q) (hp : 0 < p) (hq : 0 < q)
     (ap : ZMod p) (aq : ZMod q) :
     -((p * q : ℕ) : ℤ) < 2 * crtRepr p q ap aq ∧ 2 * crtRepr p q ap aq ≤ ((p * q : ℕ) : ℤ) := by
-  unfold crtRepr;
-  have h_val_lt : ((ZMod.chineseRemainder hcop).symm (ap, aq)).val < p * q := by
-    convert ZMod.val_lt _;
-    exact ⟨ Nat.mul_ne_zero hp.ne' hq.ne' ⟩;
-  grind
+  unfold crtRepr
+  rw [dif_pos hcop]
+  letI : NeZero (p * q) := ⟨Nat.mul_ne_zero hp.ne' hq.ne'⟩
+  simpa [mul_comm] using
+    ZMod.valMinAbs_mem_Ioc ((ZMod.chineseRemainder hcop).symm (ap, aq))
 
 lemma crtRepr_symm (p q : ℕ) (hp : Nat.Prime p) (hq : Nat.Prime q) (hpq : p ≠ q)
     (ap : ZMod p) (aq : ZMod q) :
@@ -323,8 +324,6 @@ lemma lemmaE_fiber (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
       have h_div : (crtRepr p.val q.val (a p) (a q) : ZMod p.val) = n := by
         have := crtRepr_congr_left p.1 q.1 ( a p ) ( a q ) ?_ <;> simp_all +decide [ Nat.coprime_primes ];
         · rintro rfl; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ;
-        · exact Nat.Prime.pos ( hCp _ _ hp |>.1 );
-        · exact hq.pos;
       exact exists_eq_mul_left_of_dvd <| by erw [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ; aesop;
     refine' ⟨ u, _, _ ⟩;
     · have h_u_bound : |(u : ℝ)| ≤ 2 * δ * X + B / X := by
@@ -339,8 +338,6 @@ lemma lemmaE_fiber (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
         convert crtRepr_congr_right p.val q.val ( a p ) ( a q ) _ using 1 <;> norm_num [ hqa ];
         · by_cases h : p = q <;> simp_all +decide [ Nat.coprime_primes ];
           simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ];
-        · exact Nat.Prime.pos ( hCp p hp |>.1 );
-        · exact hq.pos;
       simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ];
       replace hu := congr_arg ( ( ↑ ) : ℤ → ZMod q.val ) hu ; aesop;
   have h_card : (Finset.filter (fun p => |(crtRepr p.1 q.1 (a p) (a q) : ℝ)| ≤ δ * (p.1 * q.1)) C).card ≤ (Finset.filter (fun up => Nat.Prime up.2 ∧ (q : ℤ) ∣ (up.1 * (up.2 : ℤ) - (n' - n))) (Finset.product (Finset.Icc (-Nat.floor (2 * δ * X + B / X) : ℤ) (Nat.floor (2 * δ * X + B / X))) (Finset.Icc X (2 * X)))).card := by
@@ -707,16 +704,7 @@ lemma theoremA_entropy (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ 
     `R ≤ N⁴(1-ρ)²/(409600 X²)` (the regime where the label is small).
 -/
 lemma exists_X0_logbnd : ∃ X0 : ℝ, 0 < X0 ∧ ∀ X : ℕ, X0 ≤ X → (64:ℝ)*Real.log X ≤ X := by
-  -- Apply the lemma Real.tendsto_log_div_atTop with ε = 1/64.
-  obtain ⟨X0, hX0⟩ : ∃ X0 : ℝ, ∀ X : ℝ, X0 ≤ X → Real.log X / X ≤ 1 / 64 := by
-    have h_log_div_X_zero : Filter.Tendsto (fun X : ℝ => Real.log X / X) Filter.atTop (nhds 0) := by
-      -- Let $y = \frac{1}{x}$, so we can rewrite the limit as $\lim_{y \to 0^+} y \log(1/y)$.
-      suffices h_log_recip : Filter.Tendsto (fun y : ℝ => y * Real.log (1 / y)) (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
-        exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
-      norm_num;
-      exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
-    simpa using h_log_div_X_zero.eventually ( ge_mem_nhds <| by norm_num );
-  exact ⟨ ⌊X0⌋₊ + 1, Nat.cast_add_one_pos _, fun X hX => by have := hX0 X ( Nat.lt_of_floor_lt ( Nat.lt_of_succ_le ( mod_cast hX ) ) |> le_of_lt ) ; rw [ div_le_iff₀ ] at this <;> linarith [ show ( X : ℝ ) ≥ ⌊X0⌋₊ + 1 by exact_mod_cast hX ] ⟩
+  simpa using RequestProject.eventually_const_mul_log_le_nat 64
 
 lemma theoremA_R_poly (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) :
     ∃ X0 : ℝ, 0 < X0 ∧ ∀ (X N : ℕ) (R : ℝ),
@@ -1874,18 +1862,7 @@ A parametrized log-vs-linear threshold: for any constant `K`, eventually
 -/
 lemma exists_X0_const_logbnd (K : ℝ) :
     ∃ X0 : ℝ, 0 < X0 ∧ ∀ X : ℕ, X0 ≤ X → K * Real.log X ≤ X := by
-  have h_tendsto_zero : Filter.Tendsto (fun X : ℝ => Real.log X / X) Filter.atTop (nhds 0) := by
-    -- Let $y = \frac{1}{x}$, so we can rewrite the limit as $\lim_{y \to 0^+} y \log(1/y)$.
-    suffices h_log_recip : Filter.Tendsto (fun y : ℝ => y * Real.log (1 / y)) (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
-      exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
-    norm_num;
-    exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
-  obtain ⟨ X0, hX0 ⟩ := Metric.tendsto_atTop.mp h_tendsto_zero ( 1 / ( |K| + 1 ) ) ( by positivity );
-  refine' ⟨ ⌊X0⌋₊ + 1, _, _ ⟩ <;> norm_num at *;
-  · grind +splitImp;
-  · intro X hX; specialize hX0 X ( le_trans ( Nat.lt_floor_add_one X0 |> le_of_lt ) ( mod_cast hX ) ) ; rw [ div_lt_iff₀ ] at hX0 <;> norm_cast at * ;
-    · cases abs_cases K <;> cases abs_cases ( Real.log X ) <;> nlinarith [ inv_mul_cancel₀ ( by linarith : ( |K| + 1 : ℝ ) ≠ 0 ), Real.log_nonneg ( show ( X : ℝ ) ≥ 1 by norm_cast; linarith ) ];
-    · linarith
+  exact RequestProject.eventually_const_mul_log_le_nat K
 
 /-
 **Lemma L3c (cold-label size chain, note 38 §3).**  For a *cold* block

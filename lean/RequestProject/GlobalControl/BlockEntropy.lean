@@ -5,6 +5,7 @@ Cardinality and asymptotic estimates showing that hot-block, cold-label, and
 energy-shell data are absorbed by the available energy budget.
 -/
 import RequestProject.GlobalControl.BlockEncoding
+import RequestProject.LocalEnergy.LevelSet
 
 open Finset BigOperators Classical
 
@@ -57,7 +58,7 @@ lemma trivial_regime (eps : ℝ) (heps : 0 < eps) (BS : BlockSystem) (R : ℝ)
 **Hole 9 (`cold_factor`).**  Per-cold-block fixed-label count: for a label
     of size `|m| ≤ N·X/16` the number of block assignments of energy `≤ n+1`
     whose `m`-class covers a `(1-ρ)` fraction is `≤ exp(ε(n+1))`.  Direct wrapper
-    of `SBEEForcing.fixed_label_count` at `ρ = 1/4`.
+    of `LocalEnergy.fixed_label_level_set_bound` at `ρ = 1/4`.
 -/
 lemma cold_factor (eps : ℝ) (heps : 0 < eps) :
     ∃ X0 : ℝ, 0 < X0 ∧
@@ -70,7 +71,7 @@ lemma cold_factor (eps : ℝ) (heps : 0 < eps) :
                 (((BS.P k).attach.filter
                   (fun p => b p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ))).card : ℝ)
             ≤ Real.exp (eps * ((n : ℝ) + 1)) := by
-  obtain ⟨ X0, hX0, hF ⟩ := SBEEForcing.fixed_label_count eps ( 1 / 4 ) heps ( by norm_num ) ( by norm_num );
+  obtain ⟨ X0, hX0, hF ⟩ := LocalEnergy.fixed_label_level_set_bound eps ( 1 / 4 ) heps ( by norm_num ) ( by norm_num );
   refine' ⟨ ⌈X0⌉₊ + 1, by positivity, fun BS k hk1 hk2 hk3 m hm n ↦ _ ⟩;
   convert hF ( 2 ^ k ) _ ( BS.P k ) _ _ m _ ( n + 1 ) _ using 1 <;> norm_num;
   · linarith [ Nat.le_ceil X0 ];
@@ -87,7 +88,7 @@ lemma inv_sigmaP_bound (BS : BlockSystem) (k : ℕ) (hk1 : BS.k0 ≤ k) (hk2 : k
     1 / sigmaP (BS.P k) ≤ 16 * (2:ℝ) ^ k * Real.log (2 ^ k) := by
   by_cases hN : 2 ≤ (BS.P k).card;
   · have h_sigmaP_lower : (BS.P k).card / (8 * (2 ^ k : ℝ) ^ 2) ≤ sigmaP (BS.P k) := by
-      convert SBEEForcing.sigmaP_lower ( 2 ^ k ) ( one_le_pow₀ ( by norm_num ) ) ( BS.P k ) _ _ using 1 <;> norm_num;
+      convert LocalEnergy.block_deviation_lower_bound ( 2 ^ k ) ( one_le_pow₀ ( by norm_num ) ) ( BS.P k ) _ _ using 1 <;> norm_num;
       · exact fun p hp => ⟨ BS.hprime k p hp, by linarith [ BS.hwindow k p hp ], by linarith [ BS.hwindow k p hp, pow_succ' 2 k ] ⟩;
       · linarith;
     have h_density : (BS.P k).card ≥ (2 ^ k : ℝ) / (2 * Real.log (2 ^ k)) := by
@@ -214,7 +215,7 @@ lemma hot_factor (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1) (c2 : ℝ) (hc2 
           ((Finset.univ.filter (fun b : BlockAssignment (BS.P k) =>
               QP (BS.P k) b ≤ (n : ℝ) + 1)).card : ℝ)
             ≤ Real.exp (2 * eps * ((n : ℝ) + 1)) := by
-  obtain ⟨ C0, X1, hC0, hX1, h ⟩ := SBEEAssembly.unified_levelset eps heps heps1
+  obtain ⟨ C0, X1, hC0, hX1, h ⟩ := LocalEnergy.block_level_set_bound eps heps heps1
   obtain ⟨ X0₈, hX0₈ ⟩ := hot_threshold eps c2 C0 heps hc2
   obtain ⟨ X0r, hX0r, hX0r' ⟩ := Rw_large eps c2 hc2
   set X0 := Nat.ceil X1 + X0₈ + X0r + 16 with hX0_def

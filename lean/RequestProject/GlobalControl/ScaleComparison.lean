@@ -1,5 +1,5 @@
 import RequestProject.GlobalControl.Basic
-import RequestProject.SBEEForcing
+import RequestProject.LocalEnergy.DominantLabel
 
 open Finset BigOperators Classical
 
@@ -25,7 +25,7 @@ lemma sigmaCtrl_le_sigmaP_k0 :
         exact Nat.recOn k0 ( by norm_num; have := Real.log_two_lt_d9; norm_num1 at *; linarith ) fun n ihn => by norm_num [ pow_succ' ] at * ; nlinarith [ Real.log_le_sub_one_of_pos zero_lt_two, pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) n.zero_le ] ;
       · positivity;
     have h_sigmaP_bound : sigmaP (BS.P BS.k0) ≥ (BS.P BS.k0).card / (8 * (2 ^ BS.k0 : ℝ) ^ 2) := by
-      have := @SBEEForcing.sigmaP_lower ( 2 ^ BS.k0 ) ?_ ( BS.P BS.k0 ) ?_ ?_ ?_ <;> norm_num at *;
+      have := @LocalEnergy.block_deviation_lower_bound ( 2 ^ BS.k0 ) ?_ ( BS.P BS.k0 ) ?_ ?_ ?_ <;> norm_num at *;
       · exact this;
       · exact one_le_pow₀ ( by norm_num );
       · exact fun p hp => ⟨ Nat.Prime.ne_zero ( BS.hprime _ _ hp ) ⟩;

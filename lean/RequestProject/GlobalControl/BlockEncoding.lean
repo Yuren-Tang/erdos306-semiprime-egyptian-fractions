@@ -6,6 +6,7 @@ those data.  This is the structural encoding layer of the global level-set
 argument, before entropy and asymptotic estimates are applied.
 -/
 import RequestProject.GlobalControl.CrossBlockEnergy
+import RequestProject.LocalEnergy.DominantLabel
 
 open Finset BigOperators Classical
 
@@ -28,8 +29,8 @@ namespace GlobalControl
 
     The count is encoded by the segment decoder of note 34 G5 (hot set, hot
     data, mismatch boundary, segment labels, cold exceptions), with the
-    single-block inputs L1–L5 (`SBEEAssembly.unified_levelset`,
-    `SBEEForcing.theorem_A_dominant_count`, …) and the exceptional mismatch
+    single-block inputs L1–L5 (`LocalEnergy.block_level_set_bound`, the
+    dominant-label estimates, …) and the exceptional mismatch
     penalty `mismatch_penalty_with_exceptions`.
 
     **Status**: the segment-encoding route is completed downstream in
@@ -130,7 +131,7 @@ lemma coldLabel_eq (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
         (((BS.P k).attach.filter (fun p => restrict BS a k p =
           ((n : ℤ) : ZMod (p : ℕ)))).card : ℝ) := ⟨m, hm, hclass⟩
   have hcold := coldLabel_spec BS a k hdom
-  apply SBEEForcing.dominant_label_unique (2 ^ k) hX (BS.P k)
+  apply LocalEnergy.dominant_label_unique (2 ^ k) hX (BS.P k)
     (fun p hp => ⟨BS.hprime k p hp, by
       exact ⟨by linarith [BS.hwindow k p hp],
         by linarith [BS.hwindow k p hp, pow_succ' 2 k]⟩⟩)
@@ -181,8 +182,8 @@ lemma cold_isDominant :
       ∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
         X0 ≤ (2:ℝ) ^ k → BS.k0 ≤ k → k ≤ BS.K →
         ¬ isHot BS c2 a k →
-        SBEEForcing.IsDominant (2 ^ k) (BS.P k) (restrict BS a k) (1/4) := by
-  obtain ⟨ c2, X0, hc2, hX0, hB ⟩ := SBEEForcing.theorem_B_nondominant_forcing ( 1 / 4 ) ( by norm_num ) ( by norm_num );
+        LocalEnergy.HasDominantLabel (2 ^ k) (BS.P k) (restrict BS a k) (1/4) := by
+  obtain ⟨ c2, X0, hc2, hX0, hB ⟩ := LocalEnergy.nondominant_energy_lower_bound ( 1 / 4 ) ( by norm_num ) ( by norm_num );
   refine' ⟨ c2, X0, hc2, hX0, fun BS a k hk1 hk2 hk3 hk4 => _ ⟩;
   contrapose! hB;
   refine' ⟨ 2 ^ k, _, BS.P k, _, _, _, _ ⟩ <;> norm_num;

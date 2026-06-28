@@ -54,6 +54,8 @@ files.
 The current Core source chain is:
 
 ```text
+Core.Asymptotics  (shared growth thresholds)
+
 Core.Semiprime
   -> Core.EgyptianRepresentation
      -> Core.UnitNumeratorReduction
@@ -62,6 +64,34 @@ Core.Semiprime
 
 The former `Defs` aggregate and conditional `MainTheorem -> SBEE` chain have
 been removed from the active project graph.
+
+### Local-energy handoff
+
+Global control consumes the single-block theory through three mathematical
+contracts:
+
+```text
+LocalEnergy.CRTModel
+  -> LocalEnergy.DominantLabel
+     -> LocalEnergy.LevelSet
+```
+
+- `CRTModel`: finite residue assignments, Mathlib-centered CRT representatives,
+  quadratic block energy, and the block deviation scale;
+- `DominantLabel`: dominant-label uniqueness, nondominant forcing, and cold
+  label/exception estimates;
+- `LevelSet`: the uniform single-block level-set and partition-function bounds.
+
+The public names describe the mathematics (`HasDominantLabel`,
+`nondominant_energy_lower_bound`, `block_level_set_bound`, and
+`partition_function_bound_of_level_sets`) rather than the historical proof-note
+labels.  General growth thresholds live in `Core.Asymptotics`; they are not part
+of the local-energy contract.
+
+The current files are stable handoff facades over the verified historical
+implementation.  GlobalControl modules must import these contracts rather than
+historical `SBEE*` paths.  Physical theorem migration and canonical namespace
+renaming proceed behind these interfaces, one mathematical node at a time.
 
 ### Global-control proof graph
 

@@ -4,7 +4,9 @@
 Energy-budget identities, exception-set control, cold-label bounds, and the
 cross-block penalty forced by a boundary between distinct cold labels.
 -/
+import RequestProject.Core.Asymptotics
 import RequestProject.GlobalControl.BlockEntropy
+import RequestProject.LocalEnergy.DominantLabel
 
 open Finset BigOperators Classical
 
@@ -133,8 +135,8 @@ lemma cold_exceptions_small :
         ((excSet BS a k).card : ℝ) ≤ e0 ∧
         ((BS.P k).card : ℝ) - e0 ≤ ((BS.P k \ excSet BS a k).card : ℝ) := by
   obtain ⟨c2, X0d, hc2, hX0d, hDom⟩ := cold_isDominant
-  obtain ⟨e0, X0e, he0, hX0e, hExc⟩ := SBEEForcing.cold_exception_bound (1/4) (by norm_num) (by norm_num) c2 hc2
-  obtain ⟨X0s, hX0s, hSize⟩ := SBEEForcing.cold_label_size (1/4) (by norm_num) (by norm_num) c2 hc2
+  obtain ⟨e0, X0e, he0, hX0e, hExc⟩ := LocalEnergy.cold_exception_count_bound (1/4) (by norm_num) (by norm_num) c2 hc2
+  obtain ⟨X0s, hX0s, hSize⟩ := LocalEnergy.cold_label_bound (1/4) (by norm_num) (by norm_num) c2 hc2
   obtain ⟨X0w, _, hRw⟩ := Rw_large 1 c2 hc2
   use c2, e0, max X0d (max X0e (max X0s (max X0w 16)));
   refine' ⟨ hc2, he0, by positivity, fun BS a k hk1 hk2 hk3 hk4 => _ ⟩;
@@ -171,7 +173,7 @@ lemma cold_exceptions_small :
 /-
 **Sharper cold-label size bound** (note 40 §3d-iii needs `|m| ≤ N·X/64`,
     a factor `4` stronger than `cold_label_size`).  Proof identical in shape to
-    `SBEEForcing.cold_label_size`, with the polynomial threshold widened.
+    `LocalEnergy.cold_label_bound`, with the polynomial threshold widened.
 -/
 lemma cold_label_size64 (c2 : ℝ) (hc2 : 0 < c2) :
     ∃ X0 : ℝ, 0 < X0 ∧
@@ -185,15 +187,15 @@ lemma cold_label_size64 (c2 : ℝ) (hc2 : 0 < c2) :
               (fun p => a p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ) →
           QP P a ≤ R → R ≤ c2 * X / (Real.log X) ^ 3 →
             |(m : ℝ)| ≤ (P.card : ℝ) * (X : ℝ) / 64 := by
-  obtain ⟨ X0K, hX0K ⟩ :=SBEEForcing.exists_X0_const_logbnd ( 1677721600 * c2 / 9 );
-  obtain ⟨ X0d, hX0d ⟩ := SBEEForcing.exists_X0_logbnd ; refine' ⟨ Max.max 16 ( Max.max ⌈X0K⌉₊ ⌈X0d⌉₊ ), _, _ ⟩ <;> norm_num;
+  obtain ⟨ X0K, hX0K ⟩ :=RequestProject.eventually_const_mul_log_le_nat ( 1677721600 * c2 / 9 );
+  obtain ⟨ X0d, hX0d ⟩ := RequestProject.eventually_const_mul_log_le_nat 64 ; refine' ⟨ Max.max 16 ( Max.max ⌈X0K⌉₊ ⌈X0d⌉₊ ), _, _ ⟩ <;> norm_num;
   intro X hX₁ hX₂ hX₃ P _ hP hP' a m R hR₁ hR₂ hR₃ hR₄ hR₅; have := hX0K.2 X hX₂; have := hX0d.2 X hX₃;
   -- By `theoremA_label_range X _ P hP (hN:8≤N) (1/4) _ _ a m R hm hclass hQ`, `|(m:ℝ)| ≤ (20/3)·√R/sigmaP P`.
   have h_bound : |(m : ℝ)| ≤ (20 / 3) * Real.sqrt R / sigmaP P := by
     have h_bound : |(m : ℝ)| ≤ (5 / (1 - 1 / 4)) * Real.sqrt R / sigmaP P := by
       have hN : 8 ≤ P.card := by
         exact_mod_cast ( by nlinarith [ show ( X : ℝ ) ≥ 16 by norm_cast, Real.log_pos ( show ( X : ℝ ) > 1 by norm_cast; linarith ), mul_div_cancel₀ ( X : ℝ ) ( show ( 2 * Real.log X ) ≠ 0 by exact mul_ne_zero two_ne_zero <| ne_of_gt <| Real.log_pos <| show ( X : ℝ ) > 1 by norm_cast; linarith ) ] : ( 8 : ℝ ) ≤ P.card )
-      convert SBEEForcing.theoremA_label_range X ( by linarith ) P hP hN ( 1 / 4 ) ( by positivity ) ( by norm_num ) a m R _ _ _ using 1 <;> norm_num at *;
+      convert LocalEnergy.dominant_label_bound X ( by linarith ) P hP hN ( 1 / 4 ) ( by positivity ) ( by norm_num ) a m R _ _ _ using 1 <;> norm_num at *;
       · grind +revert;
       · convert hR₂ using 1;
       · convert hR₃ using 1;
@@ -202,7 +204,7 @@ lemma cold_label_size64 (c2 : ℝ) (hc2 : 0 < c2) :
   -- By `sigmaP_lower X _ P hP (hN2:2≤N)`, `sigmaP P ≥ N/(8X²) > 0`, so `1/sigmaP P ≤ 8X²/N` and `|(m:ℝ)| ≤ (20/3)·√R·8X²/N = (160/3)·√R·X²/N`.
   have h_sigmaP_lower : 1 / sigmaP P ≤ 8 * (X : ℝ) ^ 2 / P.card := by
     have h_sigmaP_lower : sigmaP P ≥ (P.card : ℝ) / (8 * (X : ℝ) ^ 2) := by
-      convert SBEEForcing.sigmaP_lower X ( by linarith ) P _ _ using 1;
+      convert LocalEnergy.block_deviation_lower_bound X ( by linarith ) P _ _ using 1;
       · exact fun p => ‹∀ a ∈ P, NeZero a› p p.2;
       · assumption;
       · contrapose! hP';
@@ -251,7 +253,7 @@ lemma cold_block_facts :
         (∀ p ∈ BS.P k \ excSet BS a k,
           (toPlain BS a p : ZMod p) = ((coldLabel BS a k : ℤ) : ZMod p)) := by
   obtain ⟨c2, X0d, hc2, hX0d, hDom⟩ := cold_isDominant;
-  obtain ⟨e0, X0e, he0, hX0e, hExc⟩ := SBEEForcing.cold_exception_bound (1/4) (by norm_num) (by norm_num) c2 hc2;
+  obtain ⟨e0, X0e, he0, hX0e, hExc⟩ := LocalEnergy.cold_exception_count_bound (1/4) (by norm_num) (by norm_num) c2 hc2;
   obtain ⟨X0s6, hX0s6, hSize6⟩ := cold_label_size64 c2 hc2
   obtain ⟨X0w, _, hRw⟩ := Rw_large 1 c2 hc2;
   refine' ⟨ c2, e0, Max.max X0d ( Max.max X0e ( Max.max X0s6 ( Max.max X0w 16 ) ) ), hc2, he0, _, _ ⟩ <;> norm_num;
@@ -313,7 +315,7 @@ lemma boundary_penalty_per_k :
         BS.k0 ≤ k → k < BS.K → X0 ≤ (2:ℝ) ^ k → k ∈ boundarySet BS c2 a →
         Pifloor BS e0 k ≤ Xen BS a k) := by
   obtain ⟨c2, e0, X0cbf, hc2, he0, hX0cbf, hCBF⟩ := cold_block_facts;
-  obtain ⟨X0den, hX0den, hden⟩ := SBEEForcing.exists_X0_const_logbnd (4*e0 + 26);
+  obtain ⟨X0den, hX0den, hden⟩ := RequestProject.eventually_const_mul_log_le_nat (4*e0 + 26);
   use c2, e0, max X0cbf (max X0den 16); norm_num;
   refine' ⟨ hc2, he0, _, _ ⟩;
   · intro BS a k hk1 hk2 hk3 hk4 hk5 hk6; specialize hCBF BS a k hk1 hk2 hk3 hk6; aesop;

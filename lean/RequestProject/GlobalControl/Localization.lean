@@ -1,5 +1,7 @@
+import RequestProject.Core.Asymptotics
 import RequestProject.GlobalControl.ColdBlockBounds
 import RequestProject.GlobalControl.MainArc
+import RequestProject.LocalEnergy.DominantLabel
 
 /-!
 # Global localization dichotomy
@@ -295,7 +297,7 @@ lemma cold_no_exceptions_core (c2 e0 : ℝ) (hc2 : 0 < c2) (hc2small : c2 ≤ 1 
       ((excSet BS a k).card : ℝ) ≤ e0 →
       |(coldLabel BS a k : ℝ)| ≤ ((BS.P k).card : ℝ) * ((2:ℝ) ^ k) / 64 →
       excSet BS a k = ∅ := by
-  obtain ⟨ X0r, hX0r_pos, hX0r ⟩ := GlobalControl.Rw_large 1 c2 hc2 ; obtain ⟨ X0d, hX0d_pos, hX0d ⟩ := SBEEForcing.exists_X0_const_logbnd ( 8 * e0 + 64 ) ; use max 16 ( max X0r X0d ) ; norm_num at *;
+  obtain ⟨ X0r, hX0r_pos, hX0r ⟩ := GlobalControl.Rw_large 1 c2 hc2 ; obtain ⟨ X0d, hX0d_pos, hX0d ⟩ := RequestProject.eventually_const_mul_log_le_nat ( 8 * e0 + 64 ) ; use max 16 ( max X0r X0d ) ; norm_num at *;
   intro BS a k hk0 hkK hk16 hkX0r hkX0d hnot_hot hexc hlabel
   have hblock : 4 ≤ k := by
     exact le_of_not_gt fun h => by interval_cases k <;> norm_num at hk16;
@@ -337,7 +339,7 @@ lemma cold_no_exceptions_core (c2 e0 : ℝ) (hc2 : 0 < c2) (hc2small : c2 ≤ 1 
     have hQ : QP (BS.P k) (restrict BS a k) ≤ Rw c2 k := by
       exact le_of_not_ge fun h => hnot_hot <| by unfold isHot; exact h;
     generalize_proofs at *;
-    have := SBEEForcing.exception_count_bound ( 2 ^ k ) ( by linarith ) ( BS.P k ) ( by
+    have := LocalEnergy.dominant_exception_count_bound ( 2 ^ k ) ( by linarith ) ( BS.P k ) ( by
       exact fun p hp => ⟨ BS.hprime k p hp, by linarith [ BS.hwindow k p hp ], by linarith [ BS.hwindow k p hp, show 2 ^ ( k + 1 ) = 2 * 2 ^ k by ring ] ⟩ ) ( by linarith ) ( 1 / 4 ) ( by linarith ) ( by linarith ) ( restrict BS a k ) ( coldLabel BS a k ) ( Rw c2 k ) ( by linarith ) ( by
       exact hQ ) ( by
       exact_mod_cast hmsmall ) ( by
