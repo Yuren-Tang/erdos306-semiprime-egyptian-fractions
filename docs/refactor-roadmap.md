@@ -151,6 +151,11 @@ Current progress:
   `SBEEFingerprint`, `SBEEForcing`, and `SBEEAssembly` now builds cleanly on
   v4.31 with narrowed imports; the dependency closure fell from roughly 8.5k
   to 3.1k jobs;
+- `LocalEnergy.CRTModel`, `LocalEnergy.DominantLabel`, and
+  `LocalEnergy.LevelSet` now form the canonical handoff to global control;
+  global-control sources no longer import or invoke historical `SBEE*` names;
+- the duplicated eventual bound `K * log X ≤ X` now has one proof in
+  `Core.Asymptotics`, shared by local energy and global control;
 - the historical `GlobalControl.lean` monolith has been replaced by the
   mathematical module chain documented in `docs/architecture.md`; the old
   G5/G6/G7 paths are now compatibility imports only;
@@ -202,9 +207,9 @@ Current progress:
 
 ### Remaining order
 
-1. Finish the forward dependency audit of `BlockSystem`, the generic CRT-fiber
-   principle, and the `Basic` energy bridge before returning to downstream CI
-   failures.
+1. Split cross-block control by mathematical ownership: additive-circle
+   distance, reciprocal-phase dispersion, and the block-label mismatch
+   specialization.  The first two layers must not depend on `BlockSystem`.
 2. Audit the circle-method main-arc chain as the next mathematical confluence:
    isolate the generic logarithmic Taylor/Gaussian principle before its
    project-specific mass-identity specialization.
