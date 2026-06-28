@@ -51,6 +51,18 @@ Each layer should eventually have a public import file.  Downstream modules
 should import public files rather than reaching into internal construction
 files.
 
+The current Core source chain is:
+
+```text
+Core.Semiprime
+  -> Core.EgyptianRepresentation
+     -> Core.UnitNumeratorReduction
+     -> Core.SquarefreeNecessity  (independent paper-side corollary)
+```
+
+The former `Defs` aggregate and conditional `MainTheorem -> SBEE` chain have
+been removed from the active project graph.
+
 ### Global-control proof graph
 
 The first mathematical decomposition of the former monolithic

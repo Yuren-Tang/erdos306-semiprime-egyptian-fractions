@@ -225,5 +225,12 @@ The former `RequestProject.RSPrimeSums` compatibility shim has now been removed 
 Use the import graph and `rg` checks to prove that a file or declaration is truly
 unreferenced.
 
+The conditional `MainTheorem -> SBEE` chain and the empty
+`Erdos306Unconditional` import shim have also been removed.  The unconditional
+final theorem now imports the pure `Core.UnitNumeratorReduction` principle
+directly.  Source import-closure analysis reduced the public target from 109 to
+103 project modules and also removed four unrelated modules that had entered
+only through the old shim.
+
 Deliverable: no dead compatibility layers, no stale Rosser--Schoenfeld naming in
 active code unless it appears only in historical documentation or source-citation prose.

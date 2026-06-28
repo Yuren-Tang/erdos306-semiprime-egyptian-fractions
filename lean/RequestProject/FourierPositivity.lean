@@ -125,7 +125,7 @@ the glue connecting these proved components through the Fourier
 inversion framework on ℤ/Lℤ with a Bernoulli probability space.
 -/
 import Mathlib
-import RequestProject.Defs
+import RequestProject.Core.EgyptianRepresentation
 import RequestProject.SemiprimeInfinity
 import RequestProject.LatticeSpan
 import RequestProject.BernoulliFourier

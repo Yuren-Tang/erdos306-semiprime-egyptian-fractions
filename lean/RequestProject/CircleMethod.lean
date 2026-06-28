@@ -11,7 +11,7 @@ under the divisibility hypotheses and the bound `∑_E L/e < L`, the divisibilit
 configuration into an Egyptian representation.
 -/
 import Mathlib
-import RequestProject.Defs
+import RequestProject.Core.EgyptianRepresentation
 
 open scoped BigOperators Classical
 open Finset
