@@ -238,6 +238,13 @@ Each mature module should document a compact node contract:
 - the concrete handoff theorem(s);
 - the downstream modules allowed to depend on that handoff.
 
+Before introducing a new principle theorem, search the pinned Mathlib source
+and use `#check`/`#find_home` for the underlying mathematical mechanism.  Prefer
+standard Mathlib structures even when a hand-written project lemma is already
+working.  The local CRT model, for example, uses `Nat.coprime_primes`,
+`ZMod.chineseRemainder`, and `ZMod.valMinAbs`; project code should state only the
+energy-specific structure built on top of those APIs.
+
 Module boundaries follow mathematical structure, not compiler timing.  A useful
 build boundary is not by itself a reason to create a file or theorem: an
 extracted unit must still have a natural mathematical name, mechanism, and

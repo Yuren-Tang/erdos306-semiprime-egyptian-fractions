@@ -20,8 +20,8 @@ lemma blockSupport_list_pairwise_coprime (BS : BlockSystem) :
       simpa using hp
     have hq_support : q ∈ blockSupport BS := by
       simpa using hq
-    exact primes_coprime_of_ne (blockSupport_prime BS hp_support)
-      (blockSupport_prime BS hq_support) hpq
+    exact (Nat.coprime_primes (blockSupport_prime BS hp_support)
+      (blockSupport_prime BS hq_support)).mpr hpq
 
 /-- Equality of the frequency residue assignment implies congruence modulo the
 product of all block-support primes. -/

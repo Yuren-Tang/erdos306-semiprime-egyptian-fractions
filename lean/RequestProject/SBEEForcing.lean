@@ -72,12 +72,12 @@ lemma crtRepr_eq_label (p q : ℕ) (hp : Nat.Prime p) (hq : Nat.Prime q) (hpq : 
   obtain ⟨k, hk⟩ : ∃ k : ℤ, crtRepr p q ap aq - m = k * (p * q) := by
     have h_crt : (crtRepr p q ap aq : ℤ) ≡ m [ZMOD p] ∧ (crtRepr p q ap aq : ℤ) ≡ m [ZMOD q] := by
       have h_crt : (crtRepr p q ap aq : ZMod p) = ap ∧ (crtRepr p q ap aq : ZMod q) = aq := by
-        exact ⟨ by simpa using crtRepr_congr_left p q ap aq ( primes_coprime_of_ne hp hq hpq ) hp.pos hq.pos, by simpa using crtRepr_congr_right p q ap aq ( primes_coprime_of_ne hp hq hpq ) hp.pos hq.pos ⟩;
+        exact ⟨ by simpa using crtRepr_congr_left p q ap aq ( (Nat.coprime_primes hp hq).mpr hpq ), by simpa using crtRepr_congr_right p q ap aq ( (Nat.coprime_primes hp hq).mpr hpq ) ⟩;
       simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ];
     have h_crt : (p * q : ℤ) ∣ (crtRepr p q ap aq - m) := by
       convert Int.coe_lcm_dvd ( Int.modEq_iff_dvd.mp h_crt.1.symm ) ( Int.modEq_iff_dvd.mp h_crt.2.symm ) using 1 ; norm_cast ; rw [ Nat.Coprime.lcm_eq_mul <| hp.coprime_iff_not_dvd.mpr fun h => hpq <| Nat.prime_dvd_prime_iff_eq hp hq |>.1 h ];
     exact dvd_iff_exists_eq_mul_left.mp h_crt;
-  -- By center_abs_le, |crtRepr| ≤ pq/2. Combine with 2|m| < pq.
+  -- By `ZMod.natAbs_valMinAbs_le`, |crtRepr| ≤ pq/2. Combine with 2|m| < pq.
   have h_abs_crtRepr : |crtRepr p q ap aq| ≤ (p * q) / 2 := by
     apply crtRepr_abs_le;
     · simpa [ hpq ] using Nat.coprime_primes hp hq;
@@ -110,13 +110,13 @@ lemma crtRepr_symm (p q : ℕ) (hp : Nat.Prime p) (hq : Nat.Prime q) (hpq : p �
     refine' ⟨ _, _, rfl, rfl, _, _, _ ⟩;
     · have h_cong : (crtRepr p q ap aq : ℤ) ≡ (crtRepr q p aq ap : ℤ) [ZMOD p] ∧ (crtRepr p q ap aq : ℤ) ≡ (crtRepr q p aq ap : ℤ) [ZMOD q] := by
         have h_cong : (crtRepr p q ap aq : ZMod p) = (crtRepr q p aq ap : ZMod p) ∧ (crtRepr p q ap aq : ZMod q) = (crtRepr q p aq ap : ZMod q) := by
-          have := crtRepr_congr_left p q ap aq ( primes_coprime_of_ne hp hq hpq ) hp.pos hq.pos; have := crtRepr_congr_right p q ap aq ( primes_coprime_of_ne hp hq hpq ) hp.pos hq.pos; have := crtRepr_congr_left q p aq ap ( primes_coprime_of_ne hq hp ( Ne.symm hpq ) ) hq.pos hp.pos; have := crtRepr_congr_right q p aq ap ( primes_coprime_of_ne hq hp ( Ne.symm hpq ) ) hq.pos hp.pos; aesop;
+          have := crtRepr_congr_left p q ap aq ( (Nat.coprime_primes hp hq).mpr hpq ); have := crtRepr_congr_right p q ap aq ( (Nat.coprime_primes hp hq).mpr hpq ); have := crtRepr_congr_left q p aq ap ( (Nat.coprime_primes hq hp).mpr ( Ne.symm hpq ) ); have := crtRepr_congr_right q p aq ap ( (Nat.coprime_primes hq hp).mpr ( Ne.symm hpq ) ); aesop;
         simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ];
       convert Int.coe_lcm_dvd ( Int.modEq_iff_dvd.mp h_cong.1.symm ) ( Int.modEq_iff_dvd.mp h_cong.2.symm ) using 1;
       exact_mod_cast Eq.symm ( Nat.Coprime.lcm_eq_mul <| hp.coprime_iff_not_dvd.mpr fun h => hpq <| Nat.prime_dvd_prime_iff_eq hp hq |>.1 h );
-    · convert crtRepr_two_mul_mem p q ( primes_coprime_of_ne hp hq hpq ) hp.pos hq.pos ap aq using 1;
+    · convert crtRepr_two_mul_mem p q ( (Nat.coprime_primes hp hq).mpr hpq ) hp.pos hq.pos ap aq using 1;
       all_goals norm_num [Nat.cast_mul]
-    · convert crtRepr_two_mul_mem q p ( primes_coprime_of_ne hq hp hpq.symm ) hq.pos hp.pos aq ap using 1;
+    · convert crtRepr_two_mul_mem q p ( (Nat.coprime_primes hq hp).mpr hpq.symm ) hq.pos hp.pos aq ap using 1;
       · norm_num [ mul_comm ];
       · grind;
   obtain ⟨ H', hH₁, hH₂, hH₃, hH₄, hH₅, hH₆ ⟩ := H';
@@ -321,7 +321,7 @@ lemma lemmaE_fiber (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     intro p hp h_abs
     obtain ⟨u, hu⟩ : ∃ u : ℤ, (crtRepr p.val q.val (a p) (a q) : ℤ) - n = u * p.val := by
       have h_div : (crtRepr p.val q.val (a p) (a q) : ZMod p.val) = n := by
-        have := crtRepr_congr_left p.1 q.1 ( a p ) ( a q ) ?_ ?_ ?_ <;> simp_all +decide [ Nat.coprime_primes ];
+        have := crtRepr_congr_left p.1 q.1 ( a p ) ( a q ) ?_ <;> simp_all +decide [ Nat.coprime_primes ];
         · rintro rfl; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ;
         · exact Nat.Prime.pos ( hCp _ _ hp |>.1 );
         · exact hq.pos;
@@ -336,7 +336,7 @@ lemma lemmaE_fiber (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
         rw [ add_div', le_div_iff₀ ] <;> nlinarith [ show ( p : ℝ ) ≥ X by exact_mod_cast hCp p hp |>.2.1, show ( X : ℝ ) ≥ 1 by exact_mod_cast hX ];
       exact Int.le_of_lt_add_one ( by rw [ ← @Int.cast_lt ℝ ] ; push_cast; linarith [ Nat.lt_floor_add_one ( 2 * δ * X + B / X ) ] );
     · have h_div : (crtRepr p.val q.val (a p) (a q) : ZMod q.val) = n' := by
-        convert crtRepr_congr_right p.val q.val ( a p ) ( a q ) _ _ _ using 1 <;> norm_num [ hqa ];
+        convert crtRepr_congr_right p.val q.val ( a p ) ( a q ) _ using 1 <;> norm_num [ hqa ];
         · by_cases h : p = q <;> simp_all +decide [ Nat.coprime_primes ];
           simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ];
         · exact Nat.Prime.pos ( hCp p hp |>.1 );
@@ -1079,11 +1079,9 @@ lemma theoremB_shortlist (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, N
         intro q hq hqB
         obtain ⟨k, hk⟩ : ∃ k : ℤ, (crtRepr p0.1 q.1 (a p0) (a q) : ℤ) = k * (p0.1 : ℤ) + (a p0).valMinAbs := by
           have h_crtRepr_congr_left : (crtRepr p0.1 q.1 (a p0) (a q) : ZMod p0.1) = (a p0).valMinAbs := by
-            convert crtRepr_congr_left p0.1 q.1 ( a p0 ) ( a q ) _ _ _ using 1;
+            convert crtRepr_congr_left p0.1 q.1 ( a p0 ) ( a q ) _ using 1;
             · convert ZMod.coe_valMinAbs ( a p0 ) using 1;
             · exact Nat.coprime_iff_gcd_eq_one.mpr ( by have := Nat.coprime_primes ( hP p0 p0.2 |>.1 ) ( hP q q.2 |>.1 ) ; aesop );
-            · exact Nat.Prime.pos ( hP _ p0.2 |>.1 );
-            · exact Nat.Prime.pos ( hP _ q.2 |>.1 );
           exact ⟨ ( crtRepr p0.1 q.1 ( a p0 ) ( a q ) - ( a p0 ).valMinAbs ) / p0.1, by rw [ Int.ediv_mul_cancel ( by rw [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ; aesop ) ] ; ring ⟩;
         refine' ⟨ k, _, hk ⟩;
         rw [ div_add_div, le_div_iff₀ ] <;> norm_num;
@@ -1120,9 +1118,9 @@ lemma theoremB_label_residue (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p) (a : BlockAssignment P) (p0 q : P) (hq : q ≠ p0) :
     a q = ((crtRepr p0.1 q.1 (a p0) (a q) : ℤ) : ZMod q.1) := by
   have h_coprime : Nat.Coprime p0.1 q.1 := by
-    exact primes_coprime_of_ne ( hP _ p0.2 ) ( hP _ q.2 ) ( by contrapose! hq; aesop );
-  -- Apply the `crtRepr_congr_right` lemma with the given hypotheses `h_coprime` and `hp0`, `hq`.
-  have := crtRepr_congr_right p0.1 q.1 (a p0) (a q) h_coprime (Nat.Prime.pos (hP p0.1 p0.2)) (Nat.Prime.pos (hP q.1 q.2));
+    exact (Nat.coprime_primes ( hP _ p0.2 ) ( hP _ q.2 )).mpr ( by contrapose! hq; aesop );
+  -- Apply `crtRepr_congr_right` to the coprime pair.
+  have := crtRepr_congr_right p0.1 q.1 (a p0) (a q) h_coprime;
   aesop
 
 /-
@@ -1265,7 +1263,7 @@ lemma theoremB_zero_dominant (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : 
       simp_all +decide [ div_eq_iff, NeZero.ne ];
     obtain ⟨q, hq⟩ : ∃ q ∈ P.attach, q ≠ p := by
       exact Finset.exists_mem_ne (by simpa [Finset.card_attach] using (show 1 < P.card by omega)) p;
-    have := crtRepr_congr_left p.1 q.1 ( a p ) ( a q ) ( Nat.coprime_primes ( hP p p.2 |>.1 ) ( hP q q.2 |>.1 ) |>.2 <| by aesop ) ( Nat.Prime.pos <| hP p p.2 |>.1 ) ( Nat.Prime.pos <| hP q q.2 |>.1 ) ; aesop;
+    have := crtRepr_congr_left p.1 q.1 ( a p ) ( a q ) ( Nat.coprime_primes ( hP p p.2 |>.1 ) ( hP q q.2 |>.1 ) |>.2 <| by aesop ) ; aesop;
   exact ⟨ by positivity, by rw [ Finset.filter_true_of_mem h_all_zero ] ; norm_num; nlinarith ⟩
 
 /-

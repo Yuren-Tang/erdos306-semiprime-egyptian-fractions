@@ -31,9 +31,9 @@ lemma gadget_nndist1_lower (r s : ℕ) (hr : Nat.Prime r) (hs : Nat.Prime s)
   set M : ℤ := crtRepr r s (h : ZMod r) (h : ZMod s) with hM
   -- M ≡ m (mod s), M ≢ m (mod r)
   have hMs : (M : ZMod s) = (m : ZMod s) := by
-    rw [hM, crtRepr_congr_right r s _ _ hcop hr.pos hs.pos, hm_s]
+    rw [hM, crtRepr_congr_right r s _ _ hcop, hm_s]
   have hMr : (M : ZMod r) ≠ (m : ZMod r) := by
-    rw [hM, crtRepr_congr_left r s _ _ hcop hr.pos hs.pos]; exact hm_r
+    rw [hM, crtRepr_congr_left r s _ _ hcop]; exact hm_r
   -- s ∣ (M - m), and M ≠ m, so |M - m| ≥ s
   have hdvd : (s : ℤ) ∣ (M - m) := by
     have h0 : ((M - m : ℤ) : ZMod s) = 0 := by push_cast; rw [hMs]; ring

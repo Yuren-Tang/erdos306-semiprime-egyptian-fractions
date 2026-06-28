@@ -77,19 +77,15 @@ lemma phaseP1 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
   obtain ⟨k, hk⟩ : ∃ k : ℤ, E * qbar - (H - wtilde) / q = p * k := by
     have h_mod : (H - wtilde) / q * q ≡ E [ZMOD p] := by
       have h_mod : (H : ZMod p) = ap := by
-        convert crtRepr_congr_left p q ( a p ) w _ _ _;
+        convert crtRepr_congr_left p q ( a p ) w _;
         · convert ZMod.coe_valMinAbs ( a p );
         · exact hp.coprime_iff_not_dvd.mpr fun h => hpq <| Nat.prime_dvd_prime_iff_eq hp hq |>.1 h;
-        · exact hp.pos;
-        · exact hq.pos;
       rw [ Int.ediv_mul_cancel ];
       · simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ];
         grind;
       · have h_mod : (H : ZMod q) = w := by
-          convert crtRepr_congr_right p q ( a p ) w _ _ _ using 1;
+          convert crtRepr_congr_right p q ( a p ) w _ using 1;
           · exact hp.coprime_iff_not_dvd.mpr fun h => hpq <| Nat.prime_dvd_prime_iff_eq hp hq |>.1 h;
-          · exact hp.pos;
-          · exact hq.pos;
         rw [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ; aesop;
     have h_mod : (H - wtilde) / q ≡ E * qbar [ZMOD p] := by
       simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ];
@@ -103,10 +99,8 @@ lemma phaseP1 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
       rw [ div_add', div_eq_div_iff ] <;> norm_cast <;> simp_all +decide [ hp.ne_zero, hq.ne_zero ];
       rw [ ← Int.ediv_mul_cancel ( show ( q : ℤ ) ∣ H - wtilde from ?_ ) ] ; linear_combination hk * p * q;
       have h_div : (crtRepr p q (a p) w : ZMod q) = w := by
-        convert crtRepr_congr_right p q ( a p ) w _ _ _ using 1;
+        convert crtRepr_congr_right p q ( a p ) w _ using 1;
         · exact hp.coprime_iff_not_dvd.mpr fun h => hpq <| Nat.prime_dvd_prime_iff_eq hp hq |>.1 h;
-        · exact hp.pos;
-        · exact hq.pos;
       haveI := Fact.mk hq; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ;
       aesop;
     unfold phase;

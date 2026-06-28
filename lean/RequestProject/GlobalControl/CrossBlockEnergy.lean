@@ -212,12 +212,12 @@ lemma crossblock_phase_bridge (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p
     simpa [ hpq ] using Nat.coprime_primes hp hq;
   obtain ⟨v, hv⟩ : ∃ v : ℤ, (crtRepr p q (m : ZMod p) (m' : ZMod q) : ℤ) - m = p * v := by
     have h_cong : (crtRepr p q (m : ZMod p) (m' : ZMod q) : ℤ) ≡ m [ZMOD p] := by
-      have := crtRepr_congr_left p q ( m : ZMod p ) ( m' : ZMod q ) h_coprime hp.pos hq.pos; simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ] ;
+      have := crtRepr_congr_left p q ( m : ZMod p ) ( m' : ZMod q ) h_coprime; simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ] ;
     exact h_cong.symm.dvd;
   have h_div : (q : ℤ) ∣ ((m' - m) * pinv - v) := by
     have h_div : (q : ℤ) ∣ (p * v - (m' - m)) := by
       have h_div : (crtRepr p q (m : ZMod p) (m' : ZMod q) : ℤ) ≡ m' [ZMOD q] := by
-        convert crtRepr_congr_right p q ( m : ZMod p ) ( m' : ZMod q ) h_coprime hp.pos hq.pos using 1;
+        convert crtRepr_congr_right p q ( m : ZMod p ) ( m' : ZMod q ) h_coprime using 1;
         norm_num [ ← ZMod.intCast_eq_intCast_iff ];
       convert h_div.symm.dvd using 1 ; linarith;
     have h_div : (q : ℤ) ∣ (p * pinv - 1) := by

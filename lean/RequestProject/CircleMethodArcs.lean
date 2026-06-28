@@ -182,12 +182,12 @@ lemma nndist1_eq_crtRepr_div (p q : ℕ) (hp : Nat.Prime p) (hq : Nat.Prime q)
   -- p ∣ (h - m) and q ∣ (h - m)
   have hdvdp : (p : ℤ) ∣ ((h : ℤ) - m) := by
     rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
-    have hcl : (m : ZMod p) = (h : ZMod p) := crtRepr_congr_left p q _ _ hcop hp0 hq0
+    have hcl : (m : ZMod p) = (h : ZMod p) := crtRepr_congr_left p q _ _ hcop
     push_cast [hcl]
     rw [sub_eq_zero]
   have hdvdq : (q : ℤ) ∣ ((h : ℤ) - m) := by
     rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
-    have hcr : (m : ZMod q) = (h : ZMod q) := crtRepr_congr_right p q _ _ hcop hp0 hq0
+    have hcr : (m : ZMod q) = (h : ZMod q) := crtRepr_congr_right p q _ _ hcop
     push_cast [hcr]
     rw [sub_eq_zero]
   have hcopZ : IsCoprime (p : ℤ) (q : ℤ) := by
