@@ -7,14 +7,14 @@ noncomputable section
 namespace GlobalControl
 
 /-- Prime-counting upper bound on a dyadic block, from Mathlib's
-`primorial_le_4_pow`: the primes in `[2^k, 2^(k+1))` number at most
+`primorial_le_four_pow`: the primes in `[2^k, 2^(k+1))` number at most
 `2^(k+2)/k`. -/
 lemma dyadic_block_card_upper (k : ℕ) (_hk : 1 ≤ k) :
     (k : ℝ) * ((dyadicBlock k).card : ℝ) ≤ (2 : ℝ) ^ (k + 2) := by
   have h_card : (dyadicBlock k).card * k ≤ 2 ^ (k + 2) := by
     have h_card : (2 ^ k) ^ (dyadicBlock k).card ≤ 4 ^ (2 ^ (k + 1)) := by
       have h_prod : (∏ p ∈ dyadicBlock k, p) ≤ 4 ^ (2 ^ (k + 1)) := by
-        refine le_trans ?_ (primorial_le_4_pow (2 ^ (k + 1)))
+        refine le_trans ?_ (primorial_le_four_pow (2 ^ (k + 1)))
         refine Finset.prod_le_prod_of_subset_of_one_le' ?_ ?_
         · intro x hx
           rw [dyadicBlock, Finset.mem_filter, Finset.mem_Ico] at hx

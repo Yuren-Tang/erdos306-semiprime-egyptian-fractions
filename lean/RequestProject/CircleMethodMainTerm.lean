@@ -33,7 +33,7 @@ lemma sigmaE2_nonneg (E : Finset ℕ) (θ : ℕ → ℝ)
 
 /-- `σ_E² > 0` once the edge set is nonempty (each term is `≥ (2/9)/e² > 0`). -/
 lemma sigmaE2_pos (E : Finset ℕ) (θ : ℕ → ℝ) (hne : E.Nonempty)
-    (he0 : ∀ e ∈ E, 0 < e)
+    (_he0 : ∀ e ∈ E, 0 < e)
     (hlb : ∀ e ∈ E, 1/3 ≤ θ e) (hub : ∀ e ∈ E, θ e ≤ 2/3) :
     0 < sigmaE2 E θ := by
   obtain ⟨e0, he0'⟩ := hne
@@ -96,7 +96,6 @@ lemma sum_logphi_bound (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ)
             - 2*Real.pi^2*(m:ℝ)^2*((sigmaE2 E θ : ℝ) : ℂ))‖
       ≤ ∑ e ∈ E, 100000 * |(m:ℝ)/(e:ℝ)|^3 := by
   have hstep := sum_bernoulli_log_taylor E θ (fun e => (m:ℝ)/(e:ℝ)) hlb hub ht
-  simp only [] at hstep
   -- mass identity over ℂ
   have hmassC : (∑ e ∈ E, (θ e : ℂ) / (e : ℂ)) = 1 / (b : ℂ) := by
     have hcast : (∑ e ∈ E, (θ e : ℂ) / (e : ℂ))
@@ -138,9 +137,9 @@ def term_label (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ) : ℂ :=
 /-- **L3** (note 44).  The main-arc term equals the real Gaussian
 `exp(−2π²m²σ_E²)` times `exp(δ)`, where `δ` is the cubic Taylor remainder. -/
 lemma term_label_eq (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ)
-    (he0 : ∀ e ∈ E, 0 < e)
+    (_he0 : ∀ e ∈ E, 0 < e)
     (hlb : ∀ e ∈ E, 1/3 ≤ θ e) (hub : ∀ e ∈ E, θ e ≤ 2/3)
-    (hmass : (∑ e ∈ E, θ e / (e : ℝ)) = 1 / (b : ℝ))
+    (_hmass : (∑ e ∈ E, θ e / (e : ℝ)) = 1 / (b : ℝ))
     (ht : ∀ e ∈ E, |(m : ℝ) / (e : ℝ)| ≤ 1/10) :
     term_label E θ b m
       = ((Real.exp (-(2*Real.pi^2*(m:ℝ)^2*(sigmaE2 E θ))) : ℝ) : ℂ)
