@@ -18,27 +18,31 @@ lake build RequestProject.Erdos306FormalConjectures
 lake env lean RequestProject/Audit.lean
 ```
 
-The checked-in project currently pins Lean/Mathlib `v4.28.0`, matching the build
-that verifies the headline theorem in this workspace.
+The checked-in project currently pins Lean/Mathlib `v4.31.0`.  The dependency
+lockfile has been refreshed on this release line; the proof port and full CI
+verification are tracked as the Stage B migration in
+[`docs/refactor-roadmap.md`](refactor-roadmap.md).
 
-## Latest-release upgrade note
+## Latest-release upgrade status
 
-As of 2026-06-24, GitHub lists Lean `v4.31.0` and Mathlib `v4.31.0` as the latest
-stable release tags.  I tested the mechanical bump:
+As of 2026-06-26, GitHub lists Lean `v4.31.0` and Mathlib `v4.31.0` as the latest
+stable release tags.  The project pins have been mechanically bumped:
 
 ```text
 lean/lean-toolchain: leanprover/lean4:v4.31.0
 lean/lakefile.toml:  mathlib rev = "v4.31.0"
 ```
 
-`lake update mathlib` completed, but the proof does not build unchanged on
-`v4.31.0`.  The first blocker was `RequestProject/GlobalPeierlsBookkeeping.lean`
-around the geometric-sum normalization step; after repairing that locally, the
-next blockers appeared in `RequestProject/BernoulliFourier.lean` and then
-`RequestProject/SBEEDispersion.lean`, where older fragile `convert`/`grind` proof
-scripts no longer elaborate cleanly.  Therefore this branch keeps the proven
-`v4.28.0` pins and records the `v4.31.0` upgrade as a dedicated porting stage
-rather than mixing a toolchain migration into the analytic-axiom refactor.
+`lake update` refreshed `lean/lake-manifest.json` and installed the local Lean
+`v4.31.0` toolchain.  The Mathlib cache download was interrupted by local disk
+space exhaustion (`No space left on device`), so the next engineering step is to
+finish the cache/build verification in CI or after freeing local space.
+
+Earlier mechanical port testing found proof-script blockers in
+`RequestProject/GlobalPeierlsBookkeeping.lean`, then
+`RequestProject/BernoulliFourier.lean` and `RequestProject/SBEEDispersion.lean`.
+Keep the Stage B port focused on these toolchain/tactic migration issues before
+starting broader module reorganization.
 
 
 ## Refactor sequencing

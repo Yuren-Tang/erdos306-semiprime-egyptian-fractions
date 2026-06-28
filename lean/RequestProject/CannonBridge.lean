@@ -1,4 +1,4 @@
-import RequestProject.SpectralCannon
+import RequestProject.Spectral.Selection
 import RequestProject.CircleMethodMainTerm
 
 /-!

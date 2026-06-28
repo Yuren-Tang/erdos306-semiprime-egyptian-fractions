@@ -12,7 +12,8 @@ G5 (for the hot set with weights `Rw_k`, and for the mismatch boundary set with
 weights `Π_k`): the number of admissible subsets, weighted by a per-element
 cost, is dominated by `exp(εR/2) · exp(∑ exp(-ε w/4))`.
 -/
-import Mathlib
+import Mathlib.Analysis.Complex.Exponential
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
 open Finset BigOperators
 
@@ -134,12 +135,22 @@ lemma shell_sum_bound {ι : Type*} [Fintype ι] [DecidableEq ι] (c : ι → ℕ
   have h_geo_sum : ∀ N : ℕ, (∑ n ∈ Finset.range N, Real.exp (-beta * (n : ℝ))) ≤ 1 / (1 - Real.exp (-beta)) := by
     intro N
     have h_geo_sum : (∑ n ∈ Finset.range N, Real.exp (-beta * (n : ℝ))) = (∑ n ∈ Finset.range N, (Real.exp (-beta)) ^ n) := by
-      exact Finset.sum_congr rfl fun _ _ => by rw [ ← Real.exp_nat_mul ] ; ring;
+      apply Finset.sum_congr rfl
+      intro n _
+      rw [← Real.exp_nat_mul]
+      congr 1
+      ring
     rw [ h_geo_sum, one_div, ← tsum_geometric_of_lt_one ( by positivity ) ( by norm_num; positivity ) ] ; exact Summable.sum_le_tsum ( Finset.range N ) ( fun _ _ => by positivity ) ( by exact summable_geometric_of_lt_one ( by positivity ) ( by norm_num; positivity ) ) ;
-  convert h_sum_bound.trans ( mul_le_mul_of_nonneg_left ( Finset.prod_le_prod ( fun _ _ => Finset.sum_nonneg fun _ _ => Real.exp_nonneg _ ) fun _ _ => h_geo_sum _ ) ( by positivity ) ) using 1 ; ring;
-  simp +decide [← Real.exp_add];
-  rw [ ← Real.rpow_natCast, Real.rpow_def_of_pos ( sub_pos.mpr <| Real.exp_lt_one_iff.mpr <| neg_lt_zero.mpr hbeta ) ] ; ring;
-  rw [ ← Real.exp_neg, ← Real.exp_add ] ; ring
+  convert h_sum_bound.trans ( mul_le_mul_of_nonneg_left ( Finset.prod_le_prod ( fun _ _ => Finset.sum_nonneg fun _ _ => Real.exp_nonneg _ ) fun _ _ => h_geo_sum _ ) ( by positivity ) ) using 1
+  rfl
+  have hden_pos : 0 < 1 - Real.exp (-beta) :=
+    sub_pos.mpr (Real.exp_lt_one_iff.mpr (neg_lt_zero.mpr hbeta))
+  have hgeom_pos : 0 < 1 / (1 - Real.exp (-beta)) := one_div_pos.mpr hden_pos
+  rw [Finset.prod_const, Finset.card_univ]
+  rw [← Real.rpow_natCast, Real.rpow_def_of_pos hgeom_pos]
+  rw [← Real.exp_add, ← Real.exp_add, ← Real.exp_add]
+  congr 1
+  ring_nf
 
 /-- **Segment label constancy** (note 34 G5 step 4 / note 37 §3.2 "segment
 construction").  If across every index `k` of a connected run the edge predicate

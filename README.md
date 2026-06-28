@@ -104,10 +104,12 @@ lake build RequestProject.Erdos306FormalConjectures  # builds and checks the pro
 lake env lean RequestProject/Audit.lean              # prints the theorem, axioms, and audit
 ```
 
-Toolchain `leanprover/lean4:v4.28.0`, Mathlib `v4.28.0`.  See
-[`docs/environment.md`](docs/environment.md) for local setup notes and the tested
-upgrade attempt to the current Lean/Mathlib release line, and
+Toolchain `leanprover/lean4:v4.31.0`, Mathlib `v4.31.0`.  See
+[`docs/environment.md`](docs/environment.md) for local setup notes and the
+current upgrade status, and
 [`docs/refactor-roadmap.md`](docs/refactor-roadmap.md) for the staged cleanup plan.
+The intended public module architecture and formal naming policy are recorded in
+[`docs/architecture.md`](docs/architecture.md).
 
 ## Continuous integration
 

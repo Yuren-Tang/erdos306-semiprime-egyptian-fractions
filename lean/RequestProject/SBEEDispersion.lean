@@ -18,7 +18,6 @@ following the paper proofs in `29 SBEE Master …md` (§2, Lemma D) and
   layers it depends on are available; this file is its dispersion foundation and
   is now entirely sorry-free.
 -/
-import Mathlib
 import RequestProject.BlockCRTEnergy
 
 open Finset
@@ -29,7 +28,7 @@ namespace SBEEDispersion
 
 /-- The counting set of **Lemma D**: pairs `(u, p)` with `u ∈ [-U, U]` (integer),
     `p ∈ [X, 2X]` prime, and `u·p ≡ w (mod q)`. -/
-def lemmaD_set (X q U : ℕ) (w : ℤ) : Finset (ℤ × ℕ) :=
+noncomputable def lemmaD_set (X q U : ℕ) (w : ℤ) : Finset (ℤ × ℕ) :=
   ((Finset.Icc (-(U:ℤ)) (U:ℤ)) ×ˢ (Finset.Icc X (2*X))).filter
     (fun up => Nat.Prime up.2 ∧ (q:ℤ) ∣ (up.1 * (up.2 : ℤ) - w))
 
@@ -80,6 +79,7 @@ theorem lemmaD (X q U : ℕ) (hq : q.Prime) (hXq : X ≤ q) (_hUX : U < X)
     rw [ Finset.card_image_of_injective _ fun x y hxy => by injection hxy ];
     exact lemmaD_fiber X q hq hXq w hw u;
   convert Finset.sum_le_sum key using 1;
+  · rfl
   · rw [ ← Finset.card_eq_sum_card_fiberwise ];
     exact fun x hx => Finset.mem_Icc.mpr <| Finset.mem_Icc.mp <| Finset.mem_product.mp ( Finset.mem_filter.mp hx |>.1 ) |>.1;
   · norm_num [ two_mul, add_assoc ];
@@ -147,9 +147,20 @@ lemma phase_sub_le (A B : ℤ) (q p : ℕ) :
       intros x n
       apply round_le;
     convert h_round ( x_A - x_B ) ( round x_A - round x_B ) using 1 ; push_cast ; ring_nf;
-  convert h_round.trans ( abs_sub _ _ ) using 1;
-  unfold phase; ring_nf;
-  grind
+  calc
+    phase (A - B) q p = |x_A - x_B - round (x_A - x_B)| := by
+      unfold phase
+      dsimp [x_A, x_B]
+      have h_linear :
+          ((A - B : ℤ) : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ) =
+            (A : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ) -
+              (B : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ) := by
+        push_cast
+        ring
+      rw [h_linear]
+    _ ≤ |x_A - round x_A - (x_B - round x_B)| := h_round
+    _ ≤ |x_A - round x_A| + |x_B - round x_B| := abs_sub _ _
+    _ = phase A q p + phase B q p := by rfl
 
 /-
 **`card_prime_factors_dyadic_le_two`** (factored out of `lemmaD_fiber`'s

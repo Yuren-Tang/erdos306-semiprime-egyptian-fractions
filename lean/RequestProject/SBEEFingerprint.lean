@@ -18,7 +18,7 @@ Notation (note 32): for primes `p, q`, an assignment `a : (p:ℕ) → ZMod p`, a
 candidate residue `w : ZMod q`, the centered integer representatives are
 `ZMod.valMinAbs` (the rep in `(-n/2, n/2]`), and `H_{pq}(a_p, w) = crtRepr p q (a p) w`.
 -/
-import Mathlib
+import Mathlib.Analysis.Complex.ExponentialBounds
 import RequestProject.BlockCRTEnergy
 import RequestProject.SBEEDispersion
 
@@ -114,9 +114,7 @@ lemma phaseP1 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
     rw [ h_subst, round_add_intCast ] ; norm_num;
   -- So |(v:ℝ)/p - round ((v:ℝ)/p)| ≤ |(v:ℝ)/p|.
   have h_abs_le : |(H - wtilde : ℝ) / (p * q) - round ((H - wtilde : ℝ) / (p * q))| ≤ |(H - wtilde : ℝ) / (p * q)| := by
-    convert round_le _ 0 using 1;
-    · norm_num;
-    · infer_instance;
+    simpa using (round_le ((H - wtilde : ℝ) / (p * q)) 0)
   -- So |(H - w̃)/(p*q)| ≤ |H|/(p*q) + |w̃|/(p*q).
   have h_abs_le' : |(H - wtilde : ℝ) / (p * q)| ≤ |(H : ℝ)| / (p * q) + |(wtilde : ℝ)| / (p * q) := by
     rw [ abs_div, abs_of_nonneg ( by positivity : ( 0 : ℝ ) ≤ p * q ) ];
@@ -142,27 +140,37 @@ lemma phase_sq_bound (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
       ≤ 3 * tterm a q w p + 3 * tterm a q w' p + 3 / (p : ℝ) ^ 2 := by
   -- Apply `phase_sub_le` with A := ZMod.valMinAbs (a p) - ZMod.valMinAbs w and B := ZMod.valMinAbs (a p) - ZMod.valMinAbs w'.
   have h_phase_sub_le : phase (w'.valMinAbs - w.valMinAbs) q p ≤ phase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w) q p + phase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w') q p := by
-    convert phase_sub_le ( ( a p |> ZMod.valMinAbs ) - w.valMinAbs ) ( ( a p |> ZMod.valMinAbs ) - w'.valMinAbs ) q p using 1 ; ring;
+    convert phase_sub_le ((a p).valMinAbs - w.valMinAbs)
+      ((a p).valMinAbs - w'.valMinAbs) q p using 1
+    ring_nf
   -- Apply `phaseP1` to w and w'.
   have h_phaseP1_w : phase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w) q p ≤ |(crtRepr p q (a p) w : ℝ)| / ((p : ℝ) * q) + 1 / (2 * p) := by
-    convert phaseP1 p q hp hq hpq a w using 1
+    exact phaseP1 p q hp hq hpq a w
   have h_phaseP1_w' : phase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w') q p ≤ |(crtRepr p q (a p) w' : ℝ)| / ((p : ℝ) * q) + 1 / (2 * p) := by
-    convert phaseP1 p q hp hq hpq a w' using 1;
+    exact phaseP1 p q hp hq hpq a w'
   -- Set bw := |(crtRepr p q (a p) w : ℝ)|/((p:ℝ)*q) and bw' := |(crtRepr p q (a p) w' : ℝ)|/((p:ℝ)*q).
   set bw := |(crtRepr p q (a p) w : ℝ)| / ((p : ℝ) * q)
   set bw' := |(crtRepr p q (a p) w' : ℝ)| / ((p : ℝ) * q);
   -- By definition of $tterm$, we have $tterm a q w p = bw^2$ and $tterm a q w' p = bw'^2$.
   have htterm : tterm a q w p = bw^2 ∧ tterm a q w' p = bw'^2 := by
-    unfold tterm;
-    grind;
+    constructor <;> simp only [tterm, bw, bw'] <;>
+      rw [div_pow, div_pow, sq_abs]
   -- By combining the inequalities from `phase_sub_le`, `phaseP1_w`, and `phaseP1_w'`, we get:
   have h_combined : phase (w'.valMinAbs - w.valMinAbs) q p ≤ bw + bw' + 1 / (p : ℝ) := by
-    convert le_trans h_phase_sub_le ( add_le_add h_phaseP1_w h_phaseP1_w' ) using 1 ; ring;
+    calc
+      phase (w'.valMinAbs - w.valMinAbs) q p
+          ≤ (bw + 1 / (2 * p)) + (bw' + 1 / (2 * p)) :=
+        h_phase_sub_le.trans (add_le_add h_phaseP1_w h_phaseP1_w')
+      _ = bw + bw' + 1 / (p : ℝ) := by
+        field_simp [Nat.cast_ne_zero.mpr hp.ne_zero]
+        ring
   -- By squaring both sides of the inequality from `h_combined`, we get:
   have h_squared : phase (w'.valMinAbs - w.valMinAbs) q p ^ 2 ≤ (bw + bw' + 1 / (p : ℝ)) ^ 2 := by
     exact pow_le_pow_left₀ ( phase_nonneg _ _ _ ) h_combined 2;
   refine le_trans h_squared ?_;
-  rw [ htterm.1, htterm.2 ] ; ring_nf;
+  rw [htterm.1, htterm.2]
+  simp only [div_eq_mul_inv, one_mul]
+  rw [← inv_pow]
   nlinarith only [ sq_nonneg ( bw - bw' ), sq_nonneg ( bw - ( p : ℝ ) ⁻¹ ), sq_nonneg ( bw' - ( p : ℝ ) ⁻¹ ) ]
 
 /-! ## Lemma P2 — cold rigidity (`32` Sub-lemma 2)
@@ -244,14 +252,14 @@ lemma cold_decoding_unique (X : ℕ) (hX : 1 ≤ X) (P F : Finset ℕ)
   · -- `q` is hot: residue given directly.
     exact hres q (Finset.mem_filter.mpr ⟨hq, hhot⟩)
   · -- `q` is cold: both `a q` and `b q` have F-energy `< T`; coldRigidity gives uniqueness.
-    push_neg at hhot
+    push Not at hhot
     have hcoldA : tEnergy F a q (a q) < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7 :=
       hT ▸ hhot
     -- `q ∉ Hot(b)` too, since the hot sets coincide.
     have hnotHotB : q ∉ (P \ F).filter (fun q => T ≤ tEnergy F b q (b q)) := by
       rw [← hHot]; exact fun hmem => hhot.not_ge (Finset.mem_filter.mp hmem).2
     have hcoldB : tEnergy F b q (b q) < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7 := by
-      by_contra hc; push_neg at hc
+      by_contra hc; push Not at hc
       exact hnotHotB (Finset.mem_filter.mpr ⟨hq, hT ▸ hc⟩)
     -- Recast `b q`'s energy through `a` (same on F): `tEnergy F a q (b q) < T`.
     have hcoldB' : tEnergy F a q (b q) < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7 := by
@@ -322,16 +330,20 @@ lemma entropy_inequality (eps : ℝ) (hε0 : 0 < eps) (hε1 : eps < 1) :
         · exact mul_nonneg ( mul_nonneg ( by norm_num ) ( le_trans ( by positivity ) hR ) ) ( by positivity );
         · refine' div_pos ( mul_pos ( pow_pos hε0 3 ) ( pow_pos _ 3 ) ) ( mul_pos ( by norm_num ) ( pow_pos ( Real.log_pos ( by linarith ) ) 3 ) );
           exact lt_of_lt_of_le ( by exact mul_pos ( mul_pos ( lt_max_of_lt_left ( by positivity ) ) ( by positivity ) ) ( by exact Real.rpow_pos_of_pos ( Real.log_pos ( by linarith ) ) _ ) ) hR;
-        · convert h_bound'.le using 1 ; ring;
-      convert mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_left h_bound' zero_le_two ) ( Real.log_nonneg <| show ( 2 * X : ℝ ) ≥ 1 by linarith ) using 1 ; ring;
+        · convert h_bound'.le using 1
+          all_goals first | rfl | ring_nf
+      convert mul_le_mul_of_nonneg_right
+        (mul_le_mul_of_nonneg_left h_bound' zero_le_two)
+        (Real.log_nonneg <| show (2 * X : ℝ) ≥ 1 by linarith) using 1
+      all_goals first | rfl | ring_nf
       grind;
     -- Use the provided inequalities to bound the terms further.
     have h_bound'' : R^3 ≥ 2^21 * 7 * X^2 * (Real.log X)^4 / eps^4 := by
       have h_bound'' : R^3 ≥ ((2^21 * 7 / eps^4) ^ ((1:ℝ)/3) * X^(2/3 : ℝ) * (Real.log X)^(4/3 : ℝ))^3 := by
         gcongr;
         exact le_trans ( mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_right ( le_max_left _ _ ) ( by positivity ) ) ( by exact Real.rpow_nonneg ( Real.log_nonneg ( by norm_cast; linarith ) ) _ ) ) hR;
-      convert h_bound'' using 1 ; ring;
-      repeat rw [ ← Real.rpow_natCast ] ; repeat rw [ ← Real.rpow_mul ( by positivity ) ] ; norm_num ; ring;
+      convert h_bound'' using 1 ; ring_nf;
+      repeat rw [ ← Real.rpow_natCast ] ; repeat rw [ ← Real.rpow_mul ( by positivity ) ] ; norm_num ; ring_nf;
     have h_bound''' : Real.log (2 * X) ≤ 2 * Real.log X := by
       rw [ ← Real.log_rpow, Real.log_le_log_iff ] <;> norm_cast <;> nlinarith only [ hX, show X ≥ 3 by exact_mod_cast hX ];
     have h_bound'''' : 7 * 2^15 * X^2 * (Real.log (2 * X))^4 / (eps^3 * R^2) ≤ eps * R / 4 := by
@@ -431,9 +443,29 @@ lemma entropy_inequality2 (eps : ℝ) (hε0 : 0 < eps) (hε1 : eps < 1) :
       · refine' mul_pos ( pow_pos hε0 3 ) ( sq_pos_of_pos _ );
         exact lt_of_lt_of_le ( by exact mul_pos ( mul_pos ( lt_max_of_lt_left hC2 ) ( Real.rpow_pos_of_pos ( Nat.cast_pos.mpr ( by linarith [ show X ≥ 3 by exact_mod_cast le_trans ( le_max_right _ _ ) hX ] ) ) _ ) ) ( Real.rpow_pos_of_pos ( Real.log_pos ( Nat.one_lt_cast.mpr ( by linarith [ show X ≥ 3 by exact_mod_cast le_trans ( le_max_right _ _ ) hX ] ) ) ) _ ) ) hR;
     linarith [ Real.add_one_le_exp ( eps * R ) ];
-  convert mul_le_mul h_exp ( Hent X ( le_trans ( le_max_left _ _ ) hX ) NP Fc h R _ hNP hNP' hFc hFc' hFc'' hh ) ( by positivity ) ( by positivity ) using 1 <;> ring;
-  · rw [ ← Real.exp_nat_mul ] ; ring;
-  · exact le_trans ( mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_right ( le_max_left _ _ ) ( by positivity ) ) ( by exact Real.rpow_nonneg ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith [ le_max_right X02 3 ] ) ) ) _ ) ) hR
+  have hR_C2 : C2 * (X : ℝ) ^ ((2 : ℝ) / 3) *
+      (Real.log X) ^ ((4 : ℝ) / 3) ≤ R := by
+    exact le_trans
+      (mul_le_mul_of_nonneg_right
+        (mul_le_mul_of_nonneg_right (le_max_left C2 _) (by positivity))
+        (Real.rpow_nonneg (Real.log_nonneg (by
+          norm_cast
+          linarith [show X ≥ 3 by exact_mod_cast le_trans (le_max_right X02 3) hX])) _))
+      hR
+  have hmul := mul_le_mul h_exp
+    (Hent X (le_trans (le_max_left _ _) hX) NP Fc h R hR_C2
+      hNP hNP' hFc hFc' hFc'' hh)
+    (by positivity) (by positivity)
+  calc
+    (2 * (X : ℝ)) ^ Fc * ((h : ℝ) + 1) * (Nat.choose NP h : ℝ) *
+        (2 * (X : ℝ)) ^ h =
+      ((h : ℝ) + 1) *
+        ((2 * (X : ℝ)) ^ Fc * (Nat.choose NP h : ℝ) *
+          (2 * (X : ℝ)) ^ h) := by ring
+    _ ≤ Real.exp (eps * R) * ((NP : ℝ) * Real.exp (eps * R)) := hmul
+    _ = (NP : ℝ) * Real.exp (2 * eps * R) := by
+      rw [show 2 * eps * R = (2 : ℕ) * (eps * R) by ring, Real.exp_nat_mul]
+      ring
 
 /-! ## Theorem C (fingerprint count) — final assembly (`30 §1`, note `32` assembly)
 
@@ -694,7 +726,7 @@ lemma hmax_bound_helper (eps Ceps : ℝ) (hε0 : 0 < eps)
         by_cases hCeps_pos : 0 < Ceps;
         · exact mul_nonneg ( mul_nonneg hCeps_pos.le ( Real.rpow_nonneg ( Nat.cast_nonneg _ ) _ ) ) ( Real.rpow_nonneg ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith ) ) ) _ );
         · nlinarith [ pow_pos hε0 4, pow_nonneg ( neg_nonneg.mpr ( le_of_not_gt hCeps_pos ) ) 3 ];
-      convert hR_bound using 1 ; ring;
+      convert hR_bound using 1 ; ring_nf;
       norm_num only [ ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ), ← Real.rpow_mul ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith ) ) ) ];
     have hL_bound : (Real.log (2 * X)) ^ 4 ≤ 16 * (Real.log X) ^ 4 := by
       have hL_bound : Real.log (2 * X) ≤ 2 * Real.log X := by
@@ -779,9 +811,19 @@ theorem fingerprint_count
               linarith;
             · exact div_pos ( pow_pos ( Nat.cast_pos.mpr ( by linarith ) ) _ ) ( mul_pos ( by norm_num ) ( sq_pos_of_pos ( Nat.cast_pos.mpr ( by linarith [ show X > 0 from Nat.cast_pos.mp ( lt_of_lt_of_le ( by positivity ) hX ) ] ) ) ) );
           · exact div_pos ( pow_pos ( Nat.cast_pos.mpr ( by linarith ) ) _ ) ( mul_pos ( by norm_num ) ( sq_pos_of_pos ( Nat.cast_pos.mpr ( by linarith [ show X > 0 from Nat.cast_pos.mp ( lt_of_lt_of_le ( by positivity ) hX ) ] ) ) ) );
-        · convert Nat.floor_le _ using 1;
-          · group;
-          · exact div_nonneg ( le_trans ( by positivity ) hR ) ( by positivity );
+        · have hratio_nonneg :
+              0 ≤ R / ((Fc : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7) := by
+            have hR_nonneg : 0 ≤ R := le_trans (by positivity) hR
+            have hFc_pos : 0 < (Fc : ℝ) := by
+              exact_mod_cast lt_of_lt_of_le (by norm_num : 0 < 208) hFc.1
+            exact div_nonneg hR_nonneg (by positivity)
+          calc
+            (Nat.floor (R / ((Fc : ℝ) ^ 3 /
+                (2 ^ 11 * (X : ℝ) ^ 2) / 7)) : ℝ)
+                ≤ R / ((Fc : ℝ) ^ 3 /
+                    (2 ^ 11 * (X : ℝ) ^ 2) / 7) := Nat.floor_le hratio_nonneg
+            _ = 7 * R * (2 ^ 11 * (X : ℝ) ^ 2) / (Fc : ℝ) ^ 3 := by
+              field_simp
       refine le_trans ( decoding_card_bound X ( by
         exact Nat.one_le_iff_ne_zero.mpr ( by rintro rfl; norm_num at * ) ) P F ( by
         exact hP ) hFP ( by
@@ -790,15 +832,19 @@ theorem fingerprint_count
         exact div_pos ( div_pos ( pow_pos ( Nat.cast_pos.mpr ( by linarith ) ) _ ) ( mul_pos ( by norm_num ) ( sq_pos_of_pos ( Nat.cast_pos.mpr ( by linarith [ show X > 0 from Nat.cast_pos.mp ( lt_of_lt_of_le ( by positivity ) hX ) ] ) ) ) ) ) ( by norm_num ) ) hmax ( by
         linarith ) ( by
         grind ) ) ?_;
-      convert Hent2 X ( by
-        exact le_trans ( le_max_left _ _ ) hX ) P.card Fc hmax R ( by
-        exact le_trans ( mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_right ( le_max_left _ _ ) ( by positivity ) ) ( by positivity ) ) hR ) ( by
-        linarith ) ( block_card_le_two_mul X P hP ) ( by
-        linarith ) ( by
-        linarith ) ( by
-        linarith ) ( by
-        exact hhmax.2.2 ) using 1 ; ring;
-      · rw [ hFcard ] ; ring;
-      · ring
+      have hent := Hent2 X (by
+        exact le_trans (le_max_left _ _) hX) P.card Fc hmax R (by
+        exact le_trans
+          (mul_le_mul_of_nonneg_right
+            (mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity))
+            (by positivity)) hR) (by
+        linarith) (block_card_le_two_mul X P hP) (by
+        linarith) (by
+        linarith) (by
+        linarith) hhmax.2.2
+      rw [hFcard]
+      refine hent.trans_eq ?_
+      congr 2
+      ring
 
 end SBEEFingerprint

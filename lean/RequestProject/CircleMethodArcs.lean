@@ -1,6 +1,6 @@
 import RequestProject.BernoulliFourier
 import RequestProject.GlobalControl
-import RequestProject.GlobalControlG7
+import RequestProject.GlobalControl.Partition
 
 open Finset BigOperators Classical Real GlobalControl
 
@@ -262,7 +262,7 @@ Given the structural facts that the C1 construction must provide — `Q_E(h) ≥
 Q_ctrl(a(h))` (control pairs are edges), the off-main-arc membership of `a(h)`,
 and injectivity of `h ↦ a(h)` — the minor-arc energy sum over frequencies is
 bounded by the off-main-arc control-energy sum, ready to feed
-`global_control_partition_final`. -/
+`global_control_partition`. -/
 lemma minor_energy_sum_le (BS : BlockSystem) (E : Finset ℕ) (c C : ℝ) (Sm : Finset ℕ)
     (hc : 0 ≤ c)
     (hQE : ∀ h ∈ Sm, Qctrl BS (fun p => ((h : ZMod p.1))) ≤ QE E h)
@@ -297,7 +297,7 @@ lemma minor_energy_sum_le (BS : BlockSystem) (E : Finset ℕ) (c C : ℝ) (Sm : 
 
 Combining the C2 norm bound (`minor_arc_norm_le`, with `θ₀ = 1/3` giving the
 `16/9` constant), the energy reindex (`minor_energy_sum_le`), and the global
-control partition (`global_control_partition_final`), the off-main-arc
+control partition (`global_control_partition`), the off-main-arc
 Fourier sum is `≤ (η + Ctail·e^{-C²·(8/9)})/σ`.  The remaining inputs
 (`hQE`, `hnotmain`, `hinj`) are exactly what the C1 construction must supply
 (edges ⊇ control pairs; frequency injectivity). -/
@@ -322,7 +322,7 @@ theorem minor_arc_bound (eps : ℝ) (heps : 0 < eps) :
         ≤ (η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl BS := by
   intro η hη
   obtain ⟨k0min, Ctail, hCtail, hgcp⟩ :=
-    global_control_partition_final (16 / 9) (by norm_num) eps heps η hη
+    global_control_partition (16 / 9) (by norm_num) eps heps η hη
   refine ⟨k0min, Ctail, hCtail, ?_⟩
   intro BS hk0 hadm C hC E theta b L Sm hlb hub heL he0 hL hQE hnotmain hinj
   have hconst : (8 * (1 / 3 : ℝ) * (1 - 1 / 3)) = 16 / 9 := by norm_num

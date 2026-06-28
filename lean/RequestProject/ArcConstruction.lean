@@ -156,7 +156,7 @@ theorem minor_arc_bound_mult (eps : ℝ) (heps : 0 < eps) :
         ≤ (M : ℝ) * (η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl BS := by
   intro η hη
   obtain ⟨k0min, Ctail, hCtail, hgcp⟩ :=
-    global_control_partition_final (16 / 9) (by norm_num) eps heps η hη
+    global_control_partition (16 / 9) (by norm_num) eps heps η hη
   refine ⟨k0min, Ctail, hCtail, ?_⟩
   intro BS hk0 hadm C hC E theta b L Sm M hlb hub heL he0 hL hQE hnotmain hmult
   have hconst : (8 * (1 / 3 : ℝ) * (1 - 1 / 3)) = 16 / 9 := by norm_num

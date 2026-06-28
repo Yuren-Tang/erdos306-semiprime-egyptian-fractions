@@ -17,9 +17,6 @@ This file formalizes **P3**: the faithful single-block counting target of
   asymptotic mesh `mesh_lemma : R_C ≤ R_w`) and the Laplace/dyadic-series step
   `partfun_series_bound`, with `sigmaP_upper` absorbing the additive constant.
 -/
-import Mathlib
-import RequestProject.BlockCRTEnergy
-import RequestProject.SBEEDispersion
 import RequestProject.SBEEForcing
 
 open Finset
@@ -108,7 +105,7 @@ lemma sigmaP_upper (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ)
 **Mesh `R_C ≤ R_w` (asymptotic).**  For `X` large the fingerprint threshold
     `Cε·X^{2/3}(log X)^{4/3}` is below the window floor `cp·X/(log X)³`.
 -/
-lemma mesh_lemma (cp Ceps : ℝ) (hcp : 0 < cp) (hCeps : 0 < Ceps) :
+lemma mesh_lemma (cp Ceps : ℝ) (hcp : 0 < cp) (_hCeps : 0 < Ceps) :
     ∃ X1 : ℝ, 0 < X1 ∧ ∀ X : ℕ, X1 ≤ X →
       Ceps*(X:ℝ)^((2:ℝ)/3)*(Real.log X)^((4:ℝ)/3) ≤ cp*(X:ℝ)/(Real.log X)^3 := by
   obtain ⟨X1, hX1⟩ : ∃ X1 : ℝ, 0 < X1 ∧ ∀ X : ℕ, X1 ≤ X → Ceps^3 * (X : ℝ)^2 * (Real.log X)^4 ≤ cp^3 * (X : ℝ)^3 / (Real.log X)^9 := by
@@ -120,7 +117,7 @@ lemma mesh_lemma (cp Ceps : ℝ) (hcp : 0 < cp) (hCeps : 0 < Ceps) :
     · exact pow_pos ( Real.log_pos ( by norm_cast; linarith ) ) _;
   refine' ⟨ Max.max X1 3, by positivity, fun X hX => _ ⟩ ; specialize hX1 ; replace hX1 := hX1.2 X ( le_trans ( le_max_left _ _ ) hX ) ; norm_num at *;
   contrapose! hX1;
-  convert pow_lt_pow_left₀ hX1 ( div_nonneg ( mul_nonneg hcp.le ( Nat.cast_nonneg _ ) ) ( pow_nonneg ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith ) ) ) _ ) ) three_ne_zero using 1 <;> ring;
+  convert pow_lt_pow_left₀ hX1 ( div_nonneg ( mul_nonneg hcp.le ( Nat.cast_nonneg _ ) ) ( pow_nonneg ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith ) ) ) _ ) ) three_ne_zero using 1 <;> ring_nf;
   norm_num only [ ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ), ← Real.rpow_mul ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith ) ) ) ]
 
 /-
@@ -134,8 +131,8 @@ lemma unified_levelset (eps : ℝ) (hε0 : 0 < eps) (hε1 : eps < 1) :
     ∃ (C0 X1 : ℝ), 0 < C0 ∧ 0 < X1 ∧
       ∀ (X : ℕ), X1 ≤ X →
         ∀ (P : Finset ℕ) [∀ p : P, NeZero p.1]
-          (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X)
-          (hN : (X:ℝ)/(2 * Real.log X) ≤ P.card)
+          (_hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X)
+          (_hN : (X:ℝ)/(2 * Real.log X) ≤ P.card)
           (R : ℝ), 1 ≤ R →
             ((Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R)).card : ℝ)
               ≤ C0 * Real.exp (eps*R) * (1 + Real.sqrt R / sigmaP P) := by
@@ -191,7 +188,7 @@ lemma unified_levelset (eps : ℝ) (hε0 : 0 < eps) (hε1 : eps < 1) :
 -/
 set_option maxHeartbeats 1000000 in
 lemma partfun_series_bound {ι : Type*} [Fintype ι] (q : ι → ℝ) (hq : ∀ i, 0 ≤ q i)
-    (c eps C0 sig : ℝ) (hc : 0 < c) (hε0 : 0 ≤ eps) (hεc : eps < c)
+    (c eps C0 sig : ℝ) (hc : 0 < c) (_hε0 : 0 ≤ eps) (hεc : eps < c)
     (hC0 : 0 ≤ C0) (hsig : 0 < sig)
     (hlevel : ∀ R : ℝ, 1 ≤ R →
         ((Finset.univ.filter (fun i => q i ≤ R)).card : ℝ)
@@ -225,10 +222,10 @@ lemma partfun_series_bound {ι : Type*} [Fintype ι] (q : ι → ℝ) (hq : ∀ 
   have h_sum_bound : ∑ i, Real.exp (-c * q i) ≤ C0 * Real.exp eps * ∑' m : ℕ, r^m * (1 + (m + 1) / sig) := by
     have h_sum_bound : ∑ i, Real.exp (-c * q i) ≤ C0 * Real.exp eps * ∑ m ∈ Finset.image (fun i => Nat.floor (q i)) Finset.univ, r^m * (1 + (m + 1) / sig) := by
       refine le_trans h_floor_dom ?_;
-      rw [ Finset.mul_sum _ _ _ ] ; refine' Finset.sum_le_sum fun m hm => _ ; specialize h_fiber_bound m ; simp_all +decide [ Real.exp_add, Real.exp_neg, mul_assoc, mul_comm, mul_left_comm, pow_add ] ;
-      convert mul_le_mul_of_nonneg_left h_fiber_bound ( inv_nonneg.2 ( Real.exp_nonneg ( c * m ) ) ) using 1 ; ring;
-      norm_num [ ← Real.exp_nat_mul, ← Real.exp_neg, ← Real.exp_add ] ; ring;
-      simpa only [ mul_assoc, ← Real.exp_add ] using by ring;
+      rw [ Finset.mul_sum _ _ _ ] ; refine' Finset.sum_le_sum fun m hm => _ ; specialize h_fiber_bound m ; simp_all +decide [Real.exp_neg, mul_assoc, mul_comm, mul_left_comm] ;
+      convert mul_le_mul_of_nonneg_left h_fiber_bound ( inv_nonneg.2 ( Real.exp_nonneg ( c * m ) ) ) using 1 ; ring_nf;
+      norm_num [ ← Real.exp_nat_mul, ← Real.exp_neg, ← Real.exp_add ] ; ring_nf;
+      simpa only [ mul_assoc, ← Real.exp_add ] using by ring_nf;
     refine' le_trans h_sum_bound ( mul_le_mul_of_nonneg_left ( Summable.sum_le_tsum _ _ _ ) ( by positivity ) );
     · exact fun _ _ => by positivity;
     · have h_summable : Summable (fun m : ℕ => r^m * (m + 1)) := by
@@ -237,7 +234,8 @@ lemma partfun_series_bound {ι : Type*} [Fintype ι] (q : ι → ℝ) (hq : ∀ 
         · grind;
         · norm_num [ pow_succ', mul_assoc, abs_of_pos hr_pos ];
           exact ⟨ ⌈ ( 1 + r ) / ( 1 - r ) ⌉₊ + 1, fun n hn => by rw [ abs_of_nonneg ( by positivity ), abs_of_nonneg ( by positivity ) ] ; nlinarith [ Nat.le_ceil ( ( 1 + r ) / ( 1 - r ) ), show ( n : ℝ ) ≥ ⌈ ( 1 + r ) / ( 1 - r ) ⌉₊ + 1 by exact_mod_cast hn, pow_nonneg hr_pos.le n, mul_le_mul_of_nonneg_right ( show ( r : ℝ ) ≤ 1 by linarith ) ( pow_nonneg hr_pos.le n ), mul_div_cancel₀ ( 1 + r ) ( by linarith : ( 1 - r ) ≠ 0 ) ] ⟩;
-      convert h_summable.mul_right ( 1 / sig ) |> Summable.add <| summable_geometric_of_lt_one hr_pos.le hr_lt_1 using 2 ; ring;
+      convert h_summable.mul_right ( 1 / sig ) |> Summable.add <| summable_geometric_of_lt_one hr_pos.le hr_lt_1 using 2
+      all_goals first | rfl | ring_nf
   -- Evaluate the geometric series $\sum_{m=0}^{\infty} r^m (1 + (m+1)/\sigma)$.
   have h_geo_series : ∑' m : ℕ, r^m * (1 + (m + 1) / sig) = (1 / (1 - r)) + (1 / sig) * (1 / (1 - r)^2) := by
     have h_geo_series : ∑' m : ℕ, r^m * (m + 1) = 1 / (1 - r)^2 := by
@@ -245,10 +243,10 @@ lemma partfun_series_bound {ι : Type*} [Fintype ι] (q : ι → ℝ) (hq : ∀ 
         have h_geo_series : HasSum (fun m : ℕ => (m : ℝ) * r^m) (r / (1 - r)^2) := by
           have := tsum_coe_mul_geometric_of_norm_lt_one ( show ‖r‖ < 1 from by simpa [ abs_of_pos hr_pos ] using hr_lt_1 );
           exact this ▸ Summable.hasSum ( by exact ( by contrapose! this; erw [ tsum_eq_zero_of_not_summable this ] ; exact ne_of_lt ( div_pos hr_pos ( sq_pos_of_pos ( sub_pos.mpr hr_lt_1 ) ) ) ) );
-        convert HasSum.add ( hasSum_geometric_of_lt_one hr_pos.le hr_lt_1 ) h_geo_series using 1 <;> ring;
+        convert HasSum.add ( hasSum_geometric_of_lt_one hr_pos.le hr_lt_1 ) h_geo_series using 1 <;> ring_nf;
         grind;
       exact h_geo_series.tsum_eq;
-    convert congr_arg₂ ( · + · ) ( tsum_geometric_of_lt_one hr_pos.le hr_lt_1 ) ( congr_arg ( fun x : ℝ => x / sig ) h_geo_series ) using 1 <;> ring;
+    convert congr_arg₂ ( · + · ) ( tsum_geometric_of_lt_one hr_pos.le hr_lt_1 ) ( congr_arg ( fun x : ℝ => x / sig ) h_geo_series ) using 1 <;> ring_nf;
     rw [ ← tsum_mul_left ] ; rw [ ← Summable.tsum_add ] ; congr ; ext m ; ring;
     · refine' Summable.mul_left _ _;
       refine' Summable.add ( summable_geometric_of_lt_one hr_pos.le hr_lt_1 ) _;
@@ -294,7 +292,9 @@ theorem single_block_counting (c : ℝ) (hc : 0 < c) :
     · have hlevel : ∀ R:ℝ, 1≤R → ((Finset.univ.filter (fun a:BlockAssignment P => QP P a ≤ R)).card:ℝ) ≤ C0*Real.exp (eps*R)*(1+Real.sqrt R/sigmaP P) := fun R hR => Huni X hXbig P hPrange hNbound R hR;
       have hser := partfun_series_bound (fun a:BlockAssignment P => QP P a) (fun a => QP_nonneg P a) c eps C0 (sigmaP P) hc (by positivity) (lt_of_le_of_lt (min_le_left _ _) (by linarith)) hC0.le hσpos hlevel;
       have hKge : blockPartFun P hP c ≤ K * (1 + 1 / sigmaP P) := by
-        convert hser using 1;
+        unfold blockPartFun
+        rw [hK_def]
+        convert hser using 1
       rw [ le_div_iff₀ hσpos ];
       refine le_trans ?_ ( le_max_left _ _ );
       nlinarith [ mul_div_cancel₀ 1 hσpos.ne', show 0 ≤ K by exact div_nonneg ( mul_nonneg hC0.le ( Real.exp_nonneg _ ) ) ( sq_nonneg _ ) ];

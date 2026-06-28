@@ -1,6 +1,6 @@
 import RequestProject.R2Certificates
 import RequestProject.Erdos306Unconditional
-import RequestProject.CannonBridge
+import RequestProject.Spectral.CircleMethodBridge
 
 /-!
 # Erdős 306 — unconditional, wired to the R2 construction

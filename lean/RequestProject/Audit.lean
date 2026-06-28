@@ -1,4 +1,4 @@
-import RequestProject.Erdos306FormalConjectures
+import RequestProject.Public.Erdos306
 
 /-!
 # Verification audit entry point

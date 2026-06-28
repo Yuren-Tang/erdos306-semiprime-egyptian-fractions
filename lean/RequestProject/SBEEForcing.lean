@@ -36,7 +36,8 @@ The dominant case (Theorem A), Lemma E, and Theorem B are all fully
 machine-verified, and (downstream) so is the
 `SBEEAssembly.single_block_counting` assembly.
 -/
-import Mathlib
+import Mathlib.Analysis.MeanInequalitiesPow
+import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import RequestProject.BlockCRTEnergy
 import RequestProject.SBEEDispersion
 import RequestProject.SBEEFingerprint
@@ -114,6 +115,7 @@ lemma crtRepr_symm (p q : ℕ) (hp : Nat.Prime p) (hq : Nat.Prime q) (hpq : p �
       convert Int.coe_lcm_dvd ( Int.modEq_iff_dvd.mp h_cong.1.symm ) ( Int.modEq_iff_dvd.mp h_cong.2.symm ) using 1;
       exact_mod_cast Eq.symm ( Nat.Coprime.lcm_eq_mul <| hp.coprime_iff_not_dvd.mpr fun h => hpq <| Nat.prime_dvd_prime_iff_eq hp hq |>.1 h );
     · convert crtRepr_two_mul_mem p q ( primes_coprime_of_ne hp hq hpq ) hp.pos hq.pos ap aq using 1;
+      all_goals norm_num [Nat.cast_mul]
     · convert crtRepr_two_mul_mem q p ( primes_coprime_of_ne hq hp hpq.symm ) hq.pos hp.pos aq ap using 1;
       · norm_num [ mul_comm ];
       · grind;
@@ -148,7 +150,7 @@ set_option maxHeartbeats 1600000 in
 lemma theoremA_label_range (X : ℕ) (hX : 16 ≤ X)
     (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hN : 8 ≤ P.card)
-    (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
+    (ρ : ℝ) (_hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
     (a : BlockAssignment P) (m : ℤ) (R : ℝ)
     (hm : |m| ≤ (X:ℤ)^2 / 2)
     (hclass : (1-ρ)*(P.card:ℝ) ≤
@@ -204,7 +206,7 @@ lemma theoremA_label_range (X : ℕ) (hX : 16 ≤ X)
       rcases c with ( _ | _ | c ) <;> norm_num at *;
       · exact Finset.sum_nonneg fun _ _ => by positivity;
       · exact Finset.sum_nonneg fun _ _ => by positivity;
-      · convert hS_ge_c_c_minus_1_div_16X4 using 1 ; norm_num [ h_card_filter ] ; ring;
+      · convert hS_ge_c_c_minus_1_div_16X4 using 1 ; norm_num [ h_card_filter ] ; ring_nf;
         exact Or.inl ( by rw [ Nat.cast_div ( show 2 ∣ 2 + c * 3 + c ^ 2 from even_iff_two_dvd.mp ( by simp +arith +decide [ parity_simps ] ) ) ( by norm_num ) ] ; push_cast ; ring );
     -- We need to show that $\sigma_P^2 \le \frac{N(N-1)}{2} \cdot \frac{1}{X^4}$.
     have hsigmaP2_le_N_N_minus_1_div_2X4 : (sigmaP P) ^ 2 ≤ (P.card * (P.card - 1) / 2 : ℝ) * (1 / (X ^ 4 : ℝ)) := by
@@ -284,7 +286,7 @@ lemma exception_subsum_le_QP (P : Finset ℕ) [∀ p : P, NeZero p.1] (a : Block
       · rw [ if_neg ( by exact not_lt_of_ge ‹_› ) ];
     · intro x hx y hy; simp_all +decide [ Finset.disjoint_left ] ;
       grind +revert;
-  · intro x hx; simp_all +decide [ Finset.subset_iff, orderedPrimePairsA ] ;
+  · intro x hx; simp_all +decide [orderedPrimePairsA] ;
     rcases hx with ⟨ a, ha, b, hb, ⟨ haE, hbC ⟩, rfl ⟩ ; split_ifs <;> simp_all +decide [ Finset.disjoint_left ] ;
     grind;
   · exact fun _ _ _ => sq_nonneg _
@@ -483,7 +485,7 @@ set_option maxHeartbeats 1000000 in
 set_option maxRecDepth 10000 in
 lemma exception_close_bound (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hN : 32 ≤ P.card)
-    (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
+    (ρ : ℝ) (_hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
     (a : BlockAssignment P) (m : ℤ)
     (hmsmall : |(m:ℝ)| ≤ (P.card:ℝ) * X / 16)
     (hCcard : (1-ρ)*(P.card:ℝ) ≤
@@ -568,7 +570,7 @@ set_option maxRecDepth 10000 in
 lemma exception_count_bound (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hN : 32 ≤ P.card)
     (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
-    (a : BlockAssignment P) (m : ℤ) (R : ℝ) (hR1 : 1 ≤ R) (hQ : QP P a ≤ R)
+    (a : BlockAssignment P) (m : ℤ) (R : ℝ) (_hR1 : 1 ≤ R) (hQ : QP P a ≤ R)
     (hmsmall : |(m:ℝ)| ≤ (P.card:ℝ) * X / 16)
     (hCcard : (1-ρ)*(P.card:ℝ) ≤
         ((P.attach.filter (fun p => a p = ((m:ℤ):ZMod (p:ℕ)))).card:ℝ)) :
@@ -609,7 +611,7 @@ lemma exception_count_bound (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) [∀ p : 
     is determined by its exception set and the residues there (outside, `a_q = m`).
     Mirrors `SBEEFingerprint.decoding_card_bound`.
 -/
-lemma dominant_encoding_card (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
+lemma dominant_encoding_card (X : ℕ) (_hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (m : ℤ) (h : ℕ) :
     ((Finset.univ.filter (fun a : BlockAssignment P =>
         (P.attach.filter (fun q => a q ≠ ((m:ℤ):ZMod (q:ℕ)))).card ≤ h)).card : ℝ)
@@ -635,7 +637,7 @@ lemma dominant_encoding_card (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : 
   · norm_num [ Finset.sum_ite ];
     refine' le_trans ( Finset.sum_le_sum fun s hs => Finset.prod_le_prod ( fun _ _ => Nat.cast_nonneg _ ) fun _ _ => show ( _ : ℝ ) ≤ 2 * X from _ ) _;
     · exact_mod_cast hP _ ( Subtype.mem _ ) |>.2.2;
-    · simp +decide [ Finset.sum_powerset ];
+    · simp +decide;
       rw [ show ( Finset.powerset ( Finset.attach P ) |> Finset.filter fun x => Finset.card x ≤ h ) = Finset.biUnion ( Finset.range ( h + 1 ) ) fun e => Finset.powersetCard e ( Finset.attach P ) from ?_, Finset.sum_biUnion ];
       · exact Finset.sum_le_sum fun i hi => by rw [ Finset.sum_congr rfl fun x hx => by rw [ Finset.mem_powersetCard.mp hx |>.2 ] ] ; simp +decide [ mul_comm ] ;
       · exact fun i hi j hj hij => Finset.disjoint_left.mpr fun x hx₁ hx₂ => hij <| by rw [ Finset.mem_powersetCard ] at hx₁ hx₂; aesop;
@@ -659,10 +661,16 @@ lemma theoremA_entropy (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ 
       suffices h_log : Filter.Tendsto (fun y : ℝ => y^4 / Real.exp y) Filter.atTop (nhds 0) by
         have := h_log.comp Real.tendsto_log_atTop;
         exact this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ Function.comp_apply, Real.exp_log hx ] );
-      simpa [ Real.exp_neg ] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 4;
+      simpa [div_eq_mul_inv, Real.exp_neg] using
+        Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 4;
     have := h_log_bound.const_mul ( 5 * 2 ^ 18 / ( 1 - ρ ) );
     have := this.eventually ( ge_mem_nhds <| show ( 5 * 2 ^ 18 / ( 1 - ρ ) * 0 : ℝ ) < eps by norm_num; linarith ) ; norm_num at *;
-    obtain ⟨ X0, hX0 ⟩ := this; exact ⟨ ⌈X0⌉₊ + 1, by positivity, fun X hX => by convert hX0 X ( by linarith [ Nat.le_ceil X0, show ( X : ℝ ) ≥ ⌈X0⌉₊ + 1 by exact_mod_cast hX ] ) using 1 ; rw [ div_mul_div_comm ] ⟩ ;
+    obtain ⟨ X0, hX0 ⟩ := this; exact ⟨ ⌈X0⌉₊ + 1, by positivity, fun X hX => by
+      convert hX0 X (by
+        linarith [Nat.le_ceil X0,
+          show (X : ℝ) ≥ ⌈X0⌉₊ + 1 by exact_mod_cast hX]) using 1
+      · rfl
+      · rw [div_mul_div_comm] ⟩ ;
   refine' ⟨ Max.max X0 16, _, _ ⟩ <;> norm_num;
   intro X N h R hX0 hX16 hR1 hN1 hN2 hN3 hh
   have hL : Real.log X ≥ 1 := by
@@ -683,7 +691,10 @@ lemma theoremA_entropy (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ 
         rw [ ge_iff_le, div_le_iff₀ ] <;> first | positivity | nlinarith [ pow_le_pow_left₀ ( by positivity ) hN3 3 ] ;
       have hfinal : (h : ℝ) ≤ 32768 * R * X^2 / ((1 - ρ) * (X^3 / (8 * (Real.log X)^3))) := by
         exact hh.trans ( div_le_div_of_nonneg_left ( by positivity ) ( by exact mul_pos ( by linarith ) ( by positivity ) ) ( mul_le_mul_of_nonneg_left hfinal ( by linarith ) ) );
-      convert mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_left hfinal ( show ( 0 : ℝ ) ≤ 5 by norm_num ) ) ( show ( 0 : ℝ ) ≤ Real.log X by positivity ) using 1 ; ring;
+      convert mul_le_mul_of_nonneg_right
+        (mul_le_mul_of_nonneg_left hfinal (show (0 : ℝ) ≤ 5 by norm_num))
+        (show (0 : ℝ) ≤ Real.log X by positivity) using 1
+      all_goals first | rfl | ring_nf
       grind +splitImp;
     exact hfinal.trans ( by have := ‹0 < X0 ∧ ∀ X : ℕ, X0 ≤ ↑X → 5 * 2 ^ 18 * Real.log ↑X ^ 4 / ( ( 1 - ρ ) * ↑X ) ≤ eps›.2 X hX0; ring_nf at *; nlinarith )
   have hexp : (h + 1) * (2 * (N : ℝ) * X) ^ h ≤ Real.exp (eps * R) := by
@@ -717,7 +728,7 @@ lemma theoremA_R_poly (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ �
     have := Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 4;
     have := Metric.tendsto_nhds.mp ( this.comp ( Real.tendsto_log_atTop ) );
     norm_num [ Real.exp_neg, Real.exp_log ] at this;
-    obtain ⟨ X0, hX0 ⟩ := this ( eps * ( 1 - ρ ) ^ 2 / 6553600 ) ( by exact div_pos ( mul_pos hε ( sq_pos_of_pos ( by linarith ) ) ) ( by norm_num ) ) ; exact ⟨ Max.max X0 2, by positivity, fun X hX => le_of_lt <| by simpa [ abs_of_nonneg ( Real.log_nonneg <| show 1 ≤ X by linarith [ le_max_right X0 2 ] ), Real.exp_log ( show 0 < X by linarith [ le_max_right X0 2 ] ) ] using hX0 X <| le_trans ( le_max_left X0 2 ) hX ⟩ ;
+    obtain ⟨ X0, hX0 ⟩ := this ( eps * ( 1 - ρ ) ^ 2 / 6553600 ) ( by exact div_pos ( mul_pos hε ( sq_pos_of_pos ( by linarith ) ) ) ( by norm_num ) ) ; exact ⟨ Max.max X0 2, by positivity, fun X hX => le_of_lt <| by simpa [ div_eq_mul_inv, abs_of_nonneg ( Real.log_nonneg <| show 1 ≤ X by linarith [ le_max_right X0 2 ] ), Real.exp_log ( show 0 < X by linarith [ le_max_right X0 2 ] ) ] using hX0 X <| le_trans ( le_max_left X0 2 ) hX ⟩ ;
   obtain ⟨ X0, hX0₁, hX0₂ ⟩ := hX0; use ⌈X0⌉₊ + 2;
   refine' ⟨ by positivity, fun X N R hX₁ hR₁ hN₁ hN₂ hN₃ hN₄ => _ ⟩;
   -- Using the bound from hX0₂, we get:
@@ -740,7 +751,7 @@ lemma theoremA_R_poly (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ �
 set_option maxHeartbeats 1000000 in
 lemma theoremA_label_le (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hN : 2 ≤ P.card)
-    (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) (R : ℝ) (hR0 : 0 ≤ R)
+    (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) (R : ℝ) (_hR0 : 0 ≤ R)
     (hRpoly : R ≤ (P.card:ℝ)^4*(1-ρ)^2/(409600*(X:ℝ)^2)) :
     (5/(1-ρ)) * Real.sqrt R / sigmaP P ≤ (P.card:ℝ) * X / 16 := by
   have hXpos : (0:ℝ) < X := by positivity
@@ -759,12 +770,12 @@ lemma theoremA_label_le (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, Ne
     calc (5/(1-ρ)) * Real.sqrt R
         ≤ (5/(1-ρ)) * ((P.card:ℝ)^2*(1-ρ)/(640*X)) :=
           mul_le_mul_of_nonneg_left hsqrtR (by positivity)
-      _ = (P.card:ℝ)^2/(128*(X:ℝ)) := by field_simp <;> ring
+      _ = (P.card:ℝ)^2/(128*(X:ℝ)) := by (field_simp; ring)
   have hlb : (P.card:ℝ)^2/(128*(X:ℝ)) ≤ (P.card:ℝ)*X/16 * sigmaP P := by
     have h2 : (P.card:ℝ)*X/16 * ((P.card:ℝ)/(8*(X:ℝ)^2)) ≤ (P.card:ℝ)*X/16 * sigmaP P :=
       mul_le_mul_of_nonneg_left hσ (by positivity)
     calc (P.card:ℝ)^2/(128*(X:ℝ))
-        = (P.card:ℝ)*X/16 * ((P.card:ℝ)/(8*(X:ℝ)^2)) := by field_simp <;> ring
+        = (P.card:ℝ)*X/16 * ((P.card:ℝ)/(8*(X:ℝ)^2)) := by (field_simp; ring)
       _ ≤ (P.card:ℝ)*X/16 * sigmaP P := h2
   linarith [hub, hlb]
 
@@ -825,12 +836,12 @@ theorem theorem_A_dominant_count
       have hnn : (0:ℝ) ≤ (10/(1-ρ)) * Real.sqrt R / sigmaP P := by positivity
       nlinarith [Real.exp_pos (eps*R), hnn]
     linarith [le_trans hle htriv]
-  · push_neg at htriv
+  · push Not at htriv
     have hRtriv : eps*R < (P.card:ℝ)*Real.log (2*X) := by
       have h1 : Real.exp (eps*R) < (2*(X:ℝ))^P.card := htriv
       have h2 := Real.log_lt_log (Real.exp_pos _) h1
       rw [Real.log_exp, Real.log_pow] at h2
-      push_cast at h2 ⊢; linarith
+      linarith
     have hN2X : P.card ≤ 2*X := SBEEFingerprint.block_card_le_two_mul X P hP
     have hRpoly := HRpoly X P.card R hXr hR1 (by omega) hN2X hN hRtriv
     have hLNX := theoremA_label_le X hX1 P hP (by omega) ρ hρ hρ4 R (by linarith) hRpoly
@@ -897,7 +908,7 @@ theorem theorem_A_dominant_count
         ≤ ((Mlab.biUnion fib).card : ℝ) := by exact_mod_cast Finset.card_le_card hcover
       _ ≤ (∑ m ∈ Mlab, (fib m).card : ℝ) := by exact_mod_cast Finset.card_biUnion_le
       _ ≤ ∑ m ∈ Mlab, Real.exp (eps*R) := by
-          push_cast; exact Finset.sum_le_sum (fun m hm => hfibcard m hm)
+          exact Finset.sum_le_sum (fun m hm => hfibcard m hm)
       _ = (Mlab.card : ℝ) * Real.exp (eps*R) := by rw [Finset.sum_const, nsmul_eq_mul]
       _ ≤ Real.exp (eps * R) * (1 + (10/(1-ρ)) * Real.sqrt R / sigmaP P) := by
           rw [mul_comm]
@@ -931,10 +942,31 @@ lemma theoremB_pair_count
     · exact sq_pos_of_pos ( mul_pos ( Nat.cast_pos.mpr ( Nat.Prime.pos ( hP _ pq.1.2 |>.1 ) ) ) ( Nat.cast_pos.mpr ( Nat.Prime.pos ( hP _ pq.2.2 |>.1 ) ) ) );
   have h_sum_bound : ∑ pq ∈ orderedPrimePairsA P, ((crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2):ℝ)/((pq.1.1:ℝ)*pq.2.1))^2 ≥ ∑ pq ∈ orderedPrimePairsA P, if B < |(crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2):ℝ)| then B^2/(16*X^4) else 0 := by
     exact Finset.sum_le_sum fun x hx => by split_ifs <;> [ exact h_card_bound x hx ‹_›; exact by positivity ] ;
-  simp_all +decide [ Finset.sum_ite ];
-  convert mul_le_mul_of_nonneg_right h_sum_bound ( show ( 0 :ℝ ) ≤ 16 * X ^ 4 by positivity ) |> le_trans <| mul_le_mul_of_nonneg_right ( show ( ∑ pq ∈ orderedPrimePairsA P, ( ↑ ( crtRepr ( ↑pq.1 ) ( ↑pq.2 ) ( a pq.1 ) ( a pq.2 ) ) / ( ↑↑pq.1 * ↑↑pq.2 ) ) ^ 2 ) ≤ R by
-                                                                                                                                            convert hQ using 1 ) ( show ( 0 :ℝ ) ≤ 16 * X ^ 4 by positivity ) using 1 <;> ring;
-  norm_num [ show X ≠ 0 by linarith ]
+  have h_indicator :
+      (∑ pq ∈ orderedPrimePairsA P,
+          if B < |(crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2) : ℝ)|
+          then B ^ 2 / (16 * X ^ 4) else 0) =
+        (((orderedPrimePairsA P).filter (fun pq =>
+          B < |(crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2) : ℝ)|)).card : ℝ) *
+            (B ^ 2 / (16 * X ^ 4)) := by
+    rw [← Finset.sum_filter]
+    simp
+  have h_count_energy :
+      (((orderedPrimePairsA P).filter (fun pq =>
+        B < |(crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2) : ℝ)|)).card : ℝ) *
+          (B ^ 2 / (16 * X ^ 4)) ≤ R := by
+    rw [← h_indicator]
+    exact h_sum_bound.trans (by simpa [QP] using hQ)
+  have hscale_pos : 0 < (16 : ℝ) * X ^ 4 := by positivity
+  calc
+    (((orderedPrimePairsA P).filter (fun pq =>
+        B < |(crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2) : ℝ)|)).card : ℝ) * B ^ 2 =
+      ((((orderedPrimePairsA P).filter (fun pq =>
+          B < |(crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2) : ℝ)|)).card : ℝ) *
+          (B ^ 2 / (16 * X ^ 4))) * (16 * X ^ 4) := by
+        field_simp
+    _ ≤ R * (16 * X ^ 4) := mul_le_mul_of_nonneg_right h_count_energy hscale_pos.le
+    _ = 16 * R * X ^ 4 := by ring
 
 /-
 **Double counting (`29 §4`).**  The sum over base points of the high-`H`
@@ -951,7 +983,7 @@ lemma theoremB_basepoint_sum
           B < |(crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2) : ℝ)|)).card := by
   have h_sum_eq : ∑ p0 ∈ P.attach, (Finset.filter (fun q => q ≠ p0 ∧ B < |(crtRepr p0.1 q.1 (a p0) (a q) : ℝ)|) P.attach).card = (Finset.filter (fun pq => pq.1 ≠ pq.2 ∧ B < |(crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2) : ℝ)|) (P.attach ×ˢ P.attach)).card := by
     simp +decide only [card_filter];
-    erw [ Finset.sum_product ] ; simp +decide [ Finset.sum_ite ] ;
+    erw [Finset.sum_product] ; simp +decide;
     simp +decide only [eq_comm];
   have h_symm : Finset.filter (fun pq => pq.1 ≠ pq.2 ∧ B < |(crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2) : ℝ)|) (P.attach ×ˢ P.attach) = Finset.image (fun pq => (pq.2, pq.1)) (Finset.filter (fun pq => B < |(crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2) : ℝ)|) (orderedPrimePairsA P)) ∪ Finset.filter (fun pq => B < |(crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2) : ℝ)|) (orderedPrimePairsA P) := by
     ext ⟨p, q⟩; simp [orderedPrimePairsA];
@@ -972,7 +1004,7 @@ lemma theoremB_basepoint_sum
 lemma theoremB_basepoint
     (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hPne : 0 < P.card)
-    (a : BlockAssignment P) (R : ℝ) (hR : 0 ≤ R) (hQ : QP P a ≤ R)
+    (a : BlockAssignment P) (R : ℝ) (_hR : 0 ≤ R) (hQ : QP P a ≤ R)
     (B : ℝ) (hB : 0 < B) :
     ∃ p0 : P, p0 ∈ P.attach ∧
       ((P.attach.filter (fun q => q ≠ p0 ∧
@@ -983,7 +1015,7 @@ lemma theoremB_basepoint
       convert congr_arg ( ( ↑ ) : ℕ → ℝ ) ( theoremB_basepoint_sum P ( fun p hp => ( hP p hp ).1 ) a B ) using 1; all_goals norm_cast;
     exact h_avg.symm ▸ mul_le_mul_of_nonneg_left ( mod_cast theoremB_pair_count X hX P hP a R hQ B hB ) zero_le_two;
   contrapose! h_avg;
-  convert Finset.sum_lt_sum_of_nonempty ( Finset.card_pos.mp <| by simpa [ Finset.card_attach ] using hPne ) h_avg using 1 ; norm_num ; ring;
+  convert Finset.sum_lt_sum_of_nonempty ( Finset.card_pos.mp <| by simpa [ Finset.card_attach ] using hPne ) h_avg using 1 ; norm_num ; ring_nf;
   norm_num [ hPne.ne' ]
 
 /-
@@ -1016,8 +1048,8 @@ lemma sum_cube_offdiag_ge {ι : Type*} [DecidableEq ι]
         exact_mod_cast this ( mul_inv_cancel₀ ( Nat.cast_ne_zero.mpr hs_nonempty.card_pos.ne' ) ) ( show 1 ≤ ( 3 : ℝ ) by norm_num );
       contrapose! h_power_mean;
       convert div_lt_div_iff_of_pos_right ( Nat.cast_pos.mpr hs_nonempty.card_pos ) |>.2 h_power_mean using 1 ; ring;
-    by_cases hL : L = {nstar} <;> simp_all +decide [ Finset.card_sdiff ];
-    convert h_power_mean ( L \ { nstar } ) x ( fun i hi => hx i ( Finset.mem_sdiff.mp hi |>.1 ) ) ( Finset.nonempty_of_ne_empty ( by aesop ) ) using 1 <;> simp +decide [ *, Finset.sum_sdiff, Finset.card_sdiff ];
+    by_cases hL : L = {nstar} <;> simp_all +decide;
+    convert h_power_mean ( L \ { nstar } ) x ( fun i hi => hx i ( Finset.mem_sdiff.mp hi |>.1 ) ) ( Finset.nonempty_of_ne_empty ( by aesop ) ) using 1 <;> simp +decide [*, Finset.card_sdiff];
     rw [ Nat.cast_pred ( Finset.card_pos.mpr ⟨ nstar, hns ⟩ ) ];
   by_cases hL : L.card = 1 <;> simp_all +decide [ Finset.sdiff_singleton_eq_erase ];
   · rw [ Finset.card_eq_one ] at hL ; aesop;
@@ -1155,7 +1187,7 @@ set_option maxHeartbeats 1000000 in
 lemma theoremB_energy_general
     (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X)
-    (a : BlockAssignment P) (p0 : P) (B : ℝ) (hB0 : 0 ≤ B) (hBX : B ≤ (X:ℝ)^2/4)
+    (a : BlockAssignment P) (p0 : P) (B : ℝ) (_hB0 : 0 ≤ B) (hBX : B ≤ (X:ℝ)^2/4)
     (S : Finset P) (hScov : ∀ q ∈ S, q ≠ p0 ∧
         |(crtRepr p0.1 q.1 (a p0) (a q) : ℝ)| ≤ B)
     (L : Finset ℤ)
@@ -1164,7 +1196,7 @@ lemma theoremB_energy_general
     (hL8 : ∀ n ∈ L, (8:ℝ) ≤
         ((S.filter (fun q => crtRepr p0.1 q.1 (a p0) (a q) = n)).card : ℝ))
     (R : ℝ) (hQ : QP P a ≤ R)
-    (cE : ℝ) (hcE0 : 0 < cE)
+    (cE : ℝ) (_hcE0 : 0 < cE)
     (hcE : ∀ (Y : ℕ) (Q : Finset ℕ) [∀ p : Q, NeZero p.1]
         (b : BlockAssignment Q) (n n' : ℤ) (D : ℝ),
         n ≠ n' → |(n:ℝ)| ≤ D → |(n':ℝ)| ≤ D → D ≤ (Y:ℝ)^2/4 →
@@ -1220,7 +1252,7 @@ lemma theoremB_zero_dominant (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : 
     (a : BlockAssignment P) (ρ : ℝ) (hρ : 0 ≤ ρ) (hQ0 : QP P a = 0) :
     IsDominant X P a ρ := by
   -- Since $a_p = 0$ for all $p \in P$, we can choose $m = 0$.
-  use 0; simp [hρ];
+  use 0; simp;
   have h_all_zero : ∀ p ∈ P.attach, a p = 0 := by
     intro p hp
     have h_cross : ∀ q ∈ P.attach, q ≠ p → crtRepr (p.1) (q.1) (a p) (a q) = 0 := by
@@ -1232,7 +1264,7 @@ lemma theoremB_zero_dominant (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : 
         grind +suggestions;
       simp_all +decide [ div_eq_iff, NeZero.ne ];
     obtain ⟨q, hq⟩ : ∃ q ∈ P.attach, q ≠ p := by
-      exact Finset.exists_mem_ne ( by simpa [ Finset.card_attach ] using hN ) p;
+      exact Finset.exists_mem_ne (by simpa [Finset.card_attach] using (show 1 < P.card by omega)) p;
     have := crtRepr_congr_left p.1 q.1 ( a p ) ( a q ) ( Nat.coprime_primes ( hP p p.2 |>.1 ) ( hP q q.2 |>.1 ) |>.2 <| by aesop ) ( Nat.Prime.pos <| hP p p.2 |>.1 ) ( Nat.Prime.pos <| hP q q.2 |>.1 ) ; aesop;
   exact ⟨ by positivity, by rw [ Finset.filter_true_of_mem h_all_zero ] ; norm_num; nlinarith ⟩
 
@@ -1326,7 +1358,8 @@ lemma theoremB_covering_dichotomy
       exact ⟨ by assumption, le_trans hnd.le <| mod_cast hCls_nstar_card ⟩;
     have hM₂ : (∑ n ∈ Lsub \ {nstar}, ((Cls n).card : ℝ)) ≥ ρ * N / 2 := by
       have hM₂ : (∑ n ∈ Lsub \ {nstar}, ((Cls n).card : ℝ)) = (∑ n ∈ Lsub, ((Cls n).card : ℝ)) - ((Cls nstar).card : ℝ) := by
-        rw [ Finset.sum_eq_sum_diff_singleton_add ( show nstar ∈ Lsub from hnstar.1 ), add_tsub_cancel_right ];
+        rw [Finset.sum_eq_sum_sdiff_singleton_add
+          (show nstar ∈ Lsub from hnstar.1), add_tsub_cancel_right];
       linarith [ htiny_le htiny ];
     have h_energy : cE / X^2 * (∑ n ∈ Lsub, ∑ n' ∈ Lsub \ {n}, ((Cls n).card : ℝ)^3 * ((Cls n').card : ℝ)) ≤ 2 * R := by
       apply theoremB_energy_general X P hP a p0 B hB0.le hBX S (fun q hq => by
@@ -1374,8 +1407,23 @@ lemma theoremB_logthreshold (K : ℝ) :
 
 /-
 **Left-disjunct chase.**  Pure algebra: the large-energy disjunct of the
-    covering dichotomy forces `R ≳ X/log³X`.
+covering dichotomy forces `R ≳ X/log³X`.
 -/
+/-- A cutoff with scale coefficient `kappa` and comparison loss `lambda`
+transfers an energy lower bound into a quadratic lower bound with the single
+combined loss `kappa * lambda`.  This is the parameter mechanism behind the
+left branch of the covering dichotomy; numerical choices belong only in its
+specialization. -/
+lemma cutoff_energy_quadratic_lower_bound
+    (energy kappa lambda rho R x N : ℝ)
+    (hkappa : 0 < kappa) (hlambda : 0 < lambda) (hrho : 0 < rho)
+    (hx : 0 < x) (hN : 0 < N)
+    (h : energy * rho ^ 4 * N ^ 4 / (lambda * x ^ 2) ≤
+      (kappa / rho) * R ^ 2 * x ^ 2 / N ^ 2) :
+    energy * rho ^ 5 * N ^ 6 / (kappa * lambda * x ^ 4) ≤ R ^ 2 := by
+  field_simp at h ⊢
+  nlinarith
+
 lemma theoremB_chase_left (cE ρ : ℝ) (hcE0 : 0 < cE) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
     (X : ℕ) (N R u : ℝ)
     (hlogX : 0 < Real.log X) (hN : (X:ℝ)/(2*Real.log X) ≤ N) (hNpos : 0 < N)
@@ -1409,18 +1457,21 @@ lemma theoremB_chase_left (cE ρ : ℝ) (hcE0 : 0 < cE) (hρ : 0 < ρ) (hρ4 : �
         nlinarith [ show 0 < ρ * N ^ 2 by positivity ];
       · exact mul_pos ( by norm_num ) ( sq_pos_of_pos ( Nat.cast_pos.mpr ( Nat.pos_of_ne_zero ( by rintro rfl; norm_num at * ) ) ) );
     · exact mul_pos ( by norm_num ) ( sq_pos_of_pos ( Nat.cast_pos.mpr ( Nat.pos_of_ne_zero ( by rintro rfl; norm_num at * ) ) ) );
-  -- So R^2 ≥ cE*ρ^5*N^6/(131072*X^4).
-  have hR2_sq : R^2 ≥ cE * ρ^5 * N^6 / (131072 * X^4) := by
-    field_simp at *;
-    convert div_le_div_of_nonneg_right hR2 ( sq_nonneg ( X : ℝ ) ) using 1 ; ring;
-    rw [ eq_div_iff ] <;> ring ; aesop;
-  -- So R^2 ≥ cE*ρ^5*X^2/(8388608*(log X)^6).
-  have hR2_sq_final : R^2 ≥ cE * ρ^5 * X^2 / (8388608 * (Real.log X)^6) := by
+  have hX_pos : (0 : ℝ) < X :=
+    zero_lt_one.trans ((Real.log_pos_iff (Nat.cast_nonneg X)).mp hlogX)
+  -- The numerical cutoff and comparison losses enter only through their product.
+  have hR2_sq : R^2 ≥ cE * ρ^5 * N^6 / ((256 * 512) * X^4) :=
+    cutoff_energy_quadratic_lower_bound cE 256 512 ρ R X N
+      (by norm_num) (by norm_num) hρ hX_pos hNpos hR2
+  -- Substitute only the density estimate `N ≥ X/(2 log X)`.
+  have hR2_sq_final : R^2 ≥
+      cE * ρ^5 * X^2 / ((64 * 256 * 512) * (Real.log X)^6) := by
     -- From hN: N^6 ≥ (X/(2 log X))^6 = X^6/(64*(log X)^6).
     have hN6 : N^6 ≥ X^6 / (64 * (Real.log X)^6) := by
       exact le_trans ( by rw [ div_pow ] ; ring_nf; norm_num ) ( pow_le_pow_left₀ ( by positivity ) hN 6 );
     refine le_trans ?_ hR2_sq;
-    convert mul_le_mul_of_nonneg_left hN6 ( show 0 ≤ cE * ρ ^ 5 / ( 131072 * X ^ 4 ) by positivity ) using 1 ; ring;
+    convert mul_le_mul_of_nonneg_left hN6
+      (show 0 ≤ cE * ρ ^ 5 / ((256 * 512) * X ^ 4) by positivity) using 1 ; ring_nf;
     · grind;
     · ring;
   refine' le_of_pow_le_pow_left₀ ( by positivity ) ( by positivity ) ( le_trans _ hR2_sq_final );
@@ -1431,10 +1482,10 @@ lemma theoremB_chase_left (cE ρ : ℝ) (hcE0 : 0 < cE) (hρ : 0 < ρ) (hρ4 : �
 **Right-disjunct chase.**  Pure algebra: the tiny-mass disjunct of the covering
     dichotomy forces `R ≳ X/log³X`.
 -/
-lemma theoremB_chase_right (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
+lemma theoremB_chase_right (ρ : ℝ) (hρ : 0 < ρ) (_hρ4 : ρ ≤ 1/4)
     (X : ℕ) (N R u : ℝ)
     (hlogX : 0 < Real.log X) (hN : (X:ℝ)/(2*Real.log X) ≤ N) (hNpos : 0 < N)
-    (hR0 : 0 < R) (hu0 : 0 ≤ u)
+    (_hR0 : 0 < R) (_hu0 : 0 ≤ u)
     (husq : u^2 = (256/ρ)*R*(X:ℝ)^2/N^2)
     (hbigN : 2304/ρ ≤ N)
     (hdisj : ρ*N/4 < (2*u+2)*(32*(u+1)+8)) :
@@ -1495,7 +1546,7 @@ lemma theoremB_get_disjunction
     · field_simp;
     · positivity;
     · rw [ div_le_iff₀ ];
-      · convert mul_le_mul_of_nonneg_left ( Real.sqrt_le_sqrt hAR ) ( show ( 0 : ℝ ) ≤ X ^ 2 by positivity ) using 1 ; ring;
+      · convert mul_le_mul_of_nonneg_left ( Real.sqrt_le_sqrt hAR ) ( show ( 0 : ℝ ) ≤ X ^ 2 by positivity ) using 1 ; ring_nf;
         · norm_num [ hρ.le, hR0.le ] ; ring;
         · norm_num ; ring;
       · positivity;
@@ -1517,12 +1568,14 @@ lemma theoremB_self_div_log_le (X : ℕ) (h : 1 ≤ Real.log X) :
 /-
 Combine `R ≤ c2·X/log³X` with the threshold `64·A²·c2 ≤ X·log X` to get `A²R ≤ N²/16`.
 -/
-lemma theoremB_hAR (ρ c2 : ℝ) (hρ : 0 < ρ) (hc2 : 0 ≤ c2)
-    (X : ℕ) (N R : ℝ) (hlog0 : 0 < Real.log X) (hXpos : 0 < (X:ℝ))
+lemma theoremB_hAR (ρ c2 : ℝ) (hρ : 0 < ρ) (_hc2 : 0 ≤ c2)
+    (X : ℕ) (N R : ℝ) (hlog0 : 0 < Real.log X)
     (hN : (X:ℝ)/(2*Real.log X) ≤ N)
     (hR : R ≤ c2*(X:ℝ)/(Real.log X)^3)
     (hThr1 : 64*(256/ρ)*c2 ≤ (X:ℝ)*Real.log X) :
     (256/ρ)*R ≤ N^2/16 := by
+  have hXpos : (0 : ℝ) < X :=
+    zero_lt_one.trans ((Real.log_pos_iff (Nat.cast_nonneg X)).mp hlog0)
   refine le_trans ( mul_le_mul_of_nonneg_left hR ( by positivity ) ) ?_;
   rw [ ← mul_div_assoc, div_le_iff₀ ] at *;
   · ring_nf at *;
@@ -1597,7 +1650,8 @@ theorem theorem_B_nondominant_forcing
   set N := (P.card:ℝ) with hNdef
   have hNK : K/2 ≤ N := by
     have h1 : K / 2 ≤ (X:ℝ)/(2*Real.log X) := by
-      convert div_le_div_of_nonneg_right hKX zero_le_two using 1 ; ring
+      convert div_le_div_of_nonneg_right hKX zero_le_two using 1
+      all_goals first | rfl | ring_nf
     generalize_proofs at *;
     linarith [hN]
   have hNpos : 0 < N := by
@@ -1614,7 +1668,7 @@ theorem theorem_B_nondominant_forcing
       exact le_of_not_ge hRbig
     have hR0 : 0 < R := by
       by_contra hRneg
-      push_neg at hRneg
+      push Not at hRneg
       exact hnd (theoremB_zero_dominant X hX1 P hP hcard2 a ρ hρ.le (le_antisymm (le_trans hQ hRneg) (QP_nonneg P a)))
     generalize_proofs at *;
     have hThr1 : 64*(256/ρ)*c2 ≤ (X:ℝ)*Real.log X := by
@@ -1622,7 +1676,7 @@ theorem theorem_B_nondominant_forcing
     have hThr2 : 8192*c2/(cE*ρ^4) ≤ (X:ℝ)/Real.log X := by
       exact le_trans ( le_max_of_le_right <| le_max_of_le_right <| le_max_right _ _ ) hKX
     have hAR : (256/ρ)*R ≤ N^2/16 := by
-      apply theoremB_hAR ρ c2 hρ hc2pos.le X N R hlog0 hXpos hN hRle' hThr1
+      apply theoremB_hAR ρ c2 hρ hc2pos.le X N R hlog0 hN hRle' hThr1
     have h1 : 1 ≤ ρ*N/8 := by
       have h16 : 16 / ρ ≤ K := by
         exact le_max_of_le_left ( le_max_right _ _ )
@@ -1695,7 +1749,7 @@ theorem corollary_SBEE_below_window
 lemma dominant_label_unique (X : ℕ) (hX : 4 ≤ X) (P : Finset ℕ)
     [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2 * X) (hN : 4 ≤ P.card)
-    (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4)
+    (ρ : ℝ) (_hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4)
     (a : BlockAssignment P) (m m' : ℤ)
     (hm : |m| ≤ (X : ℤ) ^ 2 / 2) (hm' : |m'| ≤ (X : ℤ) ^ 2 / 2)
     (hclass : (1 - ρ) * (P.card : ℝ) ≤ ((P.attach.filter
@@ -1710,7 +1764,7 @@ lemma dominant_label_unique (X : ℕ) (hX : 4 ≤ X) (P : Finset ℕ)
     have h_inter : (Finset.filter (fun p : P => a p = (m : ZMod p.1)) (Finset.univ : Finset P) ∩ Finset.filter (fun p : P => a p = (m' : ZMod p.1)) (Finset.univ : Finset P)).card ≥ 2 := by
       have h_inter : Finset.card (Finset.filter (fun p : P => a p = (m : ZMod p.1)) Finset.univ ∩ Finset.filter (fun p : P => a p = (m' : ZMod p.1)) Finset.univ) ≥ Finset.card (Finset.filter (fun p : P => a p = (m : ZMod p.1)) Finset.univ) + Finset.card (Finset.filter (fun p : P => a p = (m' : ZMod p.1)) Finset.univ) - P.card := by
         rw [ ← Finset.card_union_add_card_inter ];
-        exact Nat.sub_le_of_le_add <| by linarith [ show Finset.card ( Finset.filter ( fun p : P => a p = ( m : ZMod p.1 ) ) Finset.univ ∪ Finset.filter ( fun p : P => a p = ( m' : ZMod p.1 ) ) Finset.univ ) ≤ P.card from le_trans ( Finset.card_le_univ _ ) ( by simpa ) ] ;
+        exact Nat.sub_le_of_le_add <| by linarith [ show Finset.card ( Finset.filter ( fun p : P => a p = ( m : ZMod p.1 ) ) Finset.univ ∪ Finset.filter ( fun p : P => a p = ( m' : ZMod p.1 ) ) Finset.univ ) ≤ P.card from le_trans ( Finset.card_le_univ _ ) ( by simp ) ] ;
       exact le_trans ( Nat.le_sub_of_add_le ( by rw [ ← @Nat.cast_le ℝ ] ; push_cast; linarith [ show ( P.card : ℝ ) ≥ 4 by norm_cast ] ) ) h_inter;
     obtain ⟨ p, hp, q, hq, hpq ⟩ := Finset.one_lt_card.mp h_inter; use p, q; aesop;
   obtain ⟨ p, q, hpq, hp, hp', hq, hq' ⟩ := h_inter; have := hP p p.2; have := hP q q.2; simp_all +decide [ ZMod.intCast_eq_intCast_iff' ] ;
@@ -1848,7 +1902,7 @@ lemma exists_X0_const_logbnd (K : ℝ) :
     threshold via `exists_X0_const_logbnd`), and then `theoremA_label_le`
     converts `(5/(1-ρ))·√R/σ_P ≤ N·X/16`.
 -/
-lemma cold_label_size (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4) (c2 : ℝ) (hc2 : 0 < c2) :
+lemma cold_label_size (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4) (c2 : ℝ) (_hc2 : 0 < c2) :
     ∃ X0 : ℝ, 0 < X0 ∧
       ∀ (X : ℕ), X0 ≤ X →
         ∀ (P : Finset ℕ) [∀ p : P, NeZero p.1],

@@ -87,10 +87,21 @@ theorem product_charFun_bound (θ₀ : ℝ) (hθ₀ : 0 < θ₀) (hθ₀' : θ�
     have h_exp_bound : 1 - 4 * θ₀ * (1 - θ₀) * (Real.sin (Real.pi * h / e)) ^ 2 ≤ Real.exp (-4 * θ₀ * (1 - θ₀) * (Real.sin (Real.pi * h / e)) ^ 2) := by
       exact le_trans ( by ring_nf; norm_num ) ( Real.add_one_le_exp _ );
     convert Real.le_sqrt_of_sq_le ( h_char_bound.trans h_exp_bound ) using 1 ; rw [ Real.sqrt_eq_rpow, ← Real.exp_mul ] ; ring_nf;
-  convert Finset.prod_le_prod ?_ h_prod_bound using 1;
-  · norm_num;
-  · norm_num [ ← Real.exp_sum, Finset.mul_sum _ _ _ ];
-  · exact fun _ _ => norm_nonneg _
+  calc
+    ‖∏ e ∈ E, bernoulliCharFun (θ e) (h / (e : ℝ))‖ =
+        ∏ e ∈ E, ‖bernoulliCharFun (θ e) (h / (e : ℝ))‖ := by
+          rw [norm_prod]
+    _ ≤ ∏ e ∈ E,
+        Real.exp (-2 * θ₀ * (1 - θ₀) * Real.sin (Real.pi * h / e) ^ 2) :=
+      Finset.prod_le_prod (fun _ _ => norm_nonneg _) h_prod_bound
+    _ = Real.exp (- (2 * θ₀ * (1 - θ₀)) *
+        ∑ e ∈ E, Real.sin (Real.pi * (h : ℝ) / (e : ℝ)) ^ 2) := by
+      rw [← Real.exp_sum]
+      congr 1
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro e _
+      ring
 
 /-! ## 3. Fourier inversion on ℤ/Lℤ
 

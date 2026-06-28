@@ -1,4 +1,7 @@
-import Mathlib
+import Mathlib.Algebra.CharP.Basic
+import Mathlib.Analysis.CStarAlgebra.Classes
+import Mathlib.Analysis.Complex.Exponential
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
 open scoped BigOperators
 open scoped Real
@@ -6,15 +9,7 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 8000000
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
-
-set_option relaxedAutoImplicit false
 set_option autoImplicit false
-
-set_option grind.warning false
 
 open Finset
 
@@ -38,6 +33,7 @@ Remark.  The statement only uses `p j` as a family of complex weights; the fact 
 `p j` are genuine probability weights (nonnegative and summing to `1`) is **not** needed for
 this existence conclusion, so those hypotheses are omitted.
 -/
+set_option maxHeartbeats 8000000 in
 theorem spectral_existence
     {J Ω X : Type*} [Fintype J] [DecidableEq J] [Fintype Ω] [DecidableEq X]
     {A : J → Type*} [∀ j, Fintype (A j)]
