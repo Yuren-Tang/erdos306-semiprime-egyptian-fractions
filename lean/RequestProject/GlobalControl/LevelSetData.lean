@@ -5,7 +5,7 @@ This file keeps the segment-encoding data spaces outside the large
 `GlobalControl.lean` file so that the G5 proof can be developed incrementally
 against the cached core.
 -/
-import RequestProject.GlobalControl
+import RequestProject.GlobalControl.ColdBlockBounds
 import RequestProject.GlobalPeierlsBookkeeping
 
 open Finset BigOperators Classical

@@ -4,7 +4,8 @@
 Block systems, finite global assignments, the control energy, block restriction,
 and comparison of the global and block scales.
 -/
-import RequestProject.SBEEAssembly
+import RequestProject.GlobalControl.BlockSystem
+import RequestProject.SBEEForcing
 
 open Finset BigOperators Classical
 
@@ -21,36 +22,6 @@ lemma nndist1_nonneg (x : ℝ) : 0 ≤ nndist1 x := abs_nonneg _
 
 lemma nndist1_le_half (x : ℝ) : nndist1 x ≤ 1 / 2 := by
   simpa [nndist1] using abs_sub_round x
-
-/-! ## G0. Block systems -/
-
-/-- A **block system** (note 34 G0): for each scale `k ∈ [k₀, K]` a block `Pₖ`
-    of primes in the dyadic window `[2ᵏ, 2ᵏ⁺¹)` of near-maximal density
-    `|Pₖ| ≥ 2ᵏ/(2·log 2ᵏ)`.  Different windows are disjoint. -/
-structure BlockSystem where
-  k0 : ℕ
-  K : ℕ
-  hk : k0 ≤ K
-  hk0 : 1 ≤ k0
-  P : ℕ → Finset ℕ
-  hprime : ∀ k, ∀ p ∈ P k, Nat.Prime p
-  hwindow : ∀ k, ∀ p ∈ P k, 2 ^ k ≤ p ∧ p < 2 ^ (k + 1)
-  hdensity : ∀ k, k0 ≤ k → k ≤ K →
-    (2 ^ k : ℝ) / (2 * Real.log (2 ^ k)) ≤ (P k).card
-
-/-- **G0 bridge lemma.**  Every block of a block system is `IrvingGood`
-    (the regime hypothesis of the verified single-block package).  This connects
-    the global layer to `SBEEAssembly.single_block_counting`. -/
-theorem BlockSystem.irvingGood (BS : BlockSystem) (k : ℕ)
-    (hk1 : BS.k0 ≤ k) (hk2 : k ≤ BS.K) :
-    SBEEAssembly.IrvingGood (BS.P k) := by
-  refine ⟨2 ^ k, by positivity, ?_, ?_⟩
-  · intro p hp
-    refine ⟨BS.hprime k p hp, (BS.hwindow k p hp).1, ?_⟩
-    have := (BS.hwindow k p hp).2
-    have h2 : (2 : ℕ) ^ (k + 1) = 2 * 2 ^ k := by ring
-    omega
-  · simpa using BS.hdensity k hk1 hk2
 
 /-! ## G0. Global control energy
 
@@ -85,26 +56,6 @@ this support there are no coordinates, so the type is genuinely finite and the
 level-set counts below are honest cardinalities (not `Set.ncard` artifacts of an
 infinite domain). -/
 
-/-- The block support: all primes appearing in some block `Pₖ`, `k ∈ [k₀,K]`. -/
-def blockSupport (BS : BlockSystem) : Finset ℕ :=
-  (Finset.Icc BS.k0 BS.K).biUnion (fun k => BS.P k)
-
-/-- A **faithful global assignment**: a residue choice for each prime in the
-    block support.  This is the finite dependent product of note 36 §0. -/
-abbrev GlobalAssignment (BS : BlockSystem) :=
-  (p : {p : ℕ // p ∈ blockSupport BS}) → ZMod p.1
-
-/-- Every prime in the block support is prime (hence positive). -/
-lemma blockSupport_prime (BS : BlockSystem) {p : ℕ} (hp : p ∈ blockSupport BS) :
-    Nat.Prime p := by
-  rw [blockSupport, Finset.mem_biUnion] at hp
-  obtain ⟨k, _, hpk⟩ := hp
-  exact BS.hprime k p hpk
-
-instance instNeZeroBlockSupport (BS : BlockSystem)
-    (p : {p : ℕ // p ∈ blockSupport BS}) : NeZero p.1 :=
-  ⟨(blockSupport_prime BS p.2).ne_zero⟩
-
 /-- Extend a faithful global assignment to a plain function `(p:ℕ) → ZMod p` by
     `0` outside the block support (used to feed the per-block lemmas). -/
 def toPlain (BS : BlockSystem) (a : GlobalAssignment BS) : (p : ℕ) → ZMod p :=
@@ -135,25 +86,6 @@ lemma Qctrl_nonneg (BS : BlockSystem) (a : GlobalAssignment BS) : 0 ≤ Qctrl BS
   Finset.sum_nonneg fun _ _ => by positivity
 
 lemma sigmaCtrl_nonneg (BS : BlockSystem) : 0 ≤ sigmaCtrl BS := Real.sqrt_nonneg _
-
-/-! ### Global range bookkeeping
-
-The global Peierls constants are not allowed to depend arbitrarily on a fixed
-`BS`, but they also are not a single absolute constant independent of the number
-of blocks.  The faithful paper statement has a uniform base constant, producing
-a harmless factor `exp(A * numBlocks BS)`, later killed in G7 by the growing
-floor `F0(k0)`.
--/
-
-/-- Number of dyadic blocks in the system. -/
-def numBlocks (BS : BlockSystem) : ℕ := BS.K + 1 - BS.k0
-
-/-- Mild global range condition.  The paper only needs that the number of
-    blocks grows at most linearly in `k₀` (indeed `log K` is negligible compared
-    with the Peierls floors).  This concrete form is deliberately strong and
-    easy to use. -/
-def admissibleGlobalRange (BS : BlockSystem) : Prop :=
-  2 * BS.k0 ≤ BS.K ∧ BS.K ≤ 3 * BS.k0
 
 /-! ## G-2. Block decomposition of the global assignment (note 38 §2) -/
 

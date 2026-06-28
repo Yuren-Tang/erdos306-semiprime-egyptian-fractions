@@ -1,4 +1,5 @@
-import RequestProject.GlobalControl
+import RequestProject.GlobalControl.ColdBlockBounds
+import RequestProject.GlobalControl.MainArc
 
 /-!
 # Global localization dichotomy

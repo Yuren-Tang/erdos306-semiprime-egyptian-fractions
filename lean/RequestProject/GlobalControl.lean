@@ -10,8 +10,7 @@ suffices because the Peierls penalties exceed the entropies.
 ## Section map (note 34)
 
 * **G0** — `BlockSystem`, control pairs, the global control energy `Qctrl` and
-  deviation `sigmaCtrl`.  The bridge lemma `BlockSystem.irvingGood` (each block
-  is `IrvingGood`) is **proved**.  The **faithful finite global-assignment
+  deviation `sigmaCtrl`.  The **faithful finite global-assignment
   interface** (note 36 §0) is now in place: `blockSupport`, `GlobalAssignment`
   (a finite dependent product over the block support), and `Qctrl`/`sigmaCtrl`/
   `mainArc`/`global_levelset`/`global_control_partition` are stated over it, so
@@ -49,40 +48,11 @@ These results feed the minor-arc bound of the circle method (note 35 C4,
 
 ## Status
 
-Faithful Phase-G translation.  G0 data, the `IrvingGood` bridge, G2/G3, and the
+Faithful Phase-G translation.  G0 data, G2/G3, and the
 full note-38 §2/§4 support layer (block decomposition G-2 and sigma comparison
 G-4) are proved.  The headline G5 and G7 assemblies are completed in
 `GlobalControl.LevelSetAssembly` and `GlobalControl.Partition`.  No new analytic input is
 required beyond the verified single-block package (`SBEEAssembly`),
 `GlobalPeierls.shell_sum_bound`, and `lemmaD`.
 -/
-import RequestProject.GlobalControl.Basic
-import RequestProject.GlobalControl.CrossBlockEnergy
-import RequestProject.GlobalControl.BlockEncoding
-import RequestProject.GlobalControl.BlockEntropy
-import RequestProject.GlobalControl.ColdBlockBounds
-import RequestProject.GlobalControl.GaussianIntegerSum
-
-open Finset BigOperators Classical
-
-noncomputable section
-
-namespace GlobalControl
-
-
-
-
-
-
-
-/-! ## G7. Prop 8.1 — global control partition (note 34 G7) -/
-
-/-- The "main arc" set `𝔐_C` (note 34 G6): global assignments that are globally
-    diagonal with a small common label `|m| ≤ C/sigmaCtrl`. -/
-def mainArc (BS : BlockSystem) (C : ℝ) : Set (GlobalAssignment BS) :=
-  {a | ∃ m : ℤ, |(m : ℝ)| ≤ C / sigmaCtrl BS ∧
-        ∀ p : {p : ℕ // p ∈ blockSupport BS}, (a p : ZMod p.1) = (m : ZMod p.1)}
-
-end GlobalControl
-
-end
+import RequestProject.GlobalControl.Partition

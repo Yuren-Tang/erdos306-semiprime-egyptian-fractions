@@ -1,4 +1,5 @@
-import RequestProject.GlobalControl
+import RequestProject.GlobalControl.BlockSystem
+import RequestProject.BlockCRTEnergy
 import Mathlib.Data.Nat.ChineseRemainder
 
 open Finset BigOperators Classical

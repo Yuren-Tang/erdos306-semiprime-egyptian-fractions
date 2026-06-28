@@ -1,4 +1,3 @@
-import RequestProject.GlobalControl
 import RequestProject.GlobalControl.Localization
 
 open Finset BigOperators Classical

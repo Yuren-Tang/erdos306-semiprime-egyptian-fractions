@@ -57,34 +57,43 @@ The first mathematical decomposition of the former monolithic
 `GlobalControl.lean` is now:
 
 ```text
-GlobalControl.Basic
+GlobalControl.BlockSystem
+  -> GlobalControl.Basic
   -> GlobalControl.CrossBlockEnergy
      -> GlobalControl.BlockEncoding
         -> GlobalControl.BlockEntropy
            -> GlobalControl.ColdBlockBounds
-              -> GlobalControl (compatibility aggregate and mainArc)
+              -> GlobalControl.LevelSetData
+              -> GlobalControl.Localization
 
-GlobalControl.GaussianIntegerSum
-  -> GlobalControl
+GlobalControl.Basic
+  -> GlobalControl.MainArc
+     -> GlobalControl.Localization
 
-GlobalControl.ColdBlockBounds
-  -> GlobalControl.LevelSetData
-     -> GlobalControl.LevelSetAssembly
+GlobalControl.LevelSetData
+  -> GlobalControl.LevelSetAssembly
 
-GlobalControl
-  -> GlobalControl.Localization
-     -> GlobalControl.LaplaceAboveFloor
+GlobalControl.Localization
+  -> GlobalControl.LaplaceAboveFloor
 
 GlobalControl.LevelSetAssembly
 GlobalControl.Localization
 GlobalControl.LaplaceAboveFloor
+GlobalControl.GaussianIntegerSum
   -> GlobalControl.Partition
+
+GlobalControl.Partition
+  -> GlobalControl (public aggregate only)
 ```
 
 The module contracts are:
 
-- `Basic`: block systems, finite global assignments, restriction, control
-  energy, and comparison of global and block scales;
+- `BlockSystem`: prime-block data, finite support and assignments, and the
+  admissible scale range, without any local-energy theorem dependency;
+- `Basic`: control energy, the single-block bridge, restriction, and comparison
+  of global and block scales;
+- `MainArc`: the globally diagonal small-label set, separated from both the
+  basic data and its later localization theorem;
 - `CrossBlockEnergy`: reciprocal-phase dispersion and the energy penalty caused
   by different labels on consecutive blocks;
 - `BlockEncoding`: hot/cold data, segment labels, and finite assignment fibers;
@@ -96,6 +105,8 @@ The module contracts are:
 
 These are mathematical ownership boundaries.  Further splitting requires a
 new independently meaningful contract, not merely a shorter compile time.
+No internal or downstream module may import the aggregate `GlobalControl` file;
+that file is an outward-facing re-export only.
 
 ## Naming policy
 

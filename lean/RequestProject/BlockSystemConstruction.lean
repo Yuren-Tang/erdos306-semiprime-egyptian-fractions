@@ -1,4 +1,4 @@
-import RequestProject.GlobalControl
+import RequestProject.GlobalControl.BlockSystem
 import RequestProject.DyadicPrimes
 
 open Finset BigOperators

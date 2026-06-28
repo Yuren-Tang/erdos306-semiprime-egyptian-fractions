@@ -46,18 +46,17 @@ Goal: port without changing theorem statements or module layout.
 
 Completed port nodes include `BernoulliFourier`, `GlobalPeierlsBookkeeping`,
 `SBEEDispersion`, `SBEEFingerprint`, `SBEEForcing`, `SBEEAssembly`, and
-`GlobalControl`.  `GlobalControl` now builds cleanly without warnings or tactic
-diagnostics.  Its former monolith has been decomposed into `Basic`,
+`GlobalControl`.  The theorem chain has been ported, while its dependency
+boundaries are still being audited before it is declared clean.  Its former
+monolith has been decomposed into `BlockSystem`, `Basic`, `MainArc`,
 `CrossBlockEnergy`, `BlockEncoding`, `BlockEntropy`, and `ColdBlockBounds`, with
-the independent Gaussian estimate in `GlobalControl.GaussianIntegerSum`.  Every extracted
-node and the compatibility aggregate build on v4.31.  The downstream
+the independent Gaussian estimate in `GlobalControl.GaussianIntegerSum`.
 The downstream nodes now live under mathematical paths:
 `GlobalControl.LevelSetData`, `GlobalControl.LevelSetAssembly`,
 `GlobalControl.Localization`, `GlobalControl.LaplaceAboveFloor`, and
-`GlobalControl.Partition`.  They build without diagnostics; their historical
-G-numbered paths remain temporary compatibility imports.  The next task is to
-audit the final public import chain and then continue the same mathematical
-decomposition in the next historical monolith.
+`GlobalControl.Partition`.  Their historical G-numbered paths remain temporary
+compatibility imports.  The next task is to finish the source-to-confluence
+dependency audit, then continue at the circle-method confluence.
 
 The original strictly sequential rule (finish the complete port before moving
 modules) is too expensive for large historical files.  Use a node-based hybrid:
@@ -189,17 +188,25 @@ Current progress:
 7. **Validate at confluences.** Local module builds caught port errors cheaply;
    `CircleMethodArcs` then verified the first external consumer. The clean
    checkout build and axiom gate remain CI responsibilities.
+8. **An aggregate is never an internal dependency.** `GlobalControl.lean`
+   previously contained `mainArc`, forcing lower and downstream modules to
+   import the aggregate. Foundational data now lives in `BlockSystem`, the arc
+   definition in `MainArc`, and the aggregate only re-exports `Partition`.
+9. **A cached olean is not a source check.** After changing a declaration
+   interface, validate the changed source or invalidate its target; otherwise a
+   stale downstream artifact can conceal a broken body.
 
 ### Remaining order
 
-1. Push this checkpoint and require the clean CI build, source lint, workflow
-   lint, and exact two-axiom audit to pass.
-2. After CI, remove G-numbered compatibility imports only when `rg` and the
+1. Finish the forward dependency audit of `BlockSystem`, the generic CRT-fiber
+   principle, and the `Basic` energy bridge before returning to downstream CI
+   failures.
+2. Audit the circle-method main-arc chain as the next mathematical confluence:
+   isolate the generic logarithmic Taylor/Gaussian principle before its
+   project-specific mass-identity specialization.
+3. Remove G-numbered compatibility imports only when `rg` and the
    public import closure show no external use; keep theorem aliases for one
    additional migration interval if useful.
-3. Audit the circle-method layer as the next confluence, but avoid reopening the
-   now-green global-control or local-energy sources without a mathematical
-   reason.
 4. Decompose the `R2*` resonant-construction tree by mathematical ownership:
    reciprocal-mass reservoir, frequency selection, damping edges, support and
    budget estimates, and terminal semiprime assembly. Introduce canonical

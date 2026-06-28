@@ -1,7 +1,7 @@
-import RequestProject.GlobalControl
 import RequestProject.GlobalControl.Localization
 import RequestProject.GlobalControl.LaplaceAboveFloor
 import RequestProject.GlobalControl.LevelSetAssembly
+import RequestProject.GlobalControl.GaussianIntegerSum
 
 open Finset BigOperators Classical
 
