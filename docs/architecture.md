@@ -70,6 +70,15 @@ GlobalControl.Basic
   -> GlobalControl.MainArc
      -> GlobalControl.Localization
 
+GlobalControl.NearestInteger
+  -> GlobalControl.CrossBlockEnergy
+  -> CircleMethodArcs
+
+GlobalControl.Basic
+LocalEnergy dominant-forcing bounds
+  -> GlobalControl.ScaleComparison
+     -> GlobalControl.LevelSetAssembly
+
 GlobalControl.LevelSetData
   -> GlobalControl.LevelSetAssembly
 
@@ -91,7 +100,12 @@ The module contracts are:
 - `BlockSystem`: prime-block data, finite support and assignments, and the
   admissible scale range, without any local-energy theorem dependency;
 - `Basic`: control energy, the single-block bridge, restriction, and comparison
-  of global and block scales;
+  of the elementary global scales;
+- `NearestInteger`: the reusable distance-to-the-nearest-integer primitive used
+  by both cross-block dispersion and the circle method;
+- `ScaleComparison`: the handoff from the global control scale to the
+  first-block deviation, isolated because it uses the deeper local-energy
+  forcing package;
 - `MainArc`: the globally diagonal small-label set, separated from both the
   basic data and its later localization theorem;
 - `CrossBlockEnergy`: reciprocal-phase dispersion and the energy penalty caused

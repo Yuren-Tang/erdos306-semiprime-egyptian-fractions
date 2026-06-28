@@ -195,6 +195,10 @@ Current progress:
 9. **A cached olean is not a source check.** After changing a declaration
    interface, validate the changed source or invalidate its target; otherwise a
    stale downstream artifact can conceal a broken body.
+10. **Compute imports, then interpret them mathematically.** Use Mathlib's
+    `#min_imports` for every mature module.  A reported import can still reveal
+    that one late theorem belongs in a separate handoff module, as happened
+    when `sigmaCtrl_le_sigmaP_k0` alone pulled `SBEEForcing` into `Basic`.
 
 ### Remaining order
 

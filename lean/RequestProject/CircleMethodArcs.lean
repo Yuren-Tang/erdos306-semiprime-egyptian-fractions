@@ -1,4 +1,5 @@
 import RequestProject.BernoulliFourier
+import RequestProject.GlobalControl.NearestInteger
 import RequestProject.GlobalControl.Partition
 
 open Finset BigOperators Classical Real GlobalControl

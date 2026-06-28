@@ -65,6 +65,7 @@ Now CLOSED (this round), completing the G5 chain:
     (`propext`, `Classical.choice`, `Quot.sound`).
 -/
 import RequestProject.GlobalControl.LevelSetData
+import RequestProject.GlobalControl.ScaleComparison
 import RequestProject.GlobalPeierlsBookkeeping
 
 open Finset BigOperators Classical

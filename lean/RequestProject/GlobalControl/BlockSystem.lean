@@ -1,5 +1,4 @@
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
-import Mathlib.Data.ZMod.Basic
 
 open Finset Classical
 
