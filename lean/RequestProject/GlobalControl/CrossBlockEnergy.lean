@@ -5,7 +5,7 @@ Deterministic reciprocal-phase dispersion and the energy penalty forced by a
 label mismatch between consecutive prime blocks.
 -/
 import RequestProject.GlobalControl.Basic
-import RequestProject.GlobalControl.NearestInteger
+import Mathlib.Analysis.Normed.Group.AddCircle
 
 open Finset BigOperators Classical
 
@@ -23,8 +23,8 @@ the "fiber ≤ 1" form of `lemmaD` applies directly. -/
 **Phase lower bound.**  If `q ∤ n` then the distance from `n/q` to the
     nearest integer is at least `1/q` (the numerator is a nonzero residue).
 -/
-lemma nndist1_ratio_ge (q : ℕ) (hq0 : 0 < q) (n : ℤ) (hn : ¬ (q : ℤ) ∣ n) :
-    1 / (q : ℝ) ≤ nndist1 ((n : ℝ) / (q : ℝ)) := by
+lemma unitCircleNorm_ratio_ge (q : ℕ) (hq0 : 0 < q) (n : ℤ) (hn : ¬ (q : ℤ) ∣ n) :
+    1 / (q : ℝ) ≤ (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((n : ℝ) / (q : ℝ)) := by
   -- Let $k = \text{round}(n/q)$, then $n - kq \neq 0$ since $q \nmid n$.
   set k := round ((n : ℝ) / q)
   have hk_ne_zero : n - k * q ≠ 0 := by
@@ -35,7 +35,7 @@ lemma nndist1_ratio_ge (q : ℕ) (hq0 : 0 < q) (n : ℤ) (hn : ¬ (q : ℤ) ∣ 
     · simp +decide [Rat.divInt_eq_div];
       exact le_mul_of_one_le_left ( by positivity ) ( mod_cast abs_pos.mpr ( show ( n - q * k : ℤ ) ≠ 0 from by simpa [ mul_comm ] using hk_ne_zero ) );
     · linarith;
-  exact h_abs
+  simpa [Function.comp_def, UnitAddCircle.norm_eq] using h_abs
 
 /-
 **G2 residue count** (the `dispersion_residue_count` analog, fiber ≤ 1).
@@ -48,15 +48,15 @@ lemma crossblock_residue_count (X : ℕ) (hX : 0 < X) (P : Finset ℕ)
     (d : ℤ) (hqd : ¬ (q : ℤ) ∣ d)
     (pinv : ℕ → ℕ) (hpinv : ∀ p ∈ P, (p * pinv p) % q = 1 % q) :
     ((P.filter (fun p =>
-        nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ≤ (P.card : ℝ) / (32 * X))).card : ℝ)
+        (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ≤ (P.card : ℝ) / (32 * X))).card : ℝ)
       ≤ (P.card : ℝ) / 4 + 1 := by
   -- Set δ := (P.card : ℝ)/(32*X).
   set δ := (P.card : ℝ) / (32 * X);
-  -- Step 1 (witness): If p ∈ P and nndist1((d:ℝ)*(pinv p:ℝ)/q) ≤ δ, then there is an integer u with |u| ≤ δ*q and (q:ℤ) ∣ (d * pinv p - u).
-  have h_witness : ∀ p ∈ P, nndist1 ((d : ℝ) * (pinv p : ℝ) / q) ≤ δ → ∃ u : ℤ, |u| ≤ δ * q ∧ (q : ℤ) ∣ (d - u * p) := by
+  -- Step 1 (witness): If p ∈ P and (norm ∘ ((↑) : ℝ → UnitAddCircle))((d:ℝ)*(pinv p:ℝ)/q) ≤ δ, then there is an integer u with |u| ≤ δ*q and (q:ℤ) ∣ (d * pinv p - u).
+  have h_witness : ∀ p ∈ P, (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / q) ≤ δ → ∃ u : ℤ, |u| ≤ δ * q ∧ (q : ℤ) ∣ (d - u * p) := by
     intro p hp hδ
     obtain ⟨u, hu⟩ : ∃ u : ℤ, |u| ≤ δ * q ∧ (q : ℤ) ∣ (d * pinv p - u) := by
-      refine' ⟨ d * pinv p - round ( ( d : ℝ ) * pinv p / q ) * q, _, _ ⟩ <;> norm_num [ nndist1 ] at *;
+      refine' ⟨ d * pinv p - round ( ( d : ℝ ) * pinv p / q ) * q, _, _ ⟩ <;> norm_num [Function.comp_def, UnitAddCircle.norm_eq] at *;
       convert mul_le_mul_of_nonneg_right hδ (Nat.cast_nonneg q) using 1 <;> try rfl
       rw [div_sub', abs_div] <;> norm_num [hq.ne_zero]
       ring_nf
@@ -64,7 +64,7 @@ lemma crossblock_residue_count (X : ℕ) (hX : 0 < X) (P : Finset ℕ)
       exact ⟨ p * pinv p / q - 1 / q, by linarith [ Nat.mod_add_div ( p * pinv p ) q, Nat.mod_add_div 1 q, hpinv p hp ] ⟩;
     exact ⟨ u, hu.1, by convert hu.2.mul_left p |> Int.dvd_sub <| h_div.mul_left d using 1; ring ⟩;
   -- Step 3 (cover): The filtered set is contained in the union over integers u ∈ Icc (-m) m (where m := ⌊δ*q⌋ ≥ 0) of {p ∈ P : (q:ℤ) ∣ (d - u*p)}.
-  have h_cover : {p ∈ P | nndist1 ((d : ℝ) * (pinv p : ℝ) / q) ≤ δ} ⊆ Finset.biUnion (Finset.Icc (-⌊δ * q⌋) ⌊δ * q⌋) (fun u => {p ∈ P | (q : ℤ) ∣ (d - u * p)}) := by
+  have h_cover : {p ∈ P | (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / q) ≤ δ} ⊆ Finset.biUnion (Finset.Icc (-⌊δ * q⌋) ⌊δ * q⌋) (fun u => {p ∈ P | (q : ℤ) ∣ (d - u * p)}) := by
     intro p hp
     rw [Finset.mem_filter] at hp
     obtain ⟨u, hu_abs, hu_dvd⟩ := h_witness p hp.1 hp.2
@@ -118,36 +118,36 @@ theorem crossblock_dispersion (X : ℕ) (hX : 0 < X) (P : Finset ℕ)
     (d : ℤ) (hqd : ¬ (q : ℤ) ∣ d)
     (pinv : ℕ → ℕ) (hpinv : ∀ p ∈ P, (p * pinv p) % q = 1 % q) :
     (P.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) ≤
-      ∑ p ∈ P, nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ^ 2 := by
+      ∑ p ∈ P, (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ^ 2 := by
   by_cases hP_card : P.card ≤ 11;
-  · -- For each p ∈ P, nndist1((d:ℝ)*(pinv p:ℝ)/q) ≥ 1/q.
-    have h_term_ge : ∀ p ∈ P, (nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ))) ^ 2 ≥ (1 / (q : ℝ)) ^ 2 := by
+  · -- For each p ∈ P, (norm ∘ ((↑) : ℝ → UnitAddCircle))((d:ℝ)*(pinv p:ℝ)/q) ≥ 1/q.
+    have h_term_ge : ∀ p ∈ P, ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ))) ^ 2 ≥ (1 / (q : ℝ)) ^ 2 := by
       intro p hp
       have h_not_div : ¬(q : ℤ) ∣ (d * pinv p) := by
         haveI := Fact.mk hq; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ;
         intro H; specialize hpinv p hp; simp_all +decide [ ← ZMod.natCast_eq_natCast_iff' ] ;
       gcongr;
       simpa only [Int.cast_mul, Int.cast_natCast] using
-        nndist1_ratio_ge q (Nat.Prime.pos hq) (d * pinv p) h_not_div
+        unitCircleNorm_ratio_ge q (Nat.Prime.pos hq) (d * pinv p) h_not_div
     refine le_trans ?_ ( Finset.sum_le_sum h_term_ge ) ; norm_num;
     field_simp;
     rw [ le_div_iff₀ ] <;> norm_cast <;> try nlinarith only [ hqlb, hqub, hX ] ;
     nlinarith [ Nat.pow_le_pow_left hP_card 2, Nat.pow_le_pow_left hqlb 2, Nat.pow_le_pow_left hqub.le 2, Nat.mul_le_mul_left ( #P ) ( show #P ^ 2 ≤ 121 by nlinarith only [ hP_card ] ) ];
-  · -- By crossblock_residue_count, the number of p ∈ P with nndist1(...) ≤ δ is ≤ P.card/4 + 1.
+  · -- By crossblock_residue_count, the number of p ∈ P with (norm ∘ ((↑) : ℝ → UnitAddCircle))(...) ≤ δ is ≤ P.card/4 + 1.
     set δ := (P.card : ℝ) / (32 * X)
-    have h_residue_count : ((P.filter (fun p => nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ≤ δ)).card : ℝ) ≤ P.card / 4 + 1 := by
+    have h_residue_count : ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ≤ δ)).card : ℝ) ≤ P.card / 4 + 1 := by
       convert crossblock_residue_count X hX P hP q hq hqlb hqub d hqd pinv hpinv using 1;
-    -- For each p ∈ S, term p = nndist1(...)² > δ².
-    have h_term_bound : ∀ p ∈ P.filter (fun p => nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ), (nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)))^2 ≥ δ^2 := by
+    -- For each p ∈ S, term p = (norm ∘ ((↑) : ℝ → UnitAddCircle))(...)² > δ².
+    have h_term_bound : ∀ p ∈ P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ), ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)))^2 ≥ δ^2 := by
       exact fun p hp => pow_le_pow_left₀ ( by positivity ) ( Finset.mem_filter.mp hp |>.2.le ) 2;
     -- Therefore, ∑ p ∈ P term p ≥ ∑ p ∈ S term p ≥ S.card * δ².
-    have h_sum_bound : (∑ p ∈ P, (nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)))^2) ≥ ((P.filter (fun p => nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ)).card : ℝ) * δ^2 := by
-      have h_sum_bound : (∑ p ∈ P, (nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)))^2) ≥ (∑ p ∈ P.filter (fun p => nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ), (nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)))^2) := by
+    have h_sum_bound : (∑ p ∈ P, ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)))^2) ≥ ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ)).card : ℝ) * δ^2 := by
+      have h_sum_bound : (∑ p ∈ P, ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)))^2) ≥ (∑ p ∈ P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ), ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)))^2) := by
         exact Finset.sum_le_sum_of_subset_of_nonneg ( Finset.filter_subset _ _ ) fun _ _ _ => sq_nonneg _;
       exact le_trans ( by simpa using Finset.sum_le_sum h_term_bound ) h_sum_bound;
     -- Since $S.card \geq P.card / 2$, we have $S.card * δ^2 \geq (P.card / 2) * δ^2$.
-    have h_card_bound : ((P.filter (fun p => nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ)).card : ℝ) ≥ (P.card : ℝ) / 2 := by
-      have h_card_bound : ((P.filter (fun p => nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ)).card : ℝ) + ((P.filter (fun p => nndist1 ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ≤ δ)).card : ℝ) = P.card := by
+    have h_card_bound : ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ)).card : ℝ) ≥ (P.card : ℝ) / 2 := by
+      have h_card_bound : ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ)).card : ℝ) + ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ≤ δ)).card : ℝ) = P.card := by
         rw_mod_cast [ Finset.card_filter, Finset.card_filter ];
         simpa only [ ← Finset.sum_add_distrib ] using Finset.card_eq_sum_ones P ▸ by congr; ext; split_ifs <;> linarith;
       linarith [ show ( P.card : ℝ ) ≥ 12 by norm_cast; linarith ];
@@ -156,10 +156,10 @@ theorem crossblock_dispersion (X : ℕ) (hX : 0 < X) (P : Finset ℕ)
           (P.card : ℝ) / 2 * δ ^ 2 := by
         dsimp [δ]
         ring
-      _ ≤ ((P.filter (fun p => nndist1
+      _ ≤ ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle))
           ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ)).card : ℝ) * δ ^ 2 :=
         mul_le_mul_of_nonneg_right h_card_bound (sq_nonneg _)
-      _ ≤ ∑ p ∈ P, nndist1
+      _ ≤ ∑ p ∈ P, (norm ∘ ((↑) : ℝ → UnitAddCircle))
           ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ^ 2 := h_sum_bound
 
 /-! ## G3. Mismatch penalty (note 34 G3)
@@ -181,18 +181,17 @@ the dispersion count (`hNk`, `hNk1`, implied by `BS.hdensity` for large `k`).
 The nearest-integer distance never exceeds the absolute value (`round` is
     nearest, so `|x - round x| ≤ |x - 0|`).
 -/
-lemma nndist1_le_abs (x : ℝ) : nndist1 x ≤ |x| := by
-  unfold nndist1
+lemma unitCircleNorm_le_abs (x : ℝ) : (norm ∘ ((↑) : ℝ → UnitAddCircle)) x ≤ |x| := by
+  rw [Function.comp_apply, UnitAddCircle.norm_eq]
   calc
     |x - (round x : ℝ)| ≤ |x - ((0 : ℤ) : ℝ)| := round_le x 0
     _ = |x| := by norm_num
 
 /-
-`nndist1` is invariant under integer translation.
+`(norm ∘ ((↑) : ℝ → UnitAddCircle))` is invariant under integer translation.
 -/
-lemma nndist1_add_intCast (x : ℝ) (n : ℤ) : nndist1 (x + (n : ℝ)) = nndist1 x := by
-  unfold nndist1; rw [ round_add_intCast ] ; ring_nf;
-  grind +revert
+lemma unitCircleNorm_add_intCast (x : ℝ) (n : ℤ) : (norm ∘ ((↑) : ℝ → UnitAddCircle)) (x + (n : ℝ)) = (norm ∘ ((↑) : ℝ → UnitAddCircle)) x := by
+  simp
 
 /-
 **G3 phase bridge** (modulus `q`).  For distinct primes `p ≠ q`, an inverse
@@ -201,11 +200,11 @@ lemma nndist1_add_intCast (x : ℝ) (n : ℤ) : nndist1 (x + (n : ℝ)) = nndist
 
     Proof: `H ≡ m (mod p)` so `v := (H-m)/p ∈ ℤ`; `v·p ≡ m'-m (mod q)` with
     `p·pinv ≡ 1` give `v ≡ (m'-m)·pinv (mod q)`, so
-    `nndist1((m'-m)·pinv/q) = nndist1(v/q) ≤ |v|/q = |H-m|/(pq) ≤ (|H|+|m|)/(pq)`.
+    `(norm ∘ ((↑) : ℝ → UnitAddCircle))((m'-m)·pinv/q) = (norm ∘ ((↑) : ℝ → UnitAddCircle))(v/q) ≤ |v|/q = |H-m|/(pq) ≤ (|H|+|m|)/(pq)`.
 -/
 lemma crossblock_phase_bridge (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
     (m m' : ℤ) (pinv : ℕ) (hpinv : (p * pinv) % q = 1 % q) :
-    nndist1 (((m' - m : ℤ) : ℝ) * (pinv : ℝ) / (q : ℝ))
+    (norm ∘ ((↑) : ℝ → UnitAddCircle)) (((m' - m : ℤ) : ℝ) * (pinv : ℝ) / (q : ℝ))
       ≤ |(crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ)| / ((p : ℝ) * (q : ℝ))
         + |(m : ℝ)| / ((p : ℝ) * (q : ℝ)) := by
   have h_coprime : Nat.Coprime p q := by
@@ -226,16 +225,16 @@ lemma crossblock_phase_bridge (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p
         (p * pinv - 1) * v - (p * v - (m' - m)) * pinv by ring]
     exact dvd_sub (h_div.mul_right v)
       (‹(q : ℤ) ∣ p * v - (m' - m)›.mul_right pinv)
-  have h_nndist : nndist1 ((m' - m : ℤ) * pinv / (q : ℝ)) = nndist1 ((v : ℝ) / (q : ℝ)) := by
+  have h_norm : (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((m' - m : ℤ) * pinv / (q : ℝ)) = (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((v : ℝ) / (q : ℝ)) := by
     obtain ⟨ k, hk ⟩ := h_div;
-    convert nndist1_add_intCast ( v / q : ℝ ) k using 1;
+    convert unitCircleNorm_add_intCast ( v / q : ℝ ) k using 1;
     exact congr_arg _ ( by rw [ div_add', div_eq_div_iff ] <;> norm_cast <;> nlinarith [ hq.two_le ] );
   have h_abs : |(v : ℝ) / (q : ℝ)| ≤ |(crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ) - m| / (p * q) := by
     rw [ show ( crtRepr p q m m' : ℝ ) - m = p * v by exact_mod_cast hv ] ; norm_num [ abs_div, abs_mul, hp.ne_zero, hq.ne_zero ] ; ring_nf ;
     norm_num [ hp.ne_zero ];
   have h_abs : |(crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ) - m| ≤ |(crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ)| + |(m : ℝ)| := by
     exact abs_sub _ _;
-  exact h_nndist.symm ▸ le_trans ( nndist1_le_abs _ ) ( by convert le_trans ‹_› ( div_le_div_of_nonneg_right h_abs ( by positivity ) ) using 1 ; ring )
+  exact h_norm.symm ▸ le_trans ( unitCircleNorm_le_abs _ ) ( by convert le_trans ‹_› ( div_le_div_of_nonneg_right h_abs ( by positivity ) ) using 1 ; ring )
 
 /-
 **G3 per-vertex bound.**  For a single good prime `q ∈ [2X,4X)` (with
@@ -255,22 +254,22 @@ lemma mismatch_per_q (X : ℕ) (hX : 0 < X) (P : Finset ℕ)
     (P.card : ℝ) ^ 3 / (2 ^ 13 * (X : ℝ) ^ 2) ≤
       ∑ p ∈ P, ((crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ) / ((p : ℝ) * q)) ^ 2 := by
   set pinv : ℕ → ℕ := fun p => ((p : ZMod q)⁻¹).val;
-  -- By crossblock_residue_count, at least P.card/2 of the p have nndist1((m'-m)·p̄/q) > δ = P.card/(32X).
-  have h_residue_count : ((P.filter (fun p => nndist1 ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) > (P.card : ℝ) / (32 * X))).card : ℝ) ≥ (P.card : ℝ) / 2 := by
-    have h_residue_count : ((P.filter (fun p => nndist1 ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) ≤ (P.card : ℝ) / (32 * X))).card : ℝ) ≤ (P.card : ℝ) / 4 + 1 := by
+  -- By crossblock_residue_count, at least P.card/2 of the p have (norm ∘ ((↑) : ℝ → UnitAddCircle))((m'-m)·p̄/q) > δ = P.card/(32X).
+  have h_residue_count : ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) > (P.card : ℝ) / (32 * X))).card : ℝ) ≥ (P.card : ℝ) / 2 := by
+    have h_residue_count : ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) ≤ (P.card : ℝ) / (32 * X))).card : ℝ) ≤ (P.card : ℝ) / 4 + 1 := by
       convert crossblock_residue_count X hX P hP q hq hqlb hqub (m' - m) hqd pinv _ using 1;
       intro p hp; haveI := Fact.mk hq; simp +decide [ ← ZMod.natCast_eq_natCast_iff' ] ;
       simp +zetaDelta at *;
       rw [ mul_inv_cancel₀ ] ; exact by rw [ Ne.eq_def, ZMod.natCast_eq_zero_iff ] ; exact Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos ( hP p hp |>.1 ) ) ( by linarith [ hP p hp |>.2 ] ) ;
-    have h_residue_count : ((P.filter (fun p => nndist1 ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) > (P.card : ℝ) / (32 * X))).card : ℝ) = (P.card : ℝ) - ((P.filter (fun p => nndist1 ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) ≤ (P.card : ℝ) / (32 * X))).card : ℝ) := by
+    have h_residue_count : ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) > (P.card : ℝ) / (32 * X))).card : ℝ) = (P.card : ℝ) - ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) ≤ (P.card : ℝ) / (32 * X))).card : ℝ) := by
       rw [ eq_sub_iff_add_eq, ← Nat.cast_add, ← Finset.card_union_of_disjoint ];
-      · congr with p ; by_cases hp : nndist1 ( ( m' - m : ℤ ) * ( pinv p : ℝ ) / q ) ≤ ( P.card : ℝ ) / ( 32 * X ) <;> aesop;
+      · congr with p ; by_cases hp : (norm ∘ ((↑) : ℝ → UnitAddCircle)) ( ( m' - m : ℤ ) * ( pinv p : ℝ ) / q ) ≤ ( P.card : ℝ ) / ( 32 * X ) <;> aesop;
       · exact Finset.disjoint_filter.mpr fun _ _ _ _ => by linarith;
     linarith [ show ( P.card : ℝ ) ≥ 12 by norm_cast ];
-  -- For each p in the set where nndist1((m'-m)·p̄/q) > δ, we have |H p|/(pq) ≥ δ/2.
-  have h_phase_bound : ∀ p ∈ P.filter (fun p => nndist1 ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) > (P.card : ℝ) / (32 * X)), |(crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ)| / ((p : ℝ) * (q : ℝ)) ≥ (P.card : ℝ) / (64 * X) := by
+  -- For each p in the set where (norm ∘ ((↑) : ℝ → UnitAddCircle))((m'-m)·p̄/q) > δ, we have |H p|/(pq) ≥ δ/2.
+  have h_phase_bound : ∀ p ∈ P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) > (P.card : ℝ) / (32 * X)), |(crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ)| / ((p : ℝ) * (q : ℝ)) ≥ (P.card : ℝ) / (64 * X) := by
     intro p hp
-    have h_phase : nndist1 ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) ≤ |(crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ)| / ((p : ℝ) * (q : ℝ)) + |(m : ℝ)| / ((p : ℝ) * (q : ℝ)) := by
+    have h_phase : (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) ≤ |(crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ)| / ((p : ℝ) * (q : ℝ)) + |(m : ℝ)| / ((p : ℝ) * (q : ℝ)) := by
       convert crossblock_phase_bridge p q ( hP p ( Finset.filter_subset _ _ hp ) |>.1 ) hq ( by
         linarith [ hP p ( Finset.filter_subset _ _ hp ) ] ) m m' ( pinv p ) ( by
         haveI := Fact.mk hq; simp +decide [ ← ZMod.natCast_eq_natCast_iff' ] ;
@@ -284,7 +283,7 @@ lemma mismatch_per_q (X : ℕ) (hX : 0 < X) (P : Finset ℕ)
     norm_num at *;
     ring_nf at *; linarith;
   -- Therefore, $\sum_{p \in P} \left(\frac{H_{pq}}{pq}\right)^2 \geq \sum_{p \in S} \left(\frac{\delta}{2}\right)^2$.
-  have h_sum_bound : ∑ p ∈ P, ((crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ) / ((p : ℝ) * (q : ℝ))) ^ 2 ≥ ∑ p ∈ P.filter (fun p => nndist1 ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) > (P.card : ℝ) / (32 * X)), ((P.card : ℝ) / (64 * X)) ^ 2 := by
+  have h_sum_bound : ∑ p ∈ P, ((crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ) / ((p : ℝ) * (q : ℝ))) ^ 2 ≥ ∑ p ∈ P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((m' - m : ℤ) * (pinv p : ℝ) / (q : ℝ)) > (P.card : ℝ) / (32 * X)), ((P.card : ℝ) / (64 * X)) ^ 2 := by
     refine' le_trans ( Finset.sum_le_sum fun p hp => pow_le_pow_left₀ ( by positivity ) ( h_phase_bound p hp ) 2 ) _;
     refine' le_trans ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.filter_subset _ _ ) fun _ _ _ => sq_nonneg _ ) _;
     norm_num [ div_pow, abs_div, abs_mul, abs_of_nonneg, Nat.cast_nonneg ];

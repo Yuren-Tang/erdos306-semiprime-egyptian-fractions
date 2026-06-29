@@ -17,7 +17,7 @@ suffices because the Peierls penalties exceed the entropies.
   the level-set counts are honest cardinalities of a finite type.
 * **G2** — cross-block dispersion (`crossblock_dispersion`).  Self-contained
   number theory; **proved** (deterministic, `lemmaD` pattern; fiber ≤ 1), via
-  `nndist1_ratio_ge` and `crossblock_residue_count`.
+  `unitCircleNorm_ratio_ge` and `crossblock_residue_count`.
 * **G3** — mismatch penalty `Πₖ` (`mismatch_penalty`).  **Proved (corrected
   statement)** — the original statement is FALSE (label-size hypotheses were
   omitted; see the finding in the G3 section).  Assembled from

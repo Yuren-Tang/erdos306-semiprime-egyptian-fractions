@@ -21,13 +21,13 @@ count (note 50 §4).  This file proves the arithmetic lower bound.
 `h` that is diagonal modulo `s` (`h ≡ m`, `m` small: `2|m| < s`) but *offset*
 modulo `r` (`h ≢ m`), the nearest-integer distance satisfies
 `‖h/(rs)‖ ≥ 1/(2r)`. -/
-lemma gadget_nndist1_lower (r s : ℕ) (hr : Nat.Prime r) (hs : Nat.Prime s)
+lemma gadget_unitCircleNorm_lower (r s : ℕ) (hr : Nat.Prime r) (hs : Nat.Prime s)
     (hrs : r ≠ s) (h : ℕ) (m : ℤ)
     (hm_s : (h : ZMod s) = (m : ZMod s)) (hm_r : (h : ZMod r) ≠ (m : ZMod r))
     (hm_small : 2 * |m| < (s : ℤ)) :
-    1 / (2 * (r : ℝ)) ≤ GlobalControl.nndist1 ((h : ℝ) / ((r : ℝ) * (s : ℝ))) := by
+    1 / (2 * (r : ℝ)) ≤ (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((h : ℝ) / ((r : ℝ) * (s : ℝ))) := by
   have hcop : Nat.Coprime r s := (Nat.coprime_primes hr hs).mpr hrs
-  rw [nndist1_eq_crtRepr_div r s hr hs hrs h]
+  rw [unitCircleNorm_eq_crtRepr_div r s hr hs hrs h]
   set M : ℤ := crtRepr r s (h : ZMod r) (h : ZMod s) with hM
   -- M ≡ m (mod s), M ≢ m (mod r)
   have hMs : (M : ZMod s) = (m : ZMod s) := by
@@ -72,12 +72,12 @@ lemma gadget_charFun_damp (r s : ℕ) (hr : Nat.Prime r) (hs : Nat.Prime s)
       ≤ Real.sqrt (1 - (8/9) / (r : ℝ)^2) := by
   set t : ℝ := (h : ℝ) / ((r : ℝ) * (s : ℝ)) with ht
   have hr0 : (0 : ℝ) < (r : ℝ) := by exact_mod_cast hr.pos
-  have hnd : 1 / (2 * (r : ℝ)) ≤ GlobalControl.nndist1 t :=
-    gadget_nndist1_lower r s hr hs hrs h m hm_s hm_r hm_small
+  have hnd : 1 / (2 * (r : ℝ)) ≤ (norm ∘ ((↑) : ℝ → UnitAddCircle)) t :=
+    gadget_unitCircleNorm_lower r s hr hs hrs h m hm_s hm_r hm_small
   -- sin²(πt) ≥ 1/r²
   have hsin : (1 : ℝ) / (r : ℝ)^2 ≤ Real.sin (Real.pi * t)^2 := by
-    have h4 := sin_sq_pi_ge_four_nndist_sq t
-    have hnd2 : (1 / (2 * (r : ℝ)))^2 ≤ (GlobalControl.nndist1 t)^2 :=
+    have h4 := sin_sq_pi_ge_four_unitCircleNorm_sq t
+    have hnd2 : (1 / (2 * (r : ℝ)))^2 ≤ ((norm ∘ ((↑) : ℝ → UnitAddCircle)) t)^2 :=
       pow_le_pow_left₀ (by positivity) hnd 2
     have heq : (1 : ℝ) / (r : ℝ)^2 = 4 * (1 / (2 * (r : ℝ)))^2 := by field_simp; ring
     rw [heq]; nlinarith [h4, hnd2]

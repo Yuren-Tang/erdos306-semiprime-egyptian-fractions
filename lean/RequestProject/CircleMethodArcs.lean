@@ -1,5 +1,5 @@
 import RequestProject.BernoulliFourier
-import RequestProject.GlobalControl.NearestInteger
+import Mathlib.Analysis.Normed.Group.AddCircle
 import RequestProject.GlobalControl.Partition
 
 open Finset BigOperators Classical Real GlobalControl
@@ -18,25 +18,25 @@ because that is what couples to the global control energy `Qctrl` (via the CRT
 bijection `h ↔ a`).  The bridge is the elementary pointwise inequality
 `sin²(π x) ≥ 4 ‖x‖²` (Jordan), giving `∑ sin² ≥ 4 Q_E`.
 
-`GlobalControl.nndist1 x = |x - round x| = ‖x‖` is reused as the nearest-integer
+`(norm ∘ ((↑) : ℝ → UnitAddCircle)) x = |x - round x| = ‖x‖` is reused as the nearest-integer
 distance.
 -/
 
 /-- The quadratic CRT energy `Q_E(h) = ∑_{e∈E} ‖h/e‖²`, using the nearest-integer
-distance `nndist1` (this is the faithful version; `BernoulliFourier`'s
+distance `(norm ∘ ((↑) : ℝ → UnitAddCircle))` (this is the faithful version; `BernoulliFourier`'s
 `quadraticCRTEnergy` was a placeholder). -/
 def QE (E : Finset ℕ) (h : ℕ) : ℝ :=
-  ∑ e ∈ E, (GlobalControl.nndist1 ((h : ℝ) / (e : ℝ))) ^ 2
+  ∑ e ∈ E, ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((h : ℝ) / (e : ℝ))) ^ 2
 
 /-- **Jordan bridge (per term).**  `sin²(π x) ≥ 4 ‖x‖²` where `‖x‖ = |x - round x|`. -/
-lemma sin_sq_pi_ge_four_nndist_sq (x : ℝ) :
-    4 * (GlobalControl.nndist1 x) ^ 2 ≤ Real.sin (Real.pi * x) ^ 2 := by
+lemma sin_sq_pi_ge_four_unitCircleNorm_sq (x : ℝ) :
+    4 * ((norm ∘ ((↑) : ℝ → UnitAddCircle)) x) ^ 2 ≤ Real.sin (Real.pi * x) ^ 2 := by
   set n := round x with hn
   set d := x - (n : ℝ) with hd
   have hdabs : |d| ≤ 1 / 2 := by rw [hd, hn]; exact abs_sub_round x
-  -- nndist1 x = |d|
-  have hnd : GlobalControl.nndist1 x = |d| := by
-    unfold GlobalControl.nndist1; rw [hd, hn]
+  -- (norm ∘ ((↑) : ℝ → UnitAddCircle)) x = |d|
+  have hnd : (norm ∘ ((↑) : ℝ → UnitAddCircle)) x = |d| := by
+    rw [Function.comp_apply, UnitAddCircle.norm_eq, hd, hn]
   -- period: sin²(πx) = sin²(πd)
   have hper : Real.sin (Real.pi * x) ^ 2 = Real.sin (Real.pi * d) ^ 2 := by
     have key : ∀ θ : ℝ, 2 * Real.sin θ ^ 2 = 1 - Real.cos (2 * θ) := by
@@ -84,8 +84,8 @@ theorem product_charFun_bound_QE (θ₀ : ℝ) (hθ₀ : 0 < θ₀) (hθ₀' : �
   have hsum : 4 * QE E h ≤ ∑ e ∈ E, Real.sin (Real.pi * (h : ℝ) / (e : ℝ)) ^ 2 := by
     rw [QE, Finset.mul_sum]
     refine Finset.sum_le_sum (fun e _ => ?_)
-    have := sin_sq_pi_ge_four_nndist_sq ((h : ℝ) / (e : ℝ))
-    calc 4 * (GlobalControl.nndist1 ((h : ℝ) / (e : ℝ))) ^ 2
+    have := sin_sq_pi_ge_four_unitCircleNorm_sq ((h : ℝ) / (e : ℝ))
+    calc 4 * ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((h : ℝ) / (e : ℝ))) ^ 2
         ≤ Real.sin (Real.pi * ((h : ℝ) / (e : ℝ))) ^ 2 := this
       _ = Real.sin (Real.pi * (h : ℝ) / (e : ℝ)) ^ 2 := by rw [mul_div_assoc]
   nlinarith [hsum, hc, mul_le_mul_of_nonneg_left hsum hc]
@@ -148,9 +148,9 @@ This is the per-control-pair identity behind `Q_E(h) = Q_ctrl(a(h))` (note 35 C2
 -/
 
 /-- If an integer `t` is within `1/2` of `x`, then `‖x‖ = |x - t|`. -/
-lemma nndist1_eq_of_int (x : ℝ) (t : ℤ) (hx : |x - (t : ℝ)| ≤ 1 / 2) :
-    GlobalControl.nndist1 x = |x - (t : ℝ)| := by
-  unfold GlobalControl.nndist1
+lemma unitCircleNorm_eq_of_int (x : ℝ) (t : ℤ) (hx : |x - (t : ℝ)| ≤ 1 / 2) :
+    (norm ∘ ((↑) : ℝ → UnitAddCircle)) x = |x - (t : ℝ)| := by
+  rw [Function.comp_apply, UnitAddCircle.norm_eq]
   rcases eq_or_ne (round x) t with heq | hne
   · rw [heq]
   · -- round x ≠ t : both are within 1/2 of x, so x is equidistant and both = 1/2
@@ -169,9 +169,9 @@ lemma nndist1_eq_of_int (x : ℝ) (t : ℤ) (hx : |x - (t : ℝ)| ≤ 1 / 2) :
 
 /-- **Per-pair CRT energy identity.**  For distinct primes `p, q`,
 `‖h/(pq)‖ = |crtRepr p q (h mod p) (h mod q)| / (pq)`. -/
-lemma nndist1_eq_crtRepr_div (p q : ℕ) (hp : Nat.Prime p) (hq : Nat.Prime q)
+lemma unitCircleNorm_eq_crtRepr_div (p q : ℕ) (hp : Nat.Prime p) (hq : Nat.Prime q)
     (hpq : p ≠ q) (h : ℕ) :
-    GlobalControl.nndist1 ((h : ℝ) / ((p : ℝ) * (q : ℝ)))
+    (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((h : ℝ) / ((p : ℝ) * (q : ℝ)))
       = |(crtRepr p q (h : ZMod p) (h : ZMod q) : ℝ)| / ((p : ℝ) * (q : ℝ)) := by
   have hcop : Nat.Coprime p q := (Nat.coprime_primes hp hq).mpr hpq
   have hp0 : 0 < p := hp.pos
@@ -215,7 +215,7 @@ lemma nndist1_eq_crtRepr_div (p q : ℕ) (hp : Nat.Prime p) (hq : Nat.Prime q)
     rw [hxt, abs_div, abs_of_pos hpqR]
     rw [div_le_iff₀ hpqR]
     linarith [hmle]
-  rw [nndist1_eq_of_int _ t habs, hxt, abs_div, abs_of_pos hpqR]
+  rw [unitCircleNorm_eq_of_int _ t habs, hxt, abs_div, abs_of_pos hpqR]
 
 /-- Endpoints of a control pair are distinct primes. -/
 lemma ctrlPairs_distinct_primes (BS : BlockSystem) {pq : ℕ × ℕ}
@@ -238,7 +238,7 @@ energy sum.  With `a(h)_p = h mod p`, `Q_ctrl(a(h)) = ∑_{pq} ‖h/(pq)‖²` �
 `Q_ctrl` side of the C4 identity `Q_E(h) = Q_ctrl(a(h))`. -/
 lemma Qctrl_freq_eq (BS : BlockSystem) (h : ℕ) :
     Qctrl BS (fun p => ((h : ZMod p.1))) =
-      ∑ pq ∈ ctrlPairs BS, (GlobalControl.nndist1 ((h : ℝ) / ((pq.1 : ℝ) * (pq.2 : ℝ)))) ^ 2 := by
+      ∑ pq ∈ ctrlPairs BS, ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((h : ℝ) / ((pq.1 : ℝ) * (pq.2 : ℝ)))) ^ 2 := by
   unfold Qctrl
   refine Finset.sum_congr rfl (fun pq hpq => ?_)
   obtain ⟨hp1, hp2, hne⟩ := ctrlPairs_distinct_primes BS hpq
@@ -252,8 +252,8 @@ lemma Qctrl_freq_eq (BS : BlockSystem) (h : ℕ) :
       = crtRepr pq.1 pq.2 (h : ZMod pq.1) (h : ZMod pq.2) := by
     unfold Hglob; rw [htp1, htp2]
   rw [hHglob]
-  -- ‖h/(pq)‖ = |crtRepr|/(pq), so nndist² = (crtRepr/(pq))²
-  have hbridge := nndist1_eq_crtRepr_div pq.1 pq.2 hp1 hp2 hne h
+  -- ‖h/(pq)‖ = |crtRepr|/(pq), so the squared norms agree.
+  have hbridge := unitCircleNorm_eq_crtRepr_div pq.1 pq.2 hp1 hp2 hne h
   rw [hbridge, div_pow, div_pow, sq_abs]
 
 /-! ## C4 minor-arc energy reindex (assembly glue)

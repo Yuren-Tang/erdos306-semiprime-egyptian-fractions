@@ -77,8 +77,8 @@ lemma QE_ge_Qctrl (BS : BlockSystem) (E : Finset ℕ) (hsub : ctrlEdges BS ⊆ E
     Qctrl BS (fun p => ((h : ZMod p.1))) ≤ QE E h := by
   rw [Qctrl_freq_eq]
   calc ∑ pq ∈ ctrlPairs BS,
-          (GlobalControl.nndist1 ((h : ℝ) / ((pq.1 : ℝ) * (pq.2 : ℝ)))) ^ 2
-      = ∑ e ∈ ctrlEdges BS, (GlobalControl.nndist1 ((h : ℝ) / (e : ℝ))) ^ 2 := by
+          ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((h : ℝ) / ((pq.1 : ℝ) * (pq.2 : ℝ)))) ^ 2
+      = ∑ e ∈ ctrlEdges BS, ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((h : ℝ) / (e : ℝ))) ^ 2 := by
         rw [ctrlEdges, Finset.sum_image
           (fun a ha b hb hab => ctrlPairs_prod_injOn BS ha hb hab)]
         refine Finset.sum_congr rfl (fun pq _ => ?_)
