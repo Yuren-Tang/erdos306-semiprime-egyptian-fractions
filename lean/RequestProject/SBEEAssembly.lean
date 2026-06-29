@@ -13,7 +13,7 @@ This file formalizes **P3**: the faithful single-block counting target of
 * `single_block_counting` — `SBEEPartitionBound c`.  **Fully proved (no `sorry`).**
   Assembled from the unified level-set bound `unified_levelset` (combining
   Theorem A+B below the window via `SBEEForcing.corollary_SBEE_below_window` and
-  Theorem C above the window via `SBEEFingerprint.fingerprint_count`, glued by the
+  Theorem C above the window via `LocalEnergy.fingerprint_levelSet_bound`, glued by the
   asymptotic mesh `mesh_lemma : R_C ≤ R_w`) and the Laplace/dyadic-series step
   `partfun_series_bound`, with `sigmaP_upper` absorbing the additive constant.
 -/
@@ -65,12 +65,12 @@ def SBEEPartitionBound (c : ℝ) : Prop :=
     * `R < R_w`: every level-set assignment is dominant
       (`SBEEForcing.theorem_B_nondominant_forcing`); apply Theorem A
       (`SBEEForcing.theorem_A_dominant_count`).
-    * `R_w ≤ R ≤ R_triv`: `SBEEFingerprint.fingerprint_count` (Theorem C, proved).
+    * `R_w ≤ R ≤ R_triv`: `LocalEnergy.fingerprint_levelSet_bound` (Theorem C, proved).
     * `R > R_triv`: trivial.
     Integrating the resulting level-set bound against `c·e^{-cR}` (Laplace) yields
     the partition-function bound `∑_a e^{-cQ_P(a)} ≤ C/σ_P`.
 
-    **Status**: fully proved (no `sorry`).  All of `fingerprint_count`,
+    **Status**: fully proved (no `sorry`).  All of `fingerprint_levelSet_bound`,
     `theorem_A_dominant_count`, `theorem_B_nondominant_forcing`, the mesh
     `R_C ≤ R_w` and the Laplace/series transform are now machine-verified.
 
@@ -122,7 +122,7 @@ lemma mesh_lemma (cp Ceps : ℝ) (hcp : 0 < cp) (_hCeps : 0 < Ceps) :
 
 /-
 **Unified level-set bound.**  Combining Theorem A+B (below the window, via
-    `corollary_SBEE_below_window`) and Theorem C (`fingerprint_count`, above the
+    `corollary_SBEE_below_window`) and Theorem C (`fingerprint_levelSet_bound`, above the
     window) through the mesh, every level set is bounded by
     `C₀·e^{εR}·(1 + √R/σ_P)` for all `R ≥ 1`.
 -/
@@ -138,7 +138,7 @@ lemma unified_levelset (eps : ℝ) (hε0 : 0 < eps) (hε1 : eps < 1) :
               ≤ C0 * Real.exp (eps*R) * (1 + Real.sqrt R / sigmaP P) := by
   -- Apply the provided solution to obtain the constants `C0` and `X1`.
   obtain ⟨cp, X0c, hcp, hX0c, Hcor⟩ := SBEEForcing.corollary_SBEE_below_window eps hε0 (1/4) (by norm_num) (by norm_num)
-  obtain ⟨Ceps, X0f, hCeps, hX0f, Hfp⟩ := SBEEFingerprint.fingerprint_count eps hε0 hε1
+  obtain ⟨Ceps, X0f, hCeps, hX0f, Hfp⟩ := LocalEnergy.fingerprint_levelSet_bound eps hε0 hε1
   obtain ⟨Xm, hXm0, hmesh⟩ := mesh_lemma cp Ceps hcp hCeps
   obtain ⟨X16, hX160, hX16⟩ := logthreshold_pow 3 (16/cp)
   obtain ⟨Xc2, hXc20, hXc2⟩ := logthreshold_pow 1 4;
@@ -155,7 +155,8 @@ lemma unified_levelset (eps : ℝ) (hε0 : 0 < eps) (hε1 : eps < 1) :
         have hσub : sigmaP P ≤ (P.card : ℝ) / (X : ℝ)^2 := by
           convert sigmaP_upper X ( by linarith ) P hP using 1
         have hN2X : (P.card : ℝ) ≤ 2 * X := by
-          exact_mod_cast SBEEFingerprint.block_card_le_two_mul X P hP
+          exact_mod_cast RequestProject.card_le_upper_bound_of_pos P (2 * X)
+            (fun p hp => (hP p hp).1.pos) (fun p hp => (hP p hp).2.2)
         have hR16 : (16 : ℝ) ≤ R := by
           rename_i hX16' hXc2';
           have := hX16' X hX16; rw [ div_le_iff₀ ( by positivity ) ] at this; ring_nf at *; nlinarith;
@@ -285,7 +286,9 @@ theorem single_block_counting (c : ℝ) (hc : 0 < c) :
     have hX1nat : 1 ≤ X := hX0
     have hσpos : 0 < sigmaP P := sigmaP_pos_of_two P hP hcard2
     have hσub : sigmaP P ≤ (P.card:ℝ)/(X:ℝ)^2 := sigmaP_upper X hX1nat P hPrange
-    have hN2X : (P.card:ℝ) ≤ 2*X := by exact_mod_cast SBEEFingerprint.block_card_le_two_mul X P hPrange
+    have hN2X : (P.card:ℝ) ≤ 2*X := by
+      exact_mod_cast RequestProject.card_le_upper_bound_of_pos P (2 * X)
+        (fun p hp => (hPrange p hp).1.pos) (fun p hp => (hPrange p hp).2.2)
     have hXr1 : (1:ℝ) ≤ X := by exact_mod_cast hX1nat
     have hσ2 : sigmaP P ≤ 2 := le_trans hσub (by rw [div_le_iff₀ (by positivity)]; nlinarith [hN2X, hXr1]);
     by_cases hXbig : X1 ≤ (X:ℝ);

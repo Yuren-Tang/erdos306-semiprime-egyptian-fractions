@@ -76,14 +76,17 @@ contracts:
 ```text
 LocalEnergy.CRTModel
   -> LocalEnergy.ReciprocalDispersion
-     -> LocalEnergy.DominantLabel
-     -> LocalEnergy.LevelSet
+     -> LocalEnergy.FingerprintCounting
+        -> LocalEnergy.DominantLabel
+        -> LocalEnergy.LevelSet
 ```
 
 - `CRTModel`: finite residue assignments, Mathlib-centered CRT representatives,
   quadratic block energy, and the block deviation scale;
 - `ReciprocalDispersion`: linear-congruence fiber counts and reciprocal-phase
   small-ball/energy bounds on `UnitAddCircle`;
+- `FingerprintCounting`: CRT-to-phase comparison, uniqueness below the
+  dispersion threshold, fingerprint decoding, and entropy counting;
 - `DominantLabel`: dominant-label uniqueness, nondominant forcing, and cold
   label/exception estimates;
 - `LevelSet`: the uniform single-block level-set and partition-function bounds.
@@ -94,10 +97,9 @@ The public names describe the mathematics (`HasDominantLabel`,
 labels.  General growth thresholds live in `Core.Asymptotics`; they are not part
 of the local-energy contract.
 
-The current files are stable handoff facades over the verified historical
-implementation.  GlobalControl modules must import these contracts rather than
-historical `SBEE*` paths.  Physical theorem migration and canonical namespace
-renaming proceed behind these interfaces, one mathematical node at a time.
+Global-control modules import these mathematical contracts rather than
+historical implementation paths. Physical migration and canonical namespace
+renaming proceed one mathematical node at a time.
 
 ### Global-control proof graph
 

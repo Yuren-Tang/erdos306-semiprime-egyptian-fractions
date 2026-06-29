@@ -1,67 +1,66 @@
-/-
-# SBEE Fingerprint: Theorem C via its decomposition (note 32)
-
-This file formalizes the decomposition of **Theorem C** (`fingerprint_count`)
-described in `32 Theorem C Decomposition - Phase Identity and Cold Rigidity.md`.
-
-The deterministic dispersion engine is already fully machine-verified in
-`LocalEnergy.ReciprocalDispersion` (`linearCongruence_pair_count`, `reciprocalPhase_smallBall_count`,
-`reciprocalPhase_energy_lower_bound`, `reciprocalPhase_sub_le`, …).  Here we build, in order:
-
-* `tEnergy` — the per-vertex fingerprint energy `t_q(w) = ∑_{p∈F} (H_{pq}/pq)²`.
-* `phaseP1`  — **Lemma P1** (reciprocalPhase identity / the bridge `crtRepr ↔ reciprocalPhase`).
-* `phase_sq_bound` — the squared triangle bound combining P1 with `reciprocalPhase_sub_le`.
-* `coldRigidity` — **Lemma P2** (cold rigidity): for `q ∉ F`, at most one residue
-  `w` has `t_q(w) < G_F/7`.  This is the novel analytic core.
-
-Notation (note 32): for primes `p, q`, an assignment `a : (p:ℕ) → ZMod p`, and a
-candidate residue `w : ZMod q`, the centered integer representatives are
-`ZMod.valMinAbs` (the rep in `(-n/2, n/2]`), and `H_{pq}(a_p, w) = crtRepr p q (a p) w`.
--/
 import Mathlib.Analysis.Complex.ExponentialBounds
-import RequestProject.BlockCRTEnergy
+import RequestProject.Core.FiniteInterval
+import RequestProject.LocalEnergy.CRTModel
 import RequestProject.LocalEnergy.ReciprocalDispersion
 
-open Finset
-open LocalEnergy
+/-!
+# Fingerprint counting for local CRT energy
 
-namespace SBEEFingerprint
+This file bounds low-energy residue assignments by recording their values on a
+small fingerprint set and on the remaining high-energy coordinates.
+
+The argument has four mathematical stages:
+
+* `fingerprintEnergy` measures a candidate residue against the fingerprint;
+* `reciprocalPhase_le_crtEnergy` compares CRT energy with reciprocal phase;
+* `cold_residue_unique` gives uniqueness below the dispersion threshold;
+* `cold_assignment_decoding_injective` and the entropy estimates count the
+  resulting assignments.
+
+For primes `p, q`, an assignment `a : (p : ℕ) → ZMod p`, and a candidate
+residue `w : ZMod q`, centered representatives are supplied by
+`ZMod.valMinAbs`, while `crtRepr p q (a p) w` is their centered CRT lift.
+-/
+
+open Finset
+
+namespace LocalEnergy
 
 /-! ## The per-vertex fingerprint energy -/
 
 /-- The per-prime term of the vertex–fingerprint energy:
     `t^{(p)}_q(w) = (H_{pq}(a_p, w) / (p q))²`. -/
-noncomputable def tterm (a : (p : ℕ) → ZMod p) (q : ℕ) (w : ZMod q) (p : ℕ) : ℝ :=
+noncomputable def fingerprintEnergyTerm (a : (p : ℕ) → ZMod p) (q : ℕ) (w : ZMod q) (p : ℕ) : ℝ :=
   ((crtRepr p q (a p) w : ℝ) / ((p : ℝ) * q)) ^ 2
 
 /-- The vertex–fingerprint energy `t_q(w) = ∑_{p∈F} (H_{pq}(a_p, w)/(pq))²`. -/
-noncomputable def tEnergy (F : Finset ℕ) (a : (p : ℕ) → ZMod p)
+noncomputable def fingerprintEnergy (F : Finset ℕ) (a : (p : ℕ) → ZMod p)
     (q : ℕ) (w : ZMod q) : ℝ :=
-  ∑ p ∈ F, tterm a q w p
+  ∑ p ∈ F, fingerprintEnergyTerm a q w p
 
-lemma tterm_nonneg (a : (p : ℕ) → ZMod p) (q : ℕ) (w : ZMod q) (p : ℕ) :
-    0 ≤ tterm a q w p := by
-  unfold tterm; positivity
+lemma fingerprintEnergyTerm_nonneg (a : (p : ℕ) → ZMod p) (q : ℕ) (w : ZMod q) (p : ℕ) :
+    0 ≤ fingerprintEnergyTerm a q w p := by
+  unfold fingerprintEnergyTerm; positivity
 
-lemma tEnergy_nonneg (F : Finset ℕ) (a : (p : ℕ) → ZMod p)
-    (q : ℕ) (w : ZMod q) : 0 ≤ tEnergy F a q w :=
-  Finset.sum_nonneg fun _ _ => tterm_nonneg _ _ _ _
+lemma fingerprintEnergy_nonneg (F : Finset ℕ) (a : (p : ℕ) → ZMod p)
+    (q : ℕ) (w : ZMod q) : 0 ≤ fingerprintEnergy F a q w :=
+  Finset.sum_nonneg fun _ _ => fingerprintEnergyTerm_nonneg _ _ _ _
 
-/-! ## Lemma P1 — the reciprocalPhase identity (`32` Sub-lemma 1)
+/-! ## Comparison with reciprocal phase
 
 For primes `p ≠ q`, with centered integer reps `ã_p = valMinAbs (a p)` and
 `w̃ = valMinAbs w`, the reciprocal phase of `ã_p − w̃` is controlled by
 `|H_{pq}|/(pq)`:
 `reciprocalPhase (ã_p − w̃) q p ≤ |H_{pq}(a_p,w)|/(pq) + 1/(2p)`.
 
-Proof (note 32): `H := crtRepr p q (a p) w` satisfies `H ≡ w̃ (mod q)`, so
+The lift `H := crtRepr p q (a p) w` satisfies `H ≡ w̃ (mod q)`, so
 `H = w̃ + v q` for an integer `v`; and `H ≡ ã_p (mod p)`, giving
 `v ≡ (ã_p − w̃) q̄ (mod p)`.  Since `reciprocalPhase E q p = ‖E q̄ / p‖` depends only on
 `E mod p`, `reciprocalPhase (ã_p − w̃) q p = ‖v/p‖`.  Finally
 `v/p = H/(pq) − w̃/(pq)`, so `‖v/p‖ ≤ |H|/(pq) + |w̃|/(pq) ≤ |H|/(pq) + 1/(2p)`
 using `|w̃| ≤ q/2`. -/
 
-lemma phaseP1 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
+lemma reciprocalPhase_le_crtEnergy (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
     (a : (p : ℕ) → ZMod p) (w : ZMod q) :
     reciprocalPhase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w) q p
       ≤ |(crtRepr p q (a p) w : ℝ)| / ((p : ℝ) * q) + 1 / (2 * p) := by
@@ -124,37 +123,37 @@ lemma phaseP1 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
 
 /-! ## The squared triangle bound
 
-Combining `reciprocalPhase_sub_le` with `phaseP1` applied to `w` and `w'`:
+Combining `reciprocalPhase_sub_le` with `reciprocalPhase_le_crtEnergy` applied to `w` and `w'`:
 `reciprocalPhase (w̃' − w̃) q p ≤ |H_w|/(pq) + |H_{w'}|/(pq) + 1/p`, and then
 `(α+β+γ)² ≤ 3(α²+β²+γ²)` gives the per-prime squared bound. -/
 
-lemma phase_sq_bound (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
+lemma reciprocalPhase_sq_le_crtEnergy (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
     (a : (p : ℕ) → ZMod p) (w w' : ZMod q) :
     (reciprocalPhase (ZMod.valMinAbs w' - ZMod.valMinAbs w) q p) ^ 2
-      ≤ 3 * tterm a q w p + 3 * tterm a q w' p + 3 / (p : ℝ) ^ 2 := by
+      ≤ 3 * fingerprintEnergyTerm a q w p + 3 * fingerprintEnergyTerm a q w' p + 3 / (p : ℝ) ^ 2 := by
   -- Apply `reciprocalPhase_sub_le` with A := ZMod.valMinAbs (a p) - ZMod.valMinAbs w and B := ZMod.valMinAbs (a p) - ZMod.valMinAbs w'.
   have h_reciprocalPhase_sub_le : reciprocalPhase (w'.valMinAbs - w.valMinAbs) q p ≤ reciprocalPhase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w) q p + reciprocalPhase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w') q p := by
     convert reciprocalPhase_sub_le ((a p).valMinAbs - w.valMinAbs)
       ((a p).valMinAbs - w'.valMinAbs) q p using 1
     ring_nf
-  -- Apply `phaseP1` to w and w'.
-  have h_phaseP1_w : reciprocalPhase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w) q p ≤ |(crtRepr p q (a p) w : ℝ)| / ((p : ℝ) * q) + 1 / (2 * p) := by
-    exact phaseP1 p q hp hq hpq a w
-  have h_phaseP1_w' : reciprocalPhase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w') q p ≤ |(crtRepr p q (a p) w' : ℝ)| / ((p : ℝ) * q) + 1 / (2 * p) := by
-    exact phaseP1 p q hp hq hpq a w'
+  -- Apply `reciprocalPhase_le_crtEnergy` to w and w'.
+  have hphase_w : reciprocalPhase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w) q p ≤ |(crtRepr p q (a p) w : ℝ)| / ((p : ℝ) * q) + 1 / (2 * p) := by
+    exact reciprocalPhase_le_crtEnergy p q hp hq hpq a w
+  have hphase_w' : reciprocalPhase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w') q p ≤ |(crtRepr p q (a p) w' : ℝ)| / ((p : ℝ) * q) + 1 / (2 * p) := by
+    exact reciprocalPhase_le_crtEnergy p q hp hq hpq a w'
   -- Set bw := |(crtRepr p q (a p) w : ℝ)|/((p:ℝ)*q) and bw' := |(crtRepr p q (a p) w' : ℝ)|/((p:ℝ)*q).
   set bw := |(crtRepr p q (a p) w : ℝ)| / ((p : ℝ) * q)
   set bw' := |(crtRepr p q (a p) w' : ℝ)| / ((p : ℝ) * q);
-  -- By definition of $tterm$, we have $tterm a q w p = bw^2$ and $tterm a q w' p = bw'^2$.
-  have htterm : tterm a q w p = bw^2 ∧ tterm a q w' p = bw'^2 := by
-    constructor <;> simp only [tterm, bw, bw'] <;>
+  -- By definition of $fingerprintEnergyTerm$, we have $fingerprintEnergyTerm a q w p = bw^2$ and $fingerprintEnergyTerm a q w' p = bw'^2$.
+  have henergy : fingerprintEnergyTerm a q w p = bw^2 ∧ fingerprintEnergyTerm a q w' p = bw'^2 := by
+    constructor <;> simp only [fingerprintEnergyTerm, bw, bw'] <;>
       rw [div_pow, div_pow, sq_abs]
-  -- By combining the inequalities from `reciprocalPhase_sub_le`, `phaseP1_w`, and `phaseP1_w'`, we get:
+  -- Combine the reciprocal-phase triangle inequality with the two CRT comparisons.
   have h_combined : reciprocalPhase (w'.valMinAbs - w.valMinAbs) q p ≤ bw + bw' + 1 / (p : ℝ) := by
     calc
       reciprocalPhase (w'.valMinAbs - w.valMinAbs) q p
           ≤ (bw + 1 / (2 * p)) + (bw' + 1 / (2 * p)) :=
-        h_reciprocalPhase_sub_le.trans (add_le_add h_phaseP1_w h_phaseP1_w')
+        h_reciprocalPhase_sub_le.trans (add_le_add hphase_w hphase_w')
       _ = bw + bw' + 1 / (p : ℝ) := by
         field_simp [Nat.cast_ne_zero.mpr hp.ne_zero]
         ring
@@ -162,26 +161,26 @@ lemma phase_sq_bound (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
   have h_squared : reciprocalPhase (w'.valMinAbs - w.valMinAbs) q p ^ 2 ≤ (bw + bw' + 1 / (p : ℝ)) ^ 2 := by
     exact pow_le_pow_left₀ ( reciprocalPhase_nonneg _ _ _ ) h_combined 2;
   refine le_trans h_squared ?_;
-  rw [htterm.1, htterm.2]
+  rw [henergy.1, henergy.2]
   simp only [div_eq_mul_inv, one_mul]
   rw [← inv_pow]
   nlinarith only [ sq_nonneg ( bw - bw' ), sq_nonneg ( bw - ( p : ℝ ) ⁻¹ ), sq_nonneg ( bw' - ( p : ℝ ) ⁻¹ ) ]
 
-/-! ## Lemma P2 — cold rigidity (`32` Sub-lemma 2)
+/-! ## Uniqueness below the dispersion threshold
 
 For `q ∉ F`, at most one residue `w` has `t_q(w) < G_F/7` where
 `G_F = |F|³/(2¹¹ X²)`.  The contradiction (using `reciprocalPhase_energy_lower_bound`)
 requires `|F|` larger than an absolute constant; `43008 ≤ |F|²`
 (i.e. `|F| ≥ 208`) is what the `(α+β+γ)²≤3(α²+β²+γ²)` step needs. -/
 
-lemma coldRigidity (X : ℕ) (hX : 1 ≤ X) (F : Finset ℕ)
+lemma cold_residue_unique (X : ℕ) (hX : 1 ≤ X) (F : Finset ℕ)
     (hF : ∀ p ∈ F, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2 * X)
     (hFcard : 208 ≤ F.card)
     (a : (p : ℕ) → ZMod p)
     (q : ℕ) (hq : q.Prime) (hqF : q ∉ F) (hq2X : q ≤ 2 * X)
     (w w' : ZMod q)
-    (hw : tEnergy F a q w < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7)
-    (hw' : tEnergy F a q w' < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7) :
+    (hw : fingerprintEnergy F a q w < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7)
+    (hw' : fingerprintEnergy F a q w' < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7) :
     w = w' := by
   by_contra h_neq
   set E := (ZMod.valMinAbs w' - ZMod.valMinAbs w) with hE_def
@@ -192,13 +191,13 @@ lemma coldRigidity (X : ℕ) (hX : 1 ≤ X) (F : Finset ℕ)
     have hE_abs : -(q : ℤ) < 2 * w'.valMinAbs ∧ 2 * w'.valMinAbs ≤ q ∧ -(q : ℤ) < 2 * w.valMinAbs ∧ 2 * w.valMinAbs ≤ q := by
       haveI := Fact.mk hq; exact ⟨ by linarith [ ZMod.valMinAbs_mem_Ioc w' |>.1 ], by linarith [ ZMod.valMinAbs_mem_Ioc w' |>.2 ], by linarith [ ZMod.valMinAbs_mem_Ioc w |>.1 ], by linarith [ ZMod.valMinAbs_mem_Ioc w |>.2 ] ⟩ ;
     exact ⟨ abs_pos.mpr ( show E ≠ 0 from sub_ne_zero.mpr <| by aesop ), abs_lt.mpr ⟨ by linarith, by linarith ⟩ ⟩;
-  have h_sum_bound : ∑ p ∈ F, (reciprocalPhase E q p) ^ 2 ≤ 3 * tEnergy F a q w + 3 * tEnergy F a q w' + 3 * (F.card : ℝ) / (X : ℝ) ^ 2 := by
-    have h_sum_bound : ∀ p ∈ F, (reciprocalPhase E q p) ^ 2 ≤ 3 * tterm a q w p + 3 * tterm a q w' p + 3 / (p : ℝ) ^ 2 := by
+  have h_sum_bound : ∑ p ∈ F, (reciprocalPhase E q p) ^ 2 ≤ 3 * fingerprintEnergy F a q w + 3 * fingerprintEnergy F a q w' + 3 * (F.card : ℝ) / (X : ℝ) ^ 2 := by
+    have h_sum_bound : ∀ p ∈ F, (reciprocalPhase E q p) ^ 2 ≤ 3 * fingerprintEnergyTerm a q w p + 3 * fingerprintEnergyTerm a q w' p + 3 / (p : ℝ) ^ 2 := by
       grind +suggestions;
     refine le_trans ( Finset.sum_le_sum h_sum_bound ) ?_;
-    norm_num [ Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul, tEnergy ];
+    norm_num [ Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul, fingerprintEnergy ];
     exact le_trans ( Finset.sum_le_sum fun x hx => show ( 3 : ℝ ) / x ^ 2 ≤ 3 / X ^ 2 by gcongr ; linarith [ hF x hx ] ) ( by norm_num; ring_nf; norm_num );
-  have h_sum_bound : (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) ≤ 3 * tEnergy F a q w + 3 * tEnergy F a q w' + 3 * (F.card : ℝ) / (X : ℝ) ^ 2 := by
+  have h_sum_bound : (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) ≤ 3 * fingerprintEnergy F a q w + 3 * fingerprintEnergy F a q w' + 3 * (F.card : ℝ) / (X : ℝ) ^ 2 := by
     convert reciprocalPhase_energy_lower_bound X F hF ( by linarith ) q hq hqF hq2X E hE_zero hE_abs.1 hE_abs.2 |> le_trans <| h_sum_bound using 1;
   -- Simplify the inequality obtained from the sum bound.
   have h_simplified : (F.card : ℝ) ^ 2 < 3 * 7 * 2 ^ 11 := by
@@ -206,96 +205,95 @@ lemma coldRigidity (X : ℕ) (hX : 1 ≤ X) (F : Finset ℕ)
     nlinarith [ show ( 0 : ℝ ) < ( X : ℝ ) ⁻¹ ^ 2 by positivity, show ( 0 : ℝ ) < ( F.card : ℝ ) * ( X : ℝ ) ⁻¹ ^ 2 by positivity ];
   exact absurd h_simplified ( by norm_cast; nlinarith only [ hFcard ] )
 
-/-! ## Lemma P3 — the decoding injection (`32` Sub-lemma 3)
+/-! ## Decoding from the fingerprint and high-energy coordinates
 
 The map `a ↦ (a|_F, Hot(a), residues on Hot)` is injective on the level set:
 cold vertices (those `q ∉ F` with `t_q(a_q) < T`) are decoded uniquely via
-`coldRigidity`, since `t_q(·)` is a function of `a|_F` alone. -/
+`cold_residue_unique`, since `t_q(·)` is a function of `a|_F` alone. -/
 
-/-- `tEnergy F a q w` depends only on the values of `a` on `F`. -/
-lemma tEnergy_congr_on_F (F : Finset ℕ) (a b : (p : ℕ) → ZMod p) (q : ℕ)
+/-- `fingerprintEnergy F a q w` depends only on the values of `a` on `F`. -/
+lemma fingerprintEnergy_congr (F : Finset ℕ) (a b : (p : ℕ) → ZMod p) (q : ℕ)
     (w : ZMod q) (h : ∀ p ∈ F, a p = b p) :
-    tEnergy F a q w = tEnergy F b q w := by
-  unfold tEnergy tterm
+    fingerprintEnergy F a q w = fingerprintEnergy F b q w := by
+  unfold fingerprintEnergy fingerprintEnergyTerm
   refine Finset.sum_congr rfl (fun p hp => ?_)
   rw [h p hp]
 
-/-- **Cold-decoding uniqueness** — the substance of Lemma P3, the place where
-    `coldRigidity` (Lemma P2) is used.  Suppose two assignments `a, b` agree on
+/-- Suppose two assignments `a, b` agree on
     the fingerprint `F`, have the *same* hot set `Hot = {q ∈ P\F : T ≤ t_q(a_q)}`,
     and agree on that hot set.  Then they agree on all of `P \ F`: every cold
     vertex `q` (with `t_q(a_q) < T`) has `a q` recovered as the unique residue
     with `t_q(·) < T`, a function of `a|_F` alone. -/
-lemma cold_decoding_unique (X : ℕ) (hX : 1 ≤ X) (P F : Finset ℕ)
+lemma cold_assignment_decoding_injective (X : ℕ) (hX : 1 ≤ X) (P F : Finset ℕ)
     (hF : ∀ p ∈ F, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2 * X) (hFcard : 208 ≤ F.card)
     (hPF : ∀ q ∈ P \ F, Nat.Prime q ∧ X ≤ q ∧ q ≤ 2 * X)
     (T : ℝ) (hT : T = (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7)
     (a b : (p : ℕ) → ZMod p)
     (hab : ∀ p ∈ F, a p = b p)
-    (hHot : (P \ F).filter (fun q => T ≤ tEnergy F a q (a q))
-              = (P \ F).filter (fun q => T ≤ tEnergy F b q (b q)))
-    (hres : ∀ q ∈ (P \ F).filter (fun q => T ≤ tEnergy F a q (a q)), a q = b q) :
+    (hHot : (P \ F).filter (fun q => T ≤ fingerprintEnergy F a q (a q))
+              = (P \ F).filter (fun q => T ≤ fingerprintEnergy F b q (b q)))
+    (hres : ∀ q ∈ (P \ F).filter (fun q => T ≤ fingerprintEnergy F a q (a q)), a q = b q) :
     ∀ q ∈ P \ F, a q = b q := by
   intro q hq
   obtain ⟨hqprime, hqX, hq2X⟩ := hPF q hq
   have hqF : q ∉ F := (Finset.mem_sdiff.mp hq).2
   -- The F-energy of any residue `w` at `q` agrees for `a` and `b` (they agree on F).
-  have hcongr : ∀ w : ZMod q, tEnergy F a q w = tEnergy F b q w :=
-    fun w => tEnergy_congr_on_F F a b q w hab
-  by_cases hhot : T ≤ tEnergy F a q (a q)
+  have hcongr : ∀ w : ZMod q, fingerprintEnergy F a q w = fingerprintEnergy F b q w :=
+    fun w => fingerprintEnergy_congr F a b q w hab
+  by_cases hhot : T ≤ fingerprintEnergy F a q (a q)
   · -- `q` is hot: residue given directly.
     exact hres q (Finset.mem_filter.mpr ⟨hq, hhot⟩)
-  · -- `q` is cold: both `a q` and `b q` have F-energy `< T`; coldRigidity gives uniqueness.
+  · -- `q` is cold: both `a q` and `b q` have F-energy `< T`; cold_residue_unique gives uniqueness.
     push Not at hhot
-    have hcoldA : tEnergy F a q (a q) < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7 :=
+    have hcoldA : fingerprintEnergy F a q (a q) < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7 :=
       hT ▸ hhot
     -- `q ∉ Hot(b)` too, since the hot sets coincide.
-    have hnotHotB : q ∉ (P \ F).filter (fun q => T ≤ tEnergy F b q (b q)) := by
+    have hnotHotB : q ∉ (P \ F).filter (fun q => T ≤ fingerprintEnergy F b q (b q)) := by
       rw [← hHot]; exact fun hmem => hhot.not_ge (Finset.mem_filter.mp hmem).2
-    have hcoldB : tEnergy F b q (b q) < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7 := by
+    have hcoldB : fingerprintEnergy F b q (b q) < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7 := by
       by_contra hc; push Not at hc
       exact hnotHotB (Finset.mem_filter.mpr ⟨hq, hT ▸ hc⟩)
-    -- Recast `b q`'s energy through `a` (same on F): `tEnergy F a q (b q) < T`.
-    have hcoldB' : tEnergy F a q (b q) < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7 := by
+    -- Recast `b q`'s energy through `a` (same on F): `fingerprintEnergy F a q (b q) < T`.
+    have hcoldB' : fingerprintEnergy F a q (b q) < (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) / 7 := by
       rw [hcongr (b q)]; exact hcoldB
-    exact coldRigidity X hX F hF hFcard a q hqprime hqF hq2X (a q) (b q) hcoldA hcoldB'
+    exact cold_residue_unique X hX F hF hFcard a q hqprime hqF hq2X (a q) (b q) hcoldA hcoldB'
 
-/-! ## Lemma P3' and Lemma P4 — remaining counting/entropy steps (`32` Sub-lemmas 3', 4)
+/-! ## High-energy coordinates and entropy
 
-These complete note 32's decomposition: the *combinatorial* hot-set bound
-(`hot_count_bound`) and the *real-analytic* entropy inequality
-(`entropy_inequality`).  Both are proved in full below. -/
+The combinatorial high-energy-coordinate bound and the real-analytic entropy
+inequality complete the counting argument. -/
 
-/-- **Lemma P3' (hot-set bound)** — `32` Sub-lemma 3'.  If the total fingerprint
+/-- If the total fingerprint
     energy over `P \ F` is `≤ R`, then the number of hot vertices (those with
     `T ≤ t_q(a_q)`) is at most `R / T`.  Combined with `∑_{q∉F} t_q ≤ Q_P(a) ≤ R`
     this gives `|Hot(a)| ≤ R/T = 7R/G_F`. -/
 lemma hot_count_bound (P F : Finset ℕ) (a : (p : ℕ) → ZMod p) (T R : ℝ)
     (hT : 0 < T)
-    (hR : ∑ q ∈ P \ F, tEnergy F a q (a q) ≤ R) :
-    (((P \ F).filter (fun q => T ≤ tEnergy F a q (a q))).card : ℝ) ≤ R / T := by
+    (hR : ∑ q ∈ P \ F, fingerprintEnergy F a q (a q) ≤ R) :
+    (((P \ F).filter (fun q => T ≤ fingerprintEnergy F a q (a q))).card : ℝ) ≤ R / T := by
   rw [le_div_iff₀ hT]
-  set Hot := (P \ F).filter (fun q => T ≤ tEnergy F a q (a q)) with hHotdef
-  have h1 : (Hot.card : ℝ) * T ≤ ∑ q ∈ Hot, tEnergy F a q (a q) := by
-    have hc := Finset.card_nsmul_le_sum Hot (fun q => tEnergy F a q (a q)) T
+  set Hot := (P \ F).filter (fun q => T ≤ fingerprintEnergy F a q (a q)) with hHotdef
+  have h1 : (Hot.card : ℝ) * T ≤ ∑ q ∈ Hot, fingerprintEnergy F a q (a q) := by
+    have hc := Finset.card_nsmul_le_sum Hot (fun q => fingerprintEnergy F a q (a q)) T
       (fun q hq => (Finset.mem_filter.mp hq).2)
     simpa [nsmul_eq_mul] using hc
-  have h2 : ∑ q ∈ Hot, tEnergy F a q (a q) ≤ ∑ q ∈ P \ F, tEnergy F a q (a q) :=
+  have h2 : ∑ q ∈ Hot, fingerprintEnergy F a q (a q) ≤ ∑ q ∈ P \ F, fingerprintEnergy F a q (a q) :=
     Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _)
-      (fun q _ _ => tEnergy_nonneg _ _ _ _)
-  calc (Hot.card : ℝ) * T ≤ ∑ q ∈ Hot, tEnergy F a q (a q) := h1
-    _ ≤ ∑ q ∈ P \ F, tEnergy F a q (a q) := h2
+      (fun q _ _ => fingerprintEnergy_nonneg _ _ _ _)
+  calc (Hot.card : ℝ) * T ≤ ∑ q ∈ Hot, fingerprintEnergy F a q (a q) := h1
+    _ ≤ ∑ q ∈ P \ F, fingerprintEnergy F a q (a q) := h2
     _ ≤ R := hR
 
-/-- **Lemma P4 (entropy inequality)** — `32` Sub-lemma 4.  The real-analysis
-    bound `(2X)^{|F|} · C(|P|,h) · (2X)^h ≤ |P| · e^{εR}` once `R ≥ R_C` and the
+/-- Real-analysis bound
+    `(2X)^{|F|} · C(|P|,h) · (2X)^h ≤ |P| · e^{εR}` once `R ≥ R_C` and the
     fingerprint/hot sizes obey the window relations below.  Proved in full with
     `Ceps = max ((2²¹·7/ε⁴)^{1/3}) (8/ε)` and `X0 = 3`.
 
     The window relations encode the fingerprint choice `Fc = ⌈εR/(2 log 2X)⌉`
     (hence both `εR/(2 log 2X) ≤ Fc ≤ εR/(2 log 2X) + 1`; the lower bound is
     essential since `Fc³` controls the hot count `h`), `Fc ≥ 8`, the block size
-    `1 ≤ NP = |P| ≤ 2X`, and the hot bound `h ≤ 7R·(2¹¹X²)/Fc³` (Lemma P3').
+    `1 ≤ NP = |P| ≤ 2X`, and the high-energy-coordinate bound
+    `h ≤ 7R·(2¹¹X²)/Fc³`.
 -/
 lemma entropy_inequality (eps : ℝ) (hε0 : 0 < eps) (hε1 : eps < 1) :
     ∃ (Ceps X0 : ℝ), 0 < Ceps ∧ 0 < X0 ∧
@@ -461,19 +459,19 @@ lemma entropy_inequality2 (eps : ℝ) (hε0 : 0 < eps) (hε1 : eps < 1) :
       rw [show 2 * eps * R = (2 : ℕ) * (eps * R) by ring, Real.exp_nat_mul]
       ring
 
-/-! ## Theorem C (fingerprint count) — final assembly (`30 §1`, note `32` assembly)
+/-! ## Level-set bound
 
-This section assembles `fingerprint_count` (Theorem C) from the verified pieces
-of this file (`coldRigidity`, `cold_decoding_unique`, `hot_count_bound`,
+This section assembles `fingerprint_levelSet_bound` from
+of this file (`cold_residue_unique`, `cold_assignment_decoding_injective`, `hot_count_bound`,
 `entropy_inequality`) together with the deterministic dispersion engine of
 `LocalEnergy.ReciprocalDispersion`.  The `BlockAssignment`-level objects (`QP`,
-`BlockAssignment`) live in `BlockCRTEnergy.lean`; the fingerprint machinery uses
+`BlockAssignment`) are exposed by `LocalEnergy.CRTModel`; the fingerprint machinery uses
 total functions `(p : ℕ) → ZMod p`, so we bridge via `extendAssign`. -/
 
 /-- Extend a block assignment `a : BlockAssignment P` to a total residue
     function `(p : ℕ) → ZMod p`, set to `0` outside `P`.  This is the bridge
-    between the `BlockCRTEnergy` objects (`QP`, level sets) and the fingerprint
-    energy `tEnergy` of this file. -/
+    between the finite CRT objects (`QP`, level sets) and the fingerprint
+    energy `fingerprintEnergy` of this file. -/
 noncomputable def extendAssign (P : Finset ℕ) (a : BlockAssignment P) :
     (p : ℕ) → ZMod p :=
   fun p => if h : p ∈ P then a ⟨p, h⟩ else 0
@@ -516,14 +514,14 @@ lemma exists_lower_subset (P : Finset ℕ) (k : ℕ) (hk : k ≤ P.card) :
 lemma energy_relation (P F : Finset ℕ) [∀ p : P, NeZero p.1]
     (hFP : F ⊆ P) (hFmin : ∀ p ∈ F, ∀ q ∈ P \ F, p < q)
     (a : BlockAssignment P) :
-    ∑ q ∈ P \ F, tEnergy F (extendAssign P a) q (extendAssign P a q) ≤ QP P a := by
+    ∑ q ∈ P \ F, fingerprintEnergy F (extendAssign P a) q (extendAssign P a q) ≤ QP P a := by
   refine' le_trans _ ( Finset.sum_le_sum_of_subset_of_nonneg _ _ );
   case refine'_2 => exact Finset.image ( fun pq : { p : P // p.1 ∈ F } × { q : P // q.1 ∈ P \ F } => ( ⟨ pq.1.1, by simp ⟩, ⟨ pq.2.1, by simp ⟩ ) ) ( Finset.univ );
   · rw [ Finset.sum_image ];
-    · simp +decide [ tEnergy, extendAssign ];
+    · simp +decide [ fingerprintEnergy, extendAssign ];
       convert rfl.le using 1;
       rw [ Finset.sum_sigma' ];
-      refine' Finset.sum_bij ( fun x hx => ⟨ x.2, x.1 ⟩ ) _ _ _ _ <;> simp +decide [ tterm ];
+      refine' Finset.sum_bij ( fun x hx => ⟨ x.2, x.1 ⟩ ) _ _ _ _ <;> simp +decide [ fingerprintEnergyTerm ];
       · tauto;
       · aesop;
       · grind;
@@ -534,13 +532,13 @@ lemma energy_relation (P F : Finset ℕ) [∀ p : P, NeZero p.1]
   · exact fun _ _ _ => sq_nonneg _
 
 /-
-**Decoding cardinality bound** (`30 §1` encoding, note `32` Lemma P3/P3').
-    The level set `{a : Q_P(a) ≤ R}` injects (via `cold_decoding_unique`) into
+**Decoding cardinality bound.**
+    The level set `{a : Q_P(a) ≤ R}` injects (via `cold_assignment_decoding_injective`) into
     `{a|_F} × {(S, residues) : S ⊆ P∖F, |S| ≤ h_max}`, whose cardinality is
     `≤ (2X)^{|F|} · (h_max+1) · C(|P|, h_max) · (2X)^{h_max}`.
 
-    This bundles the decoding injection (Lemma P3, using `cold_decoding_unique`),
-    the hot-set bound (Lemma P3', `hot_count_bound`, via `energy_relation`), and
+    This bundles the decoding injection (`cold_assignment_decoding_injective`),
+    the high-energy-coordinate bound (`hot_count_bound`, via `energy_relation`), and
     the sub-set/residue counting `∑_{k ≤ h_max} C(|P∖F|,k)(2X)^k ≤
     (h_max+1)·C(|P|,h_max)(2X)^{h_max}`.
 -/
@@ -555,20 +553,20 @@ lemma decoding_card_bound
     ((Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R)).card : ℝ)
       ≤ (2 * (X : ℝ)) ^ F.card * ((hmax : ℝ) + 1)
           * (Nat.choose P.card hmax) * (2 * (X : ℝ)) ^ hmax := by
-  have h_card_bound : ∀ a : BlockAssignment P, QP P a ≤ R → (Finset.filter (fun q => T ≤ tEnergy F (extendAssign P a) q (extendAssign P a q)) (P \ F)).card ≤ hmax := by
+  have h_card_bound : ∀ a : BlockAssignment P, QP P a ≤ R → (Finset.filter (fun q => T ≤ fingerprintEnergy F (extendAssign P a) q (extendAssign P a q)) (P \ F)).card ≤ hmax := by
     intro a ha
-    have h_card : (Finset.filter (fun q => T ≤ tEnergy F (extendAssign P a) q (extendAssign P a q)) (P \ F)).card ≤ R / T := by
+    have h_card : (Finset.filter (fun q => T ≤ fingerprintEnergy F (extendAssign P a) q (extendAssign P a q)) (P \ F)).card ≤ R / T := by
       apply hot_count_bound P F (extendAssign P a) T R hT0 (by
       exact le_trans ( energy_relation P F hFP hFmin a ) ha);
     exact Nat.le_of_lt_succ ( by rw [ ← @Nat.cast_lt ℝ ] ; push_cast; linarith );
-  have h_card_bound : ∀ S : Finset ℕ, S ⊆ P \ F → S.card ≤ hmax → (Finset.filter (fun a : BlockAssignment P => Finset.filter (fun q => T ≤ tEnergy F (extendAssign P a) q (extendAssign P a q)) (P \ F) = S) (Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R))).card ≤ (∏ p ∈ F, p) * (∏ q ∈ S, q) := by
+  have h_card_bound : ∀ S : Finset ℕ, S ⊆ P \ F → S.card ≤ hmax → (Finset.filter (fun a : BlockAssignment P => Finset.filter (fun q => T ≤ fingerprintEnergy F (extendAssign P a) q (extendAssign P a q)) (P \ F) = S) (Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R))).card ≤ (∏ p ∈ F, p) * (∏ q ∈ S, q) := by
     intros S hS_sub hS_card
-    have h_card_bound : ∀ a b : BlockAssignment P, QP P a ≤ R → QP P b ≤ R → Finset.filter (fun q => T ≤ tEnergy F (extendAssign P a) q (extendAssign P a q)) (P \ F) = S → Finset.filter (fun q => T ≤ tEnergy F (extendAssign P b) q (extendAssign P b q)) (P \ F) = S → (∀ p ∈ F, extendAssign P a p = extendAssign P b p) → (∀ q ∈ S, extendAssign P a q = extendAssign P b q) → a = b := by
+    have h_card_bound : ∀ a b : BlockAssignment P, QP P a ≤ R → QP P b ≤ R → Finset.filter (fun q => T ≤ fingerprintEnergy F (extendAssign P a) q (extendAssign P a q)) (P \ F) = S → Finset.filter (fun q => T ≤ fingerprintEnergy F (extendAssign P b) q (extendAssign P b q)) (P \ F) = S → (∀ p ∈ F, extendAssign P a p = extendAssign P b p) → (∀ q ∈ S, extendAssign P a q = extendAssign P b q) → a = b := by
       intros a b ha hb hS_a hS_b hF_eq hS_eq;
-      have := @cold_decoding_unique X hX P F ( fun p hp => hP p ( hFP hp ) ) hFcard ( fun q hq => hP q ( Finset.mem_sdiff.mp hq |>.1 ) ) T hT ( extendAssign P a ) ( extendAssign P b ) ?_ ?_ ?_ <;> simp_all +decide [ Finset.ext_iff ];
+      have := @cold_assignment_decoding_injective X hX P F ( fun p hp => hP p ( hFP hp ) ) hFcard ( fun q hq => hP q ( Finset.mem_sdiff.mp hq |>.1 ) ) T hT ( extendAssign P a ) ( extendAssign P b ) ?_ ?_ ?_ <;> simp_all +decide [ Finset.ext_iff ];
       ext ⟨ p, hp ⟩ ; by_cases hpF : p ∈ F <;> simp_all +decide [ extendAssign ] ;
       simpa [ hp ] using hF_eq p hpF;
-    have h_card_bound : (Finset.image (fun a : BlockAssignment P => (fun p : F => a ⟨p.1, hFP p.2⟩, fun q : S => a ⟨q.1, Finset.mem_sdiff.mp (hS_sub q.2) |>.1⟩)) (Finset.filter (fun a : BlockAssignment P => Finset.filter (fun q => T ≤ tEnergy F (extendAssign P a) q (extendAssign P a q)) (P \ F) = S) (Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R)))).card ≤ (∏ p ∈ F, p) * (∏ q ∈ S, q) := by
+    have h_card_bound : (Finset.image (fun a : BlockAssignment P => (fun p : F => a ⟨p.1, hFP p.2⟩, fun q : S => a ⟨q.1, Finset.mem_sdiff.mp (hS_sub q.2) |>.1⟩)) (Finset.filter (fun a : BlockAssignment P => Finset.filter (fun q => T ≤ fingerprintEnergy F (extendAssign P a) q (extendAssign P a q)) (P \ F) = S) (Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R)))).card ≤ (∏ p ∈ F, p) * (∏ q ∈ S, q) := by
       refine' le_trans ( Finset.card_le_univ _ ) _;
       simp +decide [ Fintype.card_pi ];
       congr! 1; all_goals conv_rhs => rw [ ← Finset.prod_attach ] ;
@@ -585,7 +583,7 @@ lemma decoding_card_bound
     · simp_all +decide [ funext_iff ];
       exact fun q hq => by rw [ extendAssign_mem P a ( Finset.mem_sdiff.mp ( hS_sub hq ) |>.1 ), extendAssign_mem P b ( Finset.mem_sdiff.mp ( hS_sub hq ) |>.1 ), hab.2 q hq ] ;
   have h_card_bound : (Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R)).card ≤ (∏ p ∈ F, p) * (∑ S ∈ Finset.powerset (P \ F), if S.card ≤ hmax then (∏ q ∈ S, q) else 0) := by
-    have h_card_bound : (Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R)).card ≤ ∑ S ∈ Finset.powerset (P \ F), (Finset.filter (fun a : BlockAssignment P => Finset.filter (fun q => T ≤ tEnergy F (extendAssign P a) q (extendAssign P a q)) (P \ F) = S) (Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R))).card := by
+    have h_card_bound : (Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R)).card ≤ ∑ S ∈ Finset.powerset (P \ F), (Finset.filter (fun a : BlockAssignment P => Finset.filter (fun q => T ≤ fingerprintEnergy F (extendAssign P a) q (extendAssign P a q)) (P \ F) = S) (Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R))).card := by
       rw [ ← Finset.card_eq_sum_card_fiberwise ];
       exact fun x hx => Finset.mem_powerset.mpr <| Finset.filter_subset _ _;
     rw [ Finset.mul_sum _ _ _ ];
@@ -644,13 +642,6 @@ lemma levelset_card_le_pow (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     simp +decide [ Fintype.card_pi ];
     conv_rhs => rw [ ← Finset.prod_attach ] ;
   · exact le_trans ( Finset.prod_le_prod ( fun _ _ => Nat.cast_nonneg _ ) fun _ _ => Nat.cast_le.mpr ( hP _ ‹_› |>.2.2 ) ) ( by norm_num )
-
-/-
-Auxiliary: a prime block in `[X,2X]` has at most `2X` elements.
--/
-lemma block_card_le_two_mul (X : ℕ) (P : Finset ℕ)
-    (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2 * X) : P.card ≤ 2 * X := by
-  exact le_trans ( Finset.card_le_card fun p hp => Finset.mem_Icc.mpr ⟨ Nat.Prime.pos ( hP p hp |>.1 ), hP p hp |>.2.2 ⟩ ) ( by simp +arith +decide )
 
 /-
 Auxiliary (trivial-case log trick): if `(2X)^N` exceeds `N·e^{εR}` then
@@ -744,7 +735,7 @@ lemma hmax_bound_helper (eps Ceps : ℝ) (hε0 : 0 < eps)
     exact lt_of_le_of_lt ( le_of_not_gt hR_pos ) ( mul_pos ( mul_pos ( show 0 < Ceps by exact lt_of_not_ge fun h => by nlinarith [ pow_pos hε0 4, pow_nonneg ( neg_nonneg.mpr h ) 3 ] ) ( by positivity ) ) ( by exact Real.rpow_pos_of_pos ( Real.log_pos ( by norm_cast; linarith ) ) _ ) )
 
 set_option maxHeartbeats 1000000 in
-/-- **Theorem C** (`30 §1`).  For every `ε ∈ (0,1)` there are `Cε, X₀` such that
+/-- For every `ε ∈ (0,1)` there are `Cε, X₀` such that
     for `X ≥ X₀`, any **nonempty** prime block `P ⊆ [X,2X]`, and any
     `R ≥ R_C := Cε · X^{2/3} · (log X)^{4/3}`, the full level set satisfies
     `#{a : Q_P(a) ≤ R} ≤ N · exp(ε R)` (`N = |P|`).
@@ -755,7 +746,7 @@ set_option maxHeartbeats 1000000 in
     so the count is `1`, while the right-hand side `N · e^{εR} = 0 · e^{εR} = 0`.
     The paper tacitly works with substantial blocks (`N ≥ X/(2 log X) ≥ 2` in the
     Irving-good regime), so requiring `P` nonempty is faithful and minimal. -/
-theorem fingerprint_count
+theorem fingerprint_levelSet_bound
     (eps : ℝ) (hε0 : 0 < eps) (hε1 : eps < 1) :
     ∃ (Ceps X0 : ℝ), 0 < Ceps ∧ 0 < X0 ∧
       ∀ (X : ℕ), X0 ≤ X →
@@ -832,7 +823,8 @@ theorem fingerprint_count
           (mul_le_mul_of_nonneg_right
             (mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity))
             (by positivity)) hR) (by
-        linarith) (block_card_le_two_mul X P hP) (by
+        linarith) (RequestProject.card_le_upper_bound_of_pos P (2 * X)
+          (fun p hp => (hP p hp).1.pos) (fun p hp => (hP p hp).2.2)) (by
         linarith) (by
         linarith) (by
         linarith) hhmax.2.2
@@ -841,4 +833,4 @@ theorem fingerprint_count
       congr 2
       ring
 
-end SBEEFingerprint
+end LocalEnergy

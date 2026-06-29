@@ -41,7 +41,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import RequestProject.BlockCRTEnergy
 import RequestProject.Core.Asymptotics
 import RequestProject.LocalEnergy.ReciprocalDispersion
-import RequestProject.SBEEFingerprint
+import RequestProject.LocalEnergy.FingerprintCounting
 
 open Finset
 
@@ -267,7 +267,7 @@ lemma sigmaP_lower (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero 
 **Energy sub-sum.**  For disjoint vertex sets `C, E`, the cross energy between
     them is bounded by the full energy `Q_P` (the cross pairs are a sub-family of
     all ordered pairs; `crtRepr` is symmetric in its two vertices).  Mirrors
-    `SBEEFingerprint.energy_relation`.
+    `LocalEnergy.energy_relation`.
 -/
 lemma exception_subsum_le_QP (P : Finset ℕ) [∀ p : P, NeZero p.1] (a : BlockAssignment P)
     (C E : Finset P) (hCE : Disjoint C E)
@@ -494,7 +494,9 @@ lemma exception_close_bound (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) [∀ p : 
   have hq2 := hP q.1 q.2
   have hXpos : (0:ℝ) < X := by positivity
   have hXne : (X:ℝ) ≠ 0 := ne_of_gt hXpos
-  have hN2X : (P.card:ℝ) ≤ 2*X := by exact_mod_cast SBEEFingerprint.block_card_le_two_mul X P hP
+  have hN2X : (P.card:ℝ) ≤ 2*X := by
+    exact_mod_cast RequestProject.card_le_upper_bound_of_pos P (2 * X)
+      (fun p hp => (hP p hp).1.pos) (fun p hp => (hP p hp).2.2)
   have hBX : |(m:ℝ)| ≤ (X:ℝ)^2/4 := by nlinarith [abs_nonneg (m:ℝ), hN2X, hXpos, hmsmall]
   have hδ0 : (0:ℝ) ≤ (P.card:ℝ)/(128*X) := by positivity
   have hδ4 : (P.card:ℝ)/(128*X) ≤ 1/4 := by rw [div_le_iff₀ (by positivity)]; nlinarith [hN2X, hXpos]
@@ -606,7 +608,7 @@ lemma exception_count_bound (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) [∀ p : 
 **(A4 encoding) Dominant encoding count.**  The number of assignments whose
     `m`-exception set has `≤ h` elements is `≤ ∑_{e≤h} C(N,e)(2X)^e`: an assignment
     is determined by its exception set and the residues there (outside, `a_q = m`).
-    Mirrors `SBEEFingerprint.decoding_card_bound`.
+    Mirrors `LocalEnergy.decoding_card_bound`.
 -/
 lemma dominant_encoding_card (X : ℕ) (_hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (m : ℤ) (h : ℕ) :
@@ -644,7 +646,7 @@ lemma dominant_encoding_card (X : ℕ) (_hX : 1 ≤ X) (P : Finset ℕ) [∀ p :
 /-
 **(A4 entropy) Exception entropy.**  For `X` large, `∑_{e≤h} C(N,e)(2X)^e ≤ e^{εR}`
     when `h ≤ 2¹⁵RX²/((1-ρ)N³)` and `N ≥ X/(2 log X)` (`3h log X ≤ εR`).  Mirrors
-    `SBEEFingerprint.entropy_inequality`.
+    `LocalEnergy.entropy_inequality`.
 -/
 lemma theoremA_entropy (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) :
     ∃ X0 : ℝ, 0 < X0 ∧ ∀ (X N h : ℕ) (R : ℝ),
@@ -819,7 +821,7 @@ theorem theorem_A_dominant_count
     have hle : ((Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R ∧ IsDominant X P a ρ)).card : ℝ)
         ≤ (2*(X:ℝ))^P.card := by
       refine le_trans (Nat.cast_le.mpr (Finset.card_le_card hsub)) ?_
-      exact SBEEFingerprint.levelset_card_le_pow X P hP R
+      exact LocalEnergy.levelset_card_le_pow X P hP R
     have hRHS : Real.exp (eps*R) ≤ Real.exp (eps*R) * (1 + (10/(1-ρ)) * Real.sqrt R / sigmaP P) := by
       have hnn : (0:ℝ) ≤ (10/(1-ρ)) * Real.sqrt R / sigmaP P := by positivity
       nlinarith [Real.exp_pos (eps*R), hnn]
@@ -830,7 +832,8 @@ theorem theorem_A_dominant_count
       have h2 := Real.log_lt_log (Real.exp_pos _) h1
       rw [Real.log_exp, Real.log_pow] at h2
       linarith
-    have hN2X : P.card ≤ 2*X := SBEEFingerprint.block_card_le_two_mul X P hP
+    have hN2X : P.card ≤ 2*X := RequestProject.card_le_upper_bound_of_pos P (2 * X)
+      (fun p hp => (hP p hp).1.pos) (fun p hp => (hP p hp).2.2)
     have hRpoly := HRpoly X P.card R hXr hR1 (by omega) hN2X hN hRtriv
     have hLNX := theoremA_label_le X hX1 P hP (by omega) ρ hρ hρ4 R (by linarith) hRpoly
     set L := (5/(1-ρ)) * Real.sqrt R / sigmaP P with hLdef
@@ -1799,7 +1802,8 @@ lemma fixed_label_count (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ
       rw [ le_div_iff₀ ] <;> nlinarith [ Hlog X ( by linarith [ le_max_left ( max X0e X0c ) 16, le_max_right ( max X0e X0c ) 16, le_max_left X0e X0c, le_max_right X0e X0c ] ), Real.log_pos ( show ( X : ℝ ) > 1 by linarith [ le_max_left ( max X0e X0c ) 16, le_max_right ( max X0e X0c ) 16, le_max_left X0e X0c, le_max_right X0e X0c ] ) ];
     exact_mod_cast hN32.trans m
   have hN2X : N ≤ 2 * X := by
-    convert SBEEFingerprint.block_card_le_two_mul X P hN using 1
+    convert RequestProject.card_le_upper_bound_of_pos P (2 * X)
+      (fun p hp => (hN p hp).1.pos) (fun p hp => (hN p hp).2.2) using 1
   set Hr := 2^15 * hR * (X:ℝ)^2 / ((1-ρ)*(N:ℝ)^3) with hHr_def
   have hHr0 : 0 ≤ Hr := by
     exact div_nonneg ( mul_nonneg ( mul_nonneg ( by norm_num ) ( by positivity ) ) ( sq_nonneg _ ) ) ( mul_nonneg ( by linarith ) ( pow_nonneg ( Nat.cast_nonneg _ ) _ ) )
