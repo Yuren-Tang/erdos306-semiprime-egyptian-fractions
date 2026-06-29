@@ -5,6 +5,7 @@ Deterministic reciprocal-phase dispersion and the energy penalty forced by a
 label mismatch between consecutive prime blocks.
 -/
 import RequestProject.GlobalControl.Basic
+import RequestProject.Core.SmallBallEnergy
 import Mathlib.Analysis.Normed.Group.AddCircle
 
 open Finset BigOperators Classical
@@ -133,34 +134,25 @@ theorem crossblock_dispersion (X : ℕ) (hX : 0 < X) (P : Finset ℕ)
     field_simp;
     rw [ le_div_iff₀ ] <;> norm_cast <;> try nlinarith only [ hqlb, hqub, hX ] ;
     nlinarith [ Nat.pow_le_pow_left hP_card 2, Nat.pow_le_pow_left hqlb 2, Nat.pow_le_pow_left hqub.le 2, Nat.mul_le_mul_left ( #P ) ( show #P ^ 2 ≤ 121 by nlinarith only [ hP_card ] ) ];
-  · -- By crossblock_residue_count, the number of p ∈ P with (norm ∘ ((↑) : ℝ → UnitAddCircle))(...) ≤ δ is ≤ P.card/4 + 1.
+  · -- Convert the small-phase count into a quadratic-energy lower bound.
     set δ := (P.card : ℝ) / (32 * X)
+    have hP12 : 12 ≤ P.card := by omega
     have h_residue_count : ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ≤ δ)).card : ℝ) ≤ P.card / 4 + 1 := by
       convert crossblock_residue_count X hX P hP q hq hqlb hqub d hqd pinv hpinv using 1;
-    -- For each p ∈ S, term p = (norm ∘ ((↑) : ℝ → UnitAddCircle))(...)² > δ².
-    have h_term_bound : ∀ p ∈ P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ), ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)))^2 ≥ δ^2 := by
-      exact fun p hp => pow_le_pow_left₀ ( by positivity ) ( Finset.mem_filter.mp hp |>.2.le ) 2;
-    -- Therefore, ∑ p ∈ P term p ≥ ∑ p ∈ S term p ≥ S.card * δ².
-    have h_sum_bound : (∑ p ∈ P, ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)))^2) ≥ ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ)).card : ℝ) * δ^2 := by
-      have h_sum_bound : (∑ p ∈ P, ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)))^2) ≥ (∑ p ∈ P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ), ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)))^2) := by
-        exact Finset.sum_le_sum_of_subset_of_nonneg ( Finset.filter_subset _ _ ) fun _ _ _ => sq_nonneg _;
-      exact le_trans ( by simpa using Finset.sum_le_sum h_term_bound ) h_sum_bound;
-    -- Since $S.card \geq P.card / 2$, we have $S.card * δ^2 \geq (P.card / 2) * δ^2$.
-    have h_card_bound : ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ)).card : ℝ) ≥ (P.card : ℝ) / 2 := by
-      have h_card_bound : ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ)).card : ℝ) + ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ≤ δ)).card : ℝ) = P.card := by
-        rw_mod_cast [ Finset.card_filter, Finset.card_filter ];
-        simpa only [ ← Finset.sum_add_distrib ] using Finset.card_eq_sum_ones P ▸ by congr; ext; split_ifs <;> linarith;
-      linarith [ show ( P.card : ℝ ) ≥ 12 by norm_cast; linarith ];
+    have hsmall : ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle))
+        ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ≤ δ)).card : ℝ) ≤ P.card / 2 := by
+      linarith [show (P.card : ℝ) ≥ 12 by exact_mod_cast hP12]
+    have henergy := RequestProject.sum_sq_lower_bound_of_small_ball P
+      (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle))
+        ((d : ℝ) * (pinv p : ℝ) / (q : ℝ))) δ (P.card / 2)
+      (by positivity) hsmall
     calc
       (P.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) =
-          (P.card : ℝ) / 2 * δ ^ 2 := by
+          ((P.card : ℝ) - P.card / 2) * δ ^ 2 := by
         dsimp [δ]
         ring
-      _ ≤ ((P.filter (fun p => (norm ∘ ((↑) : ℝ → UnitAddCircle))
-          ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) > δ)).card : ℝ) * δ ^ 2 :=
-        mul_le_mul_of_nonneg_right h_card_bound (sq_nonneg _)
       _ ≤ ∑ p ∈ P, (norm ∘ ((↑) : ℝ → UnitAddCircle))
-          ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ^ 2 := h_sum_bound
+          ((d : ℝ) * (pinv p : ℝ) / (q : ℝ)) ^ 2 := henergy
 
 /-! ## G3. Mismatch penalty (note 34 G3)
 

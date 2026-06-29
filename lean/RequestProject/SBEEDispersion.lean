@@ -19,6 +19,8 @@ following the paper proofs in `29 SBEE Master …md` (§2, Lemma D) and
   is now entirely sorry-free.
 -/
 import RequestProject.BlockCRTEnergy
+import RequestProject.Core.SmallBallEnergy
+import Mathlib.Analysis.Normed.Group.AddCircle
 
 open Finset
 
@@ -100,27 +102,21 @@ content reduces to `lemmaD` via `p ∣ E - u·q`. -/
     `E · q̄ / p`, where `q̄ = (q : ZMod p)⁻¹` is the modular inverse of `q` mod `p`.
     This is the faithful fractional-norm used in `30 §1`. -/
 noncomputable def phase (E : ℤ) (q p : ℕ) : ℝ :=
-  let x : ℝ := (E : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ)
-  |x - (round x : ℝ)|
+  ‖(((E : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ) : ℝ) : UnitAddCircle)‖
 
 /-- `phase` is nonnegative. -/
 lemma phase_nonneg (E : ℤ) (q p : ℕ) : 0 ≤ phase E q p := by
-  unfold phase; positivity
+  exact norm_nonneg _
 
 /-
 The reciprocal phase is even in `E`: `‖(−E)q̄/p‖ = ‖E q̄/p‖`.  (`round` is a
     nearest-integer map, so the distance to it is symmetric under negation.)
 -/
 lemma phase_neg (E : ℤ) (q p : ℕ) : phase (-E) q p = phase E q p := by
-  unfold phase;
-  norm_num [ round_eq ];
-  rw [ neg_div, abs_sub_comm ];
-  rw [ show ( - ( ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val / p ) + 1 / 2 : ℝ ) = - ( ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val / p + 1 / 2 ) + 1 by ring_nf ] ; norm_num [ Int.floor_neg ] ; ring_nf;
-  rw [ show ( -1 / 2 - ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) = - ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) by ring_nf, Int.floor_neg ] ; ring_nf; norm_num;
-  rw [ show ( ⌈1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹⌉ : ℤ ) = ⌊1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹⌋ + if ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) ≤ ⌊1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹⌋ then 0 else 1 from ?_ ] ; split_ifs <;> norm_num ; ring_nf;
-  · rw [ abs_of_nonneg, abs_of_nonpos ] <;> linarith [ Int.floor_le ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ), Int.lt_floor_add_one ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) ];
-  · ring_nf;
-  · split_ifs <;> norm_num [ Int.ceil_eq_iff ] at * <;> constructor <;> linarith [ Int.floor_le ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ), Int.lt_floor_add_one ( 1 / 2 + ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val * ( p : ℝ ) ⁻¹ ) ] ;
+  unfold phase
+  rw [show ((-E : ℤ) : ℝ) * ((q : ZMod p)⁻¹).val / p =
+      -((E : ℝ) * ((q : ZMod p)⁻¹).val / p) by push_cast; ring]
+  simp
 
 /-
 **Fractional-norm triangle inequality** for the reciprocal phase:
@@ -138,29 +134,10 @@ lemma phase_neg (E : ℤ) (q p : ℕ) : phase (-E) q p = phase E q p := by
 -/
 lemma phase_sub_le (A B : ℤ) (q p : ℕ) :
     phase (A - B) q p ≤ phase A q p + phase B q p := by
-  -- Let $x_A = A \cdot q^{-1} / p$ and $x_B = B \cdot q^{-1} / p$.
-  set x_A : ℝ := (A : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ)
-  set x_B : ℝ := (B : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ);
-  -- By the properties of the round function, we have $|x_A - x_B - \text{round}(x_A - x_B)| \leq |x_A - \text{round}(x_A) - (x_B - \text{round}(x_B))|$.
-  have h_round : |x_A - x_B - round (x_A - x_B)| ≤ |x_A - round x_A - (x_B - round x_B)| := by
-    have h_round : ∀ x : ℝ, ∀ n : ℤ, |x - round x| ≤ |x - n| := by
-      intros x n
-      apply round_le;
-    convert h_round ( x_A - x_B ) ( round x_A - round x_B ) using 1 ; push_cast ; ring_nf;
-  calc
-    phase (A - B) q p = |x_A - x_B - round (x_A - x_B)| := by
-      unfold phase
-      dsimp [x_A, x_B]
-      have h_linear :
-          ((A - B : ℤ) : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ) =
-            (A : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ) -
-              (B : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ) := by
-        push_cast
-        ring
-      rw [h_linear]
-    _ ≤ |x_A - round x_A - (x_B - round x_B)| := h_round
-    _ ≤ |x_A - round x_A| + |x_B - round x_B| := abs_sub _ _
-    _ = phase A q p + phase B q p := by rfl
+  simpa [phase, Int.cast_sub, sub_mul, sub_div] using
+    norm_sub_le
+      ((((A : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ) : ℝ) : UnitAddCircle))
+      ((((B : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ) : ℝ) : UnitAddCircle))
 
 /-
 **`card_prime_factors_dyadic_le_two`** (factored out of `lemmaD_fiber`'s
@@ -206,6 +183,7 @@ lemma phase_dvd_witness (X p q : ℕ) (hp : p.Prime) (hp2X : p ≤ 2*X)
     ∃ s : ℤ, |(s:ℝ)| ≤ 2*δ*(X:ℝ) ∧ (p:ℤ) ∣ (E - s*(q:ℤ)) := by
   refine' ⟨ E * ( ( q : ZMod p ) ⁻¹ |> ZMod.val ) - ⌊ ( E : ℝ ) * ( ( q : ZMod p ) ⁻¹ |> ZMod.val : ℝ ) / p + 1 / 2⌋ * p, _, _ ⟩;
   · unfold phase at hδ;
+    rw [UnitAddCircle.norm_eq] at hδ
     norm_num [ abs_le ] at *;
     norm_num [ round_eq ] at *;
     constructor <;> nlinarith [ show ( p : ℝ ) ≤ 2 * X by norm_cast, show ( p : ℝ ) > 0 by exact Nat.cast_pos.mpr hp.pos, mul_div_cancel₀ ( ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val ) ( Nat.cast_ne_zero.mpr hp.ne_zero ) ];
@@ -285,19 +263,16 @@ theorem dispersion_energy_bound
     (hqE : ¬ (q:ℤ) ∣ E) (hE0 : 0 < |E|) (hEq : |E| < (q:ℤ)) :
     (F.card : ℝ)^3 / (2^11 * (X:ℝ)^2)
       ≤ ∑ p ∈ F, (phase E q p)^2 := by
-  -- By `dispersion_residue_count`, there are at least `F.card / 2` primes `p` in `F` such that `phase E q p > |F| / (32 * X)`.
-  have h_residue_count : ((F.filter (fun p => phase E q p > (F.card : ℝ) / (32 * X))).card : ℝ) ≥ (F.card : ℝ) / 2 := by
-    have h_residue_count : ((F.filter (fun p => phase E q p ≤ (F.card : ℝ) / (32 * X))).card : ℝ) ≤ (F.card : ℝ) / 2 := by
-      convert dispersion_residue_count X F ‹_› hFcard q hq hqF hq2X E hqE ( by positivity ) ( by linarith ) using 1;
-    have h_residue_count : ((F.filter (fun p => phase E q p > (F.card : ℝ) / (32 * X))).card : ℝ) + ((F.filter (fun p => phase E q p ≤ (F.card : ℝ) / (32 * X))).card : ℝ) = (F.card : ℝ) := by
-      rw_mod_cast [ Finset.card_filter, Finset.card_filter ];
-      simpa only [ ← Finset.sum_add_distrib ] using Finset.card_eq_sum_ones F ▸ by congr; ext; split_ifs <;> linarith;
-    linarith;
-  -- Let `δ := |F| / (32 * X)`. Then each prime `p` in `F` with `phase E q p > δ` contributes at least `δ^2` to the sum.
   set δ := (F.card : ℝ) / (32 * X)
-  have h_contribution : ∑ p ∈ F.filter (fun p => phase E q p > δ), (phase E q p) ^ 2 ≥ (F.filter (fun p => phase E q p > δ)).card * δ ^ 2 := by
-    exact le_trans ( by norm_num ) ( Finset.sum_le_sum fun x hx => pow_le_pow_left₀ ( by positivity ) ( Finset.mem_filter.mp hx |>.2.le ) 2 );
-  refine le_trans ?_ ( h_contribution.trans <| Finset.sum_le_sum_of_subset_of_nonneg ( Finset.filter_subset _ _ ) fun _ _ _ => sq_nonneg _ );
-  convert mul_le_mul_of_nonneg_right h_residue_count ( sq_nonneg δ ) using 1 ; ring
+  have hsmall : ((F.filter (fun p => phase E q p ≤ δ)).card : ℝ) ≤ F.card / 2 := by
+    exact dispersion_residue_count X F hF hFcard q hq hqF hq2X E hqE hE0 hEq
+  have henergy := RequestProject.sum_sq_lower_bound_of_small_ball F
+    (fun p => phase E q p) δ (F.card / 2) (by positivity) hsmall
+  calc
+    (F.card : ℝ)^3 / (2^11 * (X:ℝ)^2) =
+        ((F.card : ℝ) - F.card / 2) * δ^2 := by
+      dsimp [δ]
+      ring
+    _ ≤ ∑ p ∈ F, (phase E q p)^2 := henergy
 
 end SBEEDispersion

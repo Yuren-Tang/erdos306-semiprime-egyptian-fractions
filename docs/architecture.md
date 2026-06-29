@@ -55,6 +55,7 @@ The current Core source chain is:
 
 ```text
 Core.Asymptotics  (shared growth thresholds)
+Core.SmallBallEnergy  (small-ball counts imply quadratic-energy bounds)
 
 Core.Semiprime
   -> Core.EgyptianRepresentation
