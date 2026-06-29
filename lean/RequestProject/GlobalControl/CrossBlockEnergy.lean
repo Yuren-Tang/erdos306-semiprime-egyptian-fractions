@@ -6,6 +6,7 @@ label mismatch between consecutive prime blocks.
 -/
 import RequestProject.GlobalControl.Basic
 import RequestProject.Core.SmallBallEnergy
+import RequestProject.Core.ShortIntervalCongruence
 import Mathlib.Analysis.Normed.Group.AddCircle
 
 open Finset BigOperators Classical
@@ -91,9 +92,10 @@ lemma crossblock_residue_count (X : ℕ) (hX : 0 < X) (P : Finset ℕ)
         exact dvd_sub hdiv' hdiv
       by_cases hu : (q : ℤ) ∣ u <;>
         simp_all +decide [dvd_sub_left, dvd_mul_of_dvd_left]
-      have := Int.Prime.dvd_mul' hq h_eq
-      simp_all +decide
-      obtain ⟨ k, hk ⟩ := this; nlinarith [ show k = 0 by nlinarith [ hP p hp, hP p' hp' ] ] ;
+      have hdiff : (q : ℤ) ∣ (p : ℤ) - p' := (Int.Prime.dvd_mul' hq h_eq).resolve_left hu
+      exact RequestProject.eq_of_dvd_sub_of_mem_Ico X (2 * X) q p p'
+        (by omega) (Finset.mem_Ico.mpr ⟨(hP p hp).2.1, (hP p hp).2.2⟩)
+        (Finset.mem_Ico.mpr ⟨(hP p' hp').2.1, (hP p' hp').2.2⟩) hdiff
     exact Finset.card_le_one.mpr fun p hp q hq => h_fiber p q ( Finset.mem_filter.mp hp |>.1 ) ( Finset.mem_filter.mp hq |>.1 ) ( Finset.mem_filter.mp hp |>.2 ) ( Finset.mem_filter.mp hq |>.2 );
   refine' le_trans ( Nat.cast_le.mpr <| Finset.card_le_card h_cover ) _;
   refine' le_trans ( Nat.cast_le.mpr <| Finset.card_biUnion_le.trans <| Finset.sum_le_sum fun u hu => h_fiber u ) _ ; norm_num;

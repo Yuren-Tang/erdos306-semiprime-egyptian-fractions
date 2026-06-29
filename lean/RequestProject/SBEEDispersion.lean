@@ -20,6 +20,7 @@ following the paper proofs in `29 SBEE Master …md` (§2, Lemma D) and
 -/
 import RequestProject.BlockCRTEnergy
 import RequestProject.Core.SmallBallEnergy
+import RequestProject.Core.ShortIntervalCongruence
 import Mathlib.Analysis.Normed.Group.AddCircle
 
 open Finset
@@ -49,19 +50,21 @@ lemma lemmaD_fiber (X q : ℕ) (hq : q.Prime) (hXq : X ≤ q) (w : ℤ)
     (hw : ¬ (q:ℤ) ∣ w) (u : ℤ) :
     ((Finset.Icc X (2*X)).filter
       (fun p => Nat.Prime p ∧ (q:ℤ) ∣ (u * (p:ℤ) - w))).card ≤ 2 := by
-  by_contra h_contra;
-  -- Obtain three distinct elements a, b, c from the set.
-  obtain ⟨a, b, c, ha, hb, hc, habc⟩ : ∃ a b c : ℕ, a ∈ Finset.Icc X (2 * X) ∧ b ∈ Finset.Icc X (2 * X) ∧ c ∈ Finset.Icc X (2 * X) ∧ Nat.Prime a ∧ Nat.Prime b ∧ Nat.Prime c ∧ (q : ℤ) ∣ (u * a - w) ∧ (q : ℤ) ∣ (u * b - w) ∧ (q : ℤ) ∣ (u * c - w) ∧ a ≠ b ∧ a ≠ c ∧ b ≠ c := by
-    obtain ⟨ s, hs ⟩ := Finset.two_lt_card.mp ( lt_of_not_ge h_contra );
-    rcases hs with ⟨ hs₁, b, hb₁, c, hc₁, hab, hac, hbc ⟩ ; use s, b, c; aesop;
-  -- Since $q$ is prime and does not divide $u$, it must divide $(a - b)$, $(a - c)$, and $(b - c)$.
-  have h_div : (q : ℤ) ∣ (a - b) ∧ (q : ℤ) ∣ (a - c) ∧ (q : ℤ) ∣ (b - c) := by
-    haveI := Fact.mk hq; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd, sub_eq_iff_eq_add ] ;
-    grind +splitImp;
-  -- Since $q$ divides $(a - b)$, $(a - c)$, and $(b - c)$, and $a$, $b$, and $c$ are distinct primes in the interval $[X, 2X]$, it follows that $|a - b| \geq q$, $|a - c| \geq q$, and $|b - c| \geq q$.
-  have h_abs : |(a : ℤ) - b| ≥ q ∧ |(a : ℤ) - c| ≥ q ∧ |(b : ℤ) - c| ≥ q := by
-    exact ⟨ Int.le_of_dvd ( abs_pos.mpr ( sub_ne_zero.mpr ( mod_cast habc.2.2.2.2.2.2.1 ) ) ) ( by simpa using h_div.1 ), Int.le_of_dvd ( abs_pos.mpr ( sub_ne_zero.mpr ( mod_cast habc.2.2.2.2.2.2.2.1 ) ) ) ( by simpa using h_div.2.1 ), Int.le_of_dvd ( abs_pos.mpr ( sub_ne_zero.mpr ( mod_cast habc.2.2.2.2.2.2.2.2 ) ) ) ( by simpa using h_div.2.2 ) ⟩;
-  grind +suggestions
+  apply RequestProject.card_le_two_of_dvd_sub_of_mem_Icc X (2 * X) q
+  · omega
+  · intro p hp
+    exact (Finset.mem_filter.mp hp).1
+  · intro p hp p' hp'
+    have hpdata := (Finset.mem_filter.mp hp).2
+    have hpdata' := (Finset.mem_filter.mp hp').2
+    have hu : ¬ (q : ℤ) ∣ u := by
+      intro hqu
+      apply hw
+      exact by simpa using dvd_sub (hqu.mul_right p) hpdata.2
+    have hmul : (q : ℤ) ∣ u * ((p : ℤ) - p') := by
+      rw [show u * ((p : ℤ) - p') = (u * p - w) - (u * p' - w) by ring]
+      exact dvd_sub hpdata.2 hpdata'.2
+    exact (Int.Prime.dvd_mul' hq hmul).resolve_left hu
 
 /-- **Lemma D** (`29 §2`). For prime `q` with `X ≤ q`, integer `w` with `q ∤ w`,
     and `U < X`:
