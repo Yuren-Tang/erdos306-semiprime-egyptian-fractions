@@ -21,6 +21,7 @@ following the paper proofs in `29 SBEE Master …md` (§2, Lemma D) and
 import RequestProject.BlockCRTEnergy
 import RequestProject.Core.SmallBallEnergy
 import RequestProject.Core.ShortIntervalCongruence
+import RequestProject.Core.UnitCircleResidue
 import Mathlib.Analysis.Normed.Group.AddCircle
 
 open Finset
@@ -184,14 +185,27 @@ lemma phase_dvd_witness (X p q : ℕ) (hp : p.Prime) (hp2X : p ≤ 2*X)
     (hq : q.Prime) (hpq : p ≠ q) (E : ℤ) (δ : ℝ) (hδ0 : 0 ≤ δ)
     (hδ : phase E q p ≤ δ) :
     ∃ s : ℤ, |(s:ℝ)| ≤ 2*δ*(X:ℝ) ∧ (p:ℤ) ∣ (E - s*(q:ℤ)) := by
-  refine' ⟨ E * ( ( q : ZMod p ) ⁻¹ |> ZMod.val ) - ⌊ ( E : ℝ ) * ( ( q : ZMod p ) ⁻¹ |> ZMod.val : ℝ ) / p + 1 / 2⌋ * p, _, _ ⟩;
-  · unfold phase at hδ;
-    rw [UnitAddCircle.norm_eq] at hδ
-    norm_num [ abs_le ] at *;
-    norm_num [ round_eq ] at *;
-    constructor <;> nlinarith [ show ( p : ℝ ) ≤ 2 * X by norm_cast, show ( p : ℝ ) > 0 by exact Nat.cast_pos.mpr hp.pos, mul_div_cancel₀ ( ( E : ℝ ) * ( q : ZMod p ) ⁻¹.val ) ( Nat.cast_ne_zero.mpr hp.ne_zero ) ];
-  · haveI := Fact.mk hp; haveI := Fact.mk hq; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ;
-    rw [ mul_assoc, inv_mul_cancel₀ ( by rw [ Ne.eq_def, ZMod.natCast_eq_zero_iff ] ; exact fun h => hpq <| by have := Nat.prime_dvd_prime_iff_eq hp hq; tauto ), mul_one, sub_self ]
+  obtain ⟨s, hsabs, hsmod⟩ :=
+    RequestProject.exists_centered_residue_of_unitCircle_norm_le
+      (E * ((q : ZMod p)⁻¹).val) p hp.pos δ (by simpa [phase] using hδ)
+  refine ⟨s, ?_, ?_⟩
+  · have hp2XR : (p : ℝ) ≤ 2 * X := by exact_mod_cast hp2X
+    exact hsabs.trans (by
+      nlinarith [mul_le_mul_of_nonneg_left hp2XR hδ0])
+  · haveI := Fact.mk hp
+    haveI := Fact.mk hq
+    rw [← ZMod.intCast_zmod_eq_zero_iff_dvd, Int.cast_sub, Int.cast_mul]
+    have hs0 : ((E * ((q : ZMod p)⁻¹).val - s : ℤ) : ZMod p) = 0 :=
+      (ZMod.intCast_zmod_eq_zero_iff_dvd (E * ((q : ZMod p)⁻¹).val - s) p).2 hsmod
+    have hs : (s : ZMod p) = E * (q : ZMod p)⁻¹ := by
+      push_cast at hs0
+      rw [ZMod.natCast_zmod_val] at hs0
+      exact (sub_eq_zero.mp hs0).symm
+    have hqne : (q : ZMod p) ≠ 0 := by
+      rw [Ne.eq_def, ZMod.natCast_eq_zero_iff]
+      exact fun h => hpq <| (Nat.prime_dvd_prime_iff_eq hp hq).mp h
+    rw [hs]
+    simp [hqne]
 
 /-
 **Dispersion residue count** (`30 §1`).  Number of fingerprint primes whose

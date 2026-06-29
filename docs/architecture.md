@@ -57,6 +57,7 @@ The current Core source chain is:
 Core.Asymptotics  (shared growth thresholds)
 Core.SmallBallEnergy  (small-ball counts imply quadratic-energy bounds)
 Core.ShortIntervalCongruence  (short intervals contain at most one residue representative)
+Core.UnitCircleResidue  (unit-circle norms via `ZMod.valMinAbs`)
 
 Core.Semiprime
   -> Core.EgyptianRepresentation

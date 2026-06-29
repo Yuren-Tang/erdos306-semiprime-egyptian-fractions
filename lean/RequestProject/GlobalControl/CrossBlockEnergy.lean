@@ -7,6 +7,7 @@ label mismatch between consecutive prime blocks.
 import RequestProject.GlobalControl.Basic
 import RequestProject.Core.SmallBallEnergy
 import RequestProject.Core.ShortIntervalCongruence
+import RequestProject.Core.UnitCircleResidue
 import Mathlib.Analysis.Normed.Group.AddCircle
 
 open Finset BigOperators Classical
@@ -55,13 +56,12 @@ lemma crossblock_residue_count (X : ℕ) (hX : 0 < X) (P : Finset ℕ)
   -- Set δ := (P.card : ℝ)/(32*X).
   set δ := (P.card : ℝ) / (32 * X);
   -- Step 1 (witness): If p ∈ P and (norm ∘ ((↑) : ℝ → UnitAddCircle))((d:ℝ)*(pinv p:ℝ)/q) ≤ δ, then there is an integer u with |u| ≤ δ*q and (q:ℤ) ∣ (d * pinv p - u).
-  have h_witness : ∀ p ∈ P, (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / q) ≤ δ → ∃ u : ℤ, |u| ≤ δ * q ∧ (q : ℤ) ∣ (d - u * p) := by
+  have h_witness : ∀ p ∈ P, (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((d : ℝ) * (pinv p : ℝ) / q) ≤ δ → ∃ u : ℤ, |(u : ℝ)| ≤ δ * q ∧ (q : ℤ) ∣ (d - u * p) := by
     intro p hp hδ
-    obtain ⟨u, hu⟩ : ∃ u : ℤ, |u| ≤ δ * q ∧ (q : ℤ) ∣ (d * pinv p - u) := by
-      refine' ⟨ d * pinv p - round ( ( d : ℝ ) * pinv p / q ) * q, _, _ ⟩ <;> norm_num [Function.comp_def, UnitAddCircle.norm_eq] at *;
-      convert mul_le_mul_of_nonneg_right hδ (Nat.cast_nonneg q) using 1 <;> try rfl
-      rw [div_sub', abs_div] <;> norm_num [hq.ne_zero]
-      ring_nf
+    obtain ⟨u, hu⟩ : ∃ u : ℤ, |(u : ℝ)| ≤ δ * q ∧ (q : ℤ) ∣ (d * pinv p - u) := by
+      apply RequestProject.exists_centered_residue_of_unitCircle_norm_le
+        (d * pinv p) q hq.pos δ
+      simpa [Function.comp_def] using hδ
     have h_div : (q : ℤ) ∣ (p * pinv p - 1) := by
       exact ⟨ p * pinv p / q - 1 / q, by linarith [ Nat.mod_add_div ( p * pinv p ) q, Nat.mod_add_div 1 q, hpinv p hp ] ⟩;
     exact ⟨ u, hu.1, by convert hu.2.mul_left p |> Int.dvd_sub <| h_div.mul_left d using 1; ring ⟩;
@@ -75,12 +75,10 @@ lemma crossblock_residue_count (X : ℕ) (hX : 0 < X) (P : Finset ℕ)
     · exact Int.le_of_lt_add_one <| by
         rw [← @Int.cast_lt ℝ]
         push_cast
-        rw [Int.cast_abs] at hu_abs
         have hu_lower : -(δ * q) ≤ (u : ℝ) :=
           (neg_le_neg hu_abs).trans (neg_abs_le (u : ℝ))
         linarith [Int.floor_le (δ * q), Int.lt_floor_add_one (δ * q)]
     · exact Int.le_floor.mpr <| by
-        rw [Int.cast_abs] at hu_abs
         exact (le_abs_self (u : ℝ)).trans hu_abs
   -- Step 4 (fiber ≤ 1): For each fixed u, the set {p ∈ P : (q:ℤ) ∣ (d - u*p)} has at most 1 element.
   have h_fiber : ∀ u : ℤ, (Finset.filter (fun p : ℕ => (q : ℤ) ∣ (d - u * p)) P).card ≤ 1 := by
