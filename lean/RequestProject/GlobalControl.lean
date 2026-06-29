@@ -4,7 +4,7 @@
 This file translates note `34` ("Global Control: Detailed Proof"), the
 block-to-global chain (CP 03 §§5–8 / Prop 8.1).  The argument mirrors the
 verified single-block proof one level up: *blocks* play the role *vertices*
-played inside a block, and the deterministic dispersion (`lemmaD` pattern)
+played inside a block, and the deterministic dispersion (`linearCongruence_pair_count` pattern)
 suffices because the Peierls penalties exceed the entropies.
 
 ## Section map (note 34)
@@ -16,7 +16,7 @@ suffices because the Peierls penalties exceed the entropies.
   `mainArc`/`global_levelset`/`global_control_partition` are stated over it, so
   the level-set counts are honest cardinalities of a finite type.
 * **G2** — cross-block dispersion (`crossblock_dispersion`).  Self-contained
-  number theory; **proved** (deterministic, `lemmaD` pattern; fiber ≤ 1), via
+  number theory; **proved** (deterministic, `linearCongruence_pair_count` pattern; fiber ≤ 1), via
   `unitCircleNorm_ratio_ge` and `crossblock_residue_count`.
 * **G3** — mismatch penalty `Πₖ` (`mismatch_penalty`).  **Proved (corrected
   statement)** — the original statement is FALSE (label-size hypotheses were
@@ -53,6 +53,6 @@ full note-38 §2/§4 support layer (block decomposition G-2 and sigma comparison
 G-4) are proved.  The headline G5 and G7 assemblies are completed in
 `GlobalControl.LevelSetAssembly` and `GlobalControl.Partition`.  No new analytic input is
 required beyond the verified single-block package (`SBEEAssembly`),
-`GlobalPeierls.shell_sum_bound`, and `lemmaD`.
+`GlobalPeierls.shell_sum_bound`, and `linearCongruence_pair_count`.
 -/
 import RequestProject.GlobalControl.Partition

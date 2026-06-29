@@ -11,7 +11,7 @@ It is stated against the faithful CRT energy encoding (`QP`, `sigmaP`,
 
 * `IsDominant` — dominance predicate (a label class covers `≥ (1-ρ)·N` primes).
 * `lemma_E_cross_label_energy` — **Lemma E.  Fully proved, no sorry.**  Decomposed
-  into `lemmaE_fiber` (the per-`q` reduction to `SBEEDispersion.lemmaD`) and
+  into `lemmaE_fiber` (the per-`q` reduction to `LocalEnergy.linearCongruence_pair_count`) and
   `lemmaE_close_count` (the total close-pair count via the `≤2`-divisor discard),
   then the `δ = |C|/(64X)` choice and the sum-of-squares energy accounting.
   (A statement bug was fixed first — see the lemma's docstring.)
@@ -40,7 +40,7 @@ import Mathlib.Analysis.MeanInequalitiesPow
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import RequestProject.BlockCRTEnergy
 import RequestProject.Core.Asymptotics
-import RequestProject.SBEEDispersion
+import RequestProject.LocalEnergy.ReciprocalDispersion
 import RequestProject.SBEEFingerprint
 
 open Finset
@@ -295,11 +295,11 @@ lemma exception_subsum_le_QP (P : Finset ℕ) [∀ p : P, NeZero p.1] (a : Block
 /-! ## Lemma E — cross-label energy (`29 §5`) -/
 
 set_option maxHeartbeats 1600000 in
-open SBEEDispersion in
+open LocalEnergy in
 /-- **Lemma E, per-`q` fiber bound.**  Fix a prime `q ∈ [X,2X]` carrying residue
     `n'`, with `q ∤ (n'-n)`.  The primes `p ∈ C` (residue `n`) whose cross
-    representative `H_{pq}` is `δ`-small inject into `lemmaD_set X q U (n'-n)` via
-    `p ↦ (u, p)` with `H_{pq} - n = u·p`; hence by `lemmaD` their number is
+    representative `H_{pq}` is `δ`-small inject into `linearCongruencePairs X q U (n'-n)` via
+    `p ↦ (u, p)` with `H_{pq} - n = u·p`; hence by `linearCongruence_pair_count` their number is
     `≤ 2·(2·U+1) ≤ 2·(2·(2δX + B/X) + 1)`.
 
     Here `H_{pq} ≡ n (mod p)` (so `p ∣ H-n`, giving the integer `u`), and
@@ -349,9 +349,9 @@ lemma lemmaE_fiber (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     rwa [ Finset.card_image_of_injective _ fun x y hxy => by aesop ] at h_card;
   refine' le_trans ( Nat.cast_le.mpr h_card ) _;
   refine' le_trans _ ( mul_le_mul_of_nonneg_left ( show ( 2 * ⌊2 * δ * X + B / X⌋₊ + 1 : ℝ ) ≤ 2 * ( 2 * δ * X + B / X ) + 1 by linarith [ Nat.floor_le ( show 0 ≤ 2 * δ * X + B / X by positivity ) ] ) zero_le_two );
-  exact_mod_cast SBEEDispersion.lemmaD X q ⌊2 * δ * X + B / X⌋₊ hq hXq ( show ⌊2 * δ * X + B / X⌋₊ < X from Nat.floor_lt' ( by positivity ) |>.2 <| by nlinarith [ show ( X : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ B ( by positivity : ( X : ℝ ) ≠ 0 ) ] ) ( n' - n ) hqd
+  exact_mod_cast LocalEnergy.linearCongruence_pair_count X q ⌊2 * δ * X + B / X⌋₊ hq hXq ( n' - n ) hqd
 
-open SBEEDispersion in
+open LocalEnergy in
 /-- **Lemma E, total close-pair count.**  The number of cross pairs `(p,q) ∈ C×C'`
     whose representative is `δ`-small is `≤ 2|C| + |C'|·2(2(2δX+B/X)+1)`.
 
@@ -373,7 +373,7 @@ lemma lemmaE_close_count (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
           ≤ δ * ((pq.1:ℕ) * (pq.2:ℕ)))).card : ℝ)
       ≤ 2 * (C.card : ℝ) + (C'.card : ℝ) * (2 * (2 * (2*δ*X + B/X) + 1)) := by
   have h_card_prime_factors : ((Finset.Icc X (2 * X)).filter (fun p => Nat.Prime p ∧ (p : ℤ) ∣ (n' - n))).card ≤ 2 := by
-    convert SBEEDispersion.card_prime_factors_dyadic_le_two X ( n' - n ) ( sub_ne_zero.mpr ( Ne.symm hd ) ) _ using 1;
+    convert LocalEnergy.card_prime_factors_dyadic_le_two X ( n' - n ) ( sub_ne_zero.mpr ( Ne.symm hd ) ) _ using 1;
     rw [ ← @Int.cast_lt ℝ ] ; norm_num ; cases abs_cases ( n' - n : ℝ ) <;> cases abs_cases ( n : ℝ ) <;> cases abs_cases ( n' : ℝ ) <;> nlinarith [ ( by norm_cast : ( 1 :ℝ ) ≤ X ) ] ;
   have h_card_bad : (Finset.filter (fun q : P => (q : ℤ) ∣ (n' - n)) C').card ≤ 2 := by
     refine le_trans ?_ h_card_prime_factors;
@@ -401,7 +401,7 @@ lemma lemmaE_close_count (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     `|C'| ≥ 8`:
     `∑_{p∈C, q∈C'} (H_{pq}/pq)² ≥ c·|C|³|C'|/X²` for an absolute `c > 0`.
 
-    Proof (`29 §5`): reduce to `SBEEDispersion.lemmaD` with `w = n'-n`; at most `2`
+    Proof (`29 §5`): reduce to `LocalEnergy.linearCongruence_pair_count` with `w = n'-n`; at most `2`
     primes divide `d = n'-n`; for the rest, `≤ 8δX+4B/X+2` cross pairs are close,
     so `≥ |C||C'|/2` pairs carry energy `≥ δ²`.
 
@@ -773,7 +773,7 @@ lemma theoremA_label_le (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, Ne
 
     Proof ingredients (all in `29 §3`): (A1) the dominant label is unique; (A2) the
     label range `|m| ≤ (5/(1-ρ))·√R/σ_P`; (A3) each exception carries energy
-    `≥ N³/2¹⁵X²` via `SBEEDispersion.lemmaD`; (A4) the exception entropy
+    `≥ N³/2¹⁵X²` via `LocalEnergy.linearCongruence_pair_count`; (A4) the exception entropy
     `3e log X ≤ εR`.
 
     **Status**: `sorry` — the entropy bookkeeping (A4) and the per-exception energy

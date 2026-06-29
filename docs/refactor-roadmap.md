@@ -45,7 +45,7 @@ and `RequestProject.Audit` prints only the two audited axiom names.
 Goal: port without changing theorem statements or module layout.
 
 Completed port nodes include `BernoulliFourier`, `GlobalPeierlsBookkeeping`,
-`SBEEDispersion`, `SBEEFingerprint`, `SBEEForcing`, `SBEEAssembly`, and
+`LocalEnergy.ReciprocalDispersion`, `SBEEFingerprint`, `SBEEForcing`, `SBEEAssembly`, and
 `GlobalControl`.  The theorem chain has been ported, while its dependency
 boundaries are still being audited before it is declared clean.  Its former
 monolith has been decomposed into `BlockSystem`, `Basic`, `MainArc`,
@@ -147,11 +147,11 @@ Current progress:
 - the obsolete dependency `BlockCRTEnergy -> SBEE` has been removed: the
   concrete CRT energy layer does not depend on the deprecated conditional SBEE
   placeholder chain.
-- the local-energy route through `BlockCRTEnergy`, `SBEEDispersion`,
+- the local-energy route through `BlockCRTEnergy`, `LocalEnergy.ReciprocalDispersion`,
   `SBEEFingerprint`, `SBEEForcing`, and `SBEEAssembly` now builds cleanly on
   v4.31 with narrowed imports; the dependency closure fell from roughly 8.5k
   to 3.1k jobs;
-- `LocalEnergy.CRTModel`, `LocalEnergy.DominantLabel`, and
+- `LocalEnergy.CRTModel`, `LocalEnergy.ReciprocalDispersion`, `LocalEnergy.DominantLabel`, and
   `LocalEnergy.LevelSet` now form the canonical handoff to global control;
   global-control sources no longer import or invoke historical `SBEE*` names;
 - the duplicated eventual bound `K * log X ≤ X` now has one proof in

@@ -1,38 +1,23 @@
-/-
-# SBEE Dispersion: Lemma D, the dispersion corollary, and Theorem C
-
-This file formalizes the **P1 crux** of the SBEE single-block counting proof,
-following the paper proofs in `29 SBEE Master …md` (§2, Lemma D) and
-`30 Theorem C …md` (§1, the dispersion corollary and the fingerprint count).
-
-## Status overview
-
-* `lemmaD_fiber`, `lemmaD` — **Lemma D, fully proved, no sorry.**
-  This is the deterministic dispersion engine: a residue class mod `q` meets the
-  interval `[X,2X]` in `≤ 2` points, and a nonzero `u` with `|u| < X ≤ q` is
-  invertible mod the prime `q`.
-* `dispersion_residue_count`, `dispersion_energy_bound` — the dispersion corollary
-  of `30 §1`. **Fully proved, no sorry.**
-* Theorem C itself (`fingerprint_count`) is assembled in
-  `RequestProject/SBEEFingerprint.lean`, where the cold-rigidity and entropy
-  layers it depends on are available; this file is its dispersion foundation and
-  is now entirely sorry-free.
--/
-import RequestProject.BlockCRTEnergy
 import RequestProject.Core.SmallBallEnergy
 import RequestProject.Core.ShortIntervalCongruence
 import RequestProject.Core.UnitCircleResidue
 import Mathlib.Analysis.Normed.Group.AddCircle
+import Mathlib.RingTheory.Int.Basic
+
+/-! # Reciprocal dispersion
+
+Linear-congruence fiber bounds and the resulting small-ball and quadratic-energy
+bounds for reciprocal phases on the unit circle. -/
 
 open Finset
 
-namespace SBEEDispersion
+namespace LocalEnergy
 
-/-! ## Lemma D (deterministic dispersion) — `29 §2` -/
+/-! ## Linear congruence counting -/
 
-/-- The counting set of **Lemma D**: pairs `(u, p)` with `u ∈ [-U, U]` (integer),
+/-- Pairs `(u, p)` with `u ∈ [-U, U]`,
     `p ∈ [X, 2X]` prime, and `u·p ≡ w (mod q)`. -/
-noncomputable def lemmaD_set (X q U : ℕ) (w : ℤ) : Finset (ℤ × ℕ) :=
+noncomputable def linearCongruencePairs (X q U : ℕ) (w : ℤ) : Finset (ℤ × ℕ) :=
   ((Finset.Icc (-(U:ℤ)) (U:ℤ)) ×ˢ (Finset.Icc X (2*X))).filter
     (fun up => Nat.Prime up.2 ∧ (q:ℤ) ∣ (up.1 * (up.2 : ℤ) - w))
 
@@ -43,11 +28,9 @@ noncomputable def lemmaD_set (X q U : ℕ) (w : ℤ) : Finset (ℤ × ℕ) :=
     invertible mod the prime `q`; the congruence pins `p` to one residue class
     mod `q`, and `[X,2X]` (length `X ≤ q`) holds `≤ 2` of any class.
 
-    **Verification finding.** The paper requires `|u| < X ≤ q` to get `u`
-    invertible.  This is *unnecessary*: `q ∤ u` follows directly from `q ∤ w`
-    (if `q ∣ u` then `q ∣ u·p`, so `q ∣ w`), for any `u`.  Hence the hypothesis
-    `U < X` of Lemma D is not needed for the fiber bound. -/
-lemma lemmaD_fiber (X q : ℕ) (hq : q.Prime) (hXq : X ≤ q) (w : ℤ)
+    The nondivisibility `q ∤ u` follows directly from `q ∤ w`; no size bound
+    on `u` is needed. -/
+lemma linearCongruence_fiber_card_le_two (X q : ℕ) (hq : q.Prime) (hXq : X ≤ q) (w : ℤ)
     (hw : ¬ (q:ℤ) ∣ w) (u : ℤ) :
     ((Finset.Icc X (2*X)).filter
       (fun p => Nat.Prime p ∧ (q:ℤ) ∣ (u * (p:ℤ) - w))).card ≤ 2 := by
@@ -67,23 +50,20 @@ lemma lemmaD_fiber (X q : ℕ) (hq : q.Prime) (hXq : X ≤ q) (w : ℤ)
       exact dvd_sub hpdata.2 hpdata'.2
     exact (Int.Prime.dvd_mul' hq hmul).resolve_left hu
 
-/-- **Lemma D** (`29 §2`). For prime `q` with `X ≤ q`, integer `w` with `q ∤ w`,
-    and `U < X`:
+/-- For prime `q` with `X ≤ q` and integer `w` with `q ∤ w`:
     `#{(u,p) : p ∈ [X,2X] prime, |u| ≤ U, u·p ≡ w (mod q)} ≤ 2·(2U+1)`.
-
-    The hypothesis `U < X` is kept to match the paper's statement (`29 §2`), but
-    the proof does not use it — see the finding noted on `lemmaD_fiber`. -/
-theorem lemmaD (X q U : ℕ) (hq : q.Prime) (hXq : X ≤ q) (_hUX : U < X)
+ -/
+theorem linearCongruence_pair_count (X q U : ℕ) (hq : q.Prime) (hXq : X ≤ q)
     (w : ℤ) (hw : ¬ (q:ℤ) ∣ w) :
-    (lemmaD_set X q U w).card ≤ 2 * (2 * U + 1) := by
-  have key : ∀ u ∈ Finset.Icc (-(U:ℤ)) U, (Finset.filter (fun up => up.1 = u) (lemmaD_set X q U w)).card ≤ 2 := by
+    (linearCongruencePairs X q U w).card ≤ 2 * (2 * U + 1) := by
+  have key : ∀ u ∈ Finset.Icc (-(U:ℤ)) U, (Finset.filter (fun up => up.1 = u) (linearCongruencePairs X q U w)).card ≤ 2 := by
     intro u _hu;
     -- The fiber {x ∈ S : x.1 = u} is in bijection with the p-fiber {p ∈ Icc X (2X) : p.Prime ∧ (q:ℤ) ∣ (u·p - w)} via p ↦ (u,p).
-    have h_bij : Finset.filter (fun up => up.1 = u) (lemmaD_set X q U w) ⊆ Finset.image (fun p : ℕ => (u, p)) (Finset.filter (fun p => Nat.Prime p ∧ (q:ℤ) ∣ (u * (p : ℤ) - w)) (Finset.Icc X (2 * X))) := by
+    have h_bij : Finset.filter (fun up => up.1 = u) (linearCongruencePairs X q U w) ⊆ Finset.image (fun p : ℕ => (u, p)) (Finset.filter (fun p => Nat.Prime p ∧ (q:ℤ) ∣ (u * (p : ℤ) - w)) (Finset.Icc X (2 * X))) := by
       grind +locals;
     refine le_trans ( Finset.card_le_card h_bij ) ?_;
     rw [ Finset.card_image_of_injective _ fun x y hxy => by injection hxy ];
-    exact lemmaD_fiber X q hq hXq w hw u;
+    exact linearCongruence_fiber_card_le_two X q hq hXq w hw u;
   convert Finset.sum_le_sum key using 1;
   · rfl
   · rw [ ← Finset.card_eq_sum_card_fiberwise ];
@@ -91,33 +71,30 @@ theorem lemmaD (X q U : ℕ) (hq : q.Prime) (hXq : X ≤ q) (_hUX : U < X)
   · norm_num [ two_mul, add_assoc ];
     grind
 
-/-! ## The dispersion corollary — `30 §1`, "Dispersion (Lemma D form)"
+/-! ## Reciprocal-phase dispersion
 
 For `q ∉ F`, integer `E` with `q ∤ E`, `0 < |E| < q`, and `δ = |F|/(32X)`:
 `#{p ∈ F : ‖E·q̄/p‖ ≤ δ} ≤ 2·(4δX+1) ≤ |F|/2`, hence
 `∑_{p ∈ F} ‖E·q̄/p‖² ≥ |F|³/(2^11 X²) =: G_F`.
 
-These statements require the fractional-norm `‖·‖` on `ℝ/ℤ` together with the
-modular inverse `q̄` mod `p`; they are stated abstractly here with a real-valued
-"reciprocal phase" function `phase` and isolated as `sorry`.  The mathematical
-content reduces to `lemmaD` via `p ∣ E - u·q`. -/
+The mechanism is the unit-circle norm together with the modular inverse `q̄`
+modulo `p`; small phases produce the divisibility relation `p ∣ E - u·q`. -/
 
 /-- Reciprocal phase `‖E·q̄/p‖ ∈ [0, 1/2]`: the distance to the nearest integer of
     `E · q̄ / p`, where `q̄ = (q : ZMod p)⁻¹` is the modular inverse of `q` mod `p`.
     This is the faithful fractional-norm used in `30 §1`. -/
-noncomputable def phase (E : ℤ) (q p : ℕ) : ℝ :=
+noncomputable def reciprocalPhase (E : ℤ) (q p : ℕ) : ℝ :=
   ‖(((E : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ) : ℝ) : UnitAddCircle)‖
 
-/-- `phase` is nonnegative. -/
-lemma phase_nonneg (E : ℤ) (q p : ℕ) : 0 ≤ phase E q p := by
+/-- `reciprocalPhase` is nonnegative. -/
+lemma reciprocalPhase_nonneg (E : ℤ) (q p : ℕ) : 0 ≤ reciprocalPhase E q p := by
   exact norm_nonneg _
 
 /-
-The reciprocal phase is even in `E`: `‖(−E)q̄/p‖ = ‖E q̄/p‖`.  (`round` is a
-    nearest-integer map, so the distance to it is symmetric under negation.)
+The reciprocal phase is even in `E`: `‖(−E)q̄/p‖ = ‖E q̄/p‖`.
 -/
-lemma phase_neg (E : ℤ) (q p : ℕ) : phase (-E) q p = phase E q p := by
-  unfold phase
+lemma reciprocalPhase_neg (E : ℤ) (q p : ℕ) : reciprocalPhase (-E) q p = reciprocalPhase E q p := by
+  unfold reciprocalPhase
   rw [show ((-E : ℤ) : ℝ) * ((q : ZMod p)⁻¹).val / p =
       -((E : ℝ) * ((q : ZMod p)⁻¹).val / p) by push_cast; ring]
   simp
@@ -129,22 +106,19 @@ lemma phase_neg (E : ℤ) (q p : ℕ) : phase (-E) q p = phase E q p := by
     This is the analytic mechanism behind **cold rigidity** (`30 §1`): with
     `A = a_p − w̃`, `B = a_p − w̃'`, the difference `A − B = w̃' − w̃ = E`, so
     `‖E q̄/p‖ ≤ ‖A q̄/p‖ + ‖B q̄/p‖`; summing the squares and applying
-    `dispersion_energy_bound` to `E` yields the two-cold-residue contradiction.
+    `reciprocalPhase_energy_lower_bound` to `E` yields the two-cold-residue contradiction.
 
-    Proof: with `x_E := E·q̄/p`, linearity gives `x_{A−B} = x_A − x_B`.  Writing
-    `k := round x_A − round x_B ∈ ℤ`, the nearest-integer minimality `round_le`
-    gives `|x_{A−B} − round x_{A−B}| ≤ |x_{A−B} − k| = |(x_A − round x_A) −
-    (x_B − round x_B)| ≤ |x_A − round x_A| + |x_B − round x_B|`.
+    This is the triangle inequality `norm_sub_le` on `UnitAddCircle`.
 -/
-lemma phase_sub_le (A B : ℤ) (q p : ℕ) :
-    phase (A - B) q p ≤ phase A q p + phase B q p := by
-  simpa [phase, Int.cast_sub, sub_mul, sub_div] using
+lemma reciprocalPhase_sub_le (A B : ℤ) (q p : ℕ) :
+    reciprocalPhase (A - B) q p ≤ reciprocalPhase A q p + reciprocalPhase B q p := by
+  simpa [reciprocalPhase, Int.cast_sub, sub_mul, sub_div] using
     norm_sub_le
       ((((A : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ) : ℝ) : UnitAddCircle))
       ((((B : ℝ) * (((q : ZMod p)⁻¹).val : ℝ) / (p : ℝ) : ℝ) : UnitAddCircle))
 
 /-
-**`card_prime_factors_dyadic_le_two`** (factored out of `lemmaD_fiber`'s
+**`card_prime_factors_dyadic_le_two`** (factored out of `linearCongruence_fiber_card_le_two`'s
     argument, per note `31 §4`).  A nonzero integer `n` with `|n| < X³` has at most
     `2` prime factors in the dyadic window `[X, 2X]`.
 
@@ -173,21 +147,21 @@ lemma card_prime_factors_dyadic_le_two (X : ℕ) (n : ℤ) (hn : n ≠ 0)
 
 /-
 **Phase → divisibility witness** (the bridge of `30 §1` / `31 §4`).  If the
-    reciprocal phase `‖E·q̄/p‖ = phase E q p` is `≤ δ`, then there is an integer
+    reciprocal phase `‖E·q̄/p‖ = reciprocalPhase E q p` is `≤ δ`, then there is an integer
     `s` with `|s| ≤ 2δX` and `p ∣ E − s·q`.
 
     Construction: with `q̄ = (q : ZMod p)⁻¹.val` and `r = round (E·q̄/p)`, set
-    `s = E·q̄ − r·p`.  Then `|s| = p·phase ≤ p·δ ≤ 2X·δ`, and modulo `p`,
+    `s = E·q̄ − r·p`.  Then `|s| = p·reciprocalPhase ≤ p·δ ≤ 2X·δ`, and modulo `p`,
     `s ≡ E·q̄`, so `s·q ≡ E·(q̄·q) ≡ E` (using `q·q̄ ≡ 1 (mod p)`, valid as
     `p ∤ q` for distinct primes `p ≠ q`); hence `p ∣ E − s·q`.
 -/
-lemma phase_dvd_witness (X p q : ℕ) (hp : p.Prime) (hp2X : p ≤ 2*X)
+lemma reciprocalPhase_divisibility_witness (X p q : ℕ) (hp : p.Prime) (hp2X : p ≤ 2*X)
     (hq : q.Prime) (hpq : p ≠ q) (E : ℤ) (δ : ℝ) (hδ0 : 0 ≤ δ)
-    (hδ : phase E q p ≤ δ) :
+    (hδ : reciprocalPhase E q p ≤ δ) :
     ∃ s : ℤ, |(s:ℝ)| ≤ 2*δ*(X:ℝ) ∧ (p:ℤ) ∣ (E - s*(q:ℤ)) := by
   obtain ⟨s, hsabs, hsmod⟩ :=
     RequestProject.exists_centered_residue_of_unitCircle_norm_le
-      (E * ((q : ZMod p)⁻¹).val) p hp.pos δ (by simpa [phase] using hδ)
+      (E * ((q : ZMod p)⁻¹).val) p hp.pos δ (by simpa [reciprocalPhase] using hδ)
   refine ⟨s, ?_, ?_⟩
   · have hp2XR : (p : ℝ) ≤ 2 * X := by exact_mod_cast hp2X
     exact hsabs.trans (by
@@ -201,11 +175,14 @@ lemma phase_dvd_witness (X p q : ℕ) (hp : p.Prime) (hp2X : p ≤ 2*X)
       push_cast at hs0
       rw [ZMod.natCast_zmod_val] at hs0
       exact (sub_eq_zero.mp hs0).symm
-    have hqne : (q : ZMod p) ≠ 0 := by
-      rw [Ne.eq_def, ZMod.natCast_eq_zero_iff]
-      exact fun h => hpq <| (Nat.prime_dvd_prime_iff_eq hp hq).mp h
     rw [hs]
-    simp [hqne]
+    push_cast
+    rw [show (E : ZMod p) - E * (q : ZMod p)⁻¹ * q =
+        E * (1 - (q : ZMod p)⁻¹ * q) by ring]
+    have hinv : (q : ZMod p)⁻¹ * q = 1 := by
+      simpa [Nat.cast_mul, ZMod.natCast_zmod_val] using
+        ZMod.val_inv_mul ((Nat.coprime_primes hq hp).mpr hpq.symm)
+    rw [hinv, sub_self, mul_zero]
 
 /-
 **Dispersion residue count** (`30 §1`).  Number of fingerprint primes whose
@@ -217,26 +194,26 @@ lemma phase_dvd_witness (X p q : ℕ) (hp : p.Prime) (hp2X : p ≤ 2*X)
     here, as the conclusion is *false* without them:
     * `hq2X : q ≤ 2*X` — `q` is a block vertex `q ∈ P ⊆ [X,2X]`; the proof bounds
       `|E − s·q| ≤ |E| + |s|·q < X³` and needs `q ≤ 2X` (e.g. `F = {2}`,
-      `q = 5`, `E = 2` gives `phase = 0` for the lone prime, breaking the bound).
+      `q = 5`, `E = 2` gives `reciprocalPhase = 0` for the lone prime, breaking the bound).
     * `hFcard : 8 ≤ F.card` — note `31`'s `|F| ≥ 8`; needed for
       `|F|/4 + 2 ≤ |F|/2` (with `F = {2}` the count is `1 > |F|/2 = 1/2`).
 -/
-theorem dispersion_residue_count
+theorem reciprocalPhase_smallBall_count
     (X : ℕ) (F : Finset ℕ) (hF : ∀ p ∈ F, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X)
     (hFcard : 8 ≤ F.card)
     (q : ℕ) (hq : q.Prime) (hqF : q ∉ F) (hq2X : q ≤ 2*X) (E : ℤ)
     (hqE : ¬ (q:ℤ) ∣ E) (_hE0 : 0 < |E|) (hEq : |E| < (q:ℤ)) :
-    ((F.filter (fun p => phase E q p ≤ (F.card : ℝ) / (32 * X))).card : ℝ)
+    ((F.filter (fun p => reciprocalPhase E q p ≤ (F.card : ℝ) / (32 * X))).card : ℝ)
       ≤ (F.card : ℝ) / 2 := by
   -- Let m : ℤ := ⌊2*δ*(X:ℝ)⌋; then m ≥ 0 and (m:ℝ) ≤ 2*δ*X. Let T : Finset ℤ := Finset.Icc (-m) m; its card is (2*m+1).toNat and (T.card : ℝ) ≤ 2*(2*δ*X) + 1 = 4*δ*X + 1.
   set δ : ℝ := (F.card : ℝ) / (32 * X)
   set m : ℤ := ⌊2 * δ * (X : ℝ)⌋
   set T : Finset ℤ := Finset.Icc (-m) m;
   -- Apply `card_prime_factors_dyadic_le_two` to bound the cardinality of the filter.
-  have : ((F.filter (fun p => phase E q p ≤ δ)).card : ℝ) ≤ 2 * T.card := by
-    have h_cover : F.filter (fun p => phase E q p ≤ δ) ⊆ T.biUnion (fun s => F.filter (fun p => (p : ℤ) ∣ (E - s * q))) := by
+  have : ((F.filter (fun p => reciprocalPhase E q p ≤ δ)).card : ℝ) ≤ 2 * T.card := by
+    have h_cover : F.filter (fun p => reciprocalPhase E q p ≤ δ) ⊆ T.biUnion (fun s => F.filter (fun p => (p : ℤ) ∣ (E - s * q))) := by
       intro p hp; simp_all +decide ;
-      obtain ⟨ s, hs₁, hs₂ ⟩ := phase_dvd_witness X p q ( hF p hp.1 |>.1 ) ( hF p hp.1 |>.2.2 ) hq ( by aesop ) E δ ( by positivity ) hp.2;
+      obtain ⟨ s, hs₁, hs₂ ⟩ := reciprocalPhase_divisibility_witness X p q ( hF p hp.1 |>.1 ) ( hF p hp.1 |>.2.2 ) hq ( by aesop ) E δ ( by positivity ) hp.2;
       exact ⟨ s, Finset.mem_Icc.mpr ⟨ neg_le_of_abs_le <| Int.le_floor.mpr <| mod_cast hs₁, le_of_abs_le <| Int.le_floor.mpr <| mod_cast hs₁ ⟩, hs₂ ⟩;
     refine' le_trans ( Nat.cast_le.mpr ( Finset.card_le_card h_cover ) ) _;
     refine' mod_cast le_trans ( Finset.card_biUnion_le ) _;
@@ -270,26 +247,25 @@ theorem dispersion_residue_count
 **Dispersion energy bound** (`30 §1`):
     `∑_{p ∈ F} ‖E·q̄/p‖² ≥ |F|³/(2^11 X²) =: G_F`.
 
-    **Status**: `sorry`.  Follows from `dispersion_residue_count`: at least half
-    the primes have phase `> δ = |F|/(32X)`, each contributing `> δ²`.
--/
-theorem dispersion_energy_bound
+    This follows from `reciprocalPhase_smallBall_count` and the generic
+    small-ball-to-energy principle. -/
+theorem reciprocalPhase_energy_lower_bound
     (X : ℕ) (F : Finset ℕ) (hF : ∀ p ∈ F, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X)
     (hFcard : 8 ≤ F.card)
     (q : ℕ) (hq : q.Prime) (hqF : q ∉ F) (hq2X : q ≤ 2*X) (E : ℤ)
     (hqE : ¬ (q:ℤ) ∣ E) (hE0 : 0 < |E|) (hEq : |E| < (q:ℤ)) :
     (F.card : ℝ)^3 / (2^11 * (X:ℝ)^2)
-      ≤ ∑ p ∈ F, (phase E q p)^2 := by
+      ≤ ∑ p ∈ F, (reciprocalPhase E q p)^2 := by
   set δ := (F.card : ℝ) / (32 * X)
-  have hsmall : ((F.filter (fun p => phase E q p ≤ δ)).card : ℝ) ≤ F.card / 2 := by
-    exact dispersion_residue_count X F hF hFcard q hq hqF hq2X E hqE hE0 hEq
+  have hsmall : ((F.filter (fun p => reciprocalPhase E q p ≤ δ)).card : ℝ) ≤ F.card / 2 := by
+    exact reciprocalPhase_smallBall_count X F hF hFcard q hq hqF hq2X E hqE hE0 hEq
   have henergy := RequestProject.sum_sq_lower_bound_of_small_ball F
-    (fun p => phase E q p) δ (F.card / 2) (by positivity) hsmall
+    (fun p => reciprocalPhase E q p) δ (F.card / 2) (by positivity) hsmall
   calc
     (F.card : ℝ)^3 / (2^11 * (X:ℝ)^2) =
         ((F.card : ℝ) - F.card / 2) * δ^2 := by
       dsimp [δ]
       ring
-    _ ≤ ∑ p ∈ F, (phase E q p)^2 := henergy
+    _ ≤ ∑ p ∈ F, (reciprocalPhase E q p)^2 := henergy
 
-end SBEEDispersion
+end LocalEnergy

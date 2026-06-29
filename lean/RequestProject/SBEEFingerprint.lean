@@ -5,12 +5,12 @@ This file formalizes the decomposition of **Theorem C** (`fingerprint_count`)
 described in `32 Theorem C Decomposition - Phase Identity and Cold Rigidity.md`.
 
 The deterministic dispersion engine is already fully machine-verified in
-`SBEEDispersion.lean` (`lemmaD`, `dispersion_residue_count`,
-`dispersion_energy_bound`, `phase_sub_le`, …).  Here we build, in order:
+`LocalEnergy.ReciprocalDispersion` (`linearCongruence_pair_count`, `reciprocalPhase_smallBall_count`,
+`reciprocalPhase_energy_lower_bound`, `reciprocalPhase_sub_le`, …).  Here we build, in order:
 
 * `tEnergy` — the per-vertex fingerprint energy `t_q(w) = ∑_{p∈F} (H_{pq}/pq)²`.
-* `phaseP1`  — **Lemma P1** (phase identity / the bridge `crtRepr ↔ phase`).
-* `phase_sq_bound` — the squared triangle bound combining P1 with `phase_sub_le`.
+* `phaseP1`  — **Lemma P1** (reciprocalPhase identity / the bridge `crtRepr ↔ reciprocalPhase`).
+* `phase_sq_bound` — the squared triangle bound combining P1 with `reciprocalPhase_sub_le`.
 * `coldRigidity` — **Lemma P2** (cold rigidity): for `q ∉ F`, at most one residue
   `w` has `t_q(w) < G_F/7`.  This is the novel analytic core.
 
@@ -20,10 +20,10 @@ candidate residue `w : ZMod q`, the centered integer representatives are
 -/
 import Mathlib.Analysis.Complex.ExponentialBounds
 import RequestProject.BlockCRTEnergy
-import RequestProject.SBEEDispersion
+import RequestProject.LocalEnergy.ReciprocalDispersion
 
 open Finset
-open SBEEDispersion
+open LocalEnergy
 
 namespace SBEEFingerprint
 
@@ -47,23 +47,23 @@ lemma tEnergy_nonneg (F : Finset ℕ) (a : (p : ℕ) → ZMod p)
     (q : ℕ) (w : ZMod q) : 0 ≤ tEnergy F a q w :=
   Finset.sum_nonneg fun _ _ => tterm_nonneg _ _ _ _
 
-/-! ## Lemma P1 — the phase identity (`32` Sub-lemma 1)
+/-! ## Lemma P1 — the reciprocalPhase identity (`32` Sub-lemma 1)
 
 For primes `p ≠ q`, with centered integer reps `ã_p = valMinAbs (a p)` and
 `w̃ = valMinAbs w`, the reciprocal phase of `ã_p − w̃` is controlled by
 `|H_{pq}|/(pq)`:
-`phase (ã_p − w̃) q p ≤ |H_{pq}(a_p,w)|/(pq) + 1/(2p)`.
+`reciprocalPhase (ã_p − w̃) q p ≤ |H_{pq}(a_p,w)|/(pq) + 1/(2p)`.
 
 Proof (note 32): `H := crtRepr p q (a p) w` satisfies `H ≡ w̃ (mod q)`, so
 `H = w̃ + v q` for an integer `v`; and `H ≡ ã_p (mod p)`, giving
-`v ≡ (ã_p − w̃) q̄ (mod p)`.  Since `phase E q p = ‖E q̄ / p‖` depends only on
-`E mod p`, `phase (ã_p − w̃) q p = ‖v/p‖`.  Finally
+`v ≡ (ã_p − w̃) q̄ (mod p)`.  Since `reciprocalPhase E q p = ‖E q̄ / p‖` depends only on
+`E mod p`, `reciprocalPhase (ã_p − w̃) q p = ‖v/p‖`.  Finally
 `v/p = H/(pq) − w̃/(pq)`, so `‖v/p‖ ≤ |H|/(pq) + |w̃|/(pq) ≤ |H|/(pq) + 1/(2p)`
 using `|w̃| ≤ q/2`. -/
 
 lemma phaseP1 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
     (a : (p : ℕ) → ZMod p) (w : ZMod q) :
-    phase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w) q p
+    reciprocalPhase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w) q p
       ≤ |(crtRepr p q (a p) w : ℝ)| / ((p : ℝ) * q) + 1 / (2 * p) := by
   haveI := Fact.mk hp
   haveI := Fact.mk hq;
@@ -93,7 +93,7 @@ lemma phaseP1 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
       rw [ ← h_mod, mul_assoc, mul_inv_cancel₀ ( by rw [ Ne.eq_def, ZMod.natCast_eq_zero_iff ] ; exact fun h => hpq <| by have := Nat.prime_dvd_prime_iff_eq hp hq; tauto ), mul_one ];
     exact h_mod.dvd;
   -- So |x - round x| = |(v:ℝ)/p - round ((v:ℝ)/p)|.
-  have h_abs : phase E q p = |(H - wtilde : ℝ) / (p * q) - round ((H - wtilde : ℝ) / (p * q))| := by
+  have h_abs : reciprocalPhase E q p = |(H - wtilde : ℝ) / (p * q) - round ((H - wtilde : ℝ) / (p * q))| := by
     -- Substitute hk into the expression for x - round x.
     have h_subst : (E : ℝ) * qbar / p = (H - wtilde : ℝ) / (p * q) + k := by
       rw [ div_add', div_eq_div_iff ] <;> norm_cast <;> simp_all +decide [ hp.ne_zero, hq.ne_zero ];
@@ -103,9 +103,9 @@ lemma phaseP1 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
         · exact hp.coprime_iff_not_dvd.mpr fun h => hpq <| Nat.prime_dvd_prime_iff_eq hp hq |>.1 h;
       haveI := Fact.mk hq; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ;
       aesop;
-    unfold phase;
-    simp +zetaDelta at *;
-    rw [ h_subst, round_add_intCast ] ; norm_num;
+    unfold reciprocalPhase
+    rw [h_subst]
+    simp [UnitAddCircle.norm_eq]
   -- So |(v:ℝ)/p - round ((v:ℝ)/p)| ≤ |(v:ℝ)/p|.
   have h_abs_le : |(H - wtilde : ℝ) / (p * q) - round ((H - wtilde : ℝ) / (p * q))| ≤ |(H - wtilde : ℝ) / (p * q)| := by
     simpa using (round_le ((H - wtilde : ℝ) / (p * q)) 0)
@@ -124,23 +124,23 @@ lemma phaseP1 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
 
 /-! ## The squared triangle bound
 
-Combining `phase_sub_le` with `phaseP1` applied to `w` and `w'`:
-`phase (w̃' − w̃) q p ≤ |H_w|/(pq) + |H_{w'}|/(pq) + 1/p`, and then
+Combining `reciprocalPhase_sub_le` with `phaseP1` applied to `w` and `w'`:
+`reciprocalPhase (w̃' − w̃) q p ≤ |H_w|/(pq) + |H_{w'}|/(pq) + 1/p`, and then
 `(α+β+γ)² ≤ 3(α²+β²+γ²)` gives the per-prime squared bound. -/
 
 lemma phase_sq_bound (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
     (a : (p : ℕ) → ZMod p) (w w' : ZMod q) :
-    (phase (ZMod.valMinAbs w' - ZMod.valMinAbs w) q p) ^ 2
+    (reciprocalPhase (ZMod.valMinAbs w' - ZMod.valMinAbs w) q p) ^ 2
       ≤ 3 * tterm a q w p + 3 * tterm a q w' p + 3 / (p : ℝ) ^ 2 := by
-  -- Apply `phase_sub_le` with A := ZMod.valMinAbs (a p) - ZMod.valMinAbs w and B := ZMod.valMinAbs (a p) - ZMod.valMinAbs w'.
-  have h_phase_sub_le : phase (w'.valMinAbs - w.valMinAbs) q p ≤ phase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w) q p + phase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w') q p := by
-    convert phase_sub_le ((a p).valMinAbs - w.valMinAbs)
+  -- Apply `reciprocalPhase_sub_le` with A := ZMod.valMinAbs (a p) - ZMod.valMinAbs w and B := ZMod.valMinAbs (a p) - ZMod.valMinAbs w'.
+  have h_reciprocalPhase_sub_le : reciprocalPhase (w'.valMinAbs - w.valMinAbs) q p ≤ reciprocalPhase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w) q p + reciprocalPhase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w') q p := by
+    convert reciprocalPhase_sub_le ((a p).valMinAbs - w.valMinAbs)
       ((a p).valMinAbs - w'.valMinAbs) q p using 1
     ring_nf
   -- Apply `phaseP1` to w and w'.
-  have h_phaseP1_w : phase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w) q p ≤ |(crtRepr p q (a p) w : ℝ)| / ((p : ℝ) * q) + 1 / (2 * p) := by
+  have h_phaseP1_w : reciprocalPhase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w) q p ≤ |(crtRepr p q (a p) w : ℝ)| / ((p : ℝ) * q) + 1 / (2 * p) := by
     exact phaseP1 p q hp hq hpq a w
-  have h_phaseP1_w' : phase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w') q p ≤ |(crtRepr p q (a p) w' : ℝ)| / ((p : ℝ) * q) + 1 / (2 * p) := by
+  have h_phaseP1_w' : reciprocalPhase (ZMod.valMinAbs (a p) - ZMod.valMinAbs w') q p ≤ |(crtRepr p q (a p) w' : ℝ)| / ((p : ℝ) * q) + 1 / (2 * p) := by
     exact phaseP1 p q hp hq hpq a w'
   -- Set bw := |(crtRepr p q (a p) w : ℝ)|/((p:ℝ)*q) and bw' := |(crtRepr p q (a p) w' : ℝ)|/((p:ℝ)*q).
   set bw := |(crtRepr p q (a p) w : ℝ)| / ((p : ℝ) * q)
@@ -149,18 +149,18 @@ lemma phase_sq_bound (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
   have htterm : tterm a q w p = bw^2 ∧ tterm a q w' p = bw'^2 := by
     constructor <;> simp only [tterm, bw, bw'] <;>
       rw [div_pow, div_pow, sq_abs]
-  -- By combining the inequalities from `phase_sub_le`, `phaseP1_w`, and `phaseP1_w'`, we get:
-  have h_combined : phase (w'.valMinAbs - w.valMinAbs) q p ≤ bw + bw' + 1 / (p : ℝ) := by
+  -- By combining the inequalities from `reciprocalPhase_sub_le`, `phaseP1_w`, and `phaseP1_w'`, we get:
+  have h_combined : reciprocalPhase (w'.valMinAbs - w.valMinAbs) q p ≤ bw + bw' + 1 / (p : ℝ) := by
     calc
-      phase (w'.valMinAbs - w.valMinAbs) q p
+      reciprocalPhase (w'.valMinAbs - w.valMinAbs) q p
           ≤ (bw + 1 / (2 * p)) + (bw' + 1 / (2 * p)) :=
-        h_phase_sub_le.trans (add_le_add h_phaseP1_w h_phaseP1_w')
+        h_reciprocalPhase_sub_le.trans (add_le_add h_phaseP1_w h_phaseP1_w')
       _ = bw + bw' + 1 / (p : ℝ) := by
         field_simp [Nat.cast_ne_zero.mpr hp.ne_zero]
         ring
   -- By squaring both sides of the inequality from `h_combined`, we get:
-  have h_squared : phase (w'.valMinAbs - w.valMinAbs) q p ^ 2 ≤ (bw + bw' + 1 / (p : ℝ)) ^ 2 := by
-    exact pow_le_pow_left₀ ( phase_nonneg _ _ _ ) h_combined 2;
+  have h_squared : reciprocalPhase (w'.valMinAbs - w.valMinAbs) q p ^ 2 ≤ (bw + bw' + 1 / (p : ℝ)) ^ 2 := by
+    exact pow_le_pow_left₀ ( reciprocalPhase_nonneg _ _ _ ) h_combined 2;
   refine le_trans h_squared ?_;
   rw [htterm.1, htterm.2]
   simp only [div_eq_mul_inv, one_mul]
@@ -170,7 +170,7 @@ lemma phase_sq_bound (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
 /-! ## Lemma P2 — cold rigidity (`32` Sub-lemma 2)
 
 For `q ∉ F`, at most one residue `w` has `t_q(w) < G_F/7` where
-`G_F = |F|³/(2¹¹ X²)`.  The contradiction (using `dispersion_energy_bound`)
+`G_F = |F|³/(2¹¹ X²)`.  The contradiction (using `reciprocalPhase_energy_lower_bound`)
 requires `|F|` larger than an absolute constant; `43008 ≤ |F|²`
 (i.e. `|F| ≥ 208`) is what the `(α+β+γ)²≤3(α²+β²+γ²)` step needs. -/
 
@@ -192,14 +192,14 @@ lemma coldRigidity (X : ℕ) (hX : 1 ≤ X) (F : Finset ℕ)
     have hE_abs : -(q : ℤ) < 2 * w'.valMinAbs ∧ 2 * w'.valMinAbs ≤ q ∧ -(q : ℤ) < 2 * w.valMinAbs ∧ 2 * w.valMinAbs ≤ q := by
       haveI := Fact.mk hq; exact ⟨ by linarith [ ZMod.valMinAbs_mem_Ioc w' |>.1 ], by linarith [ ZMod.valMinAbs_mem_Ioc w' |>.2 ], by linarith [ ZMod.valMinAbs_mem_Ioc w |>.1 ], by linarith [ ZMod.valMinAbs_mem_Ioc w |>.2 ] ⟩ ;
     exact ⟨ abs_pos.mpr ( show E ≠ 0 from sub_ne_zero.mpr <| by aesop ), abs_lt.mpr ⟨ by linarith, by linarith ⟩ ⟩;
-  have h_sum_bound : ∑ p ∈ F, (phase E q p) ^ 2 ≤ 3 * tEnergy F a q w + 3 * tEnergy F a q w' + 3 * (F.card : ℝ) / (X : ℝ) ^ 2 := by
-    have h_sum_bound : ∀ p ∈ F, (phase E q p) ^ 2 ≤ 3 * tterm a q w p + 3 * tterm a q w' p + 3 / (p : ℝ) ^ 2 := by
+  have h_sum_bound : ∑ p ∈ F, (reciprocalPhase E q p) ^ 2 ≤ 3 * tEnergy F a q w + 3 * tEnergy F a q w' + 3 * (F.card : ℝ) / (X : ℝ) ^ 2 := by
+    have h_sum_bound : ∀ p ∈ F, (reciprocalPhase E q p) ^ 2 ≤ 3 * tterm a q w p + 3 * tterm a q w' p + 3 / (p : ℝ) ^ 2 := by
       grind +suggestions;
     refine le_trans ( Finset.sum_le_sum h_sum_bound ) ?_;
     norm_num [ Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul, tEnergy ];
     exact le_trans ( Finset.sum_le_sum fun x hx => show ( 3 : ℝ ) / x ^ 2 ≤ 3 / X ^ 2 by gcongr ; linarith [ hF x hx ] ) ( by norm_num; ring_nf; norm_num );
   have h_sum_bound : (F.card : ℝ) ^ 3 / (2 ^ 11 * (X : ℝ) ^ 2) ≤ 3 * tEnergy F a q w + 3 * tEnergy F a q w' + 3 * (F.card : ℝ) / (X : ℝ) ^ 2 := by
-    convert dispersion_energy_bound X F hF ( by linarith ) q hq hqF hq2X E hE_zero hE_abs.1 hE_abs.2 |> le_trans <| h_sum_bound using 1;
+    convert reciprocalPhase_energy_lower_bound X F hF ( by linarith ) q hq hqF hq2X E hE_zero hE_abs.1 hE_abs.2 |> le_trans <| h_sum_bound using 1;
   -- Simplify the inequality obtained from the sum bound.
   have h_simplified : (F.card : ℝ) ^ 2 < 3 * 7 * 2 ^ 11 := by
     ring_nf at *;
@@ -466,7 +466,7 @@ lemma entropy_inequality2 (eps : ℝ) (hε0 : 0 < eps) (hε1 : eps < 1) :
 This section assembles `fingerprint_count` (Theorem C) from the verified pieces
 of this file (`coldRigidity`, `cold_decoding_unique`, `hot_count_bound`,
 `entropy_inequality`) together with the deterministic dispersion engine of
-`SBEEDispersion.lean`.  The `BlockAssignment`-level objects (`QP`,
+`LocalEnergy.ReciprocalDispersion`.  The `BlockAssignment`-level objects (`QP`,
 `BlockAssignment`) live in `BlockCRTEnergy.lean`; the fingerprint machinery uses
 total functions `(p : ℕ) → ZMod p`, so we bridge via `extendAssign`. -/
 

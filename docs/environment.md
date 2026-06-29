@@ -40,9 +40,9 @@ finish the cache/build verification in CI or after freeing local space.
 
 Earlier mechanical port testing found proof-script blockers in
 `RequestProject/GlobalPeierlsBookkeeping.lean`, then
-`RequestProject/BernoulliFourier.lean` and `RequestProject/SBEEDispersion.lean`.
-Keep the Stage B port focused on these toolchain/tactic migration issues before
-starting broader module reorganization.
+`RequestProject/BernoulliFourier.lean` and the former `SBEEDispersion.lean`.
+Those blockers are closed; reciprocal dispersion now lives at
+`RequestProject/LocalEnergy/ReciprocalDispersion.lean`.
 
 
 ## Refactor sequencing

@@ -75,12 +75,15 @@ contracts:
 
 ```text
 LocalEnergy.CRTModel
-  -> LocalEnergy.DominantLabel
+  -> LocalEnergy.ReciprocalDispersion
+     -> LocalEnergy.DominantLabel
      -> LocalEnergy.LevelSet
 ```
 
 - `CRTModel`: finite residue assignments, Mathlib-centered CRT representatives,
   quadratic block energy, and the block deviation scale;
+- `ReciprocalDispersion`: linear-congruence fiber counts and reciprocal-phase
+  small-ball/energy bounds on `UnitAddCircle`;
 - `DominantLabel`: dominant-label uniqueness, nondominant forcing, and cold
   label/exception estimates;
 - `LevelSet`: the uniform single-block level-set and partition-function bounds.
