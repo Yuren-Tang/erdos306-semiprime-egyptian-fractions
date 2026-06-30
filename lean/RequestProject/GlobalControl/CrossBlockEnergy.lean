@@ -23,24 +23,6 @@ has length `≤ q/2`, each residue class mod `q` meets it in at most one prime, 
 the "fiber ≤ 1" form of `lemmaD` applies directly. -/
 
 /-
-**Phase lower bound.**  If `q ∤ n` then the distance from `n/q` to the
-    nearest integer is at least `1/q` (the numerator is a nonzero residue).
--/
-lemma unitCircleNorm_ratio_ge (q : ℕ) (hq0 : 0 < q) (n : ℤ) (hn : ¬ (q : ℤ) ∣ n) :
-    1 / (q : ℝ) ≤ (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((n : ℝ) / (q : ℝ)) := by
-  -- Let $k = \text{round}(n/q)$, then $n - kq \neq 0$ since $q \nmid n$.
-  set k := round ((n : ℝ) / q)
-  have hk_ne_zero : n - k * q ≠ 0 := by
-    exact fun h => hn <| ⟨ k, by linarith ⟩;
-  -- Since $|n - kq| \geq 1$, we have $|(n : ℝ) / q - k| \geq 1 / q$.
-  have h_abs : |(n : ℝ) / q - k| ≥ 1 / q := by
-    rw [ div_sub', abs_div ] <;> norm_cast;
-    · simp +decide [Rat.divInt_eq_div];
-      exact le_mul_of_one_le_left ( by positivity ) ( mod_cast abs_pos.mpr ( show ( n - q * k : ℤ ) ≠ 0 from by simpa [ mul_comm ] using hk_ne_zero ) );
-    · linarith;
-  simpa [Function.comp_def, UnitAddCircle.norm_eq] using h_abs
-
-/-
 **G2 residue count** (the `dispersion_residue_count` analog, fiber ≤ 1).
     The number of `p ∈ P` whose reciprocal phase `‖d·p̄/q‖` is `≤ δ := |P|/(32X)`
     is at most `|P|/4 + 1`.
@@ -129,7 +111,8 @@ theorem crossblock_dispersion (X : ℕ) (hX : 0 < X) (P : Finset ℕ)
         intro H; specialize hpinv p hp; simp_all +decide [ ← ZMod.natCast_eq_natCast_iff' ] ;
       gcongr;
       simpa only [Int.cast_mul, Int.cast_natCast] using
-        unitCircleNorm_ratio_ge q (Nat.Prime.pos hq) (d * pinv p) h_not_div
+        RequestProject.inv_natCast_le_unitCircle_norm_int_div_nat
+          q (Nat.Prime.pos hq) (d * pinv p) h_not_div
     refine le_trans ?_ ( Finset.sum_le_sum h_term_ge ) ; norm_num;
     field_simp;
     rw [ le_div_iff₀ ] <;> norm_cast <;> try nlinarith only [ hqlb, hqub, hX ] ;
@@ -170,22 +153,6 @@ the dispersion count (`hNk`, `hNk1`, implied by `BS.hdensity` for large `k`).
 -/
 
 /-
-The nearest-integer distance never exceeds the absolute value (`round` is
-    nearest, so `|x - round x| ≤ |x - 0|`).
--/
-lemma unitCircleNorm_le_abs (x : ℝ) : (norm ∘ ((↑) : ℝ → UnitAddCircle)) x ≤ |x| := by
-  rw [Function.comp_apply, UnitAddCircle.norm_eq]
-  calc
-    |x - (round x : ℝ)| ≤ |x - ((0 : ℤ) : ℝ)| := round_le x 0
-    _ = |x| := by norm_num
-
-/-
-`(norm ∘ ((↑) : ℝ → UnitAddCircle))` is invariant under integer translation.
--/
-lemma unitCircleNorm_add_intCast (x : ℝ) (n : ℤ) : (norm ∘ ((↑) : ℝ → UnitAddCircle)) (x + (n : ℝ)) = (norm ∘ ((↑) : ℝ → UnitAddCircle)) x := by
-  simp
-
-/-
 **G3 phase bridge** (modulus `q`).  For distinct primes `p ≠ q`, an inverse
     `pinv` of `p` mod `q`, and `H := crtRepr p q (m mod p) (m' mod q)`, the
     reciprocal phase `‖(m'-m)·p̄/q‖` is controlled by `|H|/(pq) + |m|/(pq)`.
@@ -219,14 +186,15 @@ lemma crossblock_phase_bridge (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p
       (‹(q : ℤ) ∣ p * v - (m' - m)›.mul_right pinv)
   have h_norm : (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((m' - m : ℤ) * pinv / (q : ℝ)) = (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((v : ℝ) / (q : ℝ)) := by
     obtain ⟨ k, hk ⟩ := h_div;
-    convert unitCircleNorm_add_intCast ( v / q : ℝ ) k using 1;
+    convert RequestProject.unitCircle_norm_add_intCast (v / q : ℝ) k using 1;
     exact congr_arg _ ( by rw [ div_add', div_eq_div_iff ] <;> norm_cast <;> nlinarith [ hq.two_le ] );
   have h_abs : |(v : ℝ) / (q : ℝ)| ≤ |(crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ) - m| / (p * q) := by
     rw [ show ( crtRepr p q m m' : ℝ ) - m = p * v by exact_mod_cast hv ] ; norm_num [ abs_div, abs_mul, hp.ne_zero, hq.ne_zero ] ; ring_nf ;
     norm_num [ hp.ne_zero ];
   have h_abs : |(crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ) - m| ≤ |(crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ)| + |(m : ℝ)| := by
     exact abs_sub _ _;
-  exact h_norm.symm ▸ le_trans ( unitCircleNorm_le_abs _ ) ( by convert le_trans ‹_› ( div_le_div_of_nonneg_right h_abs ( by positivity ) ) using 1 ; ring )
+  exact h_norm.symm ▸ le_trans (RequestProject.unitCircle_norm_coe_le_abs _)
+    (by convert le_trans ‹_› (div_le_div_of_nonneg_right h_abs (by positivity)) using 1; ring)
 
 /-
 **G3 per-vertex bound.**  For a single good prime `q ∈ [2X,4X)` (with

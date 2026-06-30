@@ -52,4 +52,31 @@ theorem exists_centered_residue_of_unitCircle_norm_le
   · rw [← ZMod.intCast_zmod_eq_zero_iff_dvd, Int.cast_sub, ZMod.coe_valMinAbs]
     simp
 
+/-- If `q` does not divide `n`, the distance of `n / q` to the nearest integer
+is at least `1 / q`. -/
+theorem inv_natCast_le_unitCircle_norm_int_div_nat
+    (q : ℕ) (hq : 0 < q) (n : ℤ) (hn : ¬ (q : ℤ) ∣ n) :
+    1 / (q : ℝ) ≤ ‖(((n : ℝ) / (q : ℝ) : ℝ) : UnitAddCircle)‖ := by
+  rw [unitCircle_norm_int_div_nat n q hq]
+  letI : NeZero q := ⟨hq.ne'⟩
+  have hres : (n : ZMod q).valMinAbs ≠ 0 := by
+    intro h
+    apply hn
+    rw [← ZMod.intCast_zmod_eq_zero_iff_dvd, ← ZMod.coe_valMinAbs (n : ZMod q), h]
+    simp
+  rw [abs_div, abs_of_pos (by exact_mod_cast hq)]
+  exact div_le_div_of_nonneg_right (by exact_mod_cast Int.one_le_abs hres)
+    (by positivity)
+
+/-- Distance to the nearest integer is bounded by absolute value. -/
+theorem unitCircle_norm_coe_le_abs (x : ℝ) :
+    ‖(x : UnitAddCircle)‖ ≤ |x| := by
+  rw [UnitAddCircle.norm_eq]
+  simpa using round_le x 0
+
+/-- The unit-circle norm is invariant under translation by an integer. -/
+@[simp] theorem unitCircle_norm_add_intCast (x : ℝ) (n : ℤ) :
+    ‖((x + (n : ℝ) : ℝ) : UnitAddCircle)‖ = ‖(x : UnitAddCircle)‖ := by
+  simp
+
 end RequestProject
