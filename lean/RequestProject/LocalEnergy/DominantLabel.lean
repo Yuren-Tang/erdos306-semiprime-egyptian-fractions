@@ -42,7 +42,7 @@ def HasDominantLabel (X : ℕ) (P : Finset ℕ) (a : BlockAssignment P) (ρ : �
     (1 - ρ) * (P.card : ℝ) ≤
       ((P.attach.filter (fun p => a p = ((m : ℤ) : ZMod (p:ℕ)))).card : ℝ)
 
-/-! ## Theorem A — the dominant case (`29 §3`) -/
+/-! ## Counting assignments with a dominant label -/
 
 /-
 **In-class CRT identity** (`29 §3` (A2)).  If `ap = m (mod p)` and `aq = m (mod q)`
@@ -72,12 +72,12 @@ lemma crtRepr_eq_label (p q : ℕ) (hp : Nat.Prime p) (hq : Nat.Prime q) (hpq : 
 **(A3a) Per-exception energy from a close-count bound.**  If at most half of
     the class `C` is `δ`-close to the exception vertex `q` (i.e. `|H_{pq}| ≤ δ·pq`),
     then the cross energy `∑_{p∈C}(H_{pq}/pq)²` is `≥ (|C|/2)·δ²`.  (Mirrors the
-    sum-of-squares accounting in `lemma_E_cross_label_energy`.)
+    sum-of-squares accounting in `crossLabel_energy_lower_bound`.)
 
 The centered CRT representative lies in `(-pq/2, pq/2]`: equivalently
     `-(pq) < 2·crtRepr ≤ pq` (the strict lower bound is needed for uniqueness).
 -/
-lemma crtRepr_two_mul_mem (p q : ℕ) (hcop : Nat.Coprime p q) (hp : 0 < p) (hq : 0 < q)
+lemma two_mul_crtRepr_mem_product_interval (p q : ℕ) (hcop : Nat.Coprime p q) (hp : 0 < p) (hq : 0 < q)
     (ap : ZMod p) (aq : ZMod q) :
     -((p * q : ℕ) : ℤ) < 2 * crtRepr p q ap aq ∧ 2 * crtRepr p q ap aq ≤ ((p * q : ℕ) : ℤ) := by
   unfold crtRepr
@@ -97,15 +97,15 @@ lemma crtRepr_symm (p q : ℕ) (hp : Nat.Prime p) (hq : Nat.Prime q) (hpq : p �
         simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ];
       convert Int.coe_lcm_dvd ( Int.modEq_iff_dvd.mp h_cong.1.symm ) ( Int.modEq_iff_dvd.mp h_cong.2.symm ) using 1;
       exact_mod_cast Eq.symm ( Nat.Coprime.lcm_eq_mul <| hp.coprime_iff_not_dvd.mpr fun h => hpq <| Nat.prime_dvd_prime_iff_eq hp hq |>.1 h );
-    · convert crtRepr_two_mul_mem p q ( (Nat.coprime_primes hp hq).mpr hpq ) hp.pos hq.pos ap aq using 1;
+    · convert two_mul_crtRepr_mem_product_interval p q ( (Nat.coprime_primes hp hq).mpr hpq ) hp.pos hq.pos ap aq using 1;
       all_goals norm_num [Nat.cast_mul]
-    · convert crtRepr_two_mul_mem q p ( (Nat.coprime_primes hq hp).mpr hpq.symm ) hq.pos hp.pos aq ap using 1;
+    · convert two_mul_crtRepr_mem_product_interval q p ( (Nat.coprime_primes hq hp).mpr hpq.symm ) hq.pos hp.pos aq ap using 1;
       · norm_num [ mul_comm ];
       · grind;
   obtain ⟨ H', hH₁, hH₂, hH₃, hH₄, hH₅, hH₆ ⟩ := H';
   obtain ⟨ k, hk ⟩ := hH₃; nlinarith [ show k = 0 by nlinarith ] ;
 
-lemma exception_energy_from_close
+lemma exception_energy_lower_bound_of_close_count
     (P : Finset ℕ) [∀ p : P, NeZero p.1] (a : BlockAssignment P)
     (C : Finset P) (q : P) (δ : ℝ) (hδ0 : 0 ≤ δ)
     (hCp : ∀ p ∈ C, Nat.Prime (p:ℕ)) (hqp : Nat.Prime (q:ℕ))
@@ -274,11 +274,11 @@ lemma exception_subsum_le_QP (P : Finset ℕ) [∀ p : P, NeZero p.1] (a : Block
     grind;
   · exact fun _ _ _ => sq_nonneg _
 
-/-! ## Lemma E — cross-label energy (`29 §5`) -/
+/-! ## Cross-label energy -/
 
 set_option maxHeartbeats 1600000 in
 open LocalEnergy in
-/-- **Lemma E, per-`q` fiber bound.**  Fix a prime `q ∈ [X,2X]` carrying residue
+/-- Fix a prime `q ∈ [X,2X]` carrying residue
     `n'`, with `q ∤ (n'-n)`.  The primes `p ∈ C` (residue `n`) whose cross
     representative `H_{pq}` is `δ`-small inject into `linearCongruencePairs X q U (n'-n)` via
     `p ↦ (u, p)` with `H_{pq} - n = u·p`; hence by `linearCongruence_pair_count` their number is
@@ -287,7 +287,7 @@ open LocalEnergy in
     Here `H_{pq} ≡ n (mod p)` (so `p ∣ H-n`, giving the integer `u`), and
     `H_{pq} ≡ n' (mod q)`, so `u·p = H-n ≡ n'-n (mod q)`; the size bound
     `|u| ≤ δq + |n|/p ≤ 2δX + B/X` uses `|H| ≤ δpq`, `q ≤ 2X`, `X ≤ p`. -/
-lemma lemmaE_fiber (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
+lemma crossLabel_close_fiber_bound (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (a : BlockAssignment P) (n n' : ℤ) (B : ℝ) (hB : 0 ≤ B) (hX : 1 ≤ X)
     (C : Finset P)
     (hCp : ∀ p ∈ C, Nat.Prime (p:ℕ) ∧ X ≤ (p:ℕ) ∧ (p:ℕ) ≤ 2*X)
@@ -334,13 +334,13 @@ lemma lemmaE_fiber (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
   exact_mod_cast LocalEnergy.linearCongruence_pair_count X q ⌊2 * δ * X + B / X⌋₊ hq hXq ( n' - n ) hqd
 
 open LocalEnergy in
-/-- **Lemma E, total close-pair count.**  The number of cross pairs `(p,q) ∈ C×C'`
+/-- The number of cross pairs `(p,q) ∈ C×C'`
     whose representative is `δ`-small is `≤ 2|C| + |C'|·2(2(2δX+B/X)+1)`.
 
     The `≤ 2` primes `q ∈ C'` dividing `d = n'-n` contribute `≤ |C|` pairs each
     (`card_prime_factors_dyadic_le_two`, valid as `0 < |d| ≤ 2B ≤ X²/2 < X³`); each
-    remaining `q` has `q ∤ d`, so `lemmaE_fiber` bounds its close fiber. -/
-lemma lemmaE_close_count (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
+    remaining `q` has `q ∤ d`, so `crossLabel_close_fiber_bound` bounds its close fiber. -/
+lemma crossLabel_close_pair_count (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (a : BlockAssignment P) (n n' : ℤ) (B : ℝ) (hB : 0 ≤ B) (hX : 1 ≤ X)
     (hd : n ≠ n')
     (C C' : Finset P)
@@ -364,7 +364,7 @@ lemma lemmaE_close_count (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     exact le_trans ( by rw [ Finset.card_image_of_injective _ fun x y hxy => by aesop ] ) ( Finset.card_mono h_image );
   have h_card_good : ∀ q ∈ C' \ Finset.filter (fun q : P => (q : ℤ) ∣ (n' - n)) C', (Finset.filter (fun p : P => |(crtRepr (p : ℕ) (q : ℕ) (a p) (a q) : ℝ)| ≤ δ * ((p : ℕ) * (q : ℕ))) C).card ≤ 2 * (2 * (2 * δ * X + B / X) + 1) := by
     intros q hq;
-    convert lemmaE_fiber X P a n n' B hB hX C hCp hCa hnB hBX q ( hC'p q ( Finset.mem_sdiff.mp hq |>.1 ) |>.1 ) ( hC'p q ( Finset.mem_sdiff.mp hq |>.1 ) |>.2.1 ) ( hC'p q ( Finset.mem_sdiff.mp hq |>.1 ) |>.2.2 ) ( hC'a q ( Finset.mem_sdiff.mp hq |>.1 ) ) ( by aesop ) δ hδ0 hδ4 using 1;
+    convert crossLabel_close_fiber_bound X P a n n' B hB hX C hCp hCa hnB hBX q ( hC'p q ( Finset.mem_sdiff.mp hq |>.1 ) |>.1 ) ( hC'p q ( Finset.mem_sdiff.mp hq |>.1 ) |>.2.1 ) ( hC'p q ( Finset.mem_sdiff.mp hq |>.1 ) |>.2.2 ) ( hC'a q ( Finset.mem_sdiff.mp hq |>.1 ) ) ( by aesop ) δ hδ0 hδ4 using 1;
   have h_card_filter : (Finset.filter (fun pq : P × P => |(crtRepr (pq.1 : ℕ) (pq.2 : ℕ) (a pq.1) (a pq.2) : ℝ)| ≤ δ * ((pq.1 : ℕ) * (pq.2 : ℕ))) (C ×ˢ C')).card = ∑ q ∈ C', (Finset.filter (fun p : P => |(crtRepr (p : ℕ) (q : ℕ) (a p) (a q) : ℝ)| ≤ δ * ((p : ℕ) * (q : ℕ))) C).card := by
     simp +decide only [card_filter];
     rw [ Finset.sum_product, Finset.sum_comm ];
@@ -397,10 +397,10 @@ lemma lemmaE_close_count (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     `X ≤ q`.  The hypotheses `hCp`, `hC'p` below restore this; they are exactly
     the regime the lemma is used in (Theorem B applies it to prime classes).
 
-    **Status**: proved (`c = 1/8192`), via `lemmaE_fiber` + `lemmaE_close_count`,
+    **Status**: proved (`c = 1/8192`), via `crossLabel_close_fiber_bound` + `crossLabel_close_pair_count`,
     the choice `δ = |C|/(64X)`, and the sum-of-squares energy accounting.
 -/
-theorem lemma_E_cross_label_energy :
+theorem crossLabel_energy_lower_bound :
     ∃ c : ℝ, 0 < c ∧
       ∀ (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
         (a : BlockAssignment P) (n n' : ℤ) (B : ℝ),
@@ -443,9 +443,9 @@ theorem lemma_E_cross_label_energy :
         · convert pow_le_pow_left₀ ( by positivity ) h_abs.le 2 using 1 <;> norm_num [ mul_pow ];
         · exact sq_pos_of_pos ( mul_pos ( Nat.cast_pos.mpr ( Nat.Prime.pos ( by aesop ) ) ) ( Nat.cast_pos.mpr ( Nat.Prime.pos ( by aesop ) ) ) );
       exact le_trans ( by norm_num ) ( Finset.sum_le_sum h_energy_lower_bound ) |> le_trans <| Finset.sum_le_sum_of_subset_of_nonneg ( Finset.filter_subset _ _ ) fun _ _ _ => sq_nonneg _;
-    -- Count: by `lemmaE_close_count` (with this `δ`), `(Close.card:ℝ) ≤ 2*N + N'*(2*(2*(2*δ*X + B/X)+1))`.
+    -- Count: by `crossLabel_close_pair_count` (with this `δ`), `(Close.card:ℝ) ≤ 2*N + N'*(2*(2*(2*δ*X + B/X)+1))`.
     have h_close_count : (Close.card : ℝ) ≤ 2 * (C.card : ℝ) + (C'.card : ℝ) * (2 * (2 * (2 * δ * X + B / X) + 1)) := by
-      convert lemmaE_close_count X P a n n' B ( show 0 ≤ B by linarith [ abs_le.mp hnB ] ) hX hn C C' hCp hC'p hCa hC'a hnB hn'B hBX δ hδ0 hδ4 using 1;
+      convert crossLabel_close_pair_count X P a n n' B ( show 0 ≤ B by linarith [ abs_le.mp hnB ] ) hX hn C C' hCp hC'p hCa hC'a hnB hn'B hBX δ hδ0 hδ4 using 1;
     -- Therefore, `(Far.card:ℝ) = N*N' - (Close.card:ℝ) ≥ N*N'/2`.
     have h_far_card : (Far.card : ℝ) ≥ (C.card : ℝ) * (C'.card : ℝ) / 2 := by
       have h_far_card : (Far.card : ℝ) = (C.card : ℝ) * (C'.card : ℝ) - (Close.card : ℝ) := by
@@ -459,10 +459,10 @@ theorem lemma_E_cross_label_energy :
     exact Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => sq_nonneg _
 
 /- **(A3 close) Close-count bound.**  With `δ = N/(128X)`, at most `N/2` primes of
-    the class are `δ`-close to an exception vertex `q` (using `lemmaE_fiber`). -/
+    the class are `δ`-close to an exception vertex `q` (using `crossLabel_close_fiber_bound`). -/
 set_option maxHeartbeats 1000000 in
 set_option maxRecDepth 10000 in
-lemma exception_close_bound (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
+lemma dominant_exception_close_count (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hN : 32 ≤ P.card)
     (ρ : ℝ) (_hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
     (a : BlockAssignment P) (m : ℤ)
@@ -503,13 +503,13 @@ lemma exception_close_bound (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) [∀ p : 
       (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mpr hdvd
     rw [Int.cast_sub, ZMod.coe_valMinAbs, sub_eq_zero] at h0
     exact h0
-  have hfib := lemmaE_fiber X P a m ((a q).valMinAbs) (|(m:ℝ)|) (abs_nonneg _) (by omega)
+  have hfib := crossLabel_close_fiber_bound X P a m ((a q).valMinAbs) (|(m:ℝ)|) (abs_nonneg _) (by omega)
     (P.attach.filter (fun p => a p = ((m:ℤ):ZMod (p:ℕ)))) hCp hCa (le_refl _) hBX
     q hq2.1 hq2.2.1 hq2.2.2 hqa hqd ((P.card:ℝ)/(128*X)) hδ0 hδ4
   exact le_trans hfib hfinal
 
 /-- Pure-real arithmetic backing the per-exception energy bound. -/
-lemma theoremA_energy_arith (N X ρ c : ℝ) (hX : 0 < X) (hN : 0 < N) (hc : (1-ρ)*N ≤ c) :
+lemma dominant_exception_energy_arithmetic (N X ρ c : ℝ) (hX : 0 < X) (hN : 0 < N) (hc : (1-ρ)*N ≤ c) :
     (1-ρ)*N^3/(2^15*X^2) ≤ c/2 * (N/(128*X))^2 := by
   rw [div_pow, div_le_iff₀ (by positivity)]
   have key : c/2 * (N^2/(128*X)^2) * (2^15*X^2) = c*N^2 := by field_simp; ring
@@ -518,11 +518,11 @@ lemma theoremA_energy_arith (N X ρ c : ℝ) (hX : 0 < X) (hN : 0 < N) (hc : (1-
 
 /- **(A3) Per-exception energy.**  For a fixed label `m` with `|m| ≤ N·X/16`, every
     exception vertex `q` (`a q ≠ m mod q`) carries cross-energy over the class `C`
-    at least `E₁ = (1-ρ)N³/2¹⁵X²`.  Via `lemmaE_fiber` (close-count `≤ N/4`) and
-    `exception_energy_from_close` with `δ = N/(128X)`. -/
+    at least `E₁ = (1-ρ)N³/2¹⁵X²`.  Via `crossLabel_close_fiber_bound` (close-count `≤ N/4`) and
+    `exception_energy_lower_bound_of_close_count` with `δ = N/(128X)`. -/
 set_option maxHeartbeats 1000000 in
 set_option maxRecDepth 10000 in
-lemma exception_single_energy (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
+lemma dominant_exception_energy_lower_bound (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hN : 32 ≤ P.card)
     (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
     (a : BlockAssignment P) (m : ℤ)
@@ -537,14 +537,14 @@ lemma exception_single_energy (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) [∀ p 
   have hNpos : (0:ℝ) < (P.card:ℝ) := by
     have h32 : (32:ℝ) ≤ P.card := by exact_mod_cast hN
     linarith
-  have hclose := exception_close_bound X hX P hP hN ρ hρ hρ4 a m hmsmall hCcard q hqex
-  have hEC := exception_energy_from_close P a (P.attach.filter (fun p => a p = ((m:ℤ):ZMod (p:ℕ)))) q
+  have hclose := dominant_exception_close_count X hX P hP hN ρ hρ hρ4 a m hmsmall hCcard q hqex
+  have hEC := exception_energy_lower_bound_of_close_count P a (P.attach.filter (fun p => a p = ((m:ℤ):ZMod (p:ℕ)))) q
     ((P.card:ℝ)/(128*X)) (by positivity) (fun p _ => (hP p.1 p.2).1) (hP q.1 q.2).1 hclose
-  exact le_trans (theoremA_energy_arith (P.card:ℝ) X ρ _ hXpos hNpos hCcard) hEC
+  exact le_trans (dominant_exception_energy_arithmetic (P.card:ℝ) X ρ _ hXpos hNpos hCcard) hEC
 
 /- **(A3+sub-sum) Exception count bound.**  An `m`-dominant assignment of energy
     `≤ R` (label small, `|m| ≤ NX/16`) has at most `2¹⁵RX²/((1-ρ)N³)` exceptions:
-    each exception carries energy `≥ E₁` (`exception_single_energy`) and these
+    each exception carries energy `≥ E₁` (`dominant_exception_energy_lower_bound`) and these
     cross-energies sum to `≤ Q_P ≤ R` (`exception_subsum_le_QP`). -/
 set_option maxHeartbeats 1000000 in
 set_option maxRecDepth 10000 in
@@ -568,7 +568,7 @@ lemma dominant_exception_count_bound (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) 
   have hE1pos : 0 < E1 := by rw [hE1def]; positivity
   have hper : ∀ q ∈ E, E1 ≤ ∑ p ∈ C, ((crtRepr (p:ℕ) (q:ℕ) (a p) (a q):ℝ)/((p:ℕ)*(q:ℕ)))^2 := by
     intro q hq
-    exact exception_single_energy X hX P hP hN ρ hρ hρ4 a m hmsmall hCcard q (Finset.mem_filter.mp hq).2
+    exact dominant_exception_energy_lower_bound X hX P hP hN ρ hρ hρ4 a m hmsmall hCcard q (Finset.mem_filter.mp hq).2
   have hsum : (E.card:ℝ) * E1 ≤ ∑ q ∈ E, ∑ p ∈ C, ((crtRepr (p:ℕ) (q:ℕ) (a p) (a q):ℝ)/((p:ℕ)*(q:ℕ)))^2 := by
     have : (E.card:ℝ) * E1 = ∑ _q ∈ E, E1 := by rw [Finset.sum_const, nsmul_eq_mul]
     rw [this]; exact Finset.sum_le_sum hper
@@ -592,7 +592,7 @@ lemma dominant_exception_count_bound (X : ℕ) (hX : 16 ≤ X) (P : Finset ℕ) 
     is determined by its exception set and the residues there (outside, `a_q = m`).
     Mirrors `LocalEnergy.decoding_card_bound`.
 -/
-lemma dominant_encoding_card (X : ℕ) (_hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
+lemma dominant_assignment_encoding_bound (X : ℕ) (_hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (m : ℤ) (h : ℕ) :
     ((Finset.univ.filter (fun a : BlockAssignment P =>
         (P.attach.filter (fun q => a q ≠ ((m:ℤ):ZMod (q:ℕ)))).card ≤ h)).card : ℝ)
@@ -630,7 +630,7 @@ lemma dominant_encoding_card (X : ℕ) (_hX : 1 ≤ X) (P : Finset ℕ) [∀ p :
     when `h ≤ 2¹⁵RX²/((1-ρ)N³)` and `N ≥ X/(2 log X)` (`3h log X ≤ εR`).  Mirrors
     `LocalEnergy.entropy_inequality`.
 -/
-lemma theoremA_entropy (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) :
+lemma dominant_encoding_entropy_bound (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) :
     ∃ X0 : ℝ, 0 < X0 ∧ ∀ (X N h : ℕ) (R : ℝ),
       X0 ≤ X → 1 ≤ R → 1 ≤ N → N ≤ 2*X → (X:ℝ)/(2*Real.log X) ≤ (N:ℝ) →
       (h:ℝ) ≤ 2^15 * R * (X:ℝ)^2 / ((1-ρ)*(N:ℝ)^3) →
@@ -687,7 +687,7 @@ lemma theoremA_entropy (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ 
     `εR < N·log(2X)` (i.e. `R` below the trivial threshold) then
     `R ≤ N⁴(1-ρ)²/(409600 X²)` (the regime where the label is small).
 -/
-lemma theoremA_R_poly (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) :
+lemma dominant_energy_polynomial_bound (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) :
     ∃ X0 : ℝ, 0 < X0 ∧ ∀ (X N : ℕ) (R : ℝ),
       X0 ≤ X → 1 ≤ R → 1 ≤ N → N ≤ 2*X → (X:ℝ)/(2*Real.log X) ≤ (N:ℝ) →
       eps*R < (N:ℝ)*Real.log (2*X) →
@@ -718,7 +718,7 @@ lemma theoremA_R_poly (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) (hρ4 : ρ �
 /- **Label `≤ NX/16`.**  In the small-`R` regime, the label-range bound
     `(5/(1-ρ))√R/σ_P` is `≤ N·X/16` (uses `block_deviation_lower_bound`). -/
 set_option maxHeartbeats 1000000 in
-lemma theoremA_label_le (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
+lemma dominant_label_linear_bound (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hN : 2 ≤ P.card)
     (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) (R : ℝ) (_hR0 : 0 ≤ R)
     (hRpoly : R ≤ (P.card:ℝ)^4*(1-ρ)^2/(409600*(X:ℝ)^2)) :
@@ -772,8 +772,8 @@ theorem dominant_level_set_bound
                 (fun a : BlockAssignment P => QP P a ≤ R ∧ HasDominantLabel X P a ρ)).card : ℝ)
               ≤ Real.exp (eps * R) *
                   (1 + (10/(1-ρ)) * Real.sqrt R / sigmaP P) := by
-  obtain ⟨X0e, hX0e, Hent⟩ := theoremA_entropy eps ρ hε hρ hρ4
-  obtain ⟨X0r, hX0r, HRpoly⟩ := theoremA_R_poly eps ρ hε hρ hρ4
+  obtain ⟨X0e, hX0e, Hent⟩ := dominant_encoding_entropy_bound eps ρ hε hρ hρ4
+  obtain ⟨X0r, hX0r, HRpoly⟩ := dominant_energy_polynomial_bound eps ρ hε hρ hρ4
   obtain ⟨X0c, hX0c, Hlog⟩ := RequestProject.eventually_const_mul_log_le_nat 64
   refine ⟨ max (max X0e X0r) (max X0c 16), by positivity, ?_ ⟩
   intro X hX P inst hP hN R hR1
@@ -814,7 +814,7 @@ theorem dominant_level_set_bound
     have hN2X : P.card ≤ 2*X := RequestProject.card_le_upper_bound_of_pos P (2 * X)
       (fun p hp => (hP p hp).1.pos) (fun p hp => (hP p hp).2.2)
     have hRpoly := HRpoly X P.card R hXr hR1 (by omega) hN2X hN hRtriv
-    have hLNX := theoremA_label_le X hX1 P hP (by omega) ρ hρ hρ4 R (by linarith) hRpoly
+    have hLNX := dominant_label_linear_bound X hX1 P hP (by omega) ρ hρ hρ4 R (by linarith) hRpoly
     set L := (5/(1-ρ)) * Real.sqrt R / sigmaP P with hLdef
     have hL0 : 0 ≤ L := by rw [hLdef]; positivity
     set Mlab : Finset ℤ := Finset.Icc (-⌊L⌋) ⌊L⌋ with hMdef
@@ -859,7 +859,7 @@ theorem dominant_level_set_bound
               (P.attach.filter (fun q => a q ≠ ((m:ℤ):ZMod (q:ℕ)))).card ≤ ⌊Hr⌋₊)).card : ℝ) := by
             exact_mod_cast Finset.card_le_card hfsub
         _ ≤ ∑ e ∈ Finset.range (⌊Hr⌋₊+1), (Nat.choose P.card e : ℝ) * (2*(X:ℝ))^e :=
-            dominant_encoding_card X hX1 P hP m ⌊Hr⌋₊
+            dominant_assignment_encoding_bound X hX1 P hP m ⌊Hr⌋₊
         _ ≤ Real.exp (eps*R) := Hent X P.card ⌊Hr⌋₊ R hXe hR1 (by omega) hN2X hN (by rw [hHrdef]; exact Nat.floor_le hHr0)
     have hfn : (0:ℤ) ≤ ⌊L⌋ := Int.floor_nonneg.mpr hL0
     have hMc : (Mlab.card:ℝ) = 2*(⌊L⌋:ℝ)+1 := by
@@ -885,16 +885,16 @@ theorem dominant_level_set_bound
           exact mul_le_mul_of_nonneg_left hMcard (Real.exp_pos _).le
 
 
-/-! ## Theorem B — non-dominant forcing (`29 §6`) -/
+/-! ## Energy forcing without a dominant label -/
 
-/-! ### Covering construction helpers (`29 §4`) -/
+/-! ### Covering construction -/
 
 /-
 **Pair count (`29 §4`).**  The number of ordered pairs `p < q` whose centered
     representative exceeds `B` is `≤ 16 R X⁴ / B²`: each such pair contributes
     `(H/(pq))² > (B/(4X²))²` to `QP ≤ R`, using `pq ≤ 4X²`.
 -/
-lemma theoremB_pair_count
+lemma large_crt_pair_count
     (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X)
     (a : BlockAssignment P) (R : ℝ) (hQ : QP P a ≤ R)
@@ -943,7 +943,7 @@ lemma theoremB_pair_count
     neighbour counts equals twice the (ordered `p<q`) pair count, since the
     relation `q ≠ p0 ∧ B < |H_{p0 q}|` is symmetric (`crtRepr_symm`).
 -/
-lemma theoremB_basepoint_sum
+lemma large_crt_basepoint_sum
     (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p)
     (a : BlockAssignment P) (B : ℝ) :
@@ -968,10 +968,10 @@ lemma theoremB_basepoint_sum
 /-
 **Base point (`29 §4`).**  Averaging over base points, some `p0 ∈ P` has at
     most `32 R X⁴ / (B² N)` vertices `q` with `|H_{p0 q}| > B`.  Indeed the sum over
-    base points of these counts equals twice the pair count (`theoremB_pair_count`,
+    base points of these counts equals twice the pair count (`large_crt_pair_count`,
     via the symmetry `crtRepr_symm`), so the minimum is `≤` the average.
 -/
-lemma theoremB_basepoint
+lemma exists_sparse_crt_basepoint
     (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hPne : 0 < P.card)
     (a : BlockAssignment P) (R : ℝ) (_hR : 0 ≤ R) (hQ : QP P a ≤ R)
@@ -982,8 +982,8 @@ lemma theoremB_basepoint
         ≤ 32 * R * (X:ℝ)^4 / (B^2 * P.card) := by
   have h_avg : (∑ p0 ∈ P.attach, (P.attach.filter (fun q => q ≠ p0 ∧ B < |(crtRepr p0.1 q.1 (a p0) (a q) : ℝ)|)).card : ℝ) ≤ 2 * (16 * R * (X:ℝ)^4 / B^2) := by
     have h_avg : (∑ p0 ∈ P.attach, (P.attach.filter (fun q => q ≠ p0 ∧ B < |(crtRepr p0.1 q.1 (a p0) (a q) : ℝ)|)).card : ℝ) = 2 * ((orderedPrimePairsA P).filter (fun pq => B < |(crtRepr pq.1.1 pq.2.1 (a pq.1) (a pq.2) : ℝ)|)).card := by
-      convert congr_arg ( ( ↑ ) : ℕ → ℝ ) ( theoremB_basepoint_sum P ( fun p hp => ( hP p hp ).1 ) a B ) using 1; all_goals norm_cast;
-    exact h_avg.symm ▸ mul_le_mul_of_nonneg_left ( mod_cast theoremB_pair_count X hX P hP a R hQ B hB ) zero_le_two;
+      convert congr_arg ( ( ↑ ) : ℕ → ℝ ) ( large_crt_basepoint_sum P ( fun p hp => ( hP p hp ).1 ) a B ) using 1; all_goals norm_cast;
+    exact h_avg.symm ▸ mul_le_mul_of_nonneg_left ( mod_cast large_crt_pair_count X hX P hP a R hQ B hB ) zero_le_two;
   contrapose! h_avg;
   convert Finset.sum_lt_sum_of_nonempty ( Finset.card_pos.mp <| by simpa [ Finset.card_attach ] using hPne ) h_avg using 1 ; norm_num ; ring_nf;
   norm_num [ hPne.ne' ]
@@ -1037,7 +1037,7 @@ lemma sum_cube_offdiag_ge {ι : Type*} [DecidableEq ι]
     `[-B, B]` and all share the residue `a_{p0}` modulo `p0 ≥ X`, so there are at
     most `2B/X + 2` of them.
 -/
-lemma theoremB_shortlist (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
+lemma crt_label_shortlist_bound (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X)
     (a : BlockAssignment P) (p0 : P) (B : ℝ) (hB : 0 ≤ B) :
     (((P.attach.filter (fun q => q ≠ p0 ∧
@@ -1084,7 +1084,7 @@ lemma theoremB_shortlist (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, N
 **Label residue (`29 §4`).**  Every covered vertex `q ≠ p0` carries the residue
     of its label: `a q = (lab q : ZMod q)` (by `crtRepr_congr_right`).
 -/
-lemma theoremB_label_residue (P : Finset ℕ) [∀ p : P, NeZero p.1]
+lemma crtRepr_eq_label_residue (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p) (a : BlockAssignment P) (p0 q : P) (hq : q ≠ p0) :
     a q = ((crtRepr p0.1 q.1 (a p0) (a q) : ℤ) : ZMod q.1) := by
   have h_coprime : Nat.Coprime p0.1 q.1 := by
@@ -1100,7 +1100,7 @@ lemma theoremB_label_residue (P : Finset ℕ) [∀ p : P, NeZero p.1]
     energy is symmetric (`crtRepr_symm`).
 -/
 set_option maxHeartbeats 1000000 in
-lemma theoremB_cross_energy_sum
+lemma crossLabel_energy_sum_le
     (P : Finset ℕ) [∀ p : P, NeZero p.1] (hP : ∀ p ∈ P, Nat.Prime p)
     (a : BlockAssignment P) (S : Finset P) (hS : S ⊆ P.attach)
     (f : P → ℤ) (L : Finset ℤ) :
@@ -1148,11 +1148,11 @@ lemma theoremB_cross_energy_sum
     `|H_{p0 q}| ≤ B`) and a set `L` of substantial labels (each class
     `Cls n = S.filter (lab = n)` has `≥ 32(B/X+1)` and `≥ 8` members), Lemma E
     applied to every ordered pair of distinct classes and summed (bounded by `2Q_P`
-    via `theoremB_cross_energy_sum`) gives a lower bound on `R` by the off-diagonal
+    via `crossLabel_energy_sum_le`) gives a lower bound on `R` by the off-diagonal
     cubic form of the class sizes.
 -/
 set_option maxHeartbeats 1000000 in
-lemma theoremB_energy_general
+lemma class_partition_energy_lower_bound
     (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X)
     (a : BlockAssignment P) (p0 : P) (B : ℝ) (_hB0 : 0 ≤ B) (hBX : B ≤ (X:ℝ)^2/4)
@@ -1200,14 +1200,14 @@ lemma theoremB_energy_general
       · exact Finset.disjoint_filter.mpr fun _ _ _ _ => by aesop;
       · intro p hp hpS hpn
         have h_eq : a ⟨p, hp⟩ = ((crtRepr p0.1 p (a p0) (a ⟨p, hp⟩) : ℤ) : ZMod p) := by
-          convert theoremB_label_residue P ( fun p hp => ( hP p hp ).1 ) a p0 ⟨ p, hp ⟩ ( hScov _ hpS |>.1 ) using 1
+          convert crtRepr_eq_label_residue P ( fun p hp => ( hP p hp ).1 ) a p0 ⟨ p, hp ⟩ ( hScov _ hpS |>.1 ) using 1
         rw [h_eq]
         simp [hpn];
       · intro p hp hpS hp'; specialize hScov ⟨ p, hp ⟩ hpS; simp_all +decide [ Finset.disjoint_left ] ;
-        convert theoremB_label_residue P ( fun p hp => hP p hp |>.1 ) a p0 ⟨ p, hp ⟩ hScov.1 using 1;
+        convert crtRepr_eq_label_residue P ( fun p hp => hP p hp |>.1 ) a p0 ⟨ p, hp ⟩ hScov.1 using 1;
         · exact hp'.symm ▸ rfl;
         · exact fun p => ⟨ Nat.Prime.ne_zero ( hP p p.2 |>.1 ) ⟩;
-  refine' le_trans _ ( le_trans ( theoremB_cross_energy_sum P ( fun p hp => ( hP p hp ).1 ) a S ( Finset.subset_univ _ ) ( fun q => crtRepr p0.1 q.1 ( a p0 ) ( a q ) ) L ) _ );
+  refine' le_trans _ ( le_trans ( crossLabel_energy_sum_le P ( fun p hp => ( hP p hp ).1 ) a S ( Finset.subset_univ _ ) ( fun q => crtRepr p0.1 q.1 ( a p0 ) ( a q ) ) L ) _ );
   · exact Finset.sum_le_sum fun i hi => by simpa only [ mul_assoc, Finset.mul_sum _ _ _ ] using Finset.sum_le_sum fun j hj => h_cross_sum i j hi ( Finset.mem_sdiff.mp hj |>.1 ) ( by rintro rfl; exact Finset.mem_sdiff.mp hj |>.2 <| Finset.mem_singleton_self _ ) ;
   · exact mul_le_mul_of_nonneg_left hQ zero_le_two
 
@@ -1215,7 +1215,7 @@ lemma theoremB_energy_general
 **Zero energy is dominant.**  If `Q_P(a) = 0` then every cross representative
     vanishes, so `a_p ≡ 0` for all `p`, and `a` is `0`-dominant.
 -/
-lemma theoremB_zero_dominant (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
+lemma zero_label_dominant_of_large_class (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hN : 2 ≤ P.card)
     (a : BlockAssignment P) (ρ : ℝ) (hρ : 0 ≤ ρ) (hQ0 : QP P a = 0) :
     HasDominantLabel X P a ρ := by
@@ -1244,7 +1244,7 @@ lemma theoremB_zero_dominant (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : 
     chase plugs in `B = √(A²R)·X²/N`.
 -/
 set_option maxHeartbeats 2000000 in
-lemma theoremB_covering_dichotomy
+lemma label_covering_energy_dichotomy
     (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hN : 2 ≤ P.card)
     (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
@@ -1282,7 +1282,7 @@ lemma theoremB_covering_dichotomy
   set k0 := allLabels.card;
   -- Preliminary bounds.
   have hk0 : (k0 : ℝ) ≤ 2 * B / X + 2 := by
-    convert theoremB_shortlist X hX P hP a p0 B hB0.le using 1
+    convert crt_label_shortlist_bound X hX P hP a p0 B hB0.le using 1
   have hS_card : (S.card : ℝ) ≥ N - 1 - ρ * N / 8 := by
     have hS_card : (S.card : ℝ) + (exc'.card : ℝ) = (P.card - 1 : ℝ) := by
       rw [ ← Nat.cast_add, ← Finset.card_union_of_disjoint ];
@@ -1318,7 +1318,7 @@ lemma theoremB_covering_dichotomy
         simp +zetaDelta at *;
         simp +contextual [ Finset.subset_iff ];
         intro q hq hq' hq'' hq''';
-        convert theoremB_label_residue P ( fun p hp => ( hP p hp ).1 ) a p0 ⟨ q, hq ⟩ hq' using 1;
+        convert crtRepr_eq_label_residue P ( fun p hp => ( hP p hp ).1 ) a p0 ⟨ q, hq ⟩ hq' using 1;
         · exact hq'''.symm ▸ rfl;
         · exact fun p => ⟨ Nat.Prime.ne_zero ( hP p p.2 |>.1 ) ⟩;
       contrapose! hnd;
@@ -1330,7 +1330,7 @@ lemma theoremB_covering_dichotomy
           (show nstar ∈ Lsub from hnstar.1), add_tsub_cancel_right];
       linarith [ htiny_le htiny ];
     have h_energy : cE / X^2 * (∑ n ∈ Lsub, ∑ n' ∈ Lsub \ {n}, ((Cls n).card : ℝ)^3 * ((Cls n').card : ℝ)) ≤ 2 * R := by
-      apply theoremB_energy_general X P hP a p0 B hB0.le hBX S (fun q hq => by
+      apply class_partition_energy_lower_bound X P hP a p0 B hB0.le hBX S (fun q hq => by
         exact Finset.mem_filter.mp hq |>.2) Lsub (fun n hn => by
         grind +qlia) (fun n hn => by
         exact le_trans ( by linarith [ show ( 0 : ℝ ) ≤ B / X by positivity ] ) ( Finset.mem_filter.mp hn |>.2 )) R hQ cE hcE0 hcE;
@@ -1360,7 +1360,7 @@ lemma theoremB_covering_dichotomy
 **Log-growth threshold.**  Since `X/ log X → ∞`, for any `K` there is `X0` with
     `K ≤ X/ log X` for all `X ≥ X0`.
 -/
-lemma theoremB_logthreshold (K : ℝ) :
+lemma exists_logarithmic_threshold (K : ℝ) :
     ∃ X0 : ℝ, 0 < X0 ∧ ∀ X : ℕ, X0 ≤ X → K ≤ (X:ℝ)/Real.log X := by
   -- By the properties of the logarithm and the fact that $X / \log X$ tends to infinity, we can find such an $X_0$.
   have h_log_growth : Filter.Tendsto (fun X : ℕ => (X : ℝ) / Real.log (X : ℝ)) Filter.atTop Filter.atTop := by
@@ -1392,7 +1392,7 @@ lemma cutoff_energy_quadratic_lower_bound
   field_simp at h ⊢
   nlinarith
 
-lemma theoremB_chase_left (cE ρ : ℝ) (hcE0 : 0 < cE) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
+lemma low_cutoff_energy_bound (cE ρ : ℝ) (hcE0 : 0 < cE) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
     (X : ℕ) (N R u : ℝ)
     (hlogX : 0 < Real.log X) (hN : (X:ℝ)/(2*Real.log X) ≤ N) (hNpos : 0 < N)
     (hR0 : 0 < R) (hu0 : 0 ≤ u)
@@ -1450,7 +1450,7 @@ lemma theoremB_chase_left (cE ρ : ℝ) (hcE0 : 0 < cE) (hρ : 0 < ρ) (hρ4 : �
 **Right-disjunct chase.**  Pure algebra: the tiny-mass disjunct of the covering
     dichotomy forces `R ≳ X/log³X`.
 -/
-lemma theoremB_chase_right (ρ : ℝ) (hρ : 0 < ρ) (_hρ4 : ρ ≤ 1/4)
+lemma high_cutoff_energy_bound (ρ : ℝ) (hρ : 0 < ρ) (_hρ4 : ρ ≤ 1/4)
     (X : ℕ) (N R u : ℝ)
     (hlogX : 0 < Real.log X) (hN : (X:ℝ)/(2*Real.log X) ≤ N) (hNpos : 0 < N)
     (_hR0 : 0 < R) (_hu0 : 0 ≤ u)
@@ -1474,7 +1474,7 @@ lemma theoremB_chase_right (ρ : ℝ) (hρ : 0 < ρ) (_hρ4 : ρ ≤ 1/4)
     dichotomy with `u := B/X`.
 -/
 set_option maxHeartbeats 1000000 in
-lemma theoremB_get_disjunction
+lemma nondominant_energy_dichotomy
     (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hcard2 : 2 ≤ P.card)
     (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4)
@@ -1503,12 +1503,12 @@ lemma theoremB_get_disjunction
   · positivity;
   · rw [ Real.sq_sqrt ( by positivity ) ];
   · obtain ⟨p0, hp0mem, hp0⟩ : ∃ p0 : P, p0 ∈ P.attach ∧ ((P.attach.filter (fun q => q ≠ p0 ∧ Real.sqrt ((256 / ρ) * R) * (X : ℝ) ^ 2 / P.card < |(crtRepr p0.1 q.1 (a p0) (a q) : ℝ)|)).card : ℝ) ≤ ρ * P.card / 8 := by
-      have := theoremB_basepoint X hX P hP (by linarith) a R hR0.le hQ (Real.sqrt ((256 / ρ) * R) * (X : ℝ) ^ 2 / P.card) (by
+      have := exists_sparse_crt_basepoint X hX P hP (by linarith) a R hR0.le hQ (Real.sqrt ((256 / ρ) * R) * (X : ℝ) ^ 2 / P.card) (by
       positivity);
       convert this using 4;
       field_simp;
       rw [ Real.sq_sqrt ( by positivity ), mul_div_cancel₀ _ ( by positivity ) ] ; ring;
-    convert theoremB_covering_dichotomy X hX P hP hcard2 ρ hρ hρ4 a hnd R hR0 hQ p0 ( Real.sqrt ( 256 / ρ * R ) * X ^ 2 / P.card ) _ _ _ _ cE hcE0 hcE using 2 <;> norm_num [ hR0.le, hρ.le, hX ];
+    convert label_covering_energy_dichotomy X hX P hP hcard2 ρ hρ hρ4 a hnd R hR0 hQ p0 ( Real.sqrt ( 256 / ρ * R ) * X ^ 2 / P.card ) _ _ _ _ cE hcE0 hcE using 2 <;> norm_num [ hR0.le, hρ.le, hX ];
     any_goals assumption;
     · field_simp;
     · field_simp;
@@ -1523,20 +1523,20 @@ lemma theoremB_get_disjunction
 /-
 For `X ≥ 3`, `1 ≤ Real.log X`.
 -/
-lemma theoremB_logX_ge_one (X : ℕ) (hX : 3 ≤ X) : 1 ≤ Real.log X := by
+lemma one_le_log_of_large (X : ℕ) (hX : 3 ≤ X) : 1 ≤ Real.log X := by
   exact Real.le_log_iff_exp_le ( by positivity ) |>.2 ( Real.exp_one_lt_d9.le.trans ( by norm_num; linarith [ show ( X : ℝ ) ≥ 3 by norm_cast ] ) )
 
 /-
 When `1 ≤ Real.log X`, `X/ log X ≤ X· log X`.
 -/
-lemma theoremB_self_div_log_le (X : ℕ) (h : 1 ≤ Real.log X) :
+lemma self_div_log_le_self (X : ℕ) (h : 1 ≤ Real.log X) :
     (X:ℝ)/Real.log X ≤ (X:ℝ)*Real.log X := by
   rw [ div_le_iff₀ ] <;> nlinarith [ show ( X : ℝ ) ≥ 1 by exact Nat.one_le_cast.mpr ( Nat.pos_of_ne_zero ( by rintro rfl; norm_num at h ) ), mul_le_mul_of_nonneg_left h ( show ( 0 : ℝ ) ≤ X by positivity ) ]
 
 /-
 Combine `R ≤ c2·X/log³X` with the threshold `64·A²·c2 ≤ X·log X` to get `A²R ≤ N²/16`.
 -/
-lemma theoremB_hAR (ρ c2 : ℝ) (hρ : 0 < ρ) (_hc2 : 0 ≤ c2)
+lemma nondominant_auxiliary_range_bound (ρ c2 : ℝ) (hρ : 0 < ρ) (_hc2 : 0 ≤ c2)
     (X : ℕ) (N R : ℝ) (hlog0 : 0 < Real.log X)
     (hN : (X:ℝ)/(2*Real.log X) ≤ N)
     (hR : R ≤ c2*(X:ℝ)/(Real.log X)^3)
@@ -1555,7 +1555,7 @@ lemma theoremB_hAR (ρ c2 : ℝ) (hρ : 0 < ρ) (_hc2 : 0 ≤ c2)
 Combine `R ≤ c2·X/log³X` with `8192·c2/(cEρ⁴) ≤ X/log X` to bound `R` by the
     case-B threshold.
 -/
-lemma theoremB_hRle (cE ρ c2 : ℝ) (hcE0 : 0 < cE) (hρ : 0 < ρ)
+lemma cutoff_energy_upper_bound (cE ρ c2 : ℝ) (hcE0 : 0 < cE) (hρ : 0 < ρ)
     (X : ℕ) (R : ℝ) (hlog0 : 0 < Real.log X)
     (hR : R ≤ c2*(X:ℝ)/(Real.log X)^3)
     (hThr2 : 8192*c2/(cE*ρ^4) ≤ (X:ℝ)/Real.log X) :
@@ -1574,11 +1574,11 @@ lemma theoremB_hRle (cE ρ c2 : ℝ) (hcE0 : 0 < cE) (hρ : 0 < ρ)
     `R² ≫ N⁴/(X²log²X)`, i.e. `R ≫ N²/(X log X) ≫ X/log³X`.
 
     **Status**: fully proved (no `sorry`).  Decomposed into the covering helpers
-    (`theoremB_pair_count`, `theoremB_basepoint`, `theoremB_shortlist`), the energy
-    core (`theoremB_energy_general`, `theoremB_cross_energy_sum`), the covering
-    dichotomy (`theoremB_covering_dichotomy`) with the mass accounting, and the
-    parameter chase (`theoremB_get_disjunction`, `theoremB_chase_left`,
-    `theoremB_chase_right`).
+    (`large_crt_pair_count`, `exists_sparse_crt_basepoint`, `crt_label_shortlist_bound`), the energy
+    core (`class_partition_energy_lower_bound`, `crossLabel_energy_sum_le`), the covering
+    dichotomy (`label_covering_energy_dichotomy`) with the mass accounting, and the
+    parameter chase (`nondominant_energy_dichotomy`, `low_cutoff_energy_bound`,
+    `high_cutoff_energy_bound`).
 -/
 theorem nondominant_energy_lower_bound
     (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) :
@@ -1592,14 +1592,14 @@ theorem nondominant_energy_lower_bound
             c2 * (X:ℝ) / (Real.log X)^3 ≤ R := by
   revert ρ hρ hρ4;
   obtain ⟨cE, hcE0, hcE⟩ : ∃ cE : ℝ, 0 < cE ∧ ∀ (Y : ℕ) (Q : Finset ℕ) [∀ p : Q, NeZero p.1] (b : BlockAssignment Q) (n n' : ℤ) (D : ℝ), n ≠ n' → |(n:ℝ)| ≤ D → |(n':ℝ)| ≤ D → D ≤ (Y:ℝ)^2/4 → ∀ (C C' : Finset Q), (∀ p ∈ C, Nat.Prime (p:ℕ) ∧ Y ≤ (p:ℕ) ∧ (p:ℕ) ≤ 2*Y) → (∀ q ∈ C', Nat.Prime (q:ℕ) ∧ Y ≤ (q:ℕ) ∧ (q:ℕ) ≤ 2*Y) → Disjoint C C' → (32 * (D/Y + 1) : ℝ) ≤ C.card → (8:ℝ) ≤ C'.card → (∀ p ∈ C, b p = ((n : ℤ) : ZMod (p:ℕ))) → (∀ q ∈ C', b q = ((n' : ℤ) : ZMod (q:ℕ))) → cE * (C.card : ℝ)^3 * C'.card / (Y:ℝ)^2 ≤ ∑ p ∈ C, ∑ q ∈ C', ((crtRepr (p:ℕ) (q:ℕ) (b p) (b q) : ℝ) / ((p:ℕ) * (q:ℕ)))^2 := by
-    apply lemma_E_cross_label_energy;
+    apply crossLabel_energy_lower_bound;
   intro ρ hρ hρ4
   set c2 := min (ρ^2 * Real.sqrt (cE*ρ) / 10^6) (ρ^2/4718592) with hc2def
   have hc2pos : 0 < c2 := by
     exact lt_min ( by positivity ) ( by positivity )
   generalize_proofs at *;
   set K := max (max 4 (16/ρ)) (max (4608/ρ) (max (64*(256/ρ)*c2) (8192*c2/(cE*ρ^4)))) with hKdef
-  obtain ⟨X0', hX0'0, hK⟩ := theoremB_logthreshold K
+  obtain ⟨X0', hX0'0, hK⟩ := exists_logarithmic_threshold K
   use c2, ⌈X0'⌉₊ + 3, hc2pos, by positivity
   intro X hX P inst hP hN a R hQ hnd
   have hX3 : 3 ≤ X := by
@@ -1614,7 +1614,7 @@ theorem nondominant_energy_lower_bound
   have hXpos : (0:ℝ) < X := by positivity
   have hKX : K ≤ (X:ℝ)/Real.log X := by
     exact hK X ( by linarith [ Nat.le_ceil X0' ] )
-  have hself := theoremB_self_div_log_le X hlog1
+  have hself := self_div_log_le_self X hlog1
   set N := (P.card:ℝ) with hNdef
   have hNK : K/2 ≤ N := by
     have h1 : K / 2 ≤ (X:ℝ)/(2*Real.log X) := by
@@ -1637,39 +1637,38 @@ theorem nondominant_energy_lower_bound
     have hR0 : 0 < R := by
       by_contra hRneg
       push Not at hRneg
-      exact hnd (theoremB_zero_dominant X hX1 P hP hcard2 a ρ hρ.le (le_antisymm (le_trans hQ hRneg) (QP_nonneg P a)))
+      exact hnd (zero_label_dominant_of_large_class X hX1 P hP hcard2 a ρ hρ.le (le_antisymm (le_trans hQ hRneg) (QP_nonneg P a)))
     generalize_proofs at *;
     have hThr1 : 64*(256/ρ)*c2 ≤ (X:ℝ)*Real.log X := by
       grind +splitImp
     have hThr2 : 8192*c2/(cE*ρ^4) ≤ (X:ℝ)/Real.log X := by
       exact le_trans ( le_max_of_le_right <| le_max_of_le_right <| le_max_right _ _ ) hKX
     have hAR : (256/ρ)*R ≤ N^2/16 := by
-      apply theoremB_hAR ρ c2 hρ hc2pos.le X N R hlog0 hN hRle' hThr1
+      apply nondominant_auxiliary_range_bound ρ c2 hρ hc2pos.le X N R hlog0 hN hRle' hThr1
     have h1 : 1 ≤ ρ*N/8 := by
       have h16 : 16 / ρ ≤ K := by
         exact le_max_of_le_left ( le_max_right _ _ )
       generalize_proofs at *;
       nlinarith [ mul_div_cancel₀ 16 hρ.ne' ]
     generalize_proofs at *;
-    obtain ⟨u, hu0, husq, hdisj⟩ := theoremB_get_disjunction X hX1 P hP hcard2 ρ hρ hρ4 a hnd R hR0 hQ hAR h1 cE hcE0 hcE
+    obtain ⟨u, hu0, husq, hdisj⟩ := nondominant_energy_dichotomy X hX1 P hP hcard2 ρ hρ hρ4 a hnd R hR0 hQ hAR h1 cE hcE0 hcE
     rcases hdisj with hL | hRgt
-    · have hRle : R ≤ cE*ρ^4*(X:ℝ)^2/(8192*(Real.log X)^4) := theoremB_hRle cE ρ c2 hcE0 hρ X R hlog0 hRle' hThr2
-      have hcl := theoremB_chase_left cE ρ hcE0 hρ hρ4 X N R u hlog0 hN hNpos hR0 hu0 husq hRle hL
+    · have hRle : R ≤ cE*ρ^4*(X:ℝ)^2/(8192*(Real.log X)^4) := cutoff_energy_upper_bound cE ρ c2 hcE0 hρ X R hlog0 hRle' hThr2
+      have hcl := low_cutoff_energy_bound cE ρ hcE0 hρ hρ4 X N R u hlog0 hN hNpos hR0 hu0 husq hRle hL
       refine le_trans ?_ hcl
       have hcle : c2 ≤ ρ^2 * Real.sqrt (cE*ρ) / 10^6 := min_le_left _ _
       gcongr
     · have hbigN : 2304/ρ ≤ N := by
         grind
-      have hcr := theoremB_chase_right ρ hρ hρ4 X N R u hlog0 hN hNpos hR0 hu0 husq hbigN hRgt
+      have hcr := high_cutoff_energy_bound ρ hρ hρ4 X N R u hlog0 hN hNpos hR0 hu0 husq hbigN hRgt
       refine le_trans ?_ hcr
       have hcr2 : c2 ≤ ρ^2/4718592 := min_le_right _ _
       gcongr
 
-/-! ## Corollary — SBEE below the window (`29 §7`)
+/-! ## Low-energy level-set bound
 
-Combining Theorem B (every `R ≤ c'X/log³X` low-energy assignment is dominant) with
-Theorem A gives the level-set bound for all `R ≤ c'X/log³X`.  Stated as
-`corollary_SBEE_below_window`; fully proved — the direct A+B combination. -/
+The nondominant energy lower bound makes every assignment below
+`c'X/log³X` dominant, where the dominant level-set estimate applies. -/
 
 /-
 **Corollary** (`29 §7`).  For `ε > 0` there are `c', X₀` so that for `X ≥ X₀`
@@ -1679,7 +1678,7 @@ Theorem A gives the level-set bound for all `R ≤ c'X/log³X`.  Stated as
     **Status**: fully proved — direct combination of `nondominant_energy_lower_bound`
     (all such assignments are dominant) and `dominant_level_set_bound`.
 -/
-theorem corollary_SBEE_below_window
+theorem low_energy_level_set_bound
     (eps : ℝ) (hε : 0 < eps) (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) :
     ∃ (cp X0 : ℝ), 0 < cp ∧ 0 < X0 ∧
       ∀ (X : ℕ), X0 ≤ X →
@@ -1770,7 +1769,7 @@ lemma fixed_label_level_set_bound (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) 
               ≤ Real.exp (eps * R) := by
   revert eps ρ hε hρ hρ4;
   intro eps ρ hε hρ hρ4
-  obtain ⟨X0e, hX0e, Hent⟩ := theoremA_entropy eps ρ hε hρ hρ4
+  obtain ⟨X0e, hX0e, Hent⟩ := dominant_encoding_entropy_bound eps ρ hε hρ hρ4
   obtain ⟨X0c, hX0c, Hlog⟩ := RequestProject.eventually_const_mul_log_le_nat 64
   use max (max X0e X0c) 16;
   refine' ⟨ by positivity, fun X hX P _hP hN m hmabs R hR => _ ⟩;
@@ -1796,7 +1795,7 @@ lemma fixed_label_level_set_bound (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 < ρ) 
     exact Nat.le_floor <| by aesop;
   refine' le_trans _ ( Hent X N h_floor hR _ _ _ _ _ _ );
   any_goals assumption;
-  · refine' le_trans _ ( dominant_encoding_card X ( by linarith [ show X ≥ 16 by exact_mod_cast le_trans ( le_max_right _ _ ) hX ] ) P ( fun p hp => hN p hp ) hmabs h_floor );
+  · refine' le_trans _ ( dominant_assignment_encoding_bound X ( by linarith [ show X ≥ 16 by exact_mod_cast le_trans ( le_max_right _ _ ) hX ] ) P ( fun p hp => hN p hp ) hmabs h_floor );
     exact_mod_cast Finset.card_le_card h_filter_subset;
   · exact le_trans ( le_max_of_le_left ( le_max_left _ _ ) ) hX;
   · linarith
@@ -1849,7 +1848,7 @@ lemma cold_exception_count_bound (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4)
     Proof: `dominant_label_bound` gives `|m| ≤ (5/(1-ρ))·√R/σ_P`; the cold range
     `R ≤ c₂·X/log³X` together with the density `N ≥ X/(2 log X)` implies the
     polynomial bound `R ≤ N⁴(1-ρ)²/(409600·X²)` for `X ≥ X0(c₂)` (a `K·log X ≤ X`
-    threshold from `Core.Asymptotics`), and then `theoremA_label_le`
+    threshold from `Core.Asymptotics`), and then `dominant_label_linear_bound`
     converts `(5/(1-ρ))·√R/σ_P ≤ N·X/16`.
 -/
 lemma cold_label_bound (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4) (c2 : ℝ) (_hc2 : 0 < c2) :
@@ -1893,6 +1892,6 @@ lemma cold_label_bound (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4) (c2 : ℝ
       refine le_trans hRpoly.1 <| hRpoly.2.trans ?_;
       gcongr;
     convert dominant_label_bound X ( by norm_num at hX; linarith ) P hP hN_ge_8 ρ hρ hρ4 a m R ( by
-      exact hm ) hclass hQ |> le_trans <| theoremA_label_le X ( by norm_num at hX; linarith ) P hP hN_ge_2 ρ hρ hρ4 R ( by positivity ) hRpoly using 1
+      exact hm ) hclass hQ |> le_trans <| dominant_label_linear_bound X ( by norm_num at hX; linarith ) P hP hN_ge_2 ρ hρ hρ4 R ( by positivity ) hRpoly using 1
 
 end LocalEnergy

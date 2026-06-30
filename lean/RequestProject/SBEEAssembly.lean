@@ -12,7 +12,8 @@ This file formalizes **P3**: the faithful single-block counting target of
   hypothesis, no labeling), exactly as designed in note 28 §3.
 * `single_block_counting` — `SBEEPartitionBound c`.  **Fully proved (no `sorry`).**
   Assembled from the unified level-set bound `unified_levelset` (combining
-  Theorem A+B below the window via `LocalEnergy.corollary_SBEE_below_window` and
+  dominant-label counting below the window via
+  `LocalEnergy.low_energy_level_set_bound` and
   Theorem C above the window via `LocalEnergy.fingerprint_levelSet_bound`, glued by the
   asymptotic mesh `mesh_lemma : R_C ≤ R_w`) and the Laplace/dyadic-series step
   `partfun_series_bound`, with `sigmaP_upper` absorbing the additive constant.
@@ -61,10 +62,11 @@ def SBEEPartitionBound (c : ℝ) : Prop :=
     The faithful target `SBEEPartitionBound c` holds.
 
     Proof (`30 §2`): trichotomy on `R` against the window floor `R_w ≍ X/log³X`
-    (Theorem B) and the fingerprint threshold `R_C ≍ X^{2/3}log^{4/3}X`
+    (the nondominant energy threshold) and the fingerprint threshold
+    `R_C ≍ X^{2/3}log^{4/3}X`
     (Theorem C), with the mesh `R_C ≪ R_w` (asymptotic in `X`):
     * `R < R_w`: every level-set assignment is dominant
-      (`LocalEnergy.nondominant_energy_lower_bound`); apply Theorem A
+      (`LocalEnergy.nondominant_energy_lower_bound`); apply dominant-label counting
       (`LocalEnergy.dominant_level_set_bound`).
     * `R_w ≤ R ≤ R_triv`: `LocalEnergy.fingerprint_levelSet_bound` (Theorem C, proved).
     * `R > R_triv`: trivial.
@@ -122,8 +124,8 @@ lemma mesh_lemma (cp Ceps : ℝ) (hcp : 0 < cp) (_hCeps : 0 < Ceps) :
   norm_num only [ ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ), ← Real.rpow_mul ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith ) ) ) ]
 
 /-
-**Unified level-set bound.**  Combining Theorem A+B (below the window, via
-    `corollary_SBEE_below_window`) and Theorem C (`fingerprint_levelSet_bound`, above the
+**Unified level-set bound.** Combining dominant-label counting below the window via
+    `low_energy_level_set_bound`) and Theorem C (`fingerprint_levelSet_bound`, above the
     window) through the mesh, every level set is bounded by
     `C₀·e^{εR}·(1 + √R/σ_P)` for all `R ≥ 1`.
 -/
@@ -138,7 +140,7 @@ lemma unified_levelset (eps : ℝ) (hε0 : 0 < eps) (hε1 : eps < 1) :
             ((Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R)).card : ℝ)
               ≤ C0 * Real.exp (eps*R) * (1 + Real.sqrt R / sigmaP P) := by
   -- Apply the provided solution to obtain the constants `C0` and `X1`.
-  obtain ⟨cp, X0c, hcp, hX0c, Hcor⟩ := LocalEnergy.corollary_SBEE_below_window eps hε0 (1/4) (by norm_num) (by norm_num)
+  obtain ⟨cp, X0c, hcp, hX0c, Hcor⟩ := LocalEnergy.low_energy_level_set_bound eps hε0 (1/4) (by norm_num) (by norm_num)
   obtain ⟨Ceps, X0f, hCeps, hX0f, Hfp⟩ := LocalEnergy.fingerprint_levelSet_bound eps hε0 hε1
   obtain ⟨Xm, hXm0, hmesh⟩ := mesh_lemma cp Ceps hcp hCeps
   obtain ⟨X16, hX160, hX16⟩ := logthreshold_pow 3 (16/cp)
