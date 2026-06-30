@@ -23,7 +23,7 @@ Proved and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`):
     `hot_factor` and `cold_factor`, taking the per-block label-size bound as a
     hypothesis `hlabsize`);
   * `cold_master` (N5: a single `(c2,e0,X0)` giving both block dominance
-    `IsDominant` and the boundary penalty floor, from `boundary_penalty_per_k`);
+    `HasDominantLabel` and the boundary penalty floor, from `boundary_penalty_per_k`);
   * `hadmL_final` (N5: the label-range admissibility `hadmL`, routing
     `coldLabel_mem_labelFin` through every segment start);
   * `global_levelset` (N5: the exact statement of
@@ -42,7 +42,7 @@ Now PROVED and axiom-clean (this round), completing the note-45 route:
     `hot_factor` + the label-uniform `cold_count_large`);
   * `cold_count_large` (label-uniform per-cold-block count) and
     `cold_count_nonwrap` (the non-wrapped huge-label case is an EMPTY fiber, via
-    `theoremA_label_range`/`cold_label_size64`);
+    `dominant_label_bound`/`cold_label_size64`);
   * `hrhs_charge_bound` and `hrhs_final` (the full four-fold fiber sum bound),
     hence `global_levelset` — all reduced to the single kernel below.
 
@@ -54,7 +54,7 @@ Now CLOSED (this round), completing the G5 chain:
     `M`-fiber.  The extraction needs Theorem-B dominance for arbitrary block
     assignments in the cold range; since this only holds below Theorem-B's
     intrinsic constant, it is threaded as the hypothesis `ColdDominance c2`
-    (discharged in `cold_master` via `theorem_B_nondominant_forcing`, taking the
+    (discharged in `cold_master` via `nondominant_energy_lower_bound`, taking the
     minimum of the boundary constant and Theorem-B's constant).  Supporting
     lemmas added: `two_prime_label_eq` (two-prime CRT label rigidity),
     `cold_small_label_agree` (per-assignment small-label extraction with residue
@@ -305,7 +305,7 @@ lemma fiber_card_exp_bound (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
 /-- **Cold-regime dominance for arbitrary block assignments.**
     At parameter `c2`, eventually every block-assignment of cold energy
     (`< Rw c2 k`) admits a dominant `(1/4)`-label.  This is
-    `theorem_B_nondominant_forcing` re-routed to `BlockSystem` blocks; it holds
+    `nondominant_energy_lower_bound` re-routed to `BlockSystem` blocks; it holds
     only for `c2` at most Theorem-B's intrinsic constant, so it is carried as a
     hypothesis through the cold-count chain. -/
 def ColdDominance (c2 : ℝ) : Prop :=
@@ -366,7 +366,7 @@ lemma two_prime_label_eq (X : ℕ) (P : Finset ℕ)
 
 /-
 **Master cold constants.**  A single triple `(c2,e0,X0)` providing both the
-    block-dominance (`IsDominant`) used to read off cold labels and the boundary
+    block-dominance (`HasDominantLabel`) used to read off cold labels and the boundary
     penalty floor.  Both are obtained from `boundary_penalty_per_k` (whose cold
     facts already expose, for the same `c2`, the residue agreement that yields
     dominance for `X0` large).
@@ -451,7 +451,7 @@ lemma cold_master :
 /-
 **Label admissibility (`hadmL`).**  For `k0` past a uniform threshold, the
     zero-extended cold labels of any sub-`R` assignment lie in `admLabels`.
-    This routes `coldLabel_mem_labelFin` (needing `IsDominant` from `cold_master`)
+    This routes `coldLabel_mem_labelFin` (needing `HasDominantLabel` from `cold_master`)
     through every segment start.
 -/
 lemma hadmL_final (c2 X0 : ℝ) (hc2 : 0 < c2)
@@ -675,8 +675,8 @@ lemma block_card_lower :
 **Non-wrapped huge-label cold count (empty fiber).**  When the label is
     above `cold_factor`'s window (`N·2^k/16 < |m|`) but below the CRT wrap
     threshold (`|m| ≤ (2^k)²/2`), in the low-energy regime (`n+1 < Rw c2 k`) the
-    fiber is EMPTY: by `theoremA_label_range` any `(3/4)`-conforming `b` of energy
-    `≤ n+1` would force `|m| ≤ (20/3)√(n+1)/σ_k`, and combined with `sigmaP_lower`
+    fiber is EMPTY: by `dominant_label_bound` any `(3/4)`-conforming `b` of energy
+    `≤ n+1` would force `|m| ≤ (20/3)√(n+1)/σ_k`, and combined with `block_deviation_lower_bound`
     and the density `N ≥ 2^k/(2 log 2^k)` this contradicts `N·2^k/16 < |m|` once
     `2^k` is large (`2^k` beats every power of `log 2^k`).
 -/

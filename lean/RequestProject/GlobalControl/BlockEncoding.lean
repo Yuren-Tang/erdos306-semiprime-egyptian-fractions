@@ -174,7 +174,7 @@ lemma segStart_run (BS : BlockSystem) (H B : Finset ℕ) (k : ℕ)
 
 /-
 **Hole 2 (`cold_isDominant`).**  Contrapositive of
-    `theorem_B_nondominant_forcing` at `ρ = 1/4`: with `c2`/`X0` the constants it
+    `nondominant_energy_lower_bound` at `ρ = 1/4`: with `c2`/`X0` the constants it
     produces, every cold block (`¬ isHot`) is dominant.
 -/
 lemma cold_isDominant :

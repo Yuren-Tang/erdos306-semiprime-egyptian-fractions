@@ -629,21 +629,6 @@ lemma decoding_card_bound
   nlinarith [ Nat.zero_le ( ∏ p ∈ F, p ), Nat.zero_le ( ∑ S ∈ Finset.powerset ( P \ F ), if #S ≤ hmax then ∏ q ∈ S, q else 0 ) ]
 
 /-
-**Trivial level-set bound.**  The level set is contained in the whole
-    assignment space, so its cardinality is `≤ ∏_{p∈P} p ≤ (2X)^{|P|}`.
--/
-lemma levelset_card_le_pow (X : ℕ) (P : Finset ℕ) [∀ p : P, NeZero p.1]
-    (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2 * X) (R : ℝ) :
-    ((Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R)).card : ℝ)
-      ≤ (2 * (X : ℝ)) ^ P.card := by
-  refine' le_trans _ _;
-  exact ( ∏ p ∈ P, p : ℝ );
-  · refine' le_trans ( Nat.cast_le.mpr <| Finset.card_filter_le _ _ ) _;
-    simp +decide [ Fintype.card_pi ];
-    conv_rhs => rw [ ← Finset.prod_attach ] ;
-  · exact le_trans ( Finset.prod_le_prod ( fun _ _ => Nat.cast_nonneg _ ) fun _ _ => Nat.cast_le.mpr ( hP _ ‹_› |>.2.2 ) ) ( by norm_num )
-
-/-
 Auxiliary (trivial-case log trick): if `(2X)^N` exceeds `N·e^{εR}` then
     `εR < N·log(2X)`.
 -/
@@ -762,7 +747,7 @@ theorem fingerprint_levelSet_bound
   · intro X hX P _ hP hPne R hR;
     by_cases htriv : (2 * (X : ℝ)) ^ P.card ≤ (P.card : ℝ) * Real.exp (eps * R);
     · refine' le_trans _ htriv;
-      convert levelset_card_le_pow X P hP R using 1;
+      convert levelset_card_le_pow X P (fun p hp => (hP p hp).2.2) R using 1;
     · obtain ⟨Fc, hFc⟩ : ∃ Fc : ℕ, 208 ≤ Fc ∧ eps / 2 * R / (2 * Real.log (2 * X)) ≤ Fc ∧ Fc ≤ eps / 2 * R / (2 * Real.log (2 * X)) + 1 ∧ Fc ≤ P.card := by
         refine' ⟨ Nat.ceil ( eps / 2 * R / ( 2 * Real.log ( 2 * X ) ) ), _, _, _, _ ⟩;
         · have := Fc_ge_helper eps ( Max.max C2 ( ( 7 * 2 ^ 21 / eps ^ 4 ) ^ ( 1 / 3 : ℝ ) + 1 ) ) hε0 ( by positivity ) X ( by

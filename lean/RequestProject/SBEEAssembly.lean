@@ -12,12 +12,13 @@ This file formalizes **P3**: the faithful single-block counting target of
   hypothesis, no labeling), exactly as designed in note 28 §3.
 * `single_block_counting` — `SBEEPartitionBound c`.  **Fully proved (no `sorry`).**
   Assembled from the unified level-set bound `unified_levelset` (combining
-  Theorem A+B below the window via `SBEEForcing.corollary_SBEE_below_window` and
+  Theorem A+B below the window via `LocalEnergy.corollary_SBEE_below_window` and
   Theorem C above the window via `LocalEnergy.fingerprint_levelSet_bound`, glued by the
   asymptotic mesh `mesh_lemma : R_C ≤ R_w`) and the Laplace/dyadic-series step
   `partfun_series_bound`, with `sigmaP_upper` absorbing the additive constant.
 -/
-import RequestProject.SBEEForcing
+import RequestProject.LocalEnergy.DominantLabel
+import RequestProject.LocalEnergy.FingerprintCounting
 
 open Finset
 
@@ -63,15 +64,15 @@ def SBEEPartitionBound (c : ℝ) : Prop :=
     (Theorem B) and the fingerprint threshold `R_C ≍ X^{2/3}log^{4/3}X`
     (Theorem C), with the mesh `R_C ≪ R_w` (asymptotic in `X`):
     * `R < R_w`: every level-set assignment is dominant
-      (`SBEEForcing.theorem_B_nondominant_forcing`); apply Theorem A
-      (`SBEEForcing.theorem_A_dominant_count`).
+      (`LocalEnergy.nondominant_energy_lower_bound`); apply Theorem A
+      (`LocalEnergy.dominant_level_set_bound`).
     * `R_w ≤ R ≤ R_triv`: `LocalEnergy.fingerprint_levelSet_bound` (Theorem C, proved).
     * `R > R_triv`: trivial.
     Integrating the resulting level-set bound against `c·e^{-cR}` (Laplace) yields
     the partition-function bound `∑_a e^{-cQ_P(a)} ≤ C/σ_P`.
 
     **Status**: fully proved (no `sorry`).  All of `fingerprint_levelSet_bound`,
-    `theorem_A_dominant_count`, `theorem_B_nondominant_forcing`, the mesh
+    `dominant_level_set_bound`, `nondominant_energy_lower_bound`, the mesh
     `R_C ≤ R_w` and the Laplace/series transform are now machine-verified.
 
 **Growth threshold with a log power.**  `X/(log X)^n → ∞`, so for any `K`
@@ -137,7 +138,7 @@ lemma unified_levelset (eps : ℝ) (hε0 : 0 < eps) (hε1 : eps < 1) :
             ((Finset.univ.filter (fun a : BlockAssignment P => QP P a ≤ R)).card : ℝ)
               ≤ C0 * Real.exp (eps*R) * (1 + Real.sqrt R / sigmaP P) := by
   -- Apply the provided solution to obtain the constants `C0` and `X1`.
-  obtain ⟨cp, X0c, hcp, hX0c, Hcor⟩ := SBEEForcing.corollary_SBEE_below_window eps hε0 (1/4) (by norm_num) (by norm_num)
+  obtain ⟨cp, X0c, hcp, hX0c, Hcor⟩ := LocalEnergy.corollary_SBEE_below_window eps hε0 (1/4) (by norm_num) (by norm_num)
   obtain ⟨Ceps, X0f, hCeps, hX0f, Hfp⟩ := LocalEnergy.fingerprint_levelSet_bound eps hε0 hε1
   obtain ⟨Xm, hXm0, hmesh⟩ := mesh_lemma cp Ceps hcp hCeps
   obtain ⟨X16, hX160, hX16⟩ := logthreshold_pow 3 (16/cp)

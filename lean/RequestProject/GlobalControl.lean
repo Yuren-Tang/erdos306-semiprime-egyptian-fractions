@@ -35,8 +35,8 @@ suffices because the Peierls penalties exceed the entropies.
   quantified *uniformly* over all block systems.  Its supporting layer is
   proved here: G-1
   (`GlobalPeierls.shell_sum_bound`), G-2, G-4, and the single-block extraction
-  lemmas `SBEEForcing.dominant_label_unique` (L2u),
-  `SBEEForcing.fixed_label_count` (L5), `SBEEForcing.cold_exception_bound`
+  lemmas `LocalEnergy.dominant_label_unique` (L2u),
+  `LocalEnergy.fixed_label_level_set_bound` (L5), `LocalEnergy.cold_exception_count_bound`
   (L4c).
 * **G7** — Prop 8.1 is completed by `global_control_partition` in
   `GlobalControl.Partition`, from the level-set theorem, localization, and the

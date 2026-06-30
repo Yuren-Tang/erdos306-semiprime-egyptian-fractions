@@ -45,7 +45,8 @@ and `RequestProject.Audit` prints only the two audited axiom names.
 Goal: port without changing theorem statements or module layout.
 
 Completed port nodes include `BernoulliFourier`, `GlobalPeierlsBookkeeping`,
-`LocalEnergy.ReciprocalDispersion`, `LocalEnergy`, `SBEEForcing`, `SBEEAssembly`, and
+`LocalEnergy.ReciprocalDispersion`, `LocalEnergy.FingerprintCounting`,
+`LocalEnergy.DominantLabel`, `SBEEAssembly`, and
 `GlobalControl`.  The theorem chain has been ported, while its dependency
 boundaries are still being audited before it is declared clean.  Its former
 monolith has been decomposed into `BlockSystem`, `Basic`, `MainArc`,
@@ -204,7 +205,8 @@ Current progress:
 10. **Compute imports, then interpret them mathematically.** Use Mathlib's
     `#min_imports` for every mature module.  A reported import can still reveal
     that one late theorem belongs in a separate handoff module, as happened
-    when `sigmaCtrl_le_sigmaP_k0` alone pulled `SBEEForcing` into `Basic`.
+    when `sigmaCtrl_le_sigmaP_k0` alone pulled the entire dominant-label theory
+    into `Basic`.
 
 ### Remaining order
 

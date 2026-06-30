@@ -88,7 +88,8 @@ LocalEnergy.CRTModel
 - `FingerprintCounting`: CRT-to-phase comparison, uniqueness below the
   dispersion threshold, fingerprint decoding, and entropy counting;
 - `DominantLabel`: dominant-label uniqueness, nondominant forcing, and cold
-  label/exception estimates;
+  label/exception estimates. The implementation now lives at this canonical
+  path rather than behind a historical forcing facade;
 - `LevelSet`: the uniform single-block level-set and partition-function bounds.
 
 The public names describe the mathematics (`HasDominantLabel`,
