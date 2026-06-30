@@ -77,7 +77,11 @@ contracts:
 LocalEnergy.CRTModel
   -> LocalEnergy.ReciprocalDispersion
      -> LocalEnergy.FingerprintCounting
-        -> LocalEnergy.DominantLabel
+     -> LocalEnergy.CrossLabelEnergy
+        -> LocalEnergy.DominantLabel.Basic
+           -> LocalEnergy.DominantLabel.Counting
+           -> LocalEnergy.DominantLabel.Forcing
+              -> LocalEnergy.DominantLabel.ColdBounds
         -> LocalEnergy.LevelSet
 ```
 
@@ -87,9 +91,15 @@ LocalEnergy.CRTModel
   small-ball/energy bounds on `UnitAddCircle`;
 - `FingerprintCounting`: CRT-to-phase comparison, uniqueness below the
   dispersion threshold, fingerprint decoding, and entropy counting;
-- `DominantLabel`: dominant-label uniqueness, nondominant forcing, and cold
-  label/exception estimates. The implementation now lives at this canonical
-  path rather than behind a historical forcing facade;
+- `CrossLabelEnergy`: close-pair congruence counts and the energy forced between
+  two distinct residue classes;
+- `DominantLabel.Basic`: the dominant-label predicate;
+- `DominantLabel.Counting`: label recovery, exception energy, and entropy
+  counting for dominant assignments;
+- `DominantLabel.Forcing`: covering and class-mass arguments forcing energy in
+  the absence of a dominant label;
+- `DominantLabel.ColdBounds`: the low-energy merger of the counting and forcing
+  branches, including label and exception bounds;
 - `LevelSet`: the uniform single-block level-set and partition-function bounds.
 
 The public names describe the mathematics (`HasDominantLabel`,

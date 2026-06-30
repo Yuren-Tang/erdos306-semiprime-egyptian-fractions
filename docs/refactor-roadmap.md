@@ -153,8 +153,9 @@ Current progress:
   `LocalEnergy.FingerprintCounting`; the earlier dependency audit reduced its
   closure from roughly 8.5k to 3.1k jobs;
 - `LocalEnergy.CRTModel`, `LocalEnergy.ReciprocalDispersion`,
-  `LocalEnergy.FingerprintCounting`, `LocalEnergy.DominantLabel`, and
-  `LocalEnergy.LevelSet` form the canonical handoff to global control;
+  `LocalEnergy.FingerprintCounting`, `LocalEnergy.CrossLabelEnergy`, the
+  `LocalEnergy.DominantLabel` submodules, and `LocalEnergy.LevelSet` form the
+  canonical handoff to global control;
   global-control sources no longer import or invoke historical `SBEE*` names;
 - the duplicated eventual bound `K * log X ≤ X` now has one proof in
   `Core.Asymptotics`, shared by local energy and global control;
