@@ -1,9 +1,9 @@
 # Architecture and naming plan
 
 This document fixes the intended mathematical architecture before the module
-tree is reorganized.  It is deliberately conservative: public names should be
-mathematical, while historical working names may remain temporarily as internal
-compatibility shims until the v4.31 port and CI audit are green.
+tree is reorganized. Public names and module boundaries should state their
+mathematical role; historical working names are removed when their mathematical
+replacement is verified at its first consumers.
 
 ## Public spine
 
@@ -55,6 +55,7 @@ The current Core source chain is:
 
 ```text
 Core.Asymptotics  (shared growth thresholds)
+Core.LevelSetLaplace  (abstract level-set-to-partition conversion)
 Core.SmallBallEnergy  (small-ball counts imply quadratic-energy bounds)
 Core.ShortIntervalCongruence  (short intervals contain at most one residue representative)
 Core.UnitCircleResidue  (unit-circle norms via `ZMod.valMinAbs`)
@@ -83,6 +84,9 @@ LocalEnergy.CRTModel
            -> LocalEnergy.DominantLabel.Forcing
               -> LocalEnergy.DominantLabel.ColdBounds
         -> LocalEnergy.LevelSet
+
+Core.LevelSetLaplace
+  -> LocalEnergy.LevelSet
 ```
 
 - `CRTModel`: finite residue assignments, Mathlib-centered CRT representatives,
@@ -104,9 +108,10 @@ LocalEnergy.CRTModel
 
 The public names describe the mathematics (`HasDominantLabel`,
 `nondominant_energy_lower_bound`, `block_level_set_bound`, and
-`partition_function_bound_of_level_sets`) rather than the historical proof-note
-labels.  General growth thresholds live in `Core.Asymptotics`; they are not part
-of the local-energy contract.
+`RequestProject.partition_function_bound_of_level_sets`) rather than historical
+proof-note labels. General growth thresholds live in `Core.Asymptotics`, while
+the abstract Laplace conversion lives in `Core.LevelSetLaplace`; neither is
+owned by the local-energy theory.
 
 Global-control modules import these mathematical contracts rather than
 historical implementation paths. Physical migration and canonical namespace

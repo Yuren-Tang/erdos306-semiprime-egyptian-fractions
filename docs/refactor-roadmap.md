@@ -46,7 +46,7 @@ Goal: port without changing theorem statements or module layout.
 
 Completed port nodes include `BernoulliFourier`, `GlobalPeierlsBookkeeping`,
 `LocalEnergy.ReciprocalDispersion`, `LocalEnergy.FingerprintCounting`,
-`LocalEnergy.DominantLabel`, `SBEEAssembly`, and
+`LocalEnergy.DominantLabel`, `LocalEnergy.LevelSet`, and
 `GlobalControl`.  The theorem chain has been ported, while its dependency
 boundaries are still being audited before it is declared clean.  Its former
 monolith has been decomposed into `BlockSystem`, `Basic`, `MainArc`,

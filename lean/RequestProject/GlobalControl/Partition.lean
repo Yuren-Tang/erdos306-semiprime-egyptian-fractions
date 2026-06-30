@@ -74,7 +74,7 @@ lemma fintype_subtype_tsum_le_of_or {α : Type*} [Fintype α]
 /-! ## Sector I — Laplace absorption above the energy floor -/
 
 /-- Convert the explicit G5 route hypothesis (`Set.ncard` form) to the
-`Finset.univ.filter` form required by `LocalEnergy.partition_function_bound_of_level_sets`. -/
+`Finset.univ.filter` form required by `RequestProject.partition_function_bound_of_level_sets`. -/
 lemma global_levelset_finset_bound
     (Cglob eps : ℝ) (BS : BlockSystem)
     (hlevel : ∀ R : ℝ, 1 ≤ R →

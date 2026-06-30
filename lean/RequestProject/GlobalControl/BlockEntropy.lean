@@ -110,7 +110,7 @@ lemma inv_sigmaP_bound (BS : BlockSystem) (k : ℕ) (hk1 : BS.k0 ≤ k) (hk2 : k
 /-
 Analytic threshold for the hot-block absorption (helper for `hot_factor`).
     For `X` large the energy floor `c2·X/log³X` dominates the logarithmic
-    polynomial factor coming from `unified_levelset`.
+    polynomial factor coming from `block_level_set_bound`.
 -/
 lemma hot_threshold (eps c2 C0 : ℝ) (heps : 0 < eps) (hc2 : 0 < c2) :
     ∃ X0 : ℕ, 2 ≤ X0 ∧ ∀ X : ℕ, X0 ≤ X →
@@ -204,7 +204,7 @@ lemma Rw_large (eps c2 : ℝ) (hc2 : 0 < c2) :
 /-
 **Hole 8 (`hot_factor`).**  Per-hot-block count: once the block energy floor
     `Rw c2 k ≤ n+1` holds (hot block), the unconstrained level-set count is
-    `≤ exp(2ε(n+1))` — the entropy `unified_levelset` bound `C₀ e^{ε(n+1)}(1+√/σ)`
+    `≤ exp(2ε(n+1))` — the entropy `block_level_set_bound` bound `C₀ e^{ε(n+1)}(1+√/σ)`
     has its polynomial factor absorbed by the (large) energy floor.  Valid for
     `k0 ≥` a threshold encoded as `X0 ≤ 2^k`.
 -/
@@ -223,7 +223,7 @@ lemma hot_factor (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1) (c2 : ℝ) (hc2 
   simp [hX0_def] at *;
   refine' ⟨ by positivity, fun BS k hk1 hk2 hk3 n hn => _ ⟩;
   refine' le_trans _ ( Real.exp_le_exp.mpr <| show 2 * eps * ( n + 1 ) ≥ eps * ( n + 1 ) + Real.log ( C0 * 17 * 2 ^ k * Real.log ( 2 ^ k ) * Real.sqrt ( n + 1 ) ) from _ );
-  · -- Apply the `unified_levelset` bound to the block `BS.P k`, the radius `R = n + 1`, and the window and density conditions from `BS`.
+  · -- Apply the `block_level_set_bound` bound to the block `BS.P k`, the radius `R = n + 1`, and the window and density conditions from `BS`.
     have h_unified : (Finset.filter (fun b : BlockAssignment (BS.P k) => QP (BS.P k) b ≤ (n : ℝ) + 1) (Finset.univ : Finset (BlockAssignment (BS.P k)))).card ≤ C0 * Real.exp (eps * (n + 1)) * (1 + Real.sqrt (n + 1) / sigmaP (BS.P k)) := by
       convert h ( 2 ^ k ) _ ( BS.P k ) _ _ ( n + 1 ) _ using 1 <;> norm_num at *;
       · linarith [ Nat.le_ceil X1, show ( X0₈ : ℝ ) ≥ 2 by norm_cast; linarith, show ( 2 : ℝ ) ^ k ≥ 0 by positivity ];

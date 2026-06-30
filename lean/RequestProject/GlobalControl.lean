@@ -52,7 +52,7 @@ Faithful Phase-G translation.  G0 data, G2/G3, and the
 full note-38 §2/§4 support layer (block decomposition G-2 and sigma comparison
 G-4) are proved.  The headline G5 and G7 assemblies are completed in
 `GlobalControl.LevelSetAssembly` and `GlobalControl.Partition`.  No new analytic input is
-required beyond the verified single-block package (`SBEEAssembly`),
+required beyond the verified single-block package (`LocalEnergy.LevelSet`),
 `GlobalPeierls.shell_sum_bound`, and `linearCongruence_pair_count`.
 -/
 import RequestProject.GlobalControl.Partition
