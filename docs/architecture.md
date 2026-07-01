@@ -85,6 +85,13 @@ LocalEnergy.CRTModel
               -> LocalEnergy.DominantLabel.ColdBounds
         -> LocalEnergy.LevelSet
 
+Core.SmallBallEnergy
+Core.ShortIntervalCongruence
+Core.UnitCircleResidue
+LocalEnergy.CRTModel
+  -> LocalEnergy.AdjacentScaleEnergy
+     -> GlobalControl.CrossBlockEnergy
+
 Core.LevelSetLaplace
   -> LocalEnergy.LevelSet
 ```
@@ -136,10 +143,6 @@ GlobalControl.Basic
   -> GlobalControl.MainArc
      -> GlobalControl.Localization
 
-GlobalControl.NearestInteger
-  -> GlobalControl.CrossBlockEnergy
-  -> CircleMethodArcs
-
 GlobalControl.Basic
 LocalEnergy dominant-forcing bounds
   -> GlobalControl.ScaleComparison
@@ -167,15 +170,16 @@ The module contracts are:
   admissible scale range, without any local-energy theorem dependency;
 - `Basic`: control energy, the single-block bridge, restriction, and comparison
   of the elementary global scales;
-- `NearestInteger`: the reusable distance-to-the-nearest-integer primitive used
-  by both cross-block dispersion and the circle method;
+- `LocalEnergy.AdjacentScaleEnergy`: reciprocal-phase dispersion between
+  adjacent dyadic scales and the resulting fixed-outer-prime CRT energy bound,
+  independent of any block system;
 - `ScaleComparison`: the handoff from the global control scale to the
   first-block deviation, isolated because it uses the deeper local-energy
   forcing package;
 - `MainArc`: the globally diagonal small-label set, separated from both the
   basic data and its later localization theorem;
-- `CrossBlockEnergy`: reciprocal-phase dispersion and the energy penalty caused
-  by different labels on consecutive blocks;
+- `CrossBlockEnergy`: specialization of adjacent-scale CRT energy to the
+  mismatch penalty for consecutive blocks, with and without exception sets;
 - `BlockEncoding`: hot/cold data, segment labels, and finite assignment fibers;
 - `BlockEntropy`: cardinality and asymptotic absorption of encoding data;
 - `ColdBlockBounds`: exception sets, cold-label estimates, energy budgets, and

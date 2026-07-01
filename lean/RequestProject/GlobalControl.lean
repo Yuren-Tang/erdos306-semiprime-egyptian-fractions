@@ -15,16 +15,11 @@ suffices because the Peierls penalties exceed the entropies.
   (a finite dependent product over the block support), and `Qctrl`/`sigmaCtrl`/
   `mainArc`/`global_levelset`/`global_control_partition` are stated over it, so
   the level-set counts are honest cardinalities of a finite type.
-* **G2** — cross-block dispersion (`crossblock_dispersion`).  Self-contained
-  number theory; **proved** (deterministic, `linearCongruence_pair_count` pattern; fiber ≤ 1), via
-  `RequestProject.inv_natCast_le_unitCircle_norm_int_div_nat` and
-  `crossblock_residue_count`.
-* **G3** — mismatch penalty `Πₖ` (`mismatch_penalty`).  **Proved (corrected
-  statement)** — the original statement is FALSE (label-size hypotheses were
-  omitted; see the finding in the G3 section).  Assembled from
-  `crossblock_phase_bridge` and `mismatch_per_q`.  The **exceptional corollary**
-  `mismatch_penalty_with_exceptions` (note 36 §0, for cold blocks with a bounded
-  exception set) is also **proved**.
+* Adjacent-scale reciprocal dispersion and fixed-outer-prime CRT energy live in
+  `LocalEnergy.AdjacentScaleEnergy`, independently of block systems.
+* The consecutive-block mismatch penalties `mismatch_penalty` and
+  `mismatch_penalty_with_exceptions` specialize that local theorem. Their label
+  size hypotheses are essential; omitting them makes the statement false.
 * **G-2** — block decomposition (note 38 §2).  **Proved:** `blocks_disjoint`
   (D1), `restrict_injective` (D2), `restrict_filter_card_le` (D4),
   `QP_restrict_eq_internal` and `energy_splits` (D3).
