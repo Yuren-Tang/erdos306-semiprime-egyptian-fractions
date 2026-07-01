@@ -65,6 +65,7 @@ Now CLOSED (this round), completing the G5 chain:
     (`propext`, `Classical.choice`, `Quot.sound`).
 -/
 import RequestProject.Core.Asymptotics
+import RequestProject.Core.IntervalSegmentation
 import RequestProject.GlobalControl.LevelSetData
 import RequestProject.GlobalControl.ScaleComparison
 import RequestProject.GlobalPeierlsBookkeeping
@@ -82,7 +83,7 @@ namespace GlobalControl
     per-segment-start window sizes. -/
 lemma admLabels_card (BS : BlockSystem) (c2 R : ℝ) (H B : Finset ℕ) :
     (admLabels BS c2 R H B).card
-      = ∏ s ∈ segStarts BS H B, (labelFin BS c2 R s).card := by
+      = ∏ s ∈ RequestProject.segmentStarts BS.k0 BS.K H B, (labelFin BS c2 R s).card := by
   rw [admLabels, Finset.card_image_of_injOn, Finset.card_pi]
   -- the zero-extension map is injective on the pi
   intro ℓ hℓ ℓ' hℓ' heq
@@ -198,21 +199,21 @@ lemma labelBound_charge_hot (c2 eps : ℝ) (heps : 0 < eps) (hc2 : 0 < c2) :
   use Max.max k0min ( Max.max N 4 ) ; intros s hs ; specialize h_labelBound_le s ( by linarith [ le_max_left k0min ( Max.max N 4 ), le_max_right k0min ( Max.max N 4 ), le_max_left N 4, le_max_right N 4 ] ) ; specialize hk0min s ( by linarith [ le_max_left k0min ( Max.max N 4 ), le_max_right k0min ( Max.max N 4 ), le_max_left N 4, le_max_right N 4 ] ) ; specialize hN s ( by linarith [ le_max_left k0min ( Max.max N 4 ), le_max_right k0min ( Max.max N 4 ), le_max_left N 4, le_max_right N 4 ] ) ; simp_all +decide [ Rw ] ;
   exact h_labelBound_le.trans ( hk0min.trans ( Real.exp_le_exp.mpr ( by simpa only [ mul_assoc, mul_div_assoc ] using hN ) ) )
 
-/-! ### segStarts / labelFin structural helpers -/
+/-! ### RequestProject.segmentStarts / labelFin structural helpers -/
 
 /-
 Every segment start lies in the block range `[k0, K]`.
 -/
 lemma segStarts_le (BS : BlockSystem) (H B : Finset ℕ) {s : ℕ}
-    (hs : s ∈ segStarts BS H B) : BS.k0 ≤ s ∧ s ≤ BS.K := by
+    (hs : s ∈ RequestProject.segmentStarts BS.k0 BS.K H B) : BS.k0 ≤ s ∧ s ≤ BS.K := by
   exact Finset.mem_Icc.mp ( Finset.mem_sdiff.mp ( Finset.mem_filter.mp hs |>.1 ) |>.1 )
 
 /-
 A non-initial segment start has its predecessor in `H ∪ B`.
 -/
 lemma segStarts_pred_mem (BS : BlockSystem) (H B : Finset ℕ) {s : ℕ}
-    (hs : s ∈ segStarts BS H B) (hne : s ≠ BS.k0) : (s - 1) ∈ H ∨ (s - 1) ∈ B := by
-  unfold segStarts at hs; aesop;
+    (hs : s ∈ RequestProject.segmentStarts BS.k0 BS.K H B) (hne : s ≠ BS.k0) : (s - 1) ∈ H ∨ (s - 1) ∈ B := by
+  unfold RequestProject.segmentStarts at hs; aesop;
 
 /-
 The label window is always nonempty (`labelBound`/`L0` are nonnegative).
@@ -237,35 +238,35 @@ lemma label_product_le (BS : BlockSystem) (c2 e0 eps R : ℝ) (H B : Finset ℕ)
     (heps : 0 ≤ eps)
     (hRwnn : ∀ j ∈ H, 0 ≤ Rw c2 j)
     (hPinn : ∀ j ∈ B, 0 ≤ Pifloor BS e0 j)
-    (hcharge : ∀ s ∈ segStarts BS H B, s ≠ BS.k0 →
+    (hcharge : ∀ s ∈ RequestProject.segmentStarts BS.k0 BS.K H B, s ≠ BS.k0 →
         ((labelFin BS c2 R s).card : ℝ) ≤
           (if s - 1 ∈ H then Real.exp (eps * Rw c2 (s - 1))
            else Real.exp (eps * Pifloor BS e0 (s - 1)))) :
-    (∏ s ∈ segStarts BS H B, ((labelFin BS c2 R s).card : ℝ))
+    (∏ s ∈ RequestProject.segmentStarts BS.k0 BS.K H B, ((labelFin BS c2 R s).card : ℝ))
       ≤ ((labelFin BS c2 R BS.k0).card : ℝ)
           * (∏ j ∈ H, Real.exp (eps * Rw c2 j))
           * (∏ j ∈ B, Real.exp (eps * Pifloor BS e0 j)) := by
-  have h_erase : (∏ s ∈ (segStarts BS H B).erase BS.k0, (labelFin BS c2 R s).card : ℝ) ≤ (∏ j ∈ H, Real.exp (eps * Rw c2 j)) * (∏ j ∈ B, Real.exp (eps * Pifloor BS e0 j)) := by
+  have h_erase : (∏ s ∈ (RequestProject.segmentStarts BS.k0 BS.K H B).erase BS.k0, (labelFin BS c2 R s).card : ℝ) ≤ (∏ j ∈ H, Real.exp (eps * Rw c2 j)) * (∏ j ∈ B, Real.exp (eps * Pifloor BS e0 j)) := by
     refine' le_trans ( Finset.prod_le_prod ( fun _ _ => Nat.cast_nonneg _ ) fun s hs => hcharge s _ _ ) _;
     · exact Finset.mem_of_mem_erase hs;
     · exact Finset.ne_of_mem_erase hs;
-    · have h_split : (∏ s ∈ (segStarts BS H B).erase BS.k0, (if s - 1 ∈ H then Real.exp (eps * Rw c2 (s - 1)) else Real.exp (eps * Pifloor BS e0 (s - 1)))) = (∏ j ∈ (H ∪ B) ∩ Finset.image (fun s => s - 1) ((segStarts BS H B).erase BS.k0), if j ∈ H then Real.exp (eps * Rw c2 j) else Real.exp (eps * Pifloor BS e0 j)) := by
+    · have h_split : (∏ s ∈ (RequestProject.segmentStarts BS.k0 BS.K H B).erase BS.k0, (if s - 1 ∈ H then Real.exp (eps * Rw c2 (s - 1)) else Real.exp (eps * Pifloor BS e0 (s - 1)))) = (∏ j ∈ (H ∪ B) ∩ Finset.image (fun s => s - 1) ((RequestProject.segmentStarts BS.k0 BS.K H B).erase BS.k0), if j ∈ H then Real.exp (eps * Rw c2 j) else Real.exp (eps * Pifloor BS e0 j)) := by
         refine' Finset.prod_bij ( fun s hs => s - 1 ) _ _ _ _ <;> simp_all +decide;
         · exact fun a ha₁ ha₂ => ⟨ segStarts_pred_mem BS H B ha₂ ha₁, a, ⟨ ha₁, ha₂ ⟩, rfl ⟩;
         · intro a₁ ha₁ ha₂ a₂ ha₃ ha₄ h; rw [ tsub_left_inj ] at h <;> linarith [ segStarts_le BS H B ha₂, segStarts_le BS H B ha₄, BS.hk0 ] ;
       rw [ h_split, ← Finset.prod_inter_mul_prod_sdiff ];
       refine' mul_le_mul _ _ _ _;
       any_goals exact H;
-      · rw [ ← Finset.prod_inter_mul_prod_sdiff H ( ( H ∪ B ) ∩ image ( fun s => s - 1 ) ( ( segStarts BS H B ).erase BS.k0 ) ∩ H ) ];
+      · rw [ ← Finset.prod_inter_mul_prod_sdiff H ( ( H ∪ B ) ∩ image ( fun s => s - 1 ) ( ( RequestProject.segmentStarts BS.k0 BS.K H B ).erase BS.k0 ) ∩ H ) ];
         simp +decide [ Finset.inter_comm ];
         exact le_trans ( by rw [ Finset.prod_congr rfl fun x hx => if_pos <| Finset.mem_of_mem_inter_left hx ] ) ( le_mul_of_one_le_right ( Finset.prod_nonneg fun _ _ => Real.exp_nonneg _ ) <| le_trans ( by norm_num ) <| Finset.prod_le_prod ( fun _ _ => by positivity ) fun _ _ => Real.one_le_exp <| mul_nonneg heps <| hRwnn _ <| Finset.mem_sdiff.mp ‹_› |>.1 );
-      · rw [ ← Finset.prod_sdiff <| show ( ( H ∪ B ) ∩ image ( fun s => s - 1 ) ( ( segStarts BS H B ).erase BS.k0 ) ) \ H ⊆ B from ?_ ];
+      · rw [ ← Finset.prod_sdiff <| show ( ( H ∪ B ) ∩ image ( fun s => s - 1 ) ( ( RequestProject.segmentStarts BS.k0 BS.K H B ).erase BS.k0 ) ) \ H ⊆ B from ?_ ];
         · rw [ Finset.prod_congr rfl fun x hx => if_neg <| by aesop ];
           exact le_mul_of_one_le_left ( Finset.prod_nonneg fun _ _ => Real.exp_nonneg _ ) ( by exact le_trans ( by norm_num ) ( Finset.prod_le_prod ( fun _ _ => by positivity ) fun _ _ => Real.one_le_exp ( mul_nonneg heps ( hPinn _ ( by aesop ) ) ) ) );
         · grind;
       · exact Finset.prod_nonneg fun x hx => by split_ifs <;> positivity;
       · exact Finset.prod_nonneg fun _ _ => Real.exp_nonneg _;
-  by_cases h : BS.k0 ∈ segStarts BS H B <;> simp_all +decide [ mul_assoc ];
+  by_cases h : BS.k0 ∈ RequestProject.segmentStarts BS.k0 BS.K H B <;> simp_all +decide [ mul_assoc ];
   · rw [ ← Finset.mul_prod_erase _ _ h ] ; exact mul_le_mul_of_nonneg_left h_erase <| Nat.cast_nonneg _;
   · exact le_trans h_erase ( le_mul_of_one_le_left ( mul_nonneg ( Finset.prod_nonneg fun _ _ => Real.exp_nonneg _ ) ( Finset.prod_nonneg fun _ _ => Real.exp_nonneg _ ) ) ( mod_cast Finset.card_pos.mpr ⟨ 0, by
       unfold labelFin; simp +decide [ L0 ] ;
@@ -286,7 +287,7 @@ lemma fiber_card_exp_bound (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
         X0 ≤ (2:ℝ) ^ BS.k0 →
         (∀ k ∈ Finset.Icc BS.k0 BS.K, k ∈ H → Rw c2 k ≤ (v k : ℝ) + 1) →
         (∀ k ∈ Finset.Icc BS.k0 BS.K, k ∉ H →
-          |((ℓ (segStart BS H B k) : ℤ) : ℝ)| ≤ ((BS.P k).card : ℝ) * (2 ^ k) / 16) →
+          |((ℓ (RequestProject.segmentStart BS.k0 H B k) : ℤ) : ℝ)| ≤ ((BS.P k).card : ℝ) * (2 ^ k) / 16) →
         ((fiber BS H B v ℓ).card : ℝ) ≤
           ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)) := by
   obtain ⟨Xh, hXh0, hHot⟩ := hot_factor eps heps heps1 c2 hc2
@@ -1108,7 +1109,7 @@ The per-segment-start label charge (`hcharge` for `label_product_le`):
 -/
 lemma hcharge_le (eps c2 e0 : ℝ) (heps : 0 < eps) (hc2 : 0 < c2) (he0 : 0 < e0) :
     ∃ k0min : ℕ, ∀ (BS : BlockSystem), k0min ≤ BS.k0 → ∀ (R : ℝ) (H B : Finset ℕ),
-      ∀ s ∈ segStarts BS H B, s ≠ BS.k0 →
+      ∀ s ∈ RequestProject.segmentStarts BS.k0 BS.K H B, s ≠ BS.k0 →
         ((labelFin BS c2 R s).card : ℝ) ≤
           (if s - 1 ∈ H then Real.exp (eps * Rw c2 (s - 1))
            else Real.exp (eps * Pifloor BS e0 (s - 1))) := by
@@ -1302,8 +1303,5 @@ theorem global_levelset (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1) :
     exact hadmL BS hk0L hX0k0 a R (by linarith) ha
   · -- hrhs
     exact hrhs BS hk0R hadm hX0k0 R hR
-
-/-- Compatibility alias for the historical assembly name. -/
-alias global_levelset_final := global_levelset
 
 end GlobalControl

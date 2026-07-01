@@ -55,6 +55,7 @@ The current Core source chain is:
 
 ```text
 Core.Asymptotics  (shared growth thresholds)
+Core.IntervalSegmentation  (finite intervals cut by excluded vertices and edges)
 Core.LevelSetLaplace  (abstract level-set-to-partition conversion)
 Core.PrimeDivisorCount  (large prime divisors of a small integer)
 Core.SmallBallEnergy  (small-ball counts imply quadratic-energy bounds)
@@ -139,6 +140,12 @@ GlobalControl.BlockSystem
            -> GlobalControl.ColdBlockBounds
               -> GlobalControl.LevelSetData
               -> GlobalControl.Localization
+
+Core.IntervalSegmentation
+  -> GlobalControl.BlockEncoding
+  -> GlobalControl.LevelSetData
+  -> GlobalControl.LevelSetAssembly
+  -> GlobalControl.Localization
 
 GlobalControl.Basic
   -> GlobalControl.MainArc

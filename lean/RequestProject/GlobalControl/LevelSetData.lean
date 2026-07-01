@@ -5,6 +5,7 @@ This file keeps the segment-encoding data spaces outside the large
 `GlobalControl.lean` file so that the G5 proof can be developed incrementally
 against the cached core.
 -/
+import RequestProject.Core.IntervalSegmentation
 import RequestProject.GlobalControl.ColdBlockBounds
 import RequestProject.LocalEnergy.DominantLabel
 import RequestProject.GlobalPeierlsBookkeeping
@@ -66,8 +67,8 @@ def labelFin (BS : BlockSystem) (c2 R : ℝ) (k : ℕ) : Finset ℤ :=
 /-- Total label functions obtained from segment-start label data, extended by
     zero outside the segment-start set. -/
 def admLabels (BS : BlockSystem) (c2 R : ℝ) (H B : Finset ℕ) : Finset (ℕ → ℤ) :=
-  ((segStarts BS H B).pi (fun k => labelFin BS c2 R k)).image
-    (fun ell k => if h : k ∈ segStarts BS H B then ell k h else 0)
+  ((RequestProject.segmentStarts BS.k0 BS.K H B).pi (fun k => labelFin BS c2 R k)).image
+    (fun ell k => if h : k ∈ RequestProject.segmentStarts BS.k0 BS.K H B then ell k h else 0)
 
 /-! ### Generic covering bound (note 41 §2) -/
 
@@ -84,24 +85,24 @@ lemma card_le_sum_fibers_of_cover {α ι : Type*} [DecidableEq α]
 /-- The segment start of a cold block in `[k₀,K]` is itself a segment start. -/
 lemma segStart_mem (BS : BlockSystem) (H B : Finset ℕ) :
     ∀ (k : ℕ), BS.k0 ≤ k → k ≤ BS.K → k ∉ H →
-      segStart BS H B k ∈ segStarts BS H B := by
+      RequestProject.segmentStart BS.k0 H B k ∈ RequestProject.segmentStarts BS.k0 BS.K H B := by
   intro k
   induction k using Nat.strong_induction_on with
   | _ k ih =>
     intro hk1 hk2 hkH
-    rw [segStart]
+    rw [RequestProject.segmentStart]
     by_cases hle : k ≤ BS.k0
     · -- then k = k0
       have hk0 : k = BS.k0 := le_antisymm hle hk1
       simp only [hle, if_true]
-      rw [segStarts, Finset.mem_filter, Finset.mem_sdiff, Finset.mem_Icc]
+      rw [RequestProject.segmentStarts, Finset.mem_filter, Finset.mem_sdiff, Finset.mem_Icc]
       refine ⟨⟨⟨le_rfl, ?_⟩, ?_⟩, Or.inl rfl⟩
       · exact le_trans hk1 hk2 |>.trans_eq rfl |>.trans (by omega) |>.trans_eq rfl
       · intro hk0H; exact hkH (hk0 ▸ hk0H)
     · push Not at hle
       by_cases hb : (k - 1) ∈ H ∨ (k - 1) ∈ B
       · simp only [Nat.not_le.mpr hle, if_false, hb, if_true]
-        rw [segStarts, Finset.mem_filter, Finset.mem_sdiff, Finset.mem_Icc]
+        rw [RequestProject.segmentStarts, Finset.mem_filter, Finset.mem_sdiff, Finset.mem_Icc]
         exact ⟨⟨⟨hk1, hk2⟩, hkH⟩, Or.inr hb⟩
       · simp only [Nat.not_le.mpr hle, if_false, hb, if_false]
         exact ih (k - 1) (by omega) (by omega) (by omega)
@@ -112,10 +113,10 @@ lemma segStart_mem (BS : BlockSystem) (H B : Finset ℕ) :
 def extShell (BS : BlockSystem) (a : GlobalAssignment BS) : ℕ → ℕ :=
   fun k => if k ∈ Finset.Icc BS.k0 BS.K then shellVec BS a k else 0
 
-/-- Zero-extension of the label data outside `segStarts H B`, matching the
+/-- Zero-extension of the label data outside `RequestProject.segmentStarts H B`, matching the
     image form of `admLabels`. -/
 def extLabel (BS : BlockSystem) (a : GlobalAssignment BS) (H B : Finset ℕ) : ℕ → ℤ :=
-  fun k => if k ∈ segStarts BS H B then coldLabel BS a k else 0
+  fun k => if k ∈ RequestProject.segmentStarts BS.k0 BS.K H B then coldLabel BS a k else 0
 
 /-- The encoder lands `a` in the fiber of its own zero-extended invariants.
     The cold-class lower bound is supplied as a hypothesis (discharged from the
@@ -137,7 +138,7 @@ lemma mem_fiber_encode (BS : BlockSystem) (c2 _R : ℝ) (a : GlobalAssignment BS
     exact le_of_lt (Nat.lt_floor_add_one _)
   · intro hkH
     have hcoldk : k ∉ hotSet BS c2 a := hkH
-    -- the fiber evaluates extLabel at the segment start, which lies in segStarts
+    -- the fiber evaluates extLabel at the segment start, which lies in RequestProject.segmentStarts
     have hsmem := segStart_mem BS (hotSet BS c2 a) (boundarySet BS c2 a) k hk.1 hk.2 hkH
     rw [extLabel, if_pos hsmem]
     have heq := coldLabel_eq_segStart BS c2 a k hk.1 hk.2 hcoldk
@@ -375,7 +376,7 @@ lemma coldLabel_mem_labelFin (BS : BlockSystem) (c2 R : ℝ) (a : GlobalAssignme
 /-- Label admissibility (`hadmL`): the zero-extended cold labels lie in
     `admLabels`, given membership of each segment-start label in its window. -/
 lemma extLabel_mem_admLabels (BS : BlockSystem) (c2 R : ℝ) (a : GlobalAssignment BS)
-    (hmem : ∀ s ∈ segStarts BS (hotSet BS c2 a) (boundarySet BS c2 a),
+    (hmem : ∀ s ∈ RequestProject.segmentStarts BS.k0 BS.K (hotSet BS c2 a) (boundarySet BS c2 a),
         coldLabel BS a s ∈ labelFin BS c2 R s) :
     extLabel BS a (hotSet BS c2 a) (boundarySet BS c2 a)
       ∈ admLabels BS c2 R (hotSet BS c2 a) (boundarySet BS c2 a) := by
@@ -383,7 +384,7 @@ lemma extLabel_mem_admLabels (BS : BlockSystem) (c2 R : ℝ) (a : GlobalAssignme
   refine ⟨fun s _ => coldLabel BS a s, ?_, ?_⟩
   · rw [Finset.mem_pi]; intro s hs; exact hmem s hs
   · funext k
-    by_cases hk : k ∈ segStarts BS (hotSet BS c2 a) (boundarySet BS c2 a) <;>
+    by_cases hk : k ∈ RequestProject.segmentStarts BS.k0 BS.K (hotSet BS c2 a) (boundarySet BS c2 a) <;>
       simp [extLabel, hk]
 
 /-! ### RHS ε-budget assembly (note 40 §5) -/
@@ -398,7 +399,7 @@ lemma fiber_prod_bound (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (
             QP (BS.P k) b ≤ (v k : ℝ) + 1 ∧
             (k ∉ H → (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
               (((BS.P k).attach.filter
-                (fun p => b p = ((ℓ (segStart BS H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card : ℝ)
+                (fun p => b p = ((ℓ (RequestProject.segmentStart BS.k0 H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card : ℝ)
           ≤ Real.exp (2 * eps * ((v k : ℝ) + 1))) :
     ((fiber BS H B v ℓ).card : ℝ) ≤
       ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)) := by
@@ -409,14 +410,14 @@ lemma fiber_prod_bound (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (
             QP (BS.P k) b ≤ (v k : ℝ) + 1 ∧
             (k ∉ H → (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
               (((BS.P k).attach.filter
-                (fun p => b p = ((ℓ (segStart BS H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card : ℕ) : ℝ) := by
+                (fun p => b p = ((ℓ (RequestProject.segmentStart BS.k0 H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card : ℕ) : ℝ) := by
         exact_mod_cast h1
     _ = ∏ k ∈ Finset.Icc BS.k0 BS.K,
           ((Finset.univ.filter (fun b : BlockAssignment (BS.P k) =>
             QP (BS.P k) b ≤ (v k : ℝ) + 1 ∧
             (k ∉ H → (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
               (((BS.P k).attach.filter
-                (fun p => b p = ((ℓ (segStart BS H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card : ℝ) := by
+                (fun p => b p = ((ℓ (RequestProject.segmentStart BS.k0 H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card : ℝ) := by
         push_cast; rfl
     _ ≤ ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)) :=
         Finset.prod_le_prod (fun k _ => by positivity) hcnt

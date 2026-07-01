@@ -6,6 +6,7 @@ those data.  This is the structural encoding layer of the global level-set
 argument, before entropy and asymptotic estimates are applied.
 -/
 import RequestProject.GlobalControl.CrossBlockEnergy
+import RequestProject.Core.IntervalSegmentation
 import RequestProject.LocalEnergy.DominantLabel
 
 open Finset BigOperators Classical
@@ -14,29 +15,7 @@ noncomputable section
 
 namespace GlobalControl
 
-/-! ## G5. Global level-set theorem (note 34 G5) -/
-
-/-
-**G5 (global level-set).**  For every `ε ∈ (0,1)` there is a starting scale
-    `k₀(ε)` and a constant `C_glob` such that for every block system with
-    `k₀ ≥ k₀(ε)` and all `R ≥ 1`, the number of global assignments with control
-    energy `≤ R` is `≤ C_glob · e^{8εR}·(1 + √R/sigmaCtrl)`.
-
-    **Faithfulness note (notes 36--37).**  The constant cannot be chosen after
-    `BS` (that is vacuous), but the paper does allow a uniform base constant per
-    block.  Hence the faithful form below has a uniform `A` and the harmless
-    factor `exp(A * numBlocks BS)`, under `admissibleGlobalRange BS`.
-
-    The count is encoded by the segment decoder of note 34 G5 (hot set, hot
-    data, mismatch boundary, segment labels, cold exceptions), with the
-    single-block inputs L1–L5 (`LocalEnergy.block_level_set_bound`, the
-    dominant-label estimates, …) and the exceptional mismatch
-    bound `consecutive_block_mismatch_energy_lower_bound`.
-
-    **Status**: the segment-encoding route is completed downstream in
-    `GlobalControl.LevelSetAssembly`.
--/
-/-! ### G5 skeleton (note 39) — setup definitions -/
+/-! ## Encoding data -/
 
 /-- Per-block internal energy of a global assignment. -/
 def blockEnergy (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) : ℝ :=
@@ -74,19 +53,6 @@ def boundarySet (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS) : Finset
 def shellVec (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) : ℕ :=
   ⌊blockEnergy BS a k⌋₊
 
-/-- Segment starts determined by the DATA `(H,B)` alone (no `a`):
-    cold blocks that open a maximal cold run. -/
-def segStarts (BS : BlockSystem) (H B : Finset ℕ) : Finset ℕ :=
-  ((Finset.Icc BS.k0 BS.K) \ H).filter
-    (fun k => k = BS.k0 ∨ (k - 1) ∈ H ∨ (k - 1) ∈ B)
-
-/-- The start of the segment containing a cold `k` (recursion downward). -/
-def segStart (BS : BlockSystem) (H B : Finset ℕ) : ℕ → ℕ
-  | k => if k ≤ BS.k0 then BS.k0
-         else if (k - 1) ∈ H ∨ (k - 1) ∈ B then k
-         else segStart BS H B (k - 1)
-  decreasing_by all_goals omega
-
 /-- The exception-reduced boundary penalty floor `Π(k)`. -/
 def Pifloor (BS : BlockSystem) (e0 : ℝ) (k : ℕ) : ℝ :=
   (((BS.P (k+1)).card : ℝ) - e0 - 1) * (((BS.P k).card : ℝ) - e0) ^ 3 /
@@ -96,10 +62,10 @@ def Pifloor (BS : BlockSystem) (e0 : ℝ) (k : ℕ) : ℝ :=
 def labelRange (c2 : ℝ) (k : ℕ) : ℤ := ⌈(168:ℝ) * Real.sqrt c2 *
     ((2:ℝ) ^ k) ^ (3/2 : ℝ) / Real.sqrt (Real.log (2 ^ k))⌉
 
-/-! ### G5 skeleton (note 39) — holes -/
+/-! ## Dominant labels -/
 
 /-
-**Hole 1a (`coldLabel_spec`).**  When a dominant label exists for block `k`,
+When a dominant label exists for block `k`,
     `coldLabel` is one such label: it satisfies the size+class property.
 -/
 lemma coldLabel_spec (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
@@ -115,7 +81,7 @@ lemma coldLabel_spec (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
   convert h.choose_spec; all_goals exact dif_pos h
 
 /-
-**Hole 1b (`coldLabel_eq`).**  Uniqueness: the dominant label is unique, so
+Uniqueness: the dominant label is unique, so
     any `m` with the size+class property at a cold block equals `coldLabel`.
 -/
 lemma coldLabel_eq (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
@@ -143,37 +109,7 @@ lemma coldLabel_eq (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
   · exact hclass
 
 /-
-**Hole 4a (`segStart_le`).**  For `k ≥ k0` the segment start of `k` is `≤ k`.
-    (For `k < k0` the recursion returns `k0 > k`, so the hypothesis is needed.)
--/
-lemma segStart_le (BS : BlockSystem) (H B : Finset ℕ) (k : ℕ) (hk : BS.k0 ≤ k) :
-    segStart BS H B k ≤ k := by
-  induction' k using Nat.strong_induction_on with k ih;
-  unfold segStart;
-  grind +splitImp
-
-/-
-**Hole 4b (`segStart_ge`).**  The segment start of `k` is `≥ k0`.
--/
-lemma segStart_ge (BS : BlockSystem) (H B : Finset ℕ) (k : ℕ) :
-    BS.k0 ≤ segStart BS H B k := by
-  induction' k using Nat.strong_induction_on with k ih;
-  unfold segStart;
-  grind
-
-/-
-**Hole 4c (`segStart_run`).**  Every block strictly inside the run from the
-    segment start of `k` up to `k` is cold-by-data and carries no internal
-    boundary edge.
--/
-lemma segStart_run (BS : BlockSystem) (H B : Finset ℕ) (k : ℕ)
-    (j : ℕ) (hj1 : segStart BS H B k ≤ j) (hj2 : j < k) :
-    j ∉ H ∧ j ∉ B := by
-  induction' k with k ih generalizing j <;> simp_all +decide;
-  grind +locals
-
-/-
-**Hole 2 (`cold_isDominant`).**  Contrapositive of
+Contrapositive of
     `nondominant_energy_lower_bound` at `ρ = 1/4`: with `c2`/`X0` the constants it
     produces, every cold block (`¬ isHot`) is dominant.
 -/
@@ -195,7 +131,7 @@ lemma cold_isDominant :
     unfold isHot at hk4; norm_num [ Rw ] at hk4; linarith;
 
 /-
-**Hole 5 (`coldLabel_eq_segStart`).**  Along a cold segment the dominant
+Along a cold segment the dominant
     label is constant: a cold block's label equals the label of its segment
     start.
 -/
@@ -204,24 +140,24 @@ lemma coldLabel_eq_segStart (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment 
     (hcold : k ∉ hotSet BS c2 a) :
     coldLabel BS a k
       = coldLabel BS a
-          (segStart BS (hotSet BS c2 a) (boundarySet BS c2 a) k) := by
-  have h_run : ∀ t, segStart BS (hotSet BS c2 a) (boundarySet BS c2 a) k ≤ t ∧ t < k → coldLabel BS a t = coldLabel BS a (t + 1) := by
+          (RequestProject.segmentStart BS.k0 (hotSet BS c2 a) (boundarySet BS c2 a) k) := by
+  have h_run : ∀ t, RequestProject.segmentStart BS.k0 (hotSet BS c2 a) (boundarySet BS c2 a) k ≤ t ∧ t < k → coldLabel BS a t = coldLabel BS a (t + 1) := by
     intros t ht; by_contra h_neq; simp_all +decide [ hotSet, boundarySet ] ;
     have h_not_hot : ¬isHot BS c2 a t ∧ ¬isHot BS c2 a (t + 1) := by
       have h_not_hot : t ∉ hotSet BS c2 a ∧ t + 1 ∉ hotSet BS c2 a := by
-        have h_not_hot : ∀ j, segStart BS (hotSet BS c2 a) (boundarySet BS c2 a) k ≤ j ∧ j < k → j ∉ hotSet BS c2 a ∧ j ∉ boundarySet BS c2 a := by
+        have h_not_hot : ∀ j, RequestProject.segmentStart BS.k0 (hotSet BS c2 a) (boundarySet BS c2 a) k ≤ j ∧ j < k → j ∉ hotSet BS c2 a ∧ j ∉ boundarySet BS c2 a := by
           intros j hj; exact (by
-          exact segStart_run BS ( hotSet BS c2 a ) ( boundarySet BS c2 a ) k j hj.1 hj.2);
+          exact RequestProject.segmentStart_interior BS.k0 ( hotSet BS c2 a ) ( boundarySet BS c2 a ) k j hj.1 hj.2);
         by_cases h : t + 1 < k <;> simp_all +decide [ hotSet, boundarySet ]; all_goals grind;
-      exact ⟨ fun h => h_not_hot.1 <| Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ by linarith [ segStart_ge BS ( filter ( isHot BS c2 a ) ( Icc BS.k0 BS.K ) ) ( { k ∈ Ico BS.k0 BS.K | ¬isHot BS c2 a k ∧ ¬isHot BS c2 a ( k + 1 ) ∧ ¬coldLabel BS a k = coldLabel BS a ( k + 1 ) } ) k ], by linarith ⟩, h ⟩, fun h => h_not_hot.2 <| Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ by linarith [ segStart_ge BS ( filter ( isHot BS c2 a ) ( Icc BS.k0 BS.K ) ) ( { k ∈ Ico BS.k0 BS.K | ¬isHot BS c2 a k ∧ ¬isHot BS c2 a ( k + 1 ) ∧ ¬coldLabel BS a k = coldLabel BS a ( k + 1 ) } ) k ], by linarith ⟩, h ⟩ ⟩;
+      exact ⟨ fun h => h_not_hot.1 <| Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ by linarith [ RequestProject.segmentStart_ge BS.k0 ( filter ( isHot BS c2 a ) ( Icc BS.k0 BS.K ) ) ( { k ∈ Ico BS.k0 BS.K | ¬isHot BS c2 a k ∧ ¬isHot BS c2 a ( k + 1 ) ∧ ¬coldLabel BS a k = coldLabel BS a ( k + 1 ) } ) k ], by linarith ⟩, h ⟩, fun h => h_not_hot.2 <| Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ by linarith [ RequestProject.segmentStart_ge BS.k0 ( filter ( isHot BS c2 a ) ( Icc BS.k0 BS.K ) ) ( { k ∈ Ico BS.k0 BS.K | ¬isHot BS c2 a k ∧ ¬isHot BS c2 a ( k + 1 ) ∧ ¬coldLabel BS a k = coldLabel BS a ( k + 1 ) } ) k ], by linarith ⟩, h ⟩ ⟩;
     have h_boundary : t ∈ Finset.filter (fun k => ¬isHot BS c2 a k ∧ ¬isHot BS c2 a (k + 1) ∧ coldLabel BS a k ≠ coldLabel BS a (k + 1)) (Finset.Ico BS.k0 BS.K) := by
       simp_all +decide [ Finset.mem_filter, Finset.mem_Ico ];
-      exact ⟨ by linarith [ segStart_ge BS ( filter ( isHot BS c2 a ) ( Icc BS.k0 BS.K ) ) ( { k ∈ Ico BS.k0 BS.K | ¬isHot BS c2 a k ∧ ¬isHot BS c2 a ( k + 1 ) ∧ ¬coldLabel BS a k = coldLabel BS a ( k + 1 ) } ) k ], by linarith ⟩;
-    have := segStart_run BS ( hotSet BS c2 a ) ( boundarySet BS c2 a ) k t ht.1 ht.2; simp_all +decide [ hotSet, boundarySet ] ;
-  have h_segment : ∀ i j, segStart BS (hotSet BS c2 a) (boundarySet BS c2 a) k ≤ i → i ≤ j → j ≤ k → coldLabel BS a i = coldLabel BS a j := by
+      exact ⟨ by linarith [ RequestProject.segmentStart_ge BS.k0 ( filter ( isHot BS c2 a ) ( Icc BS.k0 BS.K ) ) ( { k ∈ Ico BS.k0 BS.K | ¬isHot BS c2 a k ∧ ¬isHot BS c2 a ( k + 1 ) ∧ ¬coldLabel BS a k = coldLabel BS a ( k + 1 ) } ) k ], by linarith ⟩;
+    have := RequestProject.segmentStart_interior BS.k0 ( hotSet BS c2 a ) ( boundarySet BS c2 a ) k t ht.1 ht.2; simp_all +decide [ hotSet, boundarySet ] ;
+  have h_segment : ∀ i j, RequestProject.segmentStart BS.k0 (hotSet BS c2 a) (boundarySet BS c2 a) k ≤ i → i ≤ j → j ≤ k → coldLabel BS a i = coldLabel BS a j := by
     intros i j hi hj hk; induction' hj with j hj ih <;> simp_all +decide [ Nat.succ_eq_add_one ] ;
     rw [ ih ( by linarith ), h_run j ( by linarith ) hk ];
-  exact Eq.symm ( h_segment _ _ le_rfl ( segStart_le _ _ _ _ hk1 ) le_rfl )
+  exact Eq.symm ( h_segment _ _ le_rfl ( RequestProject.segmentStart_le _ _ _ _ hk1 ) le_rfl )
 
 /-- The number of primes of block `k` on which `restrict BS a k` takes the
     residue `m` (the size of the `m`-class). -/
@@ -229,18 +165,18 @@ def classCount (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) (m : ℤ) 
   ((BS.P k).attach.filter
     (fun p => restrict BS a k p = ((m : ℤ) : ZMod (p : ℕ)))).card
 
-/-- **Hole 6 (fiber).**  The data-fiber of `(H,B,v,ℓ)`: assignments whose every
+/-- The data-fiber of `(H,B,v,ℓ)`: assignments whose every
     block energy sits in the shell `v k` and whose cold blocks carry the
-    segment-start label `ℓ (segStart …)` on a `(1-ρ)` fraction of primes. -/
+    segment-start label `ℓ (RequestProject.segmentStart …)` on a `(1-ρ)` fraction of primes. -/
 def fiber (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (ℓ : ℕ → ℤ) :
     Finset (GlobalAssignment BS) :=
   Finset.univ.filter (fun a => ∀ k ∈ Finset.Icc BS.k0 BS.K,
     blockEnergy BS a k ≤ (v k : ℝ) + 1 ∧
     (k ∉ H → (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
-      (classCount BS a k (ℓ (segStart BS H B k)) : ℝ)))
+      (classCount BS a k (ℓ (RequestProject.segmentStart BS.k0 H B k)) : ℝ)))
 
 /-
-**Hole 7 (`fiber_card_le`).**  The fiber injects into the product of the
+The fiber injects into the product of the
     per-block counts (Lemma D4, `restrict_filter_card_le`).
 -/
 lemma fiber_card_le (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (ℓ : ℕ → ℤ) :
@@ -250,9 +186,9 @@ lemma fiber_card_le (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (ℓ
           QP (BS.P k) b ≤ (v k : ℝ) + 1 ∧
           (k ∉ H → (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
             (((BS.P k).attach.filter
-              (fun p => b p = ((ℓ (segStart BS H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card := by
+              (fun p => b p = ((ℓ (RequestProject.segmentStart BS.k0 H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card := by
   unfold fiber; norm_num;
-  convert restrict_filter_card_le BS ( fun k b => QP ( BS.P k ) b ≤ v k + 1 ∧ ( k ∉ H → ( 3 / 4 : ℝ ) * ( BS.P k |> Finset.card ) ≤ ( Finset.card ( Finset.filter ( fun p : { x // x ∈ BS.P k } => b p = ℓ ( segStart BS H B k ) ) ( Finset.attach ( BS.P k ) ) ) : ℝ ) ) ) using 2;
+  convert restrict_filter_card_le BS ( fun k b => QP ( BS.P k ) b ≤ v k + 1 ∧ ( k ∉ H → ( 3 / 4 : ℝ ) * ( BS.P k |> Finset.card ) ≤ ( Finset.card ( Finset.filter ( fun p : { x // x ∈ BS.P k } => b p = ℓ ( RequestProject.segmentStart BS.k0 H B k ) ) ( Finset.attach ( BS.P k ) ) ) : ℝ ) ) ) using 2;
   · simp +decide [ blockEnergy, classCount ];
   · convert rfl
 

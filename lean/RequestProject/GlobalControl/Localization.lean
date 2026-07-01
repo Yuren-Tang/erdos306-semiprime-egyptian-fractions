@@ -1,4 +1,5 @@
 import RequestProject.Core.Asymptotics
+import RequestProject.Core.IntervalSegmentation
 import RequestProject.GlobalControl.ColdBlockBounds
 import RequestProject.GlobalControl.MainArc
 import RequestProject.LocalEnergy.DominantLabel
@@ -405,15 +406,6 @@ lemma cold_no_exceptions :
     obtain ⟨hexc, hlabel, _⟩ := hcf BS a k hk0 hkK (le_trans (le_max_left _ _) hX) hcoldb
     exact hcore BS a k hk0 hkK (le_trans (le_max_right _ _) hX) hcold hexc hlabel
 
-/-
-With empty hot/boundary sets, `segStart` collapses to `k0`.
--/
-lemma segStart_empty (BS : BlockSystem) (k : ℕ) :
-    segStart BS (∅ : Finset ℕ) (∅ : Finset ℕ) k = BS.k0 := by
-  induction' k using Nat.strong_induction_on with k ih;
-  unfold segStart;
-  grind
-
 /-! ## Main theorem -/
 
 /-
@@ -455,8 +447,8 @@ theorem localization_dichotomy :
           exact Exists.elim ( Finset.mem_biUnion.mp p.2 ) fun k hk => ⟨ k, by aesop ⟩;
         have hcold : coldLabel BS a k = coldLabel BS a BS.k0 := by
           convert coldLabel_eq_segStart BS c2 a k hk0k hkK _ using 1;
-          · rw [ show segStart BS ( hotSet BS c2 a ) ( boundarySet BS c2 a ) k = BS.k0 from ?_ ];
-            rw [ show hotSet BS c2 a = ∅ from Finset.not_nonempty_iff_eq_empty.mp hH, show boundarySet BS c2 a = ∅ from Finset.not_nonempty_iff_eq_empty.mp hB ] ; exact segStart_empty BS k;
+          · rw [ show RequestProject.segmentStart BS.k0 ( hotSet BS c2 a ) ( boundarySet BS c2 a ) k = BS.k0 from ?_ ];
+            rw [ show hotSet BS c2 a = ∅ from Finset.not_nonempty_iff_eq_empty.mp hH, show boundarySet BS c2 a = ∅ from Finset.not_nonempty_iff_eq_empty.mp hB ] ; exact RequestProject.segmentStart_empty BS.k0 k;
           · exact fun h => hH ⟨ k, h ⟩;
         have := hcf BS a k hk0k hkK ( by linarith [ pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) ( show k ≥ N by linarith [ Nat.le_max_right ( max 4 kRwPi ) N ] ) ] ) ( by
                                                                                                           exact fun h => hH ⟨ k, Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ hk0k, hkK ⟩, h ⟩ ⟩ );
@@ -481,8 +473,8 @@ theorem localization_dichotomy :
           exact hpk);
         have hck : coldLabel BS a k = coldLabel BS a BS.k0 := by
           convert coldLabel_eq_segStart BS c2 a k hk0k hkK _ using 1;
-          · rw [ show segStart BS ( hotSet BS c2 a ) ( boundarySet BS c2 a ) k = BS.k0 from ?_ ];
-            rw [ show hotSet BS c2 a = ∅ from Finset.not_nonempty_iff_eq_empty.mp hH, show boundarySet BS c2 a = ∅ from Finset.not_nonempty_iff_eq_empty.mp hB ] ; exact segStart_empty BS k;
+          · rw [ show RequestProject.segmentStart BS.k0 ( hotSet BS c2 a ) ( boundarySet BS c2 a ) k = BS.k0 from ?_ ];
+            rw [ show hotSet BS c2 a = ∅ from Finset.not_nonempty_iff_eq_empty.mp hH, show boundarySet BS c2 a = ∅ from Finset.not_nonempty_iff_eq_empty.mp hB ] ; exact RequestProject.segmentStart_empty BS.k0 k;
           · exact fun h => hH ⟨ k, h ⟩;
         unfold toPlain at *; aesop;
       · apply diagonal_Qctrl;
@@ -493,8 +485,8 @@ theorem localization_dichotomy :
             exact fun h => hH ⟨ k, Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ hk0k, hkK ⟩, h ⟩ ⟩;
           have hck : coldLabel BS a k = coldLabel BS a BS.k0 := by
             convert coldLabel_eq_segStart BS c2 a k hk0k hkK _ using 1;
-            · rw [ show segStart BS ( hotSet BS c2 a ) ( boundarySet BS c2 a ) k = BS.k0 from ?_ ];
-              rw [ show hotSet BS c2 a = ∅ from Finset.not_nonempty_iff_eq_empty.mp hH, show boundarySet BS c2 a = ∅ from Finset.not_nonempty_iff_eq_empty.mp hB ] ; exact segStart_empty BS k;
+            · rw [ show RequestProject.segmentStart BS.k0 ( hotSet BS c2 a ) ( boundarySet BS c2 a ) k = BS.k0 from ?_ ];
+              rw [ show hotSet BS c2 a = ∅ from Finset.not_nonempty_iff_eq_empty.mp hH, show boundarySet BS c2 a = ∅ from Finset.not_nonempty_iff_eq_empty.mp hB ] ; exact RequestProject.segmentStart_empty BS.k0 k;
             · exact fun h => hH ⟨ k, h ⟩;
           have := hcf BS a k hk0k hkK ( by
             exact le_trans hN.le ( pow_le_pow_right₀ ( by norm_num ) ( by linarith [ Nat.le_max_right ( max 4 kRwPi ) N ] ) ) ) ‹_›;
@@ -517,8 +509,5 @@ theorem localization_dichotomy :
           have h_prod_bound : (2 : ℝ) ^ (2 * BS.k0) < (pq.1 : ℝ) * (pq.2 : ℝ) := by
             exact_mod_cast ctrlPairs_prod_lower BS ( by linarith [ le_max_left ( max 4 kRwPi ) N, le_max_right ( max 4 kRwPi ) N, le_max_left 4 kRwPi, le_max_right 4 kRwPi ] ) hpq;
           rw [ ← @Int.cast_lt ℝ ] ; push_cast ; linarith [ abs_nonneg ( coldLabel BS a BS.k0 : ℝ ) ]
-
-/-- Compatibility alias for the historical route name. -/
-alias g6_localization := localization_dichotomy
 
 end GlobalControl
