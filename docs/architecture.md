@@ -56,6 +56,7 @@ The current Core source chain is:
 ```text
 Core.Asymptotics  (shared growth thresholds)
 Core.LevelSetLaplace  (abstract level-set-to-partition conversion)
+Core.PrimeDivisorCount  (large prime divisors of a small integer)
 Core.SmallBallEnergy  (small-ball counts imply quadratic-energy bounds)
 Core.ShortIntervalCongruence  (short intervals contain at most one residue representative)
 Core.UnitCircleResidue  (unit-circle norms via `ZMod.valMinAbs`)

@@ -17,9 +17,9 @@ suffices because the Peierls penalties exceed the entropies.
   the level-set counts are honest cardinalities of a finite type.
 * Adjacent-scale reciprocal dispersion and fixed-outer-prime CRT energy live in
   `LocalEnergy.AdjacentScaleEnergy`, independently of block systems.
-* The consecutive-block mismatch penalties `mismatch_penalty` and
-  `mismatch_penalty_with_exceptions` specialize that local theorem. Their label
-  size hypotheses are essential; omitting them makes the statement false.
+* `consecutive_block_mismatch_energy_lower_bound` specializes that local
+  theorem to consecutive blocks with bounded exception sets. Its label-size
+  hypotheses are essential; omitting them makes the statement false.
 * **G-2** — block decomposition (note 38 §2).  **Proved:** `blocks_disjoint`
   (D1), `restrict_injective` (D2), `restrict_filter_card_le` (D4),
   `QP_restrict_eq_internal` and `energy_splits` (D3).

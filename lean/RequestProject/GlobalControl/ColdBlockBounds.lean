@@ -378,8 +378,9 @@ lemma boundary_penalty_per_k :
     have hck3 : (ck1 : ℝ) - 1 ≥ Nk1 - e0 - 1 := by
       linarith
     have hck4 : ((ck1 : ℝ) - 1) * (ck : ℝ) ^ 3 / (2 ^ 13 * (2 ^ k : ℝ) ^ 2) ≤ Xen BS a k := by
-      apply mismatch_penalty_with_exceptions BS (toPlain BS a) k (coldLabel BS a k) (coldLabel BS a (k + 1)) (by
-      unfold boundarySet at hk6; aesop;) (excSet BS a k) (excSet BS a (k + 1)) (excSet_subset BS a k) (excSet_subset BS a (k + 1)) (by
+      apply consecutive_block_mismatch_energy_lower_bound BS (toPlain BS a) k
+        (coldLabel BS a k) (coldLabel BS a (k + 1)) (by
+      unfold boundarySet at hk6; aesop;) (excSet BS a k) (excSet BS a (k + 1)) (excSet_subset BS a k) (by
       exact hCBF BS a k hk1 ( by linarith ) hk3 ( by unfold boundarySet at hk6; aesop ) |>.2.2) (by
       have := hCBF BS a ( k + 1 ) ( by linarith ) ( by linarith ) ( by linarith [ pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) ( by linarith : k + 1 ≥ k ) ] ) ( by
         unfold boundarySet at hk6; aesop; ) ; aesop;) hNk hm hm'

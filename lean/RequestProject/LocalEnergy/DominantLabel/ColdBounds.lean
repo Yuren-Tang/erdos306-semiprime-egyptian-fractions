@@ -192,7 +192,7 @@ For a *cold* block
     (`R ≤ c₂·X/log³X`) with a dominant label `m`, the label is small:
     `|m| ≤ N·X/16`, uniformly in `X ≥ X0(c₂)`.  This feeds both `fixed_label_level_set_bound`
     / `cold_exception_count_bound` (which require `|m| ≤ N·X/16`) and the `hm`-type
-    hypotheses of `mismatch_penalty_with_exceptions`.
+    hypotheses of `GlobalControl.consecutive_block_mismatch_energy_lower_bound`.
 
     Proof: `dominant_label_bound` gives `|m| ≤ (5/(1-ρ))·√R/σ_P`; the cold range
     `R ≤ c₂·X/log³X` together with the density `N ≥ X/(2 log X)` implies the

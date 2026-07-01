@@ -31,7 +31,7 @@ namespace GlobalControl
     data, mismatch boundary, segment labels, cold exceptions), with the
     single-block inputs L1–L5 (`LocalEnergy.block_level_set_bound`, the
     dominant-label estimates, …) and the exceptional mismatch
-    penalty `mismatch_penalty_with_exceptions`.
+    bound `consecutive_block_mismatch_energy_lower_bound`.
 
     **Status**: the segment-encoding route is completed downstream in
     `GlobalControl.LevelSetAssembly`.
