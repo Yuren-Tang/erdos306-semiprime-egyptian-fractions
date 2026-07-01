@@ -35,12 +35,9 @@ instance instDecidableIsHot (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment 
 def hotSet (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS) : Finset ℕ :=
   (Finset.Icc BS.k0 BS.K).filter (isHot BS c2 a)
 
-/-- The dominant label of a block (0 if none).  Uniqueness is hole 1. -/
+/-- The dominant label of a block, and `0` when no dominant label exists. -/
 def coldLabel (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) : ℤ :=
-  if h : ∃ m : ℤ, |m| ≤ ((2:ℤ) ^ k) ^ 2 / 2 ∧
-      (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
-        (((BS.P k).attach.filter
-          (fun p => restrict BS a k p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ)
+  if h : LocalEnergy.HasDominantLabel (2 ^ k) (BS.P k) (restrict BS a k) (1 / 4)
   then h.choose else 0
 
 /-- Mismatch boundary: two consecutive cold blocks with distinct labels. -/
@@ -69,33 +66,29 @@ When a dominant label exists for block `k`,
     `coldLabel` is one such label: it satisfies the size+class property.
 -/
 lemma coldLabel_spec (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
-    (h : ∃ m : ℤ, |m| ≤ ((2:ℤ) ^ k) ^ 2 / 2 ∧
-      (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
-        (((BS.P k).attach.filter
-          (fun p => restrict BS a k p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ)) :
+    (h : LocalEnergy.HasDominantLabel (2 ^ k) (BS.P k) (restrict BS a k) (1 / 4)) :
     |coldLabel BS a k| ≤ ((2:ℤ) ^ k) ^ 2 / 2 ∧
       (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
         (((BS.P k).attach.filter
           (fun p => restrict BS a k p
             = ((coldLabel BS a k : ℤ) : ZMod (p : ℕ)))).card : ℝ) := by
-  convert h.choose_spec; all_goals exact dif_pos h
+  simpa [coldLabel, h] using h.choose_spec
 
 /-
 Uniqueness: the dominant label is unique, so
     any `m` with the size+class property at a cold block equals `coldLabel`.
 -/
-lemma coldLabel_eq (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
-    (_hk1 : BS.k0 ≤ k) (_hk2 : k ≤ BS.K) (hX : 4 ≤ (2:ℕ) ^ k)
+lemma coldLabel_eq_of_dominant (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
+    (hX : 4 ≤ (2:ℕ) ^ k)
     (hN : 4 ≤ (BS.P k).card)
     (m : ℤ) (hm : |m| ≤ ((2:ℤ) ^ k) ^ 2 / 2)
     (hclass : (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
       (((BS.P k).attach.filter
         (fun p => restrict BS a k p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ)) :
     coldLabel BS a k = m := by
-  have hdom : ∃ n : ℤ, |n| ≤ ((2 : ℤ) ^ k) ^ 2 / 2 ∧
-      (1 - (1 / 4 : ℝ)) * ((BS.P k).card : ℝ) ≤
-        (((BS.P k).attach.filter (fun p => restrict BS a k p =
-          ((n : ℤ) : ZMod (p : ℕ)))).card : ℝ) := ⟨m, hm, hclass⟩
+  have hdom : LocalEnergy.HasDominantLabel
+      (2 ^ k) (BS.P k) (restrict BS a k) (1 / 4) :=
+    ⟨m, hm, hclass⟩
   have hcold := coldLabel_spec BS a k hdom
   apply LocalEnergy.dominant_label_unique (2 ^ k) hX (BS.P k)
     (fun p hp => ⟨BS.hprime k p hp, by
