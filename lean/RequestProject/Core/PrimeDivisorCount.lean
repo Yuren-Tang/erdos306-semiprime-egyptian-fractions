@@ -1,5 +1,5 @@
 import Mathlib.Data.Int.Interval
-import Mathlib.Data.Nat.Prime.Fin
+import Mathlib.Data.Nat.Prime.Basic
 
 /-! Counting large prime divisors of a small nonzero integer. -/
 

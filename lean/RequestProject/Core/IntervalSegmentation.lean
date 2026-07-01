@@ -1,4 +1,4 @@
-import Mathlib.Data.Nat.Interval
+import Mathlib.Order.Interval.Finset.Nat
 
 /-! Finite interval segmentation by excluded vertices and cut edges. -/
 
