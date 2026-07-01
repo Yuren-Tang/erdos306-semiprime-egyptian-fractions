@@ -5,8 +5,8 @@ Energy-budget identities, exception-set control, cold-label bounds, and the
 cross-block penalty forced by a boundary between distinct cold labels.
 -/
 import RequestProject.Core.Asymptotics
-import RequestProject.GlobalControl.BlockEntropy
 import RequestProject.GlobalControl.CrossBlockEnergy
+import RequestProject.GlobalControl.Encoding.HotBlockCount
 import RequestProject.LocalEnergy.DominantLabel
 
 open Finset BigOperators Classical
@@ -138,7 +138,7 @@ lemma cold_exceptions_small :
   obtain ⟨c2, X0d, hc2, hX0d, hDom⟩ := cold_isDominant
   obtain ⟨e0, X0e, he0, hX0e, hExc⟩ := LocalEnergy.cold_exception_count_bound (1/4) (by norm_num) (by norm_num) c2 hc2
   obtain ⟨X0s, hX0s, hSize⟩ := LocalEnergy.cold_label_bound (1/4) (by norm_num) (by norm_num) c2 hc2
-  obtain ⟨X0w, _, hRw⟩ := Rw_large 1 c2 hc2
+  obtain ⟨X0w, _, hRw⟩ := block_energy_threshold_eventually_large 1 c2 hc2
   use c2, e0, max X0d (max X0e (max X0s (max X0w 16)));
   refine' ⟨ hc2, he0, by positivity, fun BS a k hk1 hk2 hk3 hk4 => _ ⟩;
   -- Apply the cold exception bound lemma to get the first part of the conjunction.
@@ -256,7 +256,7 @@ lemma cold_block_facts :
   obtain ⟨c2, X0d, hc2, hX0d, hDom⟩ := cold_isDominant;
   obtain ⟨e0, X0e, he0, hX0e, hExc⟩ := LocalEnergy.cold_exception_count_bound (1/4) (by norm_num) (by norm_num) c2 hc2;
   obtain ⟨X0s6, hX0s6, hSize6⟩ := cold_label_size64 c2 hc2
-  obtain ⟨X0w, _, hRw⟩ := Rw_large 1 c2 hc2;
+  obtain ⟨X0w, _, hRw⟩ := block_energy_threshold_eventually_large 1 c2 hc2;
   refine' ⟨ c2, e0, Max.max X0d ( Max.max X0e ( Max.max X0s6 ( Max.max X0w 16 ) ) ), hc2, he0, _, _ ⟩ <;> norm_num;
   intro BS a k hk1 hk2 hk3 hk4 hk5 hk6 hk7 hk8
   have hcold := coldLabel_spec BS a k (hDom BS a k hk3 hk1 hk2 hk8)

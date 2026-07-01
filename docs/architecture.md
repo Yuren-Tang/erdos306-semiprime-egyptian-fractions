@@ -138,10 +138,12 @@ GlobalControl.BlockSystem
      -> GlobalControl.Encoding.BlockData
         -> GlobalControl.Encoding.DominantLabels
            -> GlobalControl.Encoding.Fibers
-              -> GlobalControl.BlockEntropy
+           -> GlobalControl.Encoding.FixedLabelCount
+           -> GlobalControl.Encoding.HotBlockCount
+           -> GlobalControl.Encoding.TotalEntropy
 
 GlobalControl.CrossBlockEnergy
-GlobalControl.BlockEntropy
+GlobalControl.Encoding.HotBlockCount
   -> GlobalControl.ColdBlockBounds
      -> GlobalControl.LevelSetData
      -> GlobalControl.Localization
@@ -200,7 +202,11 @@ The module contracts are:
   cold-block dominance, and propagation along cold segments;
 - `Encoding.Fibers`: assignment fibers determined by shells and segment labels,
   with their product bound;
-- `BlockEntropy`: cardinality and asymptotic absorption of encoding data;
+- `Encoding.TotalEntropy`: the total assignment bound in the large-energy
+  regime;
+- `Encoding.FixedLabelCount`: fixed-label counts for cold blocks;
+- `Encoding.HotBlockCount`: deviation-scale control and asymptotic absorption
+  of the hot-block level-set prefactor;
 - `ColdBlockBounds`: exception sets, cold-label estimates, energy budgets, and
   the boundary-penalty handoff;
 - `GaussianIntegerSum`: the independent one-dimensional analytic estimate used

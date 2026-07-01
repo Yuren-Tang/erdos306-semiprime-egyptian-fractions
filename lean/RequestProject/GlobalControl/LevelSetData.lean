@@ -38,7 +38,7 @@ def shellCarrier (BS : BlockSystem) (R : ℝ) : Finset (ℕ → ℕ) :=
     (fun v k => if h : k ∈ Finset.Icc BS.k0 BS.K then v k h else 0)
 
 /-- Admissible total shell functions, capped by `⌊R⌋₊`, with total shell mass at
-    most `R` and with the hot-consistency condition needed by `hot_factor`. -/
+    most `R` and with the hot-consistency condition needed by `hot_block_count`. -/
 def admShells (BS : BlockSystem) (c2 R : ℝ) (H : Finset ℕ) : Finset (ℕ → ℕ) :=
   (shellCarrier BS R).filter
     (fun v =>
@@ -51,7 +51,7 @@ def L0 (BS : BlockSystem) (R : ℝ) : ℤ :=
   ⌈(7 : ℝ) * Real.sqrt R / sigmaP (BS.P BS.k0)⌉
 
 /-- The non-initial label window, in the exact form produced by
-    `coldLabel_abs_bound` (`20/3·√(c2·2^k)`) and `inv_sigmaP_bound`
+    `coldLabel_abs_bound` (`20/3·√(c2·2^k)`) and `block_deviation_reciprocal_bound`
     (`1/σ ≤ 16·2^k·log 2^k`).  Replaces the harder `rpow` form. -/
 def labelBound (c2 : ℝ) (k : ℕ) : ℤ :=
   ⌈(20/3) * Real.sqrt (c2 * (2:ℝ) ^ k) * (16 * (2:ℝ) ^ k * Real.log (2 ^ k))⌉
@@ -354,7 +354,7 @@ lemma coldLabel_mem_labelFin (BS : BlockSystem) (c2 R : ℝ) (a : GlobalAssignme
       nlinarith [mul_nonneg hb (by linarith [hcube] : (0:ℝ) ≤ (Real.log (2 ^ s)) ^ 3 - 1)]
     have hsqrt_le : Real.sqrt (blockEnergy BS a s) ≤ Real.sqrt (c2 * (2:ℝ) ^ s) :=
       Real.sqrt_le_sqrt (le_trans hbE_Rw hRw_le)
-    have hinv := inv_sigmaP_bound BS s hs1 hs2
+    have hinv := block_deviation_reciprocal_bound BS s hs1 hs2
     have hinv0 : 0 ≤ 1 / sigmaP (BS.P s) := by positivity
     have hkey : |(coldLabel BS a s : ℝ)| ≤ (labelBound c2 s : ℝ) := by
       refine le_trans habs ?_
@@ -390,7 +390,7 @@ lemma extLabel_mem_admLabels (BS : BlockSystem) (c2 R : ℝ) (a : GlobalAssignme
 /-! ### RHS ε-budget assembly (note 40 §5) -/
 
 /-- Per-fiber product bound: given the per-block count bound (from
-    `hot_factor`/`cold_factor`), a fiber's cardinality is at most the product of
+    `hot_block_count`/`fixed_label_block_count`), a fiber's cardinality is at most the product of
     `exp(2ε(v k+1))` over the blocks. -/
 lemma fiber_prod_bound (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (ℓ : ℕ → ℤ)
     (eps : ℝ)

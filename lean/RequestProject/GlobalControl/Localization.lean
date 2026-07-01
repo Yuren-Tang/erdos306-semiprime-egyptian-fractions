@@ -1,6 +1,7 @@
 import RequestProject.Core.Asymptotics
 import RequestProject.Core.IntervalSegmentation
 import RequestProject.GlobalControl.ColdBlockBounds
+import RequestProject.GlobalControl.Encoding.HotBlockCount
 import RequestProject.GlobalControl.MainArc
 import RequestProject.LocalEnergy.DominantLabel
 
@@ -298,7 +299,7 @@ lemma cold_no_exceptions_core (c2 e0 : ℝ) (hc2 : 0 < c2) (hc2small : c2 ≤ 1 
       ((excSet BS a k).card : ℝ) ≤ e0 →
       |(coldLabel BS a k : ℝ)| ≤ ((BS.P k).card : ℝ) * ((2:ℝ) ^ k) / 64 →
       excSet BS a k = ∅ := by
-  obtain ⟨ X0r, hX0r_pos, hX0r ⟩ := GlobalControl.Rw_large 1 c2 hc2 ; obtain ⟨ X0d, hX0d_pos, hX0d ⟩ := RequestProject.eventually_const_mul_log_le_nat ( 8 * e0 + 64 ) ; use max 16 ( max X0r X0d ) ; norm_num at *;
+  obtain ⟨ X0r, hX0r_pos, hX0r ⟩ := GlobalControl.block_energy_threshold_eventually_large 1 c2 hc2 ; obtain ⟨ X0d, hX0d_pos, hX0d ⟩ := RequestProject.eventually_const_mul_log_le_nat ( 8 * e0 + 64 ) ; use max 16 ( max X0r X0d ) ; norm_num at *;
   intro BS a k hk0 hkK hk16 hkX0r hkX0d hnot_hot hexc hlabel
   have hblock : 4 ≤ k := by
     exact le_of_not_gt fun h => by interval_cases k <;> norm_num at hk16;

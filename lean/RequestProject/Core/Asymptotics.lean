@@ -54,4 +54,29 @@ theorem eventually_le_natCast_div_log_pow (n : ℕ) (K : ℝ) :
   exact ⟨X0 + 1, by positivity,
     fun X hX => hX0 _ (Nat.le_of_succ_le (by exact_mod_cast hX))⟩
 
+/-- A linear bound for `log` propagates from a base point `t0` throughout
+`[t0, ∞)` once `t0 ≥ 1 / eps`. -/
+theorem log_le_linear_of_base (eps t0 t : ℝ) (heps : 0 < eps)
+    (ht0pos : 0 < t0) (ht0 : 1 / eps ≤ t0)
+    (hlog : Real.log t0 ≤ eps * t0) (ht : t0 ≤ t) :
+    Real.log t ≤ eps * t := by
+  have htpos : 0 < t := lt_of_lt_of_le ht0pos ht
+  have hdiv : Real.log (t / t0) ≤ t / t0 - 1 :=
+    Real.log_le_sub_one_of_pos (by positivity)
+  have hsplit : Real.log t = Real.log t0 + Real.log (t / t0) := by
+    rw [Real.log_div (ne_of_gt htpos) (ne_of_gt ht0pos)]
+    ring
+  have hkey : (t - t0) * (eps - 1 / t0) ≥ 0 := by
+    apply mul_nonneg (by linarith)
+    have : 1 / t0 ≤ eps := by
+      rw [div_le_iff₀ ht0pos]
+      rw [div_le_iff₀ heps] at ht0
+      nlinarith
+    linarith
+  have hexpand :
+      (t - t0) * (eps - 1 / t0) = eps * t - eps * t0 - (t / t0 - 1) := by
+    field_simp
+  rw [hsplit]
+  nlinarith [hdiv, hlog, hkey, hexpand]
+
 end RequestProject

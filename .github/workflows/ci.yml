@@ -8,6 +8,7 @@ name: verify-erdos-306
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -105,3 +106,49 @@ jobs:
 
       - name: Run actionlint
         uses: raven-actions/actionlint@v2
+
+  import-audit:
+    name: Audit imports in changed Lean files
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore Lean and Mathlib cache
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: "lean"
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+
+      - name: Select changed Lean files
+        id: changed
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
+            base="${{ github.event.before }}"
+          else
+            base=""
+          fi
+          if [[ -n "$base" ]]; then
+            git diff --name-only --diff-filter=ACMR "$base" HEAD -- 'lean/RequestProject/*.lean' 'lean/RequestProject/**/*.lean' \
+              | sed 's#^lean/##' > lean/import-audit-files.txt
+          else
+            find lean/RequestProject -name '*.lean' -type f \
+              | sed 's#^lean/##' | sort > lean/import-audit-files.txt
+          fi
+          cat lean/import-audit-files.txt
+
+      - name: Check source imports
+        working-directory: lean
+        shell: bash
+        run: |
+          mapfile -t files < import-audit-files.txt
+          scripts/audit_imports.sh "${files[@]}"

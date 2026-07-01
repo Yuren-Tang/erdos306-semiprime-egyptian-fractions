@@ -20,7 +20,7 @@ Proved and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`):
   * `label_product_le` (N4: the segment-start label product factors as the
     initial window times the hot/boundary products, via the `s ↦ s-1` reindex);
   * `fiber_card_exp_bound` (N3: per-fiber count discharge combining
-    `hot_factor` and `cold_factor`, taking the per-block label-size bound as a
+    `hot_block_count` and `fixed_label_block_count`, taking the per-block label-size bound as a
     hypothesis `hlabsize`);
   * `cold_master` (N5: a single `(c2,e0,X0)` giving both block dominance
     `HasDominantLabel` and the boundary penalty floor, from `boundary_penalty_per_k`);
@@ -39,7 +39,7 @@ Now PROVED and axiom-clean (this round), completing the note-45 route:
     `sum_subset_charge_le`), `labelFin_k0_card_le` (initial window card),
     `hcharge_le` (the `label_product_le` per-start charge);
   * `fiber_card_exp_bound'` (per-fiber discharge WITHOUT `hlabsize`, via
-    `hot_factor` + the label-uniform `cold_count_large`);
+    `hot_block_count` + the label-uniform `cold_count_large`);
   * `cold_count_large` (label-uniform per-cold-block count) and
     `cold_count_nonwrap` (the non-wrapped huge-label case is an EMPTY fiber, via
     `dominant_label_bound`/`cold_label_size64`);
@@ -49,7 +49,7 @@ Now PROVED and axiom-clean (this round), completing the note-45 route:
 Now CLOSED (this round), completing the G5 chain:
   * `wrapped_count_le_small_fixed_label` (the wrapped huge-label reduction) is
     fully proved.  `cold_count_wrap` applies this reduction to get a small fixed
-    label `M`, then `cold_factor` with `2ε`.  The kernel extracts a dominant
+    label `M`, then `fixed_label_block_count` with `2ε`.  The kernel extracts a dominant
     representative `M` and injects the wrapped `m`-fiber into the fixed-label
     `M`-fiber.  The extraction needs Theorem-B dominance for arbitrary block
     assignments in the cold range; since this only holds below Theorem-B's
@@ -66,6 +66,9 @@ Now CLOSED (this round), completing the G5 chain:
 -/
 import RequestProject.Core.Asymptotics
 import RequestProject.Core.IntervalSegmentation
+import RequestProject.GlobalControl.Encoding.FixedLabelCount
+import RequestProject.GlobalControl.Encoding.HotBlockCount
+import RequestProject.GlobalControl.Encoding.TotalEntropy
 import RequestProject.GlobalControl.LevelSetData
 import RequestProject.GlobalControl.ScaleComparison
 import RequestProject.GlobalPeierlsBookkeeping
@@ -275,8 +278,8 @@ lemma label_product_le (BS : BlockSystem) (c2 e0 eps R : ℝ) (H B : Finset ℕ)
 /-! ### N3 — per-fiber count discharge -/
 
 /-
-**N3 fiber discharge.**  Combining `hot_factor` (for hot blocks) and
-    `cold_factor` (for cold blocks, with the segment-start label of size
+**N3 fiber discharge.**  Combining `hot_block_count` (for hot blocks) and
+    `fixed_label_block_count` (for cold blocks, with the segment-start label of size
     `≤ N·2^k/16`), every fiber's cardinality is at most the per-block product of
     `exp(2ε(v k + 1))`.  The label-size discharge is supplied as `hlabsize`.
 -/
@@ -290,8 +293,8 @@ lemma fiber_card_exp_bound (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
           |((ℓ (RequestProject.segmentStart BS.k0 H B k) : ℤ) : ℝ)| ≤ ((BS.P k).card : ℝ) * (2 ^ k) / 16) →
         ((fiber BS H B v ℓ).card : ℝ) ≤
           ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)) := by
-  obtain ⟨Xh, hXh0, hHot⟩ := hot_factor eps heps heps1 c2 hc2
-  obtain ⟨Xc, hXc0, hCold⟩ := cold_factor eps heps
+  obtain ⟨Xh, hXh0, hHot⟩ := hot_block_count eps heps heps1 c2 hc2
+  obtain ⟨Xc, hXc0, hCold⟩ := fixed_label_block_count eps heps
   use max Xh Xc
   simp [hXh0, hXc0];
   intros BS H B v ℓ hXh hXc hhot hlabsize
@@ -674,7 +677,7 @@ lemma block_card_lower :
 
 /-
 **Non-wrapped huge-label cold count (empty fiber).**  When the label is
-    above `cold_factor`'s window (`N·2^k/16 < |m|`) but below the CRT wrap
+    above `fixed_label_block_count`'s window (`N·2^k/16 < |m|`) but below the CRT wrap
     threshold (`|m| ≤ (2^k)²/2`), in the low-energy regime (`n+1 < Rw c2 k`) the
     fiber is EMPTY: by `dominant_label_bound` any `(3/4)`-conforming `b` of energy
     `≤ n+1` would force `|m| ≤ (20/3)√(n+1)/σ_k`, and combined with `block_deviation_lower_bound`
@@ -798,7 +801,7 @@ lemma cold_small_label_agree (c2 : ℝ) (hc2 : 0 < c2) (hdomB : ColdDominance c2
     In the low-energy wrapped regime, the assignments conforming to a large
     wrapped label `m` inject into the fixed-label fiber for one small label `M`.
     This is the Theorem-A-internal dominant-representative extraction and
-    transport step; with it, `cold_count_wrap` is just `cold_factor`.  The cold
+    transport step; with it, `cold_count_wrap` is just `fixed_label_block_count`.  The cold
     dominance for arbitrary block assignments is supplied via `hdomB`. -/
 lemma wrapped_count_le_small_fixed_label (c2 : ℝ) (hc2 : 0 < c2)
     (hdomB : ColdDominance c2) :
@@ -905,7 +908,7 @@ lemma wrapped_count_le_small_fixed_label (c2 : ℝ) (hc2 : 0 < c2)
     For a label beyond the CRT wrap threshold (`(2^k)²/2 < |m|`), the per-block
     conforming count is still `≤ exp(2ε(n+1))`.  The actual wrapped-label work is
     isolated in `wrapped_count_le_small_fixed_label`; this lemma only applies
-    `cold_factor` to the resulting small fixed label. -/
+    `fixed_label_block_count` to the resulting small fixed label. -/
 lemma cold_count_wrap (eps : ℝ) (heps : 0 < eps) (_heps1 : eps < 1)
     (c2 : ℝ) (hc2 : 0 < c2) (hdomB : ColdDominance c2) :
     ∃ X0 : ℝ, 0 < X0 ∧
@@ -920,7 +923,7 @@ lemma cold_count_wrap (eps : ℝ) (heps : 0 < eps) (_heps1 : eps < 1)
                   (fun p => b p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ))).card : ℝ)
             ≤ Real.exp (2 * eps * ((n : ℝ) + 1)) := by
   obtain ⟨Xr, hXr0, hReduce⟩ := wrapped_count_le_small_fixed_label c2 hc2 hdomB
-  obtain ⟨Xc, hXc0, hCold⟩ := cold_factor (2 * eps) (by positivity)
+  obtain ⟨Xc, hXc0, hCold⟩ := fixed_label_block_count (2 * eps) (by positivity)
   refine ⟨max Xr Xc, by positivity, ?_⟩
   intro BS k hk1 hk2 hk3 m n hn hwrap
   obtain ⟨M, hMsmall, hleM⟩ :=
@@ -931,7 +934,7 @@ lemma cold_count_wrap (eps : ℝ) (heps : 0 < eps) (_heps1 : eps < 1)
 
 /-- **The residual kernel (note 45): huge-label cold count in the low-energy
     regime.**  For a cold block (`n+1 < Rw c2 k`) and a label `m` LARGER than
-    `cold_factor`'s window (`|m| > N·2^k/16`), the count of `(3/4)`-conforming
+    `fixed_label_block_count`'s window (`|m| > N·2^k/16`), the count of `(3/4)`-conforming
     block-assignments of energy `≤ n+1` is `≤ exp(2ε(n+1))`.  Case split on the CRT
     wrap threshold `(2^k)²/2`: non-wrapped via `cold_count_nonwrap` (empty fiber),
     wrapped via `cold_count_wrap`. -/
@@ -961,9 +964,9 @@ lemma cold_count_huge_label (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
     and ANY shell `n`, the count of `(3/4)`-conforming block-assignments of
     energy `≤ n+1` is `≤ exp(2ε(n+1))`.  Proof by case analysis:
     * if `Rw c2 k ≤ n+1` (energy floor met), the unconstrained count is already
-      `≤ exp(2ε(n+1))` via `hot_factor`;
+      `≤ exp(2ε(n+1))` via `hot_block_count`;
     * else, if `|m| ≤ N·2^k/16`, the conforming count is `≤ exp(ε(n+1))` via
-      `cold_factor`;
+      `fixed_label_block_count`;
     * else (`|m| > N·2^k/16` and `n+1 < Rw c2 k`) it is `cold_count_huge_label`.
 -/
 lemma cold_count_large (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
@@ -977,8 +980,8 @@ lemma cold_count_large (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
                 (((BS.P k).attach.filter
                   (fun p => b p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ))).card : ℝ)
             ≤ Real.exp (2 * eps * ((n : ℝ) + 1)) := by
-  obtain ⟨Xh, hXh0, hHot⟩ := hot_factor eps heps heps1 c2 hc2
-  obtain ⟨Xc, hXc0, hCold⟩ := cold_factor eps heps
+  obtain ⟨Xh, hXh0, hHot⟩ := hot_block_count eps heps heps1 c2 hc2
+  obtain ⟨Xc, hXc0, hCold⟩ := fixed_label_block_count eps heps
   obtain ⟨Xg, hXg0, hHuge⟩ := cold_count_huge_label eps heps heps1 c2 hc2 hdomB
   use max Xh (max Xc Xg);
   refine' ⟨ by positivity, fun BS k hk1 hk2 hk3 m n => _ ⟩;
@@ -993,7 +996,7 @@ lemma cold_count_large (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
 **Per-fiber count discharge, label-uniform version (note 45).**  Same as
     `fiber_card_exp_bound` but WITHOUT the per-block label-size hypothesis
     `hlabsize`: the per-fiber count `∏_k exp(2ε(v_k+1))` holds for ANY label
-    assignment `ℓ`.  Hot blocks use `hot_factor`; cold blocks use the
+    assignment `ℓ`.  Hot blocks use `hot_block_count`; cold blocks use the
     label-uniform `cold_count_large`.
 -/
 lemma fiber_card_exp_bound' (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
@@ -1004,7 +1007,7 @@ lemma fiber_card_exp_bound' (eps : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
         (∀ k ∈ Finset.Icc BS.k0 BS.K, k ∈ H → Rw c2 k ≤ (v k : ℝ) + 1) →
         ((fiber BS H B v ℓ).card : ℝ) ≤
           ∏ k ∈ Finset.Icc BS.k0 BS.K, Real.exp (2 * eps * ((v k : ℝ) + 1)) := by
-  obtain ⟨Xh, hXh0, hHot⟩ := GlobalControl.hot_factor eps heps heps1 c2 hc2
+  obtain ⟨Xh, hXh0, hHot⟩ := GlobalControl.hot_block_count eps heps heps1 c2 hc2
   obtain ⟨Xc, hXc0, hCold⟩ := GlobalControl.cold_count_large eps heps heps1 c2 hc2 hdomB
   use max Xh Xc
   constructor
@@ -1186,7 +1189,7 @@ lemma hrhs_charge_bound (eps c2 e0 : ℝ) (heps : 0 < eps) (heps1 : eps < 1)
     `admLabels_card`, `label_product_le`, `sum_subset_charge_le`,
     `fiber_card_exp_bound`, and `sigmaCtrl_le_sigmaP_k0`; but the INITIAL
     segment defeats the per-fiber route: for large `R` the initial label window
-    `L0 = ⌈7√R/σ_{k0}⌉` exceeds the `cold_factor` size threshold `N_k·2^k/16`,
+    `L0 = ⌈7√R/σ_{k0}⌉` exceeds the `fixed_label_block_count` size threshold `N_k·2^k/16`,
     so neither `fiber_card_exp_bound`'s `hlabsize` nor the per-fiber bound it
     yields hold for first-segment cold blocks.  The `√R/σctrl` target factor
     must instead be charged collectively against the first segment's energy via

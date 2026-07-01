@@ -64,9 +64,12 @@ theorem inv_natCast_le_unitCircle_norm_int_div_nat
     apply hn
     rw [← ZMod.intCast_zmod_eq_zero_iff_dvd, ← ZMod.coe_valMinAbs (n : ZMod q), h]
     simp
-  rw [abs_div, abs_of_pos (by exact_mod_cast hq)]
-  exact div_le_div_of_nonneg_right (by exact_mod_cast Int.one_le_abs hres)
-    (by positivity)
+  have hq_real : (0 : ℝ) < q := by exact_mod_cast hq
+  have hres_int : (1 : ℤ) ≤ |(n : ZMod q).valMinAbs| := Int.one_le_abs hres
+  have hres_real : (1 : ℝ) ≤ |((n : ZMod q).valMinAbs : ℝ)| := by
+    exact_mod_cast hres_int
+  rw [abs_div, abs_of_pos hq_real]
+  exact div_le_div_of_nonneg_right hres_real hq_real.le
 
 /-- Distance to the nearest integer is bounded by absolute value. -/
 theorem unitCircle_norm_coe_le_abs (x : ℝ) :
