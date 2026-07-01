@@ -1,4 +1,6 @@
 import Mathlib.Order.Interval.Finset.Nat
+import Mathlib.Tactic.Cases
+import Lean.Elab.Tactic
 
 /-! Finite interval segmentation by excluded vertices and cut edges. -/
 
@@ -36,7 +38,8 @@ theorem segmentStart_ge (k0 : ℕ) (excluded cuts : Finset ℕ) (k : ℕ) :
 theorem segmentStart_interior (k0 : ℕ) (excluded cuts : Finset ℕ) (k j : ℕ)
     (hj1 : segmentStart k0 excluded cuts k ≤ j) (hj2 : j < k) :
     j ∉ excluded ∧ j ∉ cuts := by
-  induction' k with k ih generalizing j <;> simp_all +decide
+  induction' k using Nat.strong_induction_on with k ih
+  unfold segmentStart at hj1
   grind +locals
 
 @[simp] theorem segmentStart_empty (k0 k : ℕ) :

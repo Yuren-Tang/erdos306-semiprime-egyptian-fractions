@@ -3,11 +3,27 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+shard_index=0
+shard_count=1
+if [[ ${1:-} == "--shard" ]]; then
+  shard_index=$2
+  shard_count=$3
+  shift 3
+fi
+
 if (( $# == 0 )); then
   mapfile -t files < <(find RequestProject -name '*.lean' -type f | sort)
 else
   files=("$@")
 fi
+
+selected=()
+for i in "${!files[@]}"; do
+  if (( i % shard_count == shard_index )); then
+    selected+=("${files[$i]}")
+  fi
+done
+files=("${selected[@]}")
 
 if (( ${#files[@]} == 0 )); then
   echo "No Lean source files to audit."

@@ -79,14 +79,12 @@ jobs:
           cat "$GITHUB_STEP_SUMMARY"
   lint:
     name: Lint Lean sources
-    needs: verify
-    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Run Lean linter after verification
+      - name: Run Lean linter
         uses: leanprover/lean-action@v1
         with:
           lake-package-directory: "lean"
@@ -97,8 +95,6 @@ jobs:
 
   workflow-lint:
     name: Lint GitHub Actions workflows
-    needs: verify
-    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -108,9 +104,12 @@ jobs:
         uses: raven-actions/actionlint@v2
 
   import-audit:
-    name: Audit imports in changed Lean files
-    needs: verify
+    name: Audit all imports (${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -126,29 +125,7 @@ jobs:
           test: false
           lint: false
 
-      - name: Select changed Lean files
-        id: changed
-        shell: bash
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            base="${{ github.event.pull_request.base.sha }}"
-          elif [[ "${{ github.event_name }}" == "push" && "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
-            base="${{ github.event.before }}"
-          else
-            base=""
-          fi
-          if [[ -n "$base" ]]; then
-            git diff --name-only --diff-filter=ACMR "$base" HEAD -- 'lean/RequestProject/*.lean' 'lean/RequestProject/**/*.lean' \
-              | sed 's#^lean/##' > lean/import-audit-files.txt
-          else
-            find lean/RequestProject -name '*.lean' -type f \
-              | sed 's#^lean/##' | sort > lean/import-audit-files.txt
-          fi
-          cat lean/import-audit-files.txt
-
-      - name: Check source imports
+      - name: Check source imports (full-library shard)
         working-directory: lean
         shell: bash
-        run: |
-          mapfile -t files < import-audit-files.txt
-          scripts/audit_imports.sh "${files[@]}"
+        run: scripts/audit_imports.sh --shard $(( ${{ matrix.shard }} - 1 )) 4

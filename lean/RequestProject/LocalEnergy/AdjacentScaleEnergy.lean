@@ -102,8 +102,8 @@ theorem adjacent_scale_reciprocal_energy_lower_bound (X : ℕ) (hX : 0 < X) (P :
       have h_not_div : ¬(q : ℤ) ∣ (d * pinv p) := by
         haveI := Fact.mk hq; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ;
         intro H; specialize hpinv p hp; simp_all +decide [ ← ZMod.natCast_eq_natCast_iff' ] ;
-      gcongr;
-      simpa only [Int.cast_mul, Int.cast_natCast] using
+      gcongr
+      simpa only [Function.comp_apply, Int.cast_mul, Int.cast_natCast] using
         RequestProject.inv_natCast_le_unitCircle_norm_int_div_nat
           q (Nat.Prime.pos hq) (d * pinv p) h_not_div
     refine le_trans ?_ ( Finset.sum_le_sum h_term_ge ) ; norm_num;
@@ -162,10 +162,17 @@ lemma crt_representative_controls_reciprocal_phase (p q : ℕ) (hp : p.Prime) (h
         (p * pinv - 1) * v - (p * v - (m' - m)) * pinv by ring]
     exact dvd_sub (h_div.mul_right v)
       (‹(q : ℤ) ∣ p * v - (m' - m)›.mul_right pinv)
-  have h_norm : (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((m' - m : ℤ) * pinv / (q : ℝ)) = (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((v : ℝ) / (q : ℝ)) := by
+  have h_norm' :
+      ‖((((m' - m) * pinv : ℤ) : ℝ) / (q : ℝ) : UnitAddCircle)‖ =
+        ‖((v : ℝ) / (q : ℝ) : UnitAddCircle)‖ := by
     obtain ⟨ k, hk ⟩ := h_div;
     convert RequestProject.unitCircle_norm_add_intCast (v / q : ℝ) k using 1;
-    exact congr_arg _ ( by rw [ div_add', div_eq_div_iff ] <;> norm_cast <;> nlinarith [ hq.two_le ] );
+    have hreal : (((m' - m) * pinv : ℤ) : ℝ) / (q : ℝ) =
+        (v : ℝ) / q + k := by
+      rw [div_add', div_eq_div_iff] <;> norm_cast <;> nlinarith [hq.two_le]
+    exact congr_arg norm (congr_arg (fun x : ℝ => (x : UnitAddCircle)) hreal)
+  have h_norm : (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((m' - m : ℤ) * pinv / (q : ℝ)) = (norm ∘ ((↑) : ℝ → UnitAddCircle)) ((v : ℝ) / (q : ℝ)) := by
+    simpa only [Function.comp_apply, Int.cast_sub, Int.cast_mul, Int.cast_natCast] using h_norm'
   have h_abs : |(v : ℝ) / (q : ℝ)| ≤ |(crtRepr p q (m : ZMod p) (m' : ZMod q) : ℝ) - m| / (p * q) := by
     rw [ show ( crtRepr p q m m' : ℝ ) - m = p * v by exact_mod_cast hv ] ; norm_num [ abs_div, abs_mul, hp.ne_zero, hq.ne_zero ] ; ring_nf ;
     norm_num [ hp.ne_zero ];
