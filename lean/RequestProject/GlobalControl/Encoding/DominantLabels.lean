@@ -38,7 +38,8 @@ lemma coldLabel_spec (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
         (((BS.P k).attach.filter
           (fun p => restrict BS a k p
             = ((coldLabel BS a k : ℤ) : ZMod (p : ℕ)))).card : ℝ) := by
-  simpa [coldLabel, h] using h.choose_spec
+  rw [coldLabel, dif_pos h]
+  exact h.choose_spec
 
 /-
 Uniqueness: the dominant label is unique, so

@@ -34,6 +34,12 @@ def hotSet (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS) : Finset ℕ 
 def shellVec (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) : ℕ :=
   ⌊blockEnergy BS a k⌋₊
 
+/-- The number of primes in block `k` on which the assignment has residue
+class `m`. -/
+def classCount (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) (m : ℤ) : ℕ :=
+  ((BS.P k).attach.filter
+    (fun p => restrict BS a k p = ((m : ℤ) : ZMod (p : ℕ)))).card
+
 /-- The exception-reduced boundary penalty floor `Π(k)`. -/
 def Pifloor (BS : BlockSystem) (e0 : ℝ) (k : ℕ) : ℝ :=
   (((BS.P (k+1)).card : ℝ) - e0 - 1) * (((BS.P k).card : ℝ) - e0) ^ 3 /

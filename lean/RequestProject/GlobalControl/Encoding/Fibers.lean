@@ -14,12 +14,6 @@ noncomputable section
 
 namespace GlobalControl
 
-/-- The number of primes of block `k` on which `restrict BS a k` takes the
-    residue `m` (the size of the `m`-class). -/
-def classCount (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) (m : ℤ) : ℕ :=
-  ((BS.P k).attach.filter
-    (fun p => restrict BS a k p = ((m : ℤ) : ZMod (p : ℕ)))).card
-
 /-- The data-fiber of `(H,B,v,ℓ)`: assignments whose every
     block energy sits in the shell `v k` and whose cold blocks carry the
     segment-start label `ℓ (RequestProject.segmentStart …)` on a `(1-ρ)` fraction of primes. -/
