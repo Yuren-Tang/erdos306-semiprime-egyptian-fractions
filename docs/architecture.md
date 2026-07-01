@@ -134,15 +134,21 @@ The first mathematical decomposition of the former monolithic
 ```text
 GlobalControl.BlockSystem
   -> GlobalControl.Basic
-  -> GlobalControl.CrossBlockEnergy
-     -> GlobalControl.BlockEncoding
-        -> GlobalControl.BlockEntropy
-           -> GlobalControl.ColdBlockBounds
-              -> GlobalControl.LevelSetData
-              -> GlobalControl.Localization
+     -> GlobalControl.CrossBlockEnergy
+     -> GlobalControl.Encoding.BlockData
+        -> GlobalControl.Encoding.DominantLabels
+           -> GlobalControl.Encoding.Fibers
+              -> GlobalControl.BlockEntropy
+
+GlobalControl.CrossBlockEnergy
+GlobalControl.BlockEntropy
+  -> GlobalControl.ColdBlockBounds
+     -> GlobalControl.LevelSetData
+     -> GlobalControl.Localization
 
 Core.IntervalSegmentation
-  -> GlobalControl.BlockEncoding
+  -> GlobalControl.Encoding.DominantLabels
+  -> GlobalControl.Encoding.Fibers
   -> GlobalControl.LevelSetData
   -> GlobalControl.LevelSetAssembly
   -> GlobalControl.Localization
@@ -188,7 +194,12 @@ The module contracts are:
   basic data and its later localization theorem;
 - `CrossBlockEnergy`: specialization of adjacent-scale CRT energy to the
   mismatch penalty for consecutive blocks, with and without exception sets;
-- `BlockEncoding`: hot/cold data, segment labels, and finite assignment fibers;
+- `Encoding.BlockData`: per-block energies, hot blocks, shells, and numerical
+  penalty scales;
+- `Encoding.DominantLabels`: canonical dominant labels, mismatch boundaries,
+  cold-block dominance, and propagation along cold segments;
+- `Encoding.Fibers`: assignment fibers determined by shells and segment labels,
+  with their product bound;
 - `BlockEntropy`: cardinality and asymptotic absorption of encoding data;
 - `ColdBlockBounds`: exception sets, cold-label estimates, energy budgets, and
   the boundary-penalty handoff;

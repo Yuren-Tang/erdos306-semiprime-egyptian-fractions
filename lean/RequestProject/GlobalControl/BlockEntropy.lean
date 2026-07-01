@@ -4,7 +4,7 @@
 Cardinality and asymptotic estimates showing that hot-block, cold-label, and
 energy-shell data are absorbed by the available energy budget.
 -/
-import RequestProject.GlobalControl.BlockEncoding
+import RequestProject.GlobalControl.Encoding.Fibers
 import RequestProject.LocalEnergy.LevelSet
 
 open Finset BigOperators Classical

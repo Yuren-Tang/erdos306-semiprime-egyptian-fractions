@@ -6,6 +6,7 @@ cross-block penalty forced by a boundary between distinct cold labels.
 -/
 import RequestProject.Core.Asymptotics
 import RequestProject.GlobalControl.BlockEntropy
+import RequestProject.GlobalControl.CrossBlockEnergy
 import RequestProject.LocalEnergy.DominantLabel
 
 open Finset BigOperators Classical

@@ -50,7 +50,8 @@ Completed port nodes include `BernoulliFourier`, `GlobalPeierlsBookkeeping`,
 `GlobalControl`.  The theorem chain has been ported, while its dependency
 boundaries are still being audited before it is declared clean.  Its former
 monolith has been decomposed into `BlockSystem`, `Basic`, `MainArc`,
-`CrossBlockEnergy`, `BlockEncoding`, `BlockEntropy`, and `ColdBlockBounds`, with
+`CrossBlockEnergy`, the three `GlobalControl.Encoding` layers,
+`BlockEntropy`, and `ColdBlockBounds`, with
 the independent Gaussian estimate in `GlobalControl.GaussianIntegerSum`.
 The downstream nodes now live under mathematical paths:
 `GlobalControl.LevelSetData`, `GlobalControl.LevelSetAssembly`,

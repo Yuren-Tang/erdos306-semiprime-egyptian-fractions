@@ -1,39 +1,19 @@
-/-
-# Global block encoding
-
-Cold and hot block data, segment labels, and the finite fiber determined by
-those data.  This is the structural encoding layer of the global level-set
-argument, before entropy and asymptotic estimates are applied.
--/
-import RequestProject.GlobalControl.CrossBlockEnergy
 import RequestProject.Core.IntervalSegmentation
+import RequestProject.GlobalControl.Encoding.BlockData
 import RequestProject.LocalEnergy.DominantLabel
+
+/-!
+# Dominant labels across global block segments
+
+Canonical dominant labels, mismatch boundaries, cold-block dominance, and
+constancy of labels along cold segments.
+-/
 
 open Finset BigOperators Classical
 
 noncomputable section
 
 namespace GlobalControl
-
-/-! ## Encoding data -/
-
-/-- Per-block internal energy of a global assignment. -/
-def blockEnergy (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) : ℝ :=
-  QP (BS.P k) (restrict BS a k)
-
-/-- The cold/hot threshold `R_w(k) = c2·2^k/log³(2^k)` (Theorem-B floor). -/
-def Rw (c2 : ℝ) (k : ℕ) : ℝ := c2 * 2 ^ k / (Real.log (2 ^ k)) ^ 3
-
-/-- Hot block: internal energy at least the forcing floor. -/
-def isHot (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS) (k : ℕ) : Prop :=
-  Rw c2 k ≤ blockEnergy BS a k
-
-instance instDecidableIsHot (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS)
-    (k : ℕ) : Decidable (isHot BS c2 a k) := Classical.dec _
-
-/-- The hot set: scales in `[k0,K]` whose block is hot. -/
-def hotSet (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS) : Finset ℕ :=
-  (Finset.Icc BS.k0 BS.K).filter (isHot BS c2 a)
 
 /-- The dominant label of a block, and `0` when no dominant label exists. -/
 def coldLabel (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) : ℤ :=
@@ -45,20 +25,6 @@ def boundarySet (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment BS) : Finset
   (Finset.Ico BS.k0 BS.K).filter (fun k =>
     ¬ isHot BS c2 a k ∧ ¬ isHot BS c2 a (k+1) ∧
     coldLabel BS a k ≠ coldLabel BS a (k+1))
-
-/-- Integer energy shell of each block. -/
-def shellVec (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) : ℕ :=
-  ⌊blockEnergy BS a k⌋₊
-
-/-- The exception-reduced boundary penalty floor `Π(k)`. -/
-def Pifloor (BS : BlockSystem) (e0 : ℝ) (k : ℕ) : ℝ :=
-  (((BS.P (k+1)).card : ℝ) - e0 - 1) * (((BS.P k).card : ℝ) - e0) ^ 3 /
-    (2 ^ 13 * ((2:ℝ) ^ k) ^ 2)
-
-/-- Label range at a segment start (L3 + cold threshold; note 38 §3 L3c). -/
-def labelRange (c2 : ℝ) (k : ℕ) : ℤ := ⌈(168:ℝ) * Real.sqrt c2 *
-    ((2:ℝ) ^ k) ^ (3/2 : ℝ) / Real.sqrt (Real.log (2 ^ k))⌉
-
 /-! ## Dominant labels -/
 
 /-
@@ -151,39 +117,6 @@ lemma coldLabel_eq_segStart (BS : BlockSystem) (c2 : ℝ) (a : GlobalAssignment 
     intros i j hi hj hk; induction' hj with j hj ih <;> simp_all +decide [ Nat.succ_eq_add_one ] ;
     rw [ ih ( by linarith ), h_run j ( by linarith ) hk ];
   exact Eq.symm ( h_segment _ _ le_rfl ( RequestProject.segmentStart_le _ _ _ _ hk1 ) le_rfl )
-
-/-- The number of primes of block `k` on which `restrict BS a k` takes the
-    residue `m` (the size of the `m`-class). -/
-def classCount (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) (m : ℤ) : ℕ :=
-  ((BS.P k).attach.filter
-    (fun p => restrict BS a k p = ((m : ℤ) : ZMod (p : ℕ)))).card
-
-/-- The data-fiber of `(H,B,v,ℓ)`: assignments whose every
-    block energy sits in the shell `v k` and whose cold blocks carry the
-    segment-start label `ℓ (RequestProject.segmentStart …)` on a `(1-ρ)` fraction of primes. -/
-def fiber (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (ℓ : ℕ → ℤ) :
-    Finset (GlobalAssignment BS) :=
-  Finset.univ.filter (fun a => ∀ k ∈ Finset.Icc BS.k0 BS.K,
-    blockEnergy BS a k ≤ (v k : ℝ) + 1 ∧
-    (k ∉ H → (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
-      (classCount BS a k (ℓ (RequestProject.segmentStart BS.k0 H B k)) : ℝ)))
-
-/-
-The fiber injects into the product of the
-    per-block counts (Lemma D4, `restrict_filter_card_le`).
--/
-lemma fiber_card_le (BS : BlockSystem) (H B : Finset ℕ) (v : ℕ → ℕ) (ℓ : ℕ → ℤ) :
-    (fiber BS H B v ℓ).card ≤
-      ∏ k ∈ Finset.Icc BS.k0 BS.K,
-        (Finset.univ.filter (fun b : BlockAssignment (BS.P k) =>
-          QP (BS.P k) b ≤ (v k : ℝ) + 1 ∧
-          (k ∉ H → (1 - (1/4 : ℝ)) * ((BS.P k).card : ℝ) ≤
-            (((BS.P k).attach.filter
-              (fun p => b p = ((ℓ (RequestProject.segmentStart BS.k0 H B k) : ℤ) : ZMod (p : ℕ)))).card : ℝ)))).card := by
-  unfold fiber; norm_num;
-  convert restrict_filter_card_le BS ( fun k b => QP ( BS.P k ) b ≤ v k + 1 ∧ ( k ∉ H → ( 3 / 4 : ℝ ) * ( BS.P k |> Finset.card ) ≤ ( Finset.card ( Finset.filter ( fun p : { x // x ∈ BS.P k } => b p = ℓ ( RequestProject.segmentStart BS.k0 H B k ) ) ( Finset.attach ( BS.P k ) ) ) : ℝ ) ) ) using 2;
-  · simp +decide [ blockEnergy, classCount ];
-  · convert rfl
 
 end GlobalControl
 
