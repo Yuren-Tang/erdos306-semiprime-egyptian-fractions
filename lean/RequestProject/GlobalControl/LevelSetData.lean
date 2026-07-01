@@ -7,6 +7,7 @@ against the cached core.
 -/
 import RequestProject.Core.IntervalSegmentation
 import RequestProject.GlobalControl.ColdBlockBounds
+import RequestProject.GlobalControl.Encoding.Fibers
 import RequestProject.LocalEnergy.DominantLabel
 import RequestProject.GlobalPeierlsBookkeeping
 

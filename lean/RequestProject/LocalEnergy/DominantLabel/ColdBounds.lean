@@ -200,7 +200,9 @@ For a *cold* block
     threshold from `Core.Asymptotics`), and then `dominant_label_linear_bound`
     converts `(5/(1-ρ))·√R/σ_P ≤ N·X/16`.
 -/
-lemma cold_label_bound (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4) (c2 : ℝ) (_hc2 : 0 < c2) :
+lemma cold_label_bound_with_divisor
+    (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4) (D : ℝ) (hD : 0 < D)
+    (c2 : ℝ) (_hc2 : 0 < c2) :
     ∃ X0 : ℝ, 0 < X0 ∧
       ∀ (X : ℕ), X0 ≤ X →
         ∀ (P : Finset ℕ) [∀ p : P, NeZero p.1],
@@ -211,10 +213,10 @@ lemma cold_label_bound (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4) (c2 : ℝ
           (1 - ρ) * (P.card : ℝ) ≤ ((P.attach.filter
               (fun p => a p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ) →
           QP P a ≤ R → R ≤ c2 * X / (Real.log X) ^ 3 →
-            |(m : ℝ)| ≤ (P.card : ℝ) * (X : ℝ) / 16 := by
+            |(m : ℝ)| ≤ (P.card : ℝ) * (X : ℝ) / D := by
   -- Choose thresholds for the two log-vs-linear estimates used below.
   obtain ⟨X0K, hX0K_pos, hX0K⟩ := RequestProject.eventually_const_mul_log_le_nat
-    (6553600 * c2 / (1 - ρ)^2)
+    (16 * (40 * D) ^ 2 * c2 / (1 - ρ)^2)
   obtain ⟨X0d, hX0d_pos, hX0d⟩ := RequestProject.eventually_const_mul_log_le_nat 64
   refine' ⟨ Max.max 16 ( Max.max X0K X0d ), _, _ ⟩;
   · positivity;
@@ -231,17 +233,40 @@ lemma cold_label_bound (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4) (c2 : ℝ
       · exact Real.log_pos ( by norm_cast; linarith )
     have hlogX_pos : 0 < Real.log X := by
       exact Real.log_pos <| Nat.one_lt_cast.mpr <| by linarith [ show X ≥ 16 by exact_mod_cast le_trans ( le_max_left _ _ ) hX ] ;
-    have hRpoly : R ≤ (P.card : ℝ)^4 * (1 - ρ)^2 / (409600 * X^2) := by
-      have hRpoly : R ≤ c2 * X / (Real.log X)^3 ∧ c2 * X / (Real.log X)^3 ≤ (X / (2 * Real.log X))^4 * (1 - ρ)^2 / (409600 * X^2) := by
+    have hRpoly : R ≤ (P.card : ℝ)^4 * (1 - ρ)^2 / ((40 * D)^2 * X^2) := by
+      have hRpoly : R ≤ c2 * X / (Real.log X)^3 ∧
+          c2 * X / (Real.log X)^3 ≤
+            (X / (2 * Real.log X))^4 * (1 - ρ)^2 / ((40 * D)^2 * X^2) := by
         have := hX0K X ( by linarith [ le_max_left 16 ( max X0K X0d ), le_max_right 16 ( max X0K X0d ), le_max_left X0K X0d, le_max_right X0K X0d ] );
-        rw [ div_pow, div_mul_eq_mul_div, div_div, div_le_div_iff₀ ] <;> try positivity;
+        have hDsq : 0 < (40 * D) ^ 2 := pow_pos (mul_pos (by norm_num) hD) 2
+        rw [ div_pow, div_mul_eq_mul_div, div_div, div_le_div_iff₀ ] <;>
+          try positivity
         · rw [ div_mul_eq_mul_div, div_le_iff₀ ] at this <;> try nlinarith;
           exact ⟨ hRcold, by nlinarith [ show 0 < ( X : ℝ ) ^ 3 * Real.log X ^ 3 by exact mul_pos ( pow_pos ( Nat.cast_pos.mpr ( by linarith [ show X ≥ 16 by exact_mod_cast le_trans ( le_max_left _ _ ) hX ] ) ) 3 ) ( pow_pos hlogX_pos 3 ) ] ⟩;
-        · exact mul_pos ( pow_pos ( mul_pos zero_lt_two hlogX_pos ) 4 ) ( mul_pos ( by norm_num ) ( sq_pos_of_pos ( Nat.cast_pos.mpr ( Nat.pos_of_ne_zero ( by rintro rfl; norm_num at * ) ) ) ) );
+        · exact mul_pos (pow_pos (mul_pos zero_lt_two hlogX_pos) 4)
+            (mul_pos hDsq (sq_pos_of_pos (Nat.cast_pos.mpr
+              (Nat.pos_of_ne_zero (by rintro rfl; norm_num at *)))))
       refine le_trans hRpoly.1 <| hRpoly.2.trans ?_;
       gcongr;
     convert dominant_label_bound X ( by norm_num at hX; linarith ) P hP hN_ge_8 ρ hρ hρ4 a m R ( by
-      exact hm ) hclass hQ |> le_trans <| dominant_label_linear_bound X ( by norm_num at hX; linarith ) P hP hN_ge_2 ρ hρ hρ4 R ( by positivity ) hRpoly using 1
+      exact hm ) hclass hQ |> le_trans <| dominant_label_linear_bound_with_divisor X
+        ( by norm_num at hX; linarith ) P hP hN_ge_2 ρ hρ hρ4 D R hD
+        ( by positivity ) hRpoly using 1
+
+/-- The standard `/16` cold-label bound. -/
+lemma cold_label_bound (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1 / 4) (c2 : ℝ) (hc2 : 0 < c2) :
+    ∃ X0 : ℝ, 0 < X0 ∧
+      ∀ (X : ℕ), X0 ≤ X →
+        ∀ (P : Finset ℕ) [∀ p : P, NeZero p.1],
+          (∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2 * X) →
+          (X : ℝ) / (2 * Real.log X) ≤ P.card →
+          ∀ (a : BlockAssignment P) (m : ℤ) (R : ℝ), 1 ≤ R →
+          |m| ≤ (X : ℤ) ^ 2 / 2 →
+          (1 - ρ) * (P.card : ℝ) ≤ ((P.attach.filter
+              (fun p => a p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ) →
+          QP P a ≤ R → R ≤ c2 * X / (Real.log X) ^ 3 →
+            |(m : ℝ)| ≤ (P.card : ℝ) * (X : ℝ) / 16 := by
+  simpa using cold_label_bound_with_divisor ρ hρ hρ4 16 (by norm_num) c2 hc2
 
 
 end LocalEnergy

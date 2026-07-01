@@ -5,6 +5,7 @@ Energy-budget identities, exception-set control, cold-label bounds, and the
 cross-block penalty forced by a boundary between distinct cold labels.
 -/
 import RequestProject.Core.Asymptotics
+import RequestProject.GlobalControl.ColdBlockStructure
 import RequestProject.GlobalControl.CrossBlockEnergy
 import RequestProject.GlobalControl.EnergyBudget
 import RequestProject.GlobalControl.Encoding.DominantLabels
@@ -17,110 +18,11 @@ noncomputable section
 
 namespace GlobalControl
 
-/-- The exception primes of (cold) block `k`: primes where the assignment
-    deviates from the dominant label `coldLabel`. -/
-def excSet (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) : Finset ℕ :=
-  (BS.P k).filter (fun p => toPlain BS a p ≠ ((coldLabel BS a k : ℤ) : ZMod p))
-
-lemma excSet_subset (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ) :
-    excSet BS a k ⊆ BS.P k := Finset.filter_subset _ _
-
 /-
-For `p ∈ BS.P k` with `k ∈ [k0,K]`, the restriction agrees with the
-    extension `toPlain`.
+**Sharper cold-label size bound.**  This is the `/64` specialization of the
+parameterized local cold-label principle.
 -/
-lemma restrict_eq_toPlain (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
-    (_hk : k ∈ Finset.Icc BS.k0 BS.K) (p : {p : ℕ // p ∈ BS.P k}) :
-    restrict BS a k p = toPlain BS a (p : ℕ) := by
-  unfold restrict toPlain; simp +decide [ * ] ;
-
-/-
-The exception count equals the `attach`-form exception count of
-    `cold_exception_bound`.
--/
-lemma excSet_card_eq (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
-    (hk : k ∈ Finset.Icc BS.k0 BS.K) :
-    (excSet BS a k).card =
-      ((BS.P k).attach.filter
-        (fun q => restrict BS a k q ≠ ((coldLabel BS a k : ℤ) : ZMod (q : ℕ)))).card := by
-  convert Finset.card_image_iff.mpr _ using 1;
-  rotate_left;
-  exact ℕ;
-  exact fun q => q.val;
-  infer_instance;
-  · exact fun x hx y hy hxy => Subtype.ext hxy;
-  · congr! 1;
-    ext; simp [excSet];
-    exact ⟨ fun h => ⟨ h.1, by simpa [ restrict_eq_toPlain BS a k hk ] using h.2 ⟩, fun h => ⟨ h.1, by simpa [ restrict_eq_toPlain BS a k hk ] using h.2 ⟩ ⟩
-
-/-
-The conforming count `card (P k \ excSet)` equals `classCount` of the
-    dominant label.
--/
-lemma conform_card_eq (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ)
-    (hk : k ∈ Finset.Icc BS.k0 BS.K) :
-    (BS.P k \ excSet BS a k).card = classCount BS a k (coldLabel BS a k) := by
-  refine' Finset.card_bij _ _ _ _;
-  use fun x hx => ⟨ x, Finset.mem_sdiff.mp hx |>.1 ⟩;
-  · simp +contextual [ restrict_eq_toPlain BS a k hk, excSet ];
-  · aesop;
-  · simp +decide [ excSet, restrict_eq_toPlain BS a k hk ];
-    tauto
-
-/-
-**Note 40 §3d-ii (`cold_exceptions_small`).**  For a cold block (`X = 2^k`
-    large) the exception set is small: its cardinality is at most `e0`, hence
-    the conforming set `BS.P k \ excSet` has at least `N_k - e0` primes.
--/
-set_option maxHeartbeats 1600000 in
-lemma cold_exceptions_small :
-    ∃ (c2 e0 X0 : ℝ), 0 < c2 ∧ 0 < e0 ∧ 0 < X0 ∧
-      ∀ (BS : BlockSystem) (a : GlobalAssignment BS) (k : ℕ),
-        BS.k0 ≤ k → k ≤ BS.K → X0 ≤ (2:ℝ) ^ k → ¬ isHot BS c2 a k →
-        ((excSet BS a k).card : ℝ) ≤ e0 ∧
-        ((BS.P k).card : ℝ) - e0 ≤ ((BS.P k \ excSet BS a k).card : ℝ) := by
-  obtain ⟨c2, X0d, hc2, hX0d, hDom⟩ := cold_isDominant
-  obtain ⟨e0, X0e, he0, hX0e, hExc⟩ := LocalEnergy.cold_exception_count_bound (1/4) (by norm_num) (by norm_num) c2 hc2
-  obtain ⟨X0s, hX0s, hSize⟩ := LocalEnergy.cold_label_bound (1/4) (by norm_num) (by norm_num) c2 hc2
-  obtain ⟨X0w, _, hRw⟩ := block_energy_threshold_eventually_large 1 c2 hc2
-  use c2, e0, max X0d (max X0e (max X0s (max X0w 16)));
-  refine' ⟨ hc2, he0, by positivity, fun BS a k hk1 hk2 hk3 hk4 => _ ⟩;
-  -- Apply the cold exception bound lemma to get the first part of the conjunction.
-  have h_exc : (excSet BS a k).card ≤ e0 := by
-    rw [ excSet_card_eq BS a k ( Finset.mem_Icc.mpr ⟨ hk1, hk2 ⟩ ) ];
-    apply hExc (2 ^ k) (by
-    exact le_trans ( le_max_of_le_right ( le_max_left _ _ ) ) ( mod_cast hk3 )) (BS.P k) (by
-    exact fun p hp => ⟨ BS.hprime k p hp, by linarith [ BS.hwindow k p hp ], by linarith [ BS.hwindow k p hp, pow_succ' 2 k ] ⟩) (by
-    convert BS.hdensity k hk1 hk2 using 1 ; norm_num [ Real.log_pow ]) (restrict BS a k) (coldLabel BS a k) (max 1 (blockEnergy BS a k)) (by
-    exact le_max_left _ _) (by
-    exact le_max_of_le_right ( by rw [ blockEnergy ] )) (by
-    simp +zetaDelta at *;
-    unfold isHot at hk4; norm_num [ Rw ] at hk4;
-    exact ⟨ by have := hRw k ( by linarith [ show k > 0 from Nat.pos_of_ne_zero ( by rintro rfl; linarith [ Nat.le_ceil X0d ] ) ] ) ( by linarith ) ; unfold Rw at this; norm_num at this; linarith, le_of_lt hk4 ⟩) (by
-    apply hSize (2 ^ k) (by
-    exact_mod_cast le_trans ( le_max_of_le_right ( le_max_of_le_right ( le_max_left _ _ ) ) ) hk3) (BS.P k) (by
-    exact fun p hp => ⟨ BS.hprime k p hp, by linarith [ BS.hwindow k p hp ], by linarith [ BS.hwindow k p hp, pow_succ' 2 k ] ⟩) (by
-    convert BS.hdensity k hk1 hk2 using 1 ; norm_num [ Real.log_pow ]) (restrict BS a k) (coldLabel BS a k) (max 1 (blockEnergy BS a k)) (by
-    exact le_max_left _ _) (by
-    simpa only [Nat.cast_pow, Nat.cast_ofNat] using
-      (coldLabel_spec BS a k (hDom BS a k
-        (by linarith [le_max_left X0d (max X0e (max X0s (max X0w 16)))])
-        hk1 hk2 hk4)).1) (by
-    have := coldLabel_spec BS a k ( hDom BS a k ( by linarith [ le_max_left X0d ( max X0e ( max X0s ( max X0w 16 ) ) ) ] ) hk1 hk2 hk4 ) ; norm_num at * ; linarith;) (by
-    exact le_max_of_le_right ( by rw [ blockEnergy ] )) (by
-    simp +zetaDelta at *;
-    unfold isHot at hk4; norm_num [ Rw ] at hk4;
-    exact ⟨ by have := hRw k ( by linarith [ show k > 0 from Nat.pos_of_ne_zero ( by rintro rfl; linarith [ Nat.le_ceil X0d ] ) ] ) ( by linarith ) ; unfold Rw at this; norm_num at this; linarith, le_of_lt hk4 ⟩)) (by
-    have := coldLabel_spec BS a k ( hDom BS a k ( by linarith [ le_max_left X0d ( max X0e ( max X0s ( max X0w 16 ) ) ) ] ) hk1 hk2 hk4 ) ; norm_num at * ; linarith;);
-  rw [ Finset.card_sdiff ] ; norm_num [ h_exc ];
-  rw [ Finset.inter_eq_left.mpr ( excSet_subset BS a k ) ] ; rw [ Nat.cast_sub ( Finset.card_le_card ( excSet_subset BS a k ) ) ] ; linarith;
-
-/-
-**Sharper cold-label size bound** (note 40 §3d-iii needs `|m| ≤ N·X/64`,
-    a factor `4` stronger than `cold_label_size`).  Proof identical in shape to
-    `LocalEnergy.cold_label_bound`, with the polynomial threshold widened.
--/
-lemma cold_label_size64 (c2 : ℝ) (hc2 : 0 < c2) :
+lemma cold_label_bound_div_64 (c2 : ℝ) (hc2 : 0 < c2) :
     ∃ X0 : ℝ, 0 < X0 ∧
       ∀ (X : ℕ), X0 ≤ X →
         ∀ (P : Finset ℕ) [∀ p : P, NeZero p.1],
@@ -132,58 +34,8 @@ lemma cold_label_size64 (c2 : ℝ) (hc2 : 0 < c2) :
               (fun p => a p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ) →
           QP P a ≤ R → R ≤ c2 * X / (Real.log X) ^ 3 →
             |(m : ℝ)| ≤ (P.card : ℝ) * (X : ℝ) / 64 := by
-  obtain ⟨ X0K, hX0K ⟩ :=RequestProject.eventually_const_mul_log_le_nat ( 1677721600 * c2 / 9 );
-  obtain ⟨ X0d, hX0d ⟩ := RequestProject.eventually_const_mul_log_le_nat 64 ; refine' ⟨ Max.max 16 ( Max.max ⌈X0K⌉₊ ⌈X0d⌉₊ ), _, _ ⟩ <;> norm_num;
-  intro X hX₁ hX₂ hX₃ P _ hP hP' a m R hR₁ hR₂ hR₃ hR₄ hR₅; have := hX0K.2 X hX₂; have := hX0d.2 X hX₃;
-  -- By `theoremA_label_range X _ P hP (hN:8≤N) (1/4) _ _ a m R hm hclass hQ`, `|(m:ℝ)| ≤ (20/3)·√R/sigmaP P`.
-  have h_bound : |(m : ℝ)| ≤ (20 / 3) * Real.sqrt R / sigmaP P := by
-    have h_bound : |(m : ℝ)| ≤ (5 / (1 - 1 / 4)) * Real.sqrt R / sigmaP P := by
-      have hN : 8 ≤ P.card := by
-        exact_mod_cast ( by nlinarith [ show ( X : ℝ ) ≥ 16 by norm_cast, Real.log_pos ( show ( X : ℝ ) > 1 by norm_cast; linarith ), mul_div_cancel₀ ( X : ℝ ) ( show ( 2 * Real.log X ) ≠ 0 by exact mul_ne_zero two_ne_zero <| ne_of_gt <| Real.log_pos <| show ( X : ℝ ) > 1 by norm_cast; linarith ) ] : ( 8 : ℝ ) ≤ P.card )
-      convert LocalEnergy.dominant_label_bound X ( by linarith ) P hP hN ( 1 / 4 ) ( by positivity ) ( by norm_num ) a m R _ _ _ using 1 <;> norm_num at *;
-      · grind +revert;
-      · convert hR₂ using 1;
-      · convert hR₃ using 1;
-      · exact hR₄;
-    exact h_bound.trans_eq ( by ring );
-  -- By `sigmaP_lower X _ P hP (hN2:2≤N)`, `sigmaP P ≥ N/(8X²) > 0`, so `1/sigmaP P ≤ 8X²/N` and `|(m:ℝ)| ≤ (20/3)·√R·8X²/N = (160/3)·√R·X²/N`.
-  have h_sigmaP_lower : 1 / sigmaP P ≤ 8 * (X : ℝ) ^ 2 / P.card := by
-    have h_sigmaP_lower : sigmaP P ≥ (P.card : ℝ) / (8 * (X : ℝ) ^ 2) := by
-      convert LocalEnergy.block_deviation_lower_bound X ( by linarith ) P _ _ using 1;
-      · exact fun p => ‹∀ a ∈ P, NeZero a› p p.2;
-      · assumption;
-      · contrapose! hP';
-        interval_cases _ : P.card <;> norm_num at *;
-        · exact div_pos ( by positivity ) ( mul_pos zero_lt_two ( Real.log_pos ( by norm_cast; linarith ) ) );
-        · rw [ lt_div_iff₀ ] <;> nlinarith [ Real.log_pos ( show ( X : ℝ ) > 1 by norm_cast; linarith ), show ( X : ℝ ) ≥ 16 by norm_cast ];
-    have hPcard : 0 < P.card := by
-      by_contra h
-      have hzero : P.card = 0 := Nat.eq_zero_of_not_pos h
-      rw [hzero] at hP'
-      norm_num at hP'
-      exact (not_le_of_gt (div_pos (by positivity)
-        (mul_pos zero_lt_two (Real.log_pos (by norm_cast; linarith))))) hP'
-    calc
-      1 / sigmaP P ≤ 1 / ((P.card : ℝ) / (8 * (X : ℝ) ^ 2)) :=
-        one_div_le_one_div_of_le
-          (div_pos (by exact_mod_cast hPcard) (by positivity)) h_sigmaP_lower
-      _ = 8 * (X : ℝ) ^ 2 / P.card := by
-        field_simp
-  -- So it suffices to show `(160/3)·√R·X²/N ≤ N·X/64`, i.e. `√R ≤ 3·N²/(64·160·X) = 3N²/(10240·X)`, i.e. (squaring, both sides ≥0) `R ≤ 9·N⁴/(10240²·X²) = 9·N⁴/(104857600·X²)`.
-  suffices h_suff : R ≤ 9 * (P.card : ℝ) ^ 4 / (104857600 * (X : ℝ) ^ 2) by
-    refine le_trans h_bound ?_;
-    convert mul_le_mul_of_nonneg_left ( mul_le_mul h_sigmaP_lower ( Real.sqrt_le_sqrt h_suff ) ( by positivity ) ( by positivity ) ) ( by positivity : ( 0 : ℝ ) ≤ 20 / 3 ) using 1 ; ring;
-    field_simp;
-    rw [ eq_div_iff ] <;> norm_num [ show X ≠ 0 by linarith, show P.card ≠ 0 by exact Nat.ne_of_gt <| Finset.card_pos.mpr <| Finset.nonempty_of_ne_empty <| by rintro rfl; norm_num at * ; linarith [ show ( X : ℝ ) ≥ 16 by norm_cast ] ] ; ring_nf;
-    rw [ show ( P.card : ℝ ) ^ 4 = ( P.card ^ 2 ) ^ 2 by ring, Real.sqrt_sq ( by positivity ) ] ; norm_num [ mul_comm, ne_of_gt ( by positivity : 0 < X ) ];
-  refine' le_trans hR₅ _;
-  rw [ div_le_div_iff₀ ];
-  · refine' le_trans _ ( mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_left ( pow_le_pow_left₀ ( by positivity ) ( show ( P.card : ℝ ) ≥ X / ( 2 * Real.log X ) by exact hP' ) 4 ) ( by positivity ) ) ( by positivity ) ) ; ring_nf at * ; norm_num at *;
-    field_simp;
-    rw [ le_div_iff₀ ( Real.log_pos ( by norm_cast; linarith ) ) ] ; linarith;
-  · exact pow_pos ( Real.log_pos ( by norm_cast; linarith ) ) _;
-  · positivity
-
+  simpa using LocalEnergy.cold_label_bound_with_divisor
+    (1 / 4) (by norm_num) (by norm_num) 64 (by norm_num) c2 hc2
 set_option maxHeartbeats 1600000 in
 /-- **Bundled cold-block facts.**  Produces the global cold constants `c2,e0`
     and, for every cold block, (i) a small exception set, (ii) a sharp label
@@ -199,7 +51,7 @@ lemma cold_block_facts :
           (toPlain BS a p : ZMod p) = ((coldLabel BS a k : ℤ) : ZMod p)) := by
   obtain ⟨c2, X0d, hc2, hX0d, hDom⟩ := cold_isDominant;
   obtain ⟨e0, X0e, he0, hX0e, hExc⟩ := LocalEnergy.cold_exception_count_bound (1/4) (by norm_num) (by norm_num) c2 hc2;
-  obtain ⟨X0s6, hX0s6, hSize6⟩ := cold_label_size64 c2 hc2
+  obtain ⟨X0s6, hX0s6, hSize6⟩ := cold_label_bound_div_64 c2 hc2
   obtain ⟨X0w, _, hRw⟩ := block_energy_threshold_eventually_large 1 c2 hc2;
   refine' ⟨ c2, e0, Max.max X0d ( Max.max X0e ( Max.max X0s6 ( Max.max X0w 16 ) ) ), hc2, he0, _, _ ⟩ <;> norm_num;
   intro BS a k hk1 hk2 hk3 hk4 hk5 hk6 hk7 hk8
@@ -325,7 +177,7 @@ lemma boundary_penalty_per_k :
     have hck4 : ((ck1 : ℝ) - 1) * (ck : ℝ) ^ 3 / (2 ^ 13 * (2 ^ k : ℝ) ^ 2) ≤ Xen BS a k := by
       apply consecutive_block_mismatch_energy_lower_bound BS (toPlain BS a) k
         (coldLabel BS a k) (coldLabel BS a (k + 1)) (by
-      unfold boundarySet at hk6; aesop;) (excSet BS a k) (excSet BS a (k + 1)) (excSet_subset BS a k) (by
+      unfold boundarySet at hk6; aesop;) (excSet BS a k) (excSet BS a (k + 1)) (by
       exact hCBF BS a k hk1 ( by linarith ) hk3 ( by unfold boundarySet at hk6; aesop ) |>.2.2) (by
       have := hCBF BS a ( k + 1 ) ( by linarith ) ( by linarith ) ( by linarith [ pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) ( by linarith : k + 1 ≥ k ) ] ) ( by
         unfold boundarySet at hk6; aesop; ) ; aesop;) hNk hm hm'

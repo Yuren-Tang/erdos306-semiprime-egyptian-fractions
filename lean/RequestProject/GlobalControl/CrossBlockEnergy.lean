@@ -82,7 +82,7 @@ set_option maxHeartbeats 1000000 in
 theorem consecutive_block_mismatch_energy_lower_bound (BS : BlockSystem)
     (a : (p : ℕ) → ZMod p) (k : ℕ)
     (m m' : ℤ) (hmm : m ≠ m')
-    (Ek Ek1 : Finset ℕ) (_hEk : Ek ⊆ BS.P k)
+    (Ek Ek1 : Finset ℕ)
     (hlabel_k : ∀ p ∈ BS.P k \ Ek, (a p : ZMod p) = (m : ZMod p))
     (hlabel_k1 : ∀ q ∈ BS.P (k + 1) \ Ek1, (a q : ZMod q) = (m' : ZMod q))
     (hNk : 12 ≤ (BS.P k \ Ek).card)

@@ -485,35 +485,51 @@ lemma dominant_energy_polynomial_bound (eps ρ : ℝ) (hε : 0 < eps) (hρ : 0 <
 /- **Label `≤ NX/16`.**  In the small-`R` regime, the label-range bound
     `(5/(1-ρ))√R/σ_P` is `≤ N·X/16` (uses `block_deviation_lower_bound`). -/
 set_option maxHeartbeats 1000000 in
-lemma dominant_label_linear_bound (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
+lemma dominant_label_linear_bound_with_divisor
+    (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
     (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hN : 2 ≤ P.card)
-    (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) (R : ℝ) (_hR0 : 0 ≤ R)
-    (hRpoly : R ≤ (P.card:ℝ)^4*(1-ρ)^2/(409600*(X:ℝ)^2)) :
-    (5/(1-ρ)) * Real.sqrt R / sigmaP P ≤ (P.card:ℝ) * X / 16 := by
+    (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) (D R : ℝ) (hD : 0 < D) (_hR0 : 0 ≤ R)
+    (hRpoly : R ≤ (P.card:ℝ)^4*(1-ρ)^2/((40*D)^2*(X:ℝ)^2)) :
+    (5/(1-ρ)) * Real.sqrt R / sigmaP P ≤ (P.card:ℝ) * X / D := by
   have hXpos : (0:ℝ) < X := by positivity
   have hNpos : (0:ℝ) < (P.card:ℝ) := by positivity
   have hρ1 : (0:ℝ) < 1 - ρ := by linarith
   have hσ : (P.card:ℝ)/(8*(X:ℝ)^2) ≤ sigmaP P := block_deviation_lower_bound X hX P hP hN
   have hσpos : 0 < sigmaP P := lt_of_lt_of_le (by positivity) hσ
-  have hsqrtR : Real.sqrt R ≤ (P.card:ℝ)^2*(1-ρ)/(640*X) := by
-    rw [show (P.card:ℝ)^2*(1-ρ)/(640*X) = Real.sqrt (((P.card:ℝ)^2*(1-ρ)/(640*X))^2) by
+  have hsqrtR : Real.sqrt R ≤ (P.card:ℝ)^2*(1-ρ)/((40*D)*X) := by
+    rw [show (P.card:ℝ)^2*(1-ρ)/((40*D)*X) =
+        Real.sqrt (((P.card:ℝ)^2*(1-ρ)/((40*D)*X))^2) by
       rw [Real.sqrt_sq (by positivity)]]
     apply Real.sqrt_le_sqrt
-    have key : ((P.card:ℝ)^2*(1-ρ)/(640*X))^2 = (P.card:ℝ)^4*(1-ρ)^2/(409600*(X:ℝ)^2) := by ring
+    have key : ((P.card:ℝ)^2*(1-ρ)/((40*D)*X))^2 =
+        (P.card:ℝ)^4*(1-ρ)^2/((40*D)^2*(X:ℝ)^2) := by ring
     rw [key]; exact hRpoly
   rw [div_le_iff₀ hσpos]
-  have hub : (5/(1-ρ)) * Real.sqrt R ≤ (P.card:ℝ)^2/(128*(X:ℝ)) := by
+  have hub : (5/(1-ρ)) * Real.sqrt R ≤ (P.card:ℝ)^2/((8*D)*(X:ℝ)) := by
     calc (5/(1-ρ)) * Real.sqrt R
-        ≤ (5/(1-ρ)) * ((P.card:ℝ)^2*(1-ρ)/(640*X)) :=
+        ≤ (5/(1-ρ)) * ((P.card:ℝ)^2*(1-ρ)/((40*D)*X)) :=
           mul_le_mul_of_nonneg_left hsqrtR (by positivity)
-      _ = (P.card:ℝ)^2/(128*(X:ℝ)) := by (field_simp; ring)
-  have hlb : (P.card:ℝ)^2/(128*(X:ℝ)) ≤ (P.card:ℝ)*X/16 * sigmaP P := by
-    have h2 : (P.card:ℝ)*X/16 * ((P.card:ℝ)/(8*(X:ℝ)^2)) ≤ (P.card:ℝ)*X/16 * sigmaP P :=
+      _ = (P.card:ℝ)^2/((8*D)*(X:ℝ)) := by (field_simp; ring)
+  have hlb : (P.card:ℝ)^2/((8*D)*(X:ℝ)) ≤ (P.card:ℝ)*X/D * sigmaP P := by
+    have h2 : (P.card:ℝ)*X/D * ((P.card:ℝ)/(8*(X:ℝ)^2)) ≤
+        (P.card:ℝ)*X/D * sigmaP P :=
       mul_le_mul_of_nonneg_left hσ (by positivity)
-    calc (P.card:ℝ)^2/(128*(X:ℝ))
-        = (P.card:ℝ)*X/16 * ((P.card:ℝ)/(8*(X:ℝ)^2)) := by (field_simp; ring)
-      _ ≤ (P.card:ℝ)*X/16 * sigmaP P := h2
+    calc (P.card:ℝ)^2/((8*D)*(X:ℝ))
+        = (P.card:ℝ)*X/D * ((P.card:ℝ)/(8*(X:ℝ)^2)) := by field_simp
+      _ ≤ (P.card:ℝ)*X/D * sigmaP P := h2
   linarith [hub, hlb]
+
+/-- The standard `/16` specialization of the parameterized dominant-label
+linear bound. -/
+lemma dominant_label_linear_bound (X : ℕ) (hX : 1 ≤ X) (P : Finset ℕ) [∀ p : P, NeZero p.1]
+    (hP : ∀ p ∈ P, Nat.Prime p ∧ X ≤ p ∧ p ≤ 2*X) (hN : 2 ≤ P.card)
+    (ρ : ℝ) (hρ : 0 < ρ) (hρ4 : ρ ≤ 1/4) (R : ℝ) (hR0 : 0 ≤ R)
+    (hRpoly : R ≤ (P.card:ℝ)^4*(1-ρ)^2/(409600*(X:ℝ)^2)) :
+    (5/(1-ρ)) * Real.sqrt R / sigmaP P ≤ (P.card:ℝ) * X / 16 := by
+  apply dominant_label_linear_bound_with_divisor X hX P hP hN ρ hρ hρ4 16 R
+    (by norm_num) hR0
+  norm_num
+  exact hRpoly
 
 /- For `ε > 0`, `ρ ∈ (0, 1/4]`, and `X` large, the
     number of *dominant* low-energy assignments is at most

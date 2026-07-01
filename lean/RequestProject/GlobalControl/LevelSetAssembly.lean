@@ -42,7 +42,7 @@ Now PROVED and axiom-clean (this round), completing the note-45 route:
     `hot_block_count` + the label-uniform `cold_count_large`);
   * `cold_count_large` (label-uniform per-cold-block count) and
     `cold_count_nonwrap` (the non-wrapped huge-label case is an EMPTY fiber, via
-    `dominant_label_bound`/`cold_label_size64`);
+    `dominant_label_bound`/`cold_label_bound_div_64`);
   * `hrhs_charge_bound` and `hrhs_final` (the full four-fold fiber sum bound),
     hence `global_levelset` — all reduced to the single kernel below.
 
@@ -705,7 +705,7 @@ lemma cold_count_nonwrap (c2 : ℝ) (hc2 : 0 < c2) :
         (1 - (1/4:ℝ)) * (P.card : ℝ) ≤ ((P.attach.filter (fun p => a p = ((m : ℤ) : ZMod (p : ℕ)))).card : ℝ) →
           QP P a ≤ R → R ≤ c2 * (2:ℝ) ^ k / (Real.log (2 ^ k)) ^ 3 →
             |(m : ℝ)| ≤ (P.card : ℝ) * (2 ^ k) / 16 := by
-              obtain ⟨ X0, hX0_pos, hX0 ⟩ := GlobalControl.cold_label_size64 c2 hc2;
+              obtain ⟨ X0, hX0_pos, hX0 ⟩ := GlobalControl.cold_label_bound_div_64 c2 hc2;
               use Nat.ceil X0;
               refine' ⟨ Nat.cast_pos.mpr ( Nat.ceil_pos.mpr hX0_pos ), _ ⟩;
               intro BS k hk1 hk2 hk3 P _ hP hP' a m R hR hm hR' hR''; specialize hX0 ( 2 ^ k ) ( by exact le_trans ( Nat.le_ceil _ ) ( mod_cast hk3 ) ) P; simp_all +decide [ Nat.cast_pow ] ;
