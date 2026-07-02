@@ -1,4 +1,3 @@
-import RequestProject.GlobalControl.Localization
 import RequestProject.GlobalControl.LaplaceAboveFloor
 import RequestProject.GlobalControl.LevelSetAssembly
 import RequestProject.GlobalControl.GaussianIntegerSum
@@ -10,15 +9,14 @@ noncomputable section
 namespace GlobalControl
 
 /-!
-# G7 — global control partition (Prop 8.1), route closure (note 34 G7)
+# Global control partition
 
 This module is downstream-only: it imports `GlobalControl` and assembles the
 headline off-main-arc bound `global_control_partition` from
 
-* the G5 level-set theorem `global_levelset` (factor `exp(A · numBlocks BS)`,
-  `A` a *fixed* G5 constant — this is the corrected `Cglob` form: because `A` is
-  fixed before `k0min` is chosen, the growing Peierls floor `F0(k0)` can absorb
-  `A · numBlocks BS`);
+* the level-set theorem `global_levelset` (factor `exp(A · numBlocks BS)`,
+  with `A` fixed before the base-scale threshold, so the growing Peierls floor
+  can absorb `A · numBlocks BS`);
 * the localization dichotomy (`localization_dichotomy`: off-main implies either
   energy above the floor or global diagonality with a large label and exact
   quadratic energy);
@@ -30,87 +28,11 @@ arbitrary later `Cglob` cannot absorb it): here the level-set hypothesis carries
 the explicit `exp(A · numBlocks BS)` factor, so the quantifier order is correct.
 -/
 
-/-! ## Generic finite-sum / subtype-tsum bridges -/
-
-/-- For a `Fintype` index and a decidable predicate, the subtype `tsum` is the
-filtered finite sum. -/
-lemma fintype_subtype_tsum_eq {α : Type*} [Fintype α] (S : α → Prop)
-    [DecidablePred S] (f : α → ℝ) :
-    ∑' a : {x // S x}, f a.1 = ∑ a ∈ Finset.univ.filter S, f a := by
-  classical
-  rw [tsum_fintype]
-  exact (Finset.sum_subtype (Finset.univ.filter S) (by intro x; simp) f).symm
-
-/-- Subadditivity of subtype-tsums along a disjunctive cover, for a nonnegative
-summand on a finite index. -/
-lemma fintype_subtype_tsum_le_of_or {α : Type*} [Fintype α]
-    (S P Q : α → Prop) [DecidablePred S] [DecidablePred P] [DecidablePred Q]
-    (f : α → ℝ) (hf : ∀ a, 0 ≤ f a) (hor : ∀ a, S a → P a ∨ Q a) :
-    ∑' a : {x // S x}, f a.1 ≤
-      (∑' a : {x // P x}, f a.1) + ∑' a : {x // Q x}, f a.1 := by
-  classical
-  rw [fintype_subtype_tsum_eq S f, fintype_subtype_tsum_eq P f,
-    fintype_subtype_tsum_eq Q f]
-  have hsub : Finset.univ.filter S ⊆
-      Finset.univ.filter P ∪ Finset.univ.filter Q := by
-    intro a ha
-    rw [Finset.mem_filter] at ha
-    rcases hor a ha.2 with hP | hQ
-    · exact Finset.mem_union_left _ (Finset.mem_filter.mpr ⟨ha.1, hP⟩)
-    · exact Finset.mem_union_right _ (Finset.mem_filter.mpr ⟨ha.1, hQ⟩)
-  calc ∑ a ∈ Finset.univ.filter S, f a
-      ≤ ∑ a ∈ Finset.univ.filter P ∪ Finset.univ.filter Q, f a :=
-        Finset.sum_le_sum_of_subset_of_nonneg hsub (fun a _ _ => hf a)
-    _ ≤ (∑ a ∈ Finset.univ.filter P, f a) + ∑ a ∈ Finset.univ.filter Q, f a := by
-        have key : (∑ a ∈ Finset.univ.filter P ∪ Finset.univ.filter Q, f a) +
-              ∑ a ∈ (Finset.univ.filter P) ∩ (Finset.univ.filter Q), f a =
-            (∑ a ∈ Finset.univ.filter P, f a) + ∑ a ∈ Finset.univ.filter Q, f a :=
-          Finset.sum_union_inter
-        have hnn : 0 ≤ ∑ a ∈ (Finset.univ.filter P) ∩ (Finset.univ.filter Q), f a :=
-          Finset.sum_nonneg (fun a _ => hf a)
-        linarith
-
-
 /-! ## Sector I — Laplace absorption above the energy floor -/
-
-/-- Convert the explicit G5 route hypothesis (`Set.ncard` form) to the
-`Finset.univ.filter` form required by `RequestProject.partition_function_bound_of_level_sets`. -/
-lemma global_levelset_finset_bound
-    (Cglob eps : ℝ) (BS : BlockSystem)
-    (hlevel : ∀ R : ℝ, 1 ≤ R →
-      (Set.ncard {a : GlobalAssignment BS | Qctrl BS a ≤ R} : ℝ) ≤
-        Cglob * Real.exp (8 * eps * R) * (1 + Real.sqrt R / sigmaCtrl BS)) :
-    ∀ R : ℝ, 1 ≤ R →
-      ((Finset.univ.filter (fun a : GlobalAssignment BS => Qctrl BS a ≤ R)).card : ℝ) ≤
-        Cglob * Real.exp (8 * eps * R) * (1 + Real.sqrt R / sigmaCtrl BS) := by
-  intro R hR
-  classical
-  have hcard :
-      (Set.ncard {a : GlobalAssignment BS | Qctrl BS a ≤ R} : ℝ) =
-        ((Finset.univ.filter (fun a : GlobalAssignment BS => Qctrl BS a ≤ R)).card : ℝ) := by
-    rw [Set.ncard_eq_toFinset_card']
-    simp [Set.toFinset_setOf]
-  simpa [hcard] using hlevel R hR
 
 
 /-! ## Sector II — diagonal Gaussian tail -/
 
-/-- Summability of the one-dimensional integer Gaussian (comparison to the
-geometric series `(e^{-A})^n` via `n² ≥ n`). -/
-private lemma summable_int_gaussian (A : ℝ) (hA : 0 < A) :
-    Summable (fun m : ℤ => Real.exp (-A * (m : ℝ) ^ 2)) := by
-  have hg : Summable (fun n : ℕ => Real.exp (-A) ^ n) :=
-    summable_geometric_of_lt_one (by positivity)
-      (Real.exp_lt_one_iff.mpr (neg_lt_zero.mpr hA))
-  have key : ∀ n : ℕ, (n : ℝ) ≤ (n : ℝ) ^ 2 := fun n => by
-    exact_mod_cast Nat.le_self_pow (by norm_num) n
-  rw [summable_int_iff_summable_nat_and_neg]
-  refine ⟨?_, ?_⟩ <;>
-  · refine Summable.of_nonneg_of_le (fun n => (Real.exp_pos _).le) (fun n => ?_) hg
-    rw [← Real.exp_nat_mul]
-    refine Real.exp_le_exp.mpr ?_
-    push_cast
-    nlinarith [key n, mul_le_mul_of_nonneg_left (key n) hA.le]
 
 /-- **Sector-II Gaussian tail.**  The diagonal sector is bounded by a Gaussian
 tail in the label window `|m| > C / σ`.  A diagonal assignment is determined by
@@ -164,7 +86,7 @@ theorem sectorII_gaussian (c : ℝ) (hc : 0 < c) :
     rwa [mul_one_div, div_self hc.ne'] at h
   have hAle1 : c * σ ^ 2 / 2 ≤ 1 := by linarith [hcσ]
   -- Convert the diagonal-sector tsum to a finite filter sum.
-  rw [fintype_subtype_tsum_eq (fun a => diagSector BS C a)
+  rw [RequestProject.fintype_subtype_tsum_eq (fun a => diagSector BS C a)
     (fun a => Real.exp (-c * Qctrl BS a))]
   set F := Finset.univ.filter (fun a : GlobalAssignment BS => diagSector BS C a) with hF_def
   -- Label map: pick the diagonal witness for each diagonal assignment.
@@ -279,9 +201,9 @@ lemma sigmaCtrl_pos (BS : BlockSystem) (hadm : admissibleGlobalRange BS) :
   have hqp : (0 : ℝ) < (q : ℝ) := by exact_mod_cast (BS.hprime (BS.k0 + 1) q hq).pos
   positivity
 
-/-! ## G7 assembly -/
+/-! ## Partition assembly -/
 
-/-- **G7 (global control partition, Prop 8.1).**  Off-main-arc Laplace sum,
+/-- The off-main-arc Laplace sum is bounded by
 bounded by an arbitrarily small `η / σ` plus the one-dimensional Gaussian tail.
 
 This is the route-closed form of `GlobalControl.global_control_partition`,
@@ -337,7 +259,7 @@ theorem global_control_partition (c : ℝ) (hc : 0 < c)
           Real.exp (-c * Qctrl BS a.1)) +
         ∑' a : {a : GlobalAssignment BS // diagSector BS C a},
           Real.exp (-c * Qctrl BS a.1) :=
-    fintype_subtype_tsum_le_of_or
+    RequestProject.fintype_subtype_tsum_le_of_or
       (fun a => a ∉ mainArc BS C)
       (fun a => globalControlFloor BS c2 e0 ≤ Qctrl BS a)
       (fun a => diagSector BS C a)
@@ -356,9 +278,6 @@ theorem global_control_partition (c : ℝ) (hc : 0 < c)
     _ ≤ η / sigmaCtrl BS + Ctail * Real.exp (-C ^ 2 * c / 2) / sigmaCtrl BS :=
         add_le_add hsI hsII
     _ = (η + Ctail * Real.exp (-C ^ 2 * c / 2)) / sigmaCtrl BS := by ring
-
-/-- Compatibility alias for the historical final-assembly name. -/
-alias global_control_partition_final := global_control_partition
 
 end GlobalControl
 

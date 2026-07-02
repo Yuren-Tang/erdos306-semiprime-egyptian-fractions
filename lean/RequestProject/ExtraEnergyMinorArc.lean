@@ -38,7 +38,7 @@ lemma minor_energy_sum_le_fiber_tail
         Real.exp (-c * Qctrl BS a.1) := by
   classical
   set af : ℕ → GlobalAssignment BS := fun h => (fun p => ((h : ZMod p.1))) with haf
-  rw [fintype_subtype_tsum_eq (fun a => a ∉ mainArc BS C)
+  rw [RequestProject.fintype_subtype_tsum_eq (fun a => a ∉ mainArc BS C)
     (fun a => Real.exp (-c * Qctrl BS a))]
   have step1 : ∑ h ∈ Sm, Real.exp (-c * QE E h)
       ≤ ∑ h ∈ Sm, Real.exp (-c * Qctrl BS (af h)) * Real.exp (-c * Qextra h) := by

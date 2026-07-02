@@ -159,7 +159,7 @@ lemma term_label_eq (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ)
 /-- **L3→Re** (per label).  When the cubic remainder is small (`≤ 1/10`), the
 real part of the main-arc term is at least `0.8` times the Gaussian. -/
 lemma term_label_re_lower (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ)
-    (he0 : ∀ e ∈ E, 0 < e)
+    (_he0 : ∀ e ∈ E, 0 < e)
     (hlb : ∀ e ∈ E, 1/3 ≤ θ e) (hub : ∀ e ∈ E, θ e ≤ 2/3)
     (hmass : (∑ e ∈ E, θ e / (e : ℝ)) = 1 / (b : ℝ))
     (ht : ∀ e ∈ E, |(m : ℝ) / (e : ℝ)| ≤ 1/10)

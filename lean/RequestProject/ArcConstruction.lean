@@ -108,7 +108,7 @@ lemma minor_energy_sum_le_mult (BS : BlockSystem) (E : Finset ℕ) (c C : ℝ) (
         Real.exp (-c * Qctrl BS a.1) := by
   classical
   set af : ℕ → GlobalAssignment BS := fun h => (fun p => ((h : ZMod p.1))) with haf
-  rw [fintype_subtype_tsum_eq (fun a => a ∉ mainArc BS C)
+  rw [RequestProject.fintype_subtype_tsum_eq (fun a => a ∉ mainArc BS C)
     (fun a => Real.exp (-c * Qctrl BS a))]
   have step1 : ∑ h ∈ Sm, Real.exp (-c * QE E h)
       ≤ ∑ h ∈ Sm, Real.exp (-c * Qctrl BS (af h)) :=
@@ -284,7 +284,7 @@ lemma exists_mainArc_bijection (L : ℕ) (N : ℤ) (hN : 0 ≤ N) (hNL : 2 * N +
           rw [← Int.add_emod_right m (L : ℤ), Int.emod_eq_of_lt (by linarith) (by linarith)]
         rw [hmm, if_neg (by linarith)]; ring
     · rw [hfZ]
-      exact ⟨-(m / (L : ℤ)), by linear_combination Int.ediv_add_emod m (L : ℤ)⟩
+      exact ⟨-(m / (L : ℤ)), by linear_combination Int.mul_ediv_add_emod m (L : ℤ)⟩
   refine ⟨(Finset.Icc (-N) N).image (fun m => (m % (L : ℤ)).toNat),
     fun h => if 2 * (h : ℤ) < (L : ℤ) then (h : ℤ) else (h : ℤ) - (L : ℤ),
     ?_, ?_, ?_, ?_, ?_⟩

@@ -276,7 +276,7 @@ lemma minor_energy_sum_le (BS : BlockSystem) (E : Finset ℕ) (c C : ℝ) (Sm : 
         Real.exp (-c * Qctrl BS a.1) := by
   set af : ℕ → GlobalAssignment BS := fun h => (fun p => ((h : ZMod p.1))) with haf
   have hinj' : ∀ x ∈ Sm, ∀ y ∈ Sm, af x = af y → x = y := hinj
-  rw [fintype_subtype_tsum_eq (fun a => a ∉ mainArc BS C)
+  rw [RequestProject.fintype_subtype_tsum_eq (fun a => a ∉ mainArc BS C)
     (fun a => Real.exp (-c * Qctrl BS a))]
   calc ∑ h ∈ Sm, Real.exp (-c * QE E h)
       ≤ ∑ h ∈ Sm, Real.exp (-c * Qctrl BS (af h)) := by

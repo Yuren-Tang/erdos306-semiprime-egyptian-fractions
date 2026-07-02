@@ -5,8 +5,6 @@ An elementary one-dimensional Gaussian lattice-sum estimate used by the global
 control argument. This module is independent of block systems and arithmetic
 bookkeeping.
 -/
-import Mathlib.Analysis.SpecialFunctions.Exp
-import Mathlib.Algebra.Order.Floor.Ring
 import Mathlib.Tactic
 
 open Finset BigOperators Classical
@@ -15,10 +13,27 @@ noncomputable section
 
 namespace GlobalControl
 
-/-! ## G7 support. Elementary Gaussian integer-sum bound (note 38 §7) -/
+/-! ## Gaussian integer sums -/
+
+/-- The one-dimensional integer Gaussian is summable for every positive
+coefficient. -/
+lemma summable_int_gaussian (A : ℝ) (hA : 0 < A) :
+    Summable (fun m : ℤ => Real.exp (-A * (m : ℝ) ^ 2)) := by
+  have hgeom : Summable (fun n : ℕ => Real.exp (-A) ^ n) :=
+    summable_geometric_of_lt_one (by positivity)
+      (Real.exp_lt_one_iff.mpr (neg_lt_zero.mpr hA))
+  have hlinear : ∀ n : ℕ, (n : ℝ) ≤ (n : ℝ) ^ 2 := fun n => by
+    exact_mod_cast Nat.le_self_pow (by norm_num) n
+  rw [summable_int_iff_summable_nat_and_neg]
+  refine ⟨?_, ?_⟩ <;>
+  · refine Summable.of_nonneg_of_le (fun n => (Real.exp_pos _).le) (fun n => ?_) hgeom
+    rw [← Real.exp_nat_mul]
+    refine Real.exp_le_exp.mpr ?_
+    push_cast
+    nlinarith [hlinear n, mul_le_mul_of_nonneg_left (hlinear n) hA.le]
 
 /-
-**Gaussian integer-sum lemma (note 38 §7, step II).**  For `0 < A ≤ 1`,
+For `0 < A ≤ 1`,
     `∑_{m ∈ ℤ} exp(-A·m²) ≤ 1 + 6/√A`.
 
     Proof: the `m = 0` term contributes `1`; by symmetry the rest is
