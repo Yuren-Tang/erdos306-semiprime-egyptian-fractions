@@ -1,6 +1,6 @@
 import RequestProject.Core.Asymptotics
 import RequestProject.Core.IntervalSegmentation
-import RequestProject.GlobalControl.ColdBlockBounds
+import RequestProject.GlobalControl.BoundaryPenalty
 import RequestProject.GlobalControl.Encoding.HotBlockCount
 import RequestProject.GlobalControl.MainArc
 import RequestProject.LocalEnergy.DominantLabel

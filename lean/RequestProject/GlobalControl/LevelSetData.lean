@@ -6,7 +6,7 @@ This file keeps the segment-encoding data spaces outside the large
 against the cached core.
 -/
 import RequestProject.Core.IntervalSegmentation
-import RequestProject.GlobalControl.ColdBlockBounds
+import RequestProject.GlobalControl.BoundaryPenalty
 import RequestProject.GlobalControl.Encoding.Fibers
 import RequestProject.LocalEnergy.DominantLabel
 import RequestProject.GlobalPeierlsBookkeeping
