@@ -35,7 +35,7 @@ theorem laplace_above_control_floor
   set K0 : ℝ := Real.exp (8 * eps) /
     (1 - Real.exp (-(cbar - 8 * eps))) ^ 2 with hK0_def
   obtain ⟨k0grow, hgrow⟩ :=
-    Pifloor_superlinear c hc eps A c2 e0 heps hepsc hA hc2 he0 η hη
+    control_floor_absorbs_entropy c hc eps A c2 e0 heps hepsc hA hc2 he0 η hη
   refine ⟨max 2 k0grow, ?_⟩
   intro BS hk0 hadm hσ hlevel
   have hk0two : 2 ≤ BS.k0 := le_trans (le_max_left _ _) hk0

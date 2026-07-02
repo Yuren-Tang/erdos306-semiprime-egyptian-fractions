@@ -15,7 +15,7 @@ namespace GlobalControl
 
 /-- Convert the `Set.ncard` level-set hypothesis to the finite-filter form used
 by `RequestProject.partition_function_bound_of_level_sets`. -/
-lemma global_levelset_filter_card_bound
+private lemma global_levelset_filter_card_bound
     (Cglob eps : ℝ) (BS : BlockSystem)
     (hlevel : ∀ R : ℝ, 1 ≤ R →
       (Set.ncard {a : GlobalAssignment BS | Qctrl BS a ≤ R} : ℝ) ≤
@@ -57,4 +57,3 @@ lemma full_laplace_bound_of_global_levelsets
 end GlobalControl
 
 end
-

@@ -187,4 +187,19 @@ lemma exp2_model_div_linear_tendsto
   norm_num [Nat.cast_add, Nat.cast_one]
   ring_nf
 
+/-- The model `c * 2^(2k) / (k+1)^4` eventually dominates every affine
+function of `k`. -/
+lemma exp2_affine_lower (c : ℝ) (hc : 0 < c) :
+    ∀ (beta A V : ℝ), 0 < beta → 0 < A →
+    ∃ K : ℕ, ∀ k : ℕ, K ≤ k →
+      (A * (2 * (k : ℝ) + 1) + V) / beta ≤
+        c * ((2 : ℝ) ^ (2 * k)) / (((k : ℝ) + 1) ^ 4) := by
+  intro beta A V hbeta hA
+  obtain ⟨M, hM⟩ := affine_div_le_linear_multiple beta A V hbeta hA
+  obtain ⟨K, hK⟩ :=
+    beats_affine_of_tendsto
+      (fun k : ℕ => c * ((2 : ℝ) ^ (2 * k)) / (((k : ℝ) + 1) ^ 4))
+      (exp2_model_div_linear_tendsto c hc) M
+  exact ⟨K, fun k hk => le_trans (hM k) (hK k hk)⟩
+
 end RequestProject
