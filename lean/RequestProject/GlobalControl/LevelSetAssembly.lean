@@ -1,11 +1,11 @@
 /-
 G5 assembly leaf for `GlobalControl`.
 
-This file imports the stable level-set data layer `GlobalControl.LevelSetData` and
-develops the remaining `hrhs` ε-budget assembly (note 40 §5): the label-charging
+This file imports the completed level-set route and develops the remaining
+`hrhs` ε-budget assembly (note 40 §5): the label-charging
 (`weighted_subset_entropy` coupling), the per-fiber count discharge, and the
-final `global_levelset` assembly.  Keeping it separate from the large
-`LevelSetData.lean` lets each edit re-elaborate only this leaf.
+final `global_levelset` assembly.  The parameter spaces, encoding cover,
+admissibility, fiber bounds, and route closure live in separate upstream modules.
 
 ## Status of the note-42 `hrhs` sub-lemmas
 
@@ -69,7 +69,7 @@ import RequestProject.Core.IntervalSegmentation
 import RequestProject.GlobalControl.Encoding.FixedLabelCount
 import RequestProject.GlobalControl.Encoding.HotBlockCount
 import RequestProject.GlobalControl.Encoding.TotalEntropy
-import RequestProject.GlobalControl.LevelSetData
+import RequestProject.GlobalControl.LevelSetRoute
 import RequestProject.GlobalControl.ScaleComparison
 import RequestProject.GlobalPeierlsBookkeeping
 import RequestProject.LocalEnergy.DominantLabel
