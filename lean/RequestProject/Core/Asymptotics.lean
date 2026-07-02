@@ -4,6 +4,8 @@ import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 
 namespace RequestProject
 
+open Filter Topology
+
 /-- Every constant multiple of `log X` is eventually bounded by `X`, for
 natural-number scales `X`. -/
 theorem eventually_const_mul_log_le_nat (K : ℝ) :
@@ -78,5 +80,111 @@ theorem log_le_linear_of_base (eps t0 t : ℝ) (heps : 0 < eps)
     field_simp
   rw [hsplit]
   nlinarith [hdiv, hlog, hkey, hexpand]
+
+
+lemma geom_div_pow_tendsto (r : ℝ) (hr : 1 < r) (m : ℕ) :
+    Filter.Tendsto (fun n : ℕ => r ^ n / (n : ℝ) ^ m) Filter.atTop Filter.atTop := by
+  have hlr : 0 < Real.log r := Real.log_pos hr
+  have h1 : Filter.Tendsto (fun x : ℝ => Real.exp x / x ^ m) Filter.atTop Filter.atTop :=
+    Real.tendsto_exp_div_pow_atTop m
+  have h2 : Filter.Tendsto (fun n : ℕ => (n : ℝ) * Real.log r) Filter.atTop Filter.atTop :=
+    Filter.Tendsto.atTop_mul_const hlr tendsto_natCast_atTop_atTop
+  have h3 := h1.comp h2
+  have hcongr :
+      (fun n : ℕ => r ^ n / (n : ℝ) ^ m) =
+        fun n : ℕ =>
+          (Real.log r) ^ m *
+            (Real.exp ((n : ℝ) * Real.log r) / (((n : ℝ) * Real.log r) ^ m)) := by
+    funext n
+    rw [Real.exp_nat_mul, Real.exp_log (by linarith), mul_pow]
+    by_cases hn : (n : ℝ) = 0
+    · have hn0 : n = 0 := Nat.cast_eq_zero.mp hn
+      subst n
+      by_cases hm : m = 0
+      · subst m
+        simp
+      · simp [zero_pow hm]
+    · field_simp [hn, ne_of_gt hlr]
+  rw [hcongr]
+  exact h3.const_mul_atTop (by positivity)
+
+lemma beats_affine_of_tendsto (f : ℕ → ℝ)
+    (hf : Filter.Tendsto (fun n : ℕ => f n / ((n : ℝ) + 1)) Filter.atTop Filter.atTop)
+    (M : ℝ) :
+    ∃ K : ℕ, ∀ k : ℕ, K ≤ k → M * ((k : ℝ) + 1) ≤ f k := by
+  obtain ⟨K, hK⟩ := Filter.eventually_atTop.mp (hf.eventually_ge_atTop M)
+  refine ⟨K, ?_⟩
+  intro k hk
+  have hMk : M ≤ f k / ((k : ℝ) + 1) := hK k hk
+  have hpos : 0 < (k : ℝ) + 1 := by positivity
+  calc
+    M * ((k : ℝ) + 1) ≤ (f k / ((k : ℝ) + 1)) * ((k : ℝ) + 1) := by
+      exact mul_le_mul_of_nonneg_right hMk hpos.le
+    _ = f k := by field_simp [ne_of_gt hpos]
+
+lemma affine_div_le_linear_multiple
+    (β A V : ℝ) (hβ : 0 < β) (hA : 0 < A) :
+    ∃ M : ℝ, ∀ k : ℕ,
+      (A * (2 * (k : ℝ) + 1) + V) / β ≤ M * ((k : ℝ) + 1) := by
+  refine ⟨(2 * A + |A + V|) / β, ?_⟩
+  intro k
+  have hk : 0 ≤ (k : ℝ) := by positivity
+  have hAV : A + V ≤ |A + V| := le_abs_self _
+  have hAbs : 0 ≤ |A + V| := abs_nonneg _
+  have hAbsMul : 0 ≤ |A + V| * (k : ℝ) := mul_nonneg hAbs hk
+  have hnum :
+      A * (2 * (k : ℝ) + 1) + V ≤
+        (2 * A + |A + V|) * ((k : ℝ) + 1) := by
+    nlinarith [hAV, hA.le, hk, hAbsMul]
+  calc
+    (A * (2 * (k : ℝ) + 1) + V) / β
+        ≤ ((2 * A + |A + V|) * ((k : ℝ) + 1)) / β :=
+          div_le_div_of_nonneg_right hnum hβ.le
+    _ = ((2 * A + |A + V|) / β) * ((k : ℝ) + 1) := by
+      field_simp [ne_of_gt hβ]
+
+lemma exp1_model_div_succ_pow_tendsto
+    (c : ℝ) (hc : 0 < c) :
+    Filter.Tendsto
+      (fun k : ℕ => c * ((2 : ℝ) ^ k) / (((k : ℝ) + 1) ^ 4))
+      Filter.atTop Filter.atTop := by
+  have hbase :
+      Filter.Tendsto
+        (fun k : ℕ => (2 : ℝ) ^ (k + 1) / (((k + 1 : ℕ) : ℝ) ^ 4))
+        Filter.atTop Filter.atTop := by
+    exact (geom_div_pow_tendsto 2 one_lt_two 4).comp
+      (tendsto_add_atTop_nat 1)
+  have hscaled := hbase.const_mul_atTop (by positivity : 0 < c / 2)
+  refine hscaled.congr' ?_
+  filter_upwards [Filter.eventually_ge_atTop 0] with k hk
+  have hkpos : (k : ℝ) + 1 ≠ 0 := by positivity
+  field_simp [hkpos]
+  norm_num [Nat.cast_add, Nat.cast_one]
+  ring_nf
+
+/-- The model term divided by `(k+1)` still tends to infinity. -/
+lemma exp2_model_div_linear_tendsto
+    (c0 : ℝ) (hc0 : 0 < c0) :
+    Filter.Tendsto
+      (fun k : ℕ =>
+        (c0 * ((2 : ℝ) ^ (2 * k)) / (((k : ℝ) + 1) ^ 4)) /
+          ((k : ℝ) + 1))
+      Filter.atTop Filter.atTop := by
+  have hbase :
+      Filter.Tendsto
+        (fun k : ℕ => (4 : ℝ) ^ (k + 1) / (((k + 1 : ℕ) : ℝ) ^ 5))
+        Filter.atTop Filter.atTop := by
+    exact (geom_div_pow_tendsto 4 (by norm_num) 5).comp
+      (tendsto_add_atTop_nat 1)
+  have hscaled := hbase.const_mul_atTop (by positivity : 0 < c0 / 4)
+  refine hscaled.congr' ?_
+  filter_upwards [Filter.eventually_ge_atTop 0] with k hk
+  have hkpos : (k : ℝ) + 1 ≠ 0 := by positivity
+  have hpow : ((2 : ℝ) ^ (2 * k)) = (4 : ℝ) ^ k := by
+    rw [show (4 : ℝ) = 2 ^ 2 by norm_num, pow_mul]
+  rw [hpow]
+  field_simp [hkpos]
+  norm_num [Nat.cast_add, Nat.cast_one]
+  ring_nf
 
 end RequestProject

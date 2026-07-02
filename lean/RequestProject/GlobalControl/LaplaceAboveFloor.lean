@@ -8,93 +8,13 @@ noncomputable section
 
 namespace GlobalControl
 
-lemma geom_div_pow_tendsto (r : ℝ) (hr : 1 < r) (m : ℕ) :
-    Filter.Tendsto (fun n : ℕ => r ^ n / (n : ℝ) ^ m) Filter.atTop Filter.atTop := by
-  have hlr : 0 < Real.log r := Real.log_pos hr
-  have h1 : Filter.Tendsto (fun x : ℝ => Real.exp x / x ^ m) Filter.atTop Filter.atTop :=
-    Real.tendsto_exp_div_pow_atTop m
-  have h2 : Filter.Tendsto (fun n : ℕ => (n : ℝ) * Real.log r) Filter.atTop Filter.atTop :=
-    Filter.Tendsto.atTop_mul_const hlr tendsto_natCast_atTop_atTop
-  have h3 := h1.comp h2
-  have hcongr :
-      (fun n : ℕ => r ^ n / (n : ℝ) ^ m) =
-        fun n : ℕ =>
-          (Real.log r) ^ m *
-            (Real.exp ((n : ℝ) * Real.log r) / (((n : ℝ) * Real.log r) ^ m)) := by
-    funext n
-    rw [Real.exp_nat_mul, Real.exp_log (by linarith), mul_pow]
-    by_cases hn : (n : ℝ) = 0
-    · have hn0 : n = 0 := Nat.cast_eq_zero.mp hn
-      subst n
-      by_cases hm : m = 0
-      · subst m
-        simp
-      · simp [zero_pow hm]
-    · field_simp [hn, ne_of_gt hlr]
-  rw [hcongr]
-  exact h3.const_mul_atTop (by positivity)
-
-lemma beats_affine_of_tendsto (f : ℕ → ℝ)
-    (hf : Filter.Tendsto (fun n : ℕ => f n / ((n : ℝ) + 1)) Filter.atTop Filter.atTop)
-    (M : ℝ) :
-    ∃ K : ℕ, ∀ k : ℕ, K ≤ k → M * ((k : ℝ) + 1) ≤ f k := by
-  obtain ⟨K, hK⟩ := Filter.eventually_atTop.mp (hf.eventually_ge_atTop M)
-  refine ⟨K, ?_⟩
-  intro k hk
-  have hMk : M ≤ f k / ((k : ℝ) + 1) := hK k hk
-  have hpos : 0 < (k : ℝ) + 1 := by positivity
-  calc
-    M * ((k : ℝ) + 1) ≤ (f k / ((k : ℝ) + 1)) * ((k : ℝ) + 1) := by
-      exact mul_le_mul_of_nonneg_right hMk hpos.le
-    _ = f k := by field_simp [ne_of_gt hpos]
-
-lemma affine_div_le_linear_multiple
-    (β A V : ℝ) (hβ : 0 < β) (hA : 0 < A) :
-    ∃ M : ℝ, ∀ k : ℕ,
-      (A * (2 * (k : ℝ) + 1) + V) / β ≤ M * ((k : ℝ) + 1) := by
-  refine ⟨(2 * A + |A + V|) / β, ?_⟩
-  intro k
-  have hk : 0 ≤ (k : ℝ) := by positivity
-  have hAV : A + V ≤ |A + V| := le_abs_self _
-  have hAbs : 0 ≤ |A + V| := abs_nonneg _
-  have hAbsMul : 0 ≤ |A + V| * (k : ℝ) := mul_nonneg hAbs hk
-  have hnum :
-      A * (2 * (k : ℝ) + 1) + V ≤
-        (2 * A + |A + V|) * ((k : ℝ) + 1) := by
-    nlinarith [hAV, hA.le, hk, hAbsMul]
-  calc
-    (A * (2 * (k : ℝ) + 1) + V) / β
-        ≤ ((2 * A + |A + V|) * ((k : ℝ) + 1)) / β :=
-          div_le_div_of_nonneg_right hnum hβ.le
-    _ = ((2 * A + |A + V|) / β) * ((k : ℝ) + 1) := by
-      field_simp [ne_of_gt hβ]
-
-lemma exp1_model_div_succ_pow_tendsto
-    (c : ℝ) (hc : 0 < c) :
-    Filter.Tendsto
-      (fun k : ℕ => c * ((2 : ℝ) ^ k) / (((k : ℝ) + 1) ^ 4))
-      Filter.atTop Filter.atTop := by
-  have hbase :
-      Filter.Tendsto
-        (fun k : ℕ => (2 : ℝ) ^ (k + 1) / (((k + 1 : ℕ) : ℝ) ^ 4))
-        Filter.atTop Filter.atTop := by
-    exact (geom_div_pow_tendsto 2 one_lt_two 4).comp
-      (tendsto_add_atTop_nat 1)
-  have hscaled := hbase.const_mul_atTop (by positivity : 0 < c / 2)
-  refine hscaled.congr' ?_
-  filter_upwards [Filter.eventually_ge_atTop 0] with k hk
-  have hkpos : (k : ℝ) + 1 ≠ 0 := by positivity
-  field_simp [hkpos]
-  norm_num [Nat.cast_add, Nat.cast_one]
-  ring_nf
-
 /-- `Rw c2 k / (k+1) → ∞`, via comparison with `2^k/(k+1)^4`. -/
 lemma Rw_div_linear_tendsto
     (c2 : ℝ) (hc2 : 0 < c2) :
     Filter.Tendsto (fun k : ℕ => Rw c2 k / ((k : ℝ) + 1))
       Filter.atTop Filter.atTop := by
   refine tendsto_atTop_mono' Filter.atTop ?_
-    (exp1_model_div_succ_pow_tendsto c2 hc2)
+    (RequestProject.exp1_model_div_succ_pow_tendsto c2 hc2)
   filter_upwards [Filter.eventually_ge_atTop 1] with k hk
   have hkR : 1 ≤ (k : ℝ) := by exact_mod_cast hk
   have hkpos : 0 < (k : ℝ) := by positivity
@@ -135,35 +55,10 @@ lemma Rw_div_linear_tendsto
           ((k : ℝ) + 1) := by
       field_simp [ne_of_gt hden_log_pos, ne_of_gt hk1pos]
 
-/-- The model term divided by `(k+1)` still tends to infinity. -/
-lemma exp2_model_div_linear_tendsto
-    (c0 : ℝ) (hc0 : 0 < c0) :
-    Filter.Tendsto
-      (fun k : ℕ =>
-        (c0 * ((2 : ℝ) ^ (2 * k)) / (((k : ℝ) + 1) ^ 4)) /
-          ((k : ℝ) + 1))
-      Filter.atTop Filter.atTop := by
-  have hbase :
-      Filter.Tendsto
-        (fun k : ℕ => (4 : ℝ) ^ (k + 1) / (((k + 1 : ℕ) : ℝ) ^ 5))
-        Filter.atTop Filter.atTop := by
-    exact (geom_div_pow_tendsto 4 (by norm_num) 5).comp
-      (tendsto_add_atTop_nat 1)
-  have hscaled := hbase.const_mul_atTop (by positivity : 0 < c0 / 4)
-  refine hscaled.congr' ?_
-  filter_upwards [Filter.eventually_ge_atTop 0] with k hk
-  have hkpos : (k : ℝ) + 1 ≠ 0 := by positivity
-  have hpow : ((2 : ℝ) ^ (2 * k)) = (4 : ℝ) ^ k := by
-    rw [show (4 : ℝ) = 2 ^ 2 by norm_num, pow_mul]
-  rw [hpow]
-  field_simp [hkpos]
-  norm_num [Nat.cast_add, Nat.cast_one]
-  ring_nf
-
 /-!
-# G7 Sector I absorption
+# Laplace absorption above the control floor
 
-This file is downstream-only.  It isolates the sector-I Laplace absorption
+This file isolates the high-energy Laplace absorption
 above the global control floor, with the corrected level-set hypothesis carrying
 the fixed `exp(A * numBlocks BS)` factor.
 -/
@@ -171,7 +66,7 @@ the fixed `exp(A * numBlocks BS)` factor.
 
 /-- Convert the `Set.ncard` level-set hypothesis to the finite-filter form used
 by `RequestProject.partition_function_bound_of_level_sets`. -/
-lemma sectorI_global_levelset_finset_bound
+lemma global_levelset_filter_card_bound
     (Cglob eps : ℝ) (BS : BlockSystem)
     (hlevel : ∀ R : ℝ, 1 ≤ R →
       (Set.ncard {a : GlobalAssignment BS | Qctrl BS a ≤ R} : ℝ) ≤
@@ -191,7 +86,7 @@ lemma sectorI_global_levelset_finset_bound
   simpa [hcard] using hlevel R hR
 
 /-- Step A: full Laplace bound at exponent `c'`. -/
-lemma sectorI_full_laplace_bound
+lemma full_laplace_bound_of_global_levelsets
     (c' eps A : ℝ) (hc' : 0 < c') (heps0 : 0 ≤ 8 * eps)
     (hepsc' : 8 * eps < c') (BS : BlockSystem) (hσ : 0 < sigmaCtrl BS)
     (hlevel : ∀ R : ℝ, 1 ≤ R →
@@ -207,7 +102,7 @@ lemma sectorI_full_laplace_bound
     (fun a => Qctrl_nonneg BS a)
     c' (8 * eps) (Real.exp (A * (numBlocks BS : ℝ))) (sigmaCtrl BS)
     hc' heps0 hepsc' (Real.exp_pos _).le hσ
-    (sectorI_global_levelset_finset_bound
+    (global_levelset_filter_card_bound
       (Real.exp (A * (numBlocks BS : ℝ))) eps BS hlevel)
 
 lemma density_card_ge
@@ -218,7 +113,7 @@ lemma density_card_ge
   have hlog2pos : 0 < Real.log (2 : ℝ) := Real.log_pos one_lt_two
   have htend :
       Filter.Tendsto (fun k : ℕ => (2 : ℝ) ^ k / (k : ℝ)) Filter.atTop Filter.atTop :=
-    by simpa using geom_div_pow_tendsto 2 one_lt_two 1
+    by simpa using RequestProject.geom_div_pow_tendsto 2 one_lt_two 1
   obtain ⟨K, hK⟩ :=
     Filter.eventually_atTop.mp
       (htend.eventually_ge_atTop (8 * (e0 + 1) * Real.log (2 : ℝ)))
@@ -471,9 +366,9 @@ lemma Rw_affine_lower
     ∃ K : ℕ, ∀ k : ℕ, K ≤ k →
       (A * (2 * (k : ℝ) + 1) + V) / β ≤ Rw c2 k := by
   intro β A V hβ hA
-  obtain ⟨M, hM⟩ := affine_div_le_linear_multiple β A V hβ hA
+  obtain ⟨M, hM⟩ := RequestProject.affine_div_le_linear_multiple β A V hβ hA
   obtain ⟨K, hK⟩ :=
-    beats_affine_of_tendsto (fun k : ℕ => Rw c2 k)
+    RequestProject.beats_affine_of_tendsto (fun k : ℕ => Rw c2 k)
       (Rw_div_linear_tendsto c2 hc2) M
   exact ⟨K, fun k hk => le_trans (hM k) (hK k hk)⟩
 
@@ -486,12 +381,12 @@ lemma exp2_affine_lower
       (A * (2 * (k : ℝ) + 1) + V) / β ≤
         c0 * ((2 : ℝ) ^ (2 * k)) / (((k : ℝ) + 1) ^ 4) := by
   intro β A V hβ hA
-  obtain ⟨M, hM⟩ := affine_div_le_linear_multiple β A V hβ hA
+  obtain ⟨M, hM⟩ := RequestProject.affine_div_le_linear_multiple β A V hβ hA
   obtain ⟨K, hK⟩ :=
-    beats_affine_of_tendsto
+    RequestProject.beats_affine_of_tendsto
       (fun k : ℕ =>
         c0 * ((2 : ℝ) ^ (2 * k)) / (((k : ℝ) + 1) ^ 4))
-      (exp2_model_div_linear_tendsto c0 hc0) M
+      (RequestProject.exp2_model_div_linear_tendsto c0 hc0) M
   exact ⟨K, fun k hk => le_trans (hM k) (hK k hk)⟩
 
 /-- The remaining floor-growth input for Sector I.
@@ -621,7 +516,7 @@ theorem Pifloor_superlinear
         rw [hV_def, Real.exp_neg, Real.exp_log hratio_pos]
         field_simp [hK0_pos.ne', hη.ne']
 
-theorem sectorI_floor_growth_absorption
+theorem laplace_above_control_floor
     (c : ℝ) (hc : 0 < c) (eps A c2 e0 : ℝ)
     (heps : 0 < eps) (hepsc : 8 * eps < c) (hA : 0 < A)
     (hc2 : 0 < c2) (he0 : 0 < e0) :
@@ -658,7 +553,7 @@ theorem sectorI_floor_growth_absorption
     nlinarith [hepsc]
   have hdpos : 0 < c - cbar := sub_pos.mpr hcbarc
   have h8eps_nonneg : 0 ≤ 8 * eps := by nlinarith [heps]
-  have hlap := sectorI_full_laplace_bound cbar eps A hcbar_pos h8eps_nonneg
+  have hlap := full_laplace_bound_of_global_levelsets cbar eps A hcbar_pos h8eps_nonneg
     h8cbar BS hσ hlevel
   have hgrowBS :
       Real.exp
@@ -770,24 +665,6 @@ theorem sectorI_floor_growth_absorption
         ring
     _ ≤ η / sigmaCtrl BS :=
         div_le_div_of_nonneg_right hgrowBS' hσ.le
-
-theorem laplace_above_control_floor (c : ℝ) (hc : 0 < c) (eps A c2 e0 : ℝ)
-    (heps : 0 < eps) (hepsc : 8 * eps < c) (hA : 0 < A)
-    (hc2 : 0 < c2) (he0 : 0 < e0) :
-    ∀ η : ℝ, 0 < η →
-    ∃ k0min : ℕ,
-      ∀ (BS : BlockSystem), k0min ≤ BS.k0 → admissibleGlobalRange BS →
-      0 < sigmaCtrl BS →
-      (∀ R : ℝ, 1 ≤ R →
-        (Set.ncard {a : GlobalAssignment BS | Qctrl BS a ≤ R} : ℝ) ≤
-          Real.exp (A * (numBlocks BS : ℝ)) * Real.exp (8 * eps * R) *
-            (1 + Real.sqrt R / sigmaCtrl BS)) →
-      ∑' a : {a : GlobalAssignment BS // globalControlFloor BS c2 e0 ≤ Qctrl BS a},
-          Real.exp (-c * Qctrl BS a.1) ≤ η / sigmaCtrl BS := by
-  exact sectorI_floor_growth_absorption c hc eps A c2 e0 heps hepsc hA hc2 he0
-
-/-- Compatibility alias for the historical sector name. -/
-alias sectorI_absorption' := laplace_above_control_floor
 
 end GlobalControl
 
