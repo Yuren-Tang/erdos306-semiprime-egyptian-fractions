@@ -150,7 +150,7 @@ theorem exists_r2_block_minor_budget_from_fiber_tail_g7
       ∑ h ∈ blockMinorPart MA.Sm Sblock,
         fourierNormWeight D.E W.theta b D.L h ≤ Bblock := by
   obtain ⟨k0min, Ctail, hCtail, hgcp⟩ :=
-    global_control_partition_final (16 / 9) (by norm_num) eps heps η hη
+    global_control_partition (16 / 9) (by norm_num) eps heps η hη
   refine ⟨k0min, Ctail, hCtail, ?_⟩
   intro T b D W N MA Sblock Bblock C K Qextra hk0 hadm hC hK
     heL he0 hL hQE hnotmain hfiber hBblock

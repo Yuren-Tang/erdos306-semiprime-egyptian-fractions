@@ -38,7 +38,7 @@ lemma minor_energy_sum_le_fiber_tail
         Real.exp (-c * Qctrl BS a.1) := by
   classical
   set af : ℕ → GlobalAssignment BS := fun h => (fun p => ((h : ZMod p.1))) with haf
-  rw [fintype_subtype_tsum_eq (fun a => a ∉ mainArc BS C)
+  rw [RequestProject.fintype_subtype_tsum_eq (fun a => a ∉ mainArc BS C)
     (fun a => Real.exp (-c * Qctrl BS a))]
   have step1 : ∑ h ∈ Sm, Real.exp (-c * QE E h)
       ≤ ∑ h ∈ Sm, Real.exp (-c * Qctrl BS (af h)) * Real.exp (-c * Qextra h) := by
@@ -96,7 +96,7 @@ theorem minor_arc_bound_fiber_tail (eps : ℝ) (heps : 0 < eps) :
         ≤ K * (η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl BS := by
   intro η hη
   obtain ⟨k0min, Ctail, hCtail, hgcp⟩ :=
-    global_control_partition_final (16 / 9) (by norm_num) eps heps η hη
+    global_control_partition (16 / 9) (by norm_num) eps heps η hη
   refine ⟨k0min, Ctail, hCtail, ?_⟩
   intro BS hk0 hadm C hC E theta b L Sm K Qextra hK hlb hub heL he0 hL hQE hnotmain hfiber
   have hconst : (8 * (1 / 3 : ℝ) * (1 - 1 / 3)) = 16 / 9 := by norm_num

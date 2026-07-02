@@ -9,7 +9,7 @@
   parameter k₀ can be chosen large enough to avoid any finite set.
 -/
 import Mathlib
-import RequestProject.Defs
+import RequestProject.Core.Semiprime
 
 open Finset BigOperators
 

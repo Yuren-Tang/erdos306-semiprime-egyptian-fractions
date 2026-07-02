@@ -1,4 +1,4 @@
-import RequestProject.GlobalControl
+import RequestProject.GlobalControl.BlockSystem
 import RequestProject.DyadicPrimes
 
 open Finset BigOperators
@@ -12,9 +12,7 @@ namespace GlobalControl
 
 Constructs a `BlockSystem` with arbitrarily large `k₀` and `admissibleGlobalRange`,
 taking the dyadic blocks `Pₖ = {primes in [2ᵏ, 2ᵏ⁺¹)}`.  The only non-elementary
-input is the dyadic prime-density lower bound (`hdensity`), which is the classical
-**Rosser–Schoenfeld (1962)** estimate; it is recorded here as a single named axiom
-pending the upstreaming of PNT-level results to Mathlib.
+input is the dyadic prime-density lower bound (`hdensity`), which is the structural PNT-type dyadic prime-density input.
 -/
 
 /-- **R2 (a): block-system existence.**  For every target `k₀min` there is a

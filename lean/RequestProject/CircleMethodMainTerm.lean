@@ -87,7 +87,6 @@ lemma bernoulliCharFun_ne_zero_main (θ t : ℝ) (hlb : 1/3 ≤ θ) (hub : θ �
 diagonal label `m` expands to `2πi(m/b) − 2π²m²σ_E²` up to a cubic remainder,
 the linear coefficient being pinned to `1/b` by the **mass identity**. -/
 lemma sum_logphi_bound (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ)
-    (he0 : ∀ e ∈ E, 0 < e)
     (hlb : ∀ e ∈ E, 1/3 ≤ θ e) (hub : ∀ e ∈ E, θ e ≤ 2/3)
     (hmass : (∑ e ∈ E, θ e / (e : ℝ)) = 1 / (b : ℝ))
     (ht : ∀ e ∈ E, |(m : ℝ) / (e : ℝ)| ≤ 1/10) :
@@ -96,7 +95,6 @@ lemma sum_logphi_bound (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ)
             - 2*Real.pi^2*(m:ℝ)^2*((sigmaE2 E θ : ℝ) : ℂ))‖
       ≤ ∑ e ∈ E, 100000 * |(m:ℝ)/(e:ℝ)|^3 := by
   have hstep := sum_bernoulli_log_taylor E θ (fun e => (m:ℝ)/(e:ℝ)) hlb hub ht
-  simp only [] at hstep
   -- mass identity over ℂ
   have hmassC : (∑ e ∈ E, (θ e : ℂ) / (e : ℂ)) = 1 / (b : ℂ) := by
     have hcast : (∑ e ∈ E, (θ e : ℂ) / (e : ℂ))
@@ -138,9 +136,7 @@ def term_label (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ) : ℂ :=
 /-- **L3** (note 44).  The main-arc term equals the real Gaussian
 `exp(−2π²m²σ_E²)` times `exp(δ)`, where `δ` is the cubic Taylor remainder. -/
 lemma term_label_eq (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ)
-    (he0 : ∀ e ∈ E, 0 < e)
     (hlb : ∀ e ∈ E, 1/3 ≤ θ e) (hub : ∀ e ∈ E, θ e ≤ 2/3)
-    (hmass : (∑ e ∈ E, θ e / (e : ℝ)) = 1 / (b : ℝ))
     (ht : ∀ e ∈ E, |(m : ℝ) / (e : ℝ)| ≤ 1/10) :
     term_label E θ b m
       = ((Real.exp (-(2*Real.pi^2*(m:ℝ)^2*(sigmaE2 E θ))) : ℝ) : ℂ)
@@ -163,13 +159,13 @@ lemma term_label_eq (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ)
 /-- **L3→Re** (per label).  When the cubic remainder is small (`≤ 1/10`), the
 real part of the main-arc term is at least `0.8` times the Gaussian. -/
 lemma term_label_re_lower (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ)
-    (he0 : ∀ e ∈ E, 0 < e)
+    (_he0 : ∀ e ∈ E, 0 < e)
     (hlb : ∀ e ∈ E, 1/3 ≤ θ e) (hub : ∀ e ∈ E, θ e ≤ 2/3)
     (hmass : (∑ e ∈ E, θ e / (e : ℝ)) = 1 / (b : ℝ))
     (ht : ∀ e ∈ E, |(m : ℝ) / (e : ℝ)| ≤ 1/10)
     (hsmall : (∑ e ∈ E, 100000 * |(m:ℝ)/(e:ℝ)|^3) ≤ 1/10) :
     0.8 * Real.exp (-(2*Real.pi^2*(m:ℝ)^2*(sigmaE2 E θ))) ≤ (term_label E θ b m).re := by
-  rw [term_label_eq E θ b m he0 hlb hub hmass ht]
+  rw [term_label_eq E θ b m hlb hub ht]
   set G : ℝ := Real.exp (-(2*Real.pi^2*(m:ℝ)^2*(sigmaE2 E θ))) with hGdef
   have hGpos : 0 < G := Real.exp_pos _
   set δ : ℂ := (∑ e ∈ E, Complex.log (bernoulliCharFun (θ e) ((m:ℝ)/(e:ℝ))))
@@ -178,7 +174,7 @@ lemma term_label_re_lower (E : Finset ℕ) (θ : ℕ → ℝ) (b : ℕ) (m : ℤ
   -- ‖δ‖ ≤ 1/10
   have hδnorm : ‖δ‖ ≤ 1/10 := by
     rw [hδdef]
-    exact le_trans (sum_logphi_bound E θ b m he0 hlb hub hmass ht) hsmall
+    exact le_trans (sum_logphi_bound E θ b m hlb hub hmass ht) hsmall
   -- ‖exp δ - 1‖ ≤ 2‖δ‖
   have hδle1 : ‖δ‖ ≤ 1 := by linarith [hδnorm]
   have hexpb : ‖Complex.exp δ - 1‖ ≤ 2 * ‖δ‖ := Complex.norm_exp_sub_one_le hδle1

@@ -1,6 +1,7 @@
 import RequestProject.CircleMethodArcs
 import RequestProject.CircleMethodMainTerm
 import RequestProject.BlockSystemConstruction
+import RequestProject.Core.Semiprime
 
 open Finset BigOperators GlobalControl
 
@@ -77,8 +78,8 @@ lemma QE_ge_Qctrl (BS : BlockSystem) (E : Finset ℕ) (hsub : ctrlEdges BS ⊆ E
     Qctrl BS (fun p => ((h : ZMod p.1))) ≤ QE E h := by
   rw [Qctrl_freq_eq]
   calc ∑ pq ∈ ctrlPairs BS,
-          (GlobalControl.nndist1 ((h : ℝ) / ((pq.1 : ℝ) * (pq.2 : ℝ)))) ^ 2
-      = ∑ e ∈ ctrlEdges BS, (GlobalControl.nndist1 ((h : ℝ) / (e : ℝ))) ^ 2 := by
+          ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((h : ℝ) / ((pq.1 : ℝ) * (pq.2 : ℝ)))) ^ 2
+      = ∑ e ∈ ctrlEdges BS, ((norm ∘ ((↑) : ℝ → UnitAddCircle)) ((h : ℝ) / (e : ℝ))) ^ 2 := by
         rw [ctrlEdges, Finset.sum_image
           (fun a ha b hb hab => ctrlPairs_prod_injOn BS ha hb hab)]
         refine Finset.sum_congr rfl (fun pq _ => ?_)
@@ -107,7 +108,7 @@ lemma minor_energy_sum_le_mult (BS : BlockSystem) (E : Finset ℕ) (c C : ℝ) (
         Real.exp (-c * Qctrl BS a.1) := by
   classical
   set af : ℕ → GlobalAssignment BS := fun h => (fun p => ((h : ZMod p.1))) with haf
-  rw [fintype_subtype_tsum_eq (fun a => a ∉ mainArc BS C)
+  rw [RequestProject.fintype_subtype_tsum_eq (fun a => a ∉ mainArc BS C)
     (fun a => Real.exp (-c * Qctrl BS a))]
   have step1 : ∑ h ∈ Sm, Real.exp (-c * QE E h)
       ≤ ∑ h ∈ Sm, Real.exp (-c * Qctrl BS (af h)) :=
@@ -156,7 +157,7 @@ theorem minor_arc_bound_mult (eps : ℝ) (heps : 0 < eps) :
         ≤ (M : ℝ) * (η + Ctail * Real.exp (-C ^ 2 * (16 / 9) / 2)) / sigmaCtrl BS := by
   intro η hη
   obtain ⟨k0min, Ctail, hCtail, hgcp⟩ :=
-    global_control_partition_final (16 / 9) (by norm_num) eps heps η hη
+    global_control_partition (16 / 9) (by norm_num) eps heps η hη
   refine ⟨k0min, Ctail, hCtail, ?_⟩
   intro BS hk0 hadm C hC E theta b L Sm M hlb hub heL he0 hL hQE hnotmain hmult
   have hconst : (8 * (1 / 3 : ℝ) * (1 - 1 / 3)) = 16 / 9 := by norm_num
@@ -283,7 +284,7 @@ lemma exists_mainArc_bijection (L : ℕ) (N : ℤ) (hN : 0 ≤ N) (hNL : 2 * N +
           rw [← Int.add_emod_right m (L : ℤ), Int.emod_eq_of_lt (by linarith) (by linarith)]
         rw [hmm, if_neg (by linarith)]; ring
     · rw [hfZ]
-      exact ⟨-(m / (L : ℤ)), by linear_combination Int.ediv_add_emod m (L : ℤ)⟩
+      exact ⟨-(m / (L : ℤ)), by linear_combination Int.mul_ediv_add_emod m (L : ℤ)⟩
   refine ⟨(Finset.Icc (-N) N).image (fun m => (m % (L : ℤ)).toNat),
     fun h => if 2 * (h : ℤ) < (L : ℤ) then (h : ℤ) else (h : ℤ) - (L : ℤ),
     ?_, ?_, ?_, ?_, ?_⟩

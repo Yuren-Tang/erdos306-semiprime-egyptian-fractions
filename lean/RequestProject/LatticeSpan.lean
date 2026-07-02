@@ -25,7 +25,7 @@ If L is squarefree, e ∣ L, e > 0, p is prime, and p ∣ e, then p ∤ L / e.
 theorem prime_not_dvd_quot_of_dvd_squarefree
     (L e p : ℕ) (hL : Squarefree L) (he : e ∣ L)
     (hp : Nat.Prime p) (hpe : p ∣ e) : ¬ (p ∣ L / e) := by
-  exact fun h => absurd ( hL p ( by exact Nat.dvd_trans ( by simpa [ sq ] using Nat.mul_dvd_mul hpe h ) ( by simpa [ Nat.mul_div_cancel' he ] ) ) ) ( by aesop )
+  exact fun h => absurd ( hL p ( by exact Nat.dvd_trans ( by exact Nat.mul_dvd_mul hpe h ) ( by rw [Nat.mul_div_cancel' he] ) ) ) ( by aesop )
 
 /-
 **Lemma 10.1 (Lattice-span gadget).**
@@ -39,7 +39,7 @@ theorem lattice_span_gcd_eq_one
     (P : Finset ℕ) (hP : ∀ p ∈ P, Nat.Prime p)
     (E : Finset ℕ) (hEne : E.Nonempty)
     (hEdvd : ∀ e ∈ E, e ∣ P.prod id)
-    (hEpos : ∀ e ∈ E, 0 < e)
+    (_hEpos : ∀ e ∈ E, 0 < e)
     (hcover : ∀ p ∈ P, ∃ e ∈ E, p ∣ e) :
     E.gcd (fun e => P.prod id / e) = 1 := by
   -- By contradiction, assume there exists a prime $d$ that divides the gcd of the set $\{L/e \mid e \in E\}$.

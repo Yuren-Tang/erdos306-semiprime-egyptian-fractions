@@ -1,5 +1,7 @@
-import RequestProject.SpectralCannon
+import RequestProject.Spectral.Selection
 import RequestProject.CircleMethodMainTerm
+import RequestProject.Core.EgyptianRepresentation
+import RequestProject.Core.Semiprime
 
 /-!
 # Cannon bridge — deriving the circle-method existence step from `spectral_existence`
@@ -56,7 +58,7 @@ lemma cannonB_eq (E : Finset ℕ) (theta : ℕ → ℝ) (L : ℕ)
       = (theta j.1 : ℂ)
           * Complex.exp (2 * Real.pi * Complex.I * (ω : ℂ) * ((L / j.1 : ℕ) : ℂ) / (L : ℂ))
         + (1 - theta j.1) := by
-  unfold cannonB; simp +decide [ Fintype.sum_bool ];
+  unfold cannonB; simp +decide;
   unfold cannonChar; norm_num;
   norm_cast ; aesop
 
@@ -152,7 +154,7 @@ lemma cannon_tail_pointwise (E : Finset ℕ) (theta : ℕ → ℝ) (b L : ℕ)
   by_cases h : ∃ j : { e // e ∈ E }, ‖cannonB E theta L j ω‖ = 0;
   · obtain ⟨ j, hj ⟩ := h; simp_all +decide [ Finset.prod_eq_zero ( Finset.mem_univ j ) ] ;
     refine' le_trans _ ( le_add_of_nonneg_left <| norm_nonneg _ );
-    rw [ Finset.sum_eq_add_sum_diff_singleton ( Finset.mem_attach _ j ) ];
+    rw [ Finset.sum_eq_add_sum_sdiff_singleton_of_mem ( Finset.mem_attach _ j ) ];
     simp [hj];
     exact le_trans ( by aesop ) ( Finset.single_le_sum ( fun x _ => by split_ifs <;> first | positivity | exact neg_nonneg_of_nonpos <| Real.log_nonpos ( norm_nonneg _ ) <| by exact le_trans ( norm_cannonB_le_one E theta L x ω ( hthlb _ <| x.2 ) ( hthub _ <| x.2 ) ) <| by norm_num ) <| Finset.mem_attach _ j );
   · simp_all +decide [ Finset.sum_ite ];

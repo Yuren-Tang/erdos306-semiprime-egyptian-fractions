@@ -20,8 +20,10 @@ must exhibit a saving over this product.
 - CP 02 §1 (CRT energy definitions)
 - CP 03 §4 (single-block counting theorem)
 -/
-import Mathlib
-import RequestProject.SBEE
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Data.ZMod.Basic
+import Mathlib.Data.ZMod.ValMinAbs
+import Mathlib.Tactic
 
 open Finset BigOperators Classical
 
@@ -29,28 +31,12 @@ noncomputable section
 
 /-! ## CRT representative -/
 
-/-- For distinct primes p, q: coprimality. -/
-theorem primes_coprime_of_ne {p q : ℕ} (hp : Nat.Prime p) (hq : Nat.Prime q)
-    (hne : p ≠ q) : Nat.Coprime p q :=
-  (hp.coprime_iff_not_dvd).mpr fun h =>
-    hne ((Nat.prime_dvd_prime_iff_eq hp hq).mp h)
-
 /-- Centered CRT representative: H with H ≡ ap (mod p), H ≡ aq (mod q),
     centered in (-pq/2, pq/2]. Returns 0 when p, q are not coprime. -/
 def crtRepr (p q : ℕ) (ap : ZMod p) (aq : ZMod q) : ℤ :=
   if hcop : Nat.Coprime p q then
-    let n := p * q
-    let combined : ZMod n := (ZMod.chineseRemainder hcop).symm (ap, aq)
-    let raw : ℤ := (combined.val : ℤ)
-    if raw > (n : ℤ) / 2 then raw - n else raw
+    ((ZMod.chineseRemainder hcop).symm (ap, aq)).valMinAbs
   else 0
-
-/-
-Helper: centering an integer in [0, n) to (-n/2, n/2].
--/
-theorem center_abs_le {n : ℕ} {raw : ℤ} (h0 : 0 ≤ raw) (hlt : raw < n) :
-    |if raw > (n : ℤ) / 2 then raw - n else raw| ≤ (n : ℤ) / 2 := by
-  split_ifs <;> rw [ abs_le ] <;> constructor <;> omega
 
 /-- |crtRepr| ≤ pq/2 when p, q are coprime and positive. -/
 theorem crtRepr_abs_le (p q : ℕ) (ap : ZMod p) (aq : ZMod q)
@@ -58,60 +44,40 @@ theorem crtRepr_abs_le (p q : ℕ) (ap : ZMod p) (aq : ZMod q)
     |crtRepr p q ap aq| ≤ ↑(p * q) / 2 := by
   unfold crtRepr; rw [dif_pos hcop]
   haveI : NeZero (p * q) := ⟨Nat.ne_of_gt (Nat.mul_pos hp hq)⟩
-  apply center_abs_le (Int.natCast_nonneg _)
-  exact_mod_cast ZMod.val_lt _
-
-/-
-Centering doesn't change the ZMod cast: for n dividing m,
-    casting (if raw > m/2 then raw - m else raw) to ZMod n
-    equals casting raw to ZMod n.
--/
-theorem center_cast_eq {m n : ℕ} {raw : ℤ} (hdvd : (n : ℤ) ∣ m) :
-    ((if raw > (m : ℤ) / 2 then raw - m else raw : ℤ) : ZMod n) =
-      (raw : ZMod n) := by
-  cases hdvd ; aesop
+  rw [Int.abs_eq_natAbs]
+  exact_mod_cast ZMod.natAbs_valMinAbs_le ((ZMod.chineseRemainder hcop).symm (ap, aq))
 
 /-- crtRepr cast to ZMod p equals ap (the left CRT component). -/
 theorem crtRepr_congr_left (p q : ℕ) (ap : ZMod p) (aq : ZMod q)
-    (hcop : Nat.Coprime p q) (hp : 0 < p) (hq : 0 < q) :
+    (hcop : Nat.Coprime p q) :
     (crtRepr p q ap aq : ZMod p) = ap := by
   simp only [crtRepr, dif_pos hcop]
   set combined := (ZMod.chineseRemainder hcop).symm (ap, aq)
-  haveI : NeZero (p * q) := ⟨Nat.ne_of_gt (Nat.mul_pos hp hq)⟩
-  have val_cast : ((combined.val : ℕ) : ZMod p) = ap := by
-    have h1 : ((combined.val : ℕ) : ZMod p) = ZMod.cast combined := by
-      exact_mod_cast ZMod.natCast_val combined
-    have h2 : (ZMod.cast combined : ZMod p) = (ZMod.chineseRemainder hcop combined).1 := by
-      simp [ZMod.chineseRemainder]
-    have h3 : (ZMod.chineseRemainder hcop combined).1 = ap := by
-      simp [combined, RingEquiv.apply_symm_apply]
-    rw [h1, h2, h3]
-  split_ifs
-  · simp only [Int.cast_sub, Int.cast_natCast]
-    have : ((p * q : ℕ) : ZMod p) = 0 := by simp [Nat.cast_mul, zero_mul]
-    rw [this, sub_zero, val_cast]
-  · rw [Int.cast_natCast, val_cast]
+  calc
+    (combined.valMinAbs : ZMod p) =
+        ZMod.cast (combined.valMinAbs : ZMod (p * q)) :=
+          (ZMod.cast_intCast (R := ZMod p) (Nat.dvd_mul_right p q)
+            combined.valMinAbs).symm
+    _ = (ZMod.chineseRemainder hcop (combined.valMinAbs : ZMod (p * q))).1 := by
+          simp [ZMod.chineseRemainder]
+    _ = (ZMod.chineseRemainder hcop combined).1 := by rw [ZMod.coe_valMinAbs]
+    _ = ap := by simp [combined]
 
 /-- crtRepr cast to ZMod q equals aq (the right CRT component). -/
 theorem crtRepr_congr_right (p q : ℕ) (ap : ZMod p) (aq : ZMod q)
-    (hcop : Nat.Coprime p q) (hp : 0 < p) (hq : 0 < q) :
+    (hcop : Nat.Coprime p q) :
     (crtRepr p q ap aq : ZMod q) = aq := by
   simp only [crtRepr, dif_pos hcop]
   set combined := (ZMod.chineseRemainder hcop).symm (ap, aq)
-  haveI : NeZero (p * q) := ⟨Nat.ne_of_gt (Nat.mul_pos hp hq)⟩
-  have val_cast : ((combined.val : ℕ) : ZMod q) = aq := by
-    have h1 : ((combined.val : ℕ) : ZMod q) = ZMod.cast combined := by
-      exact_mod_cast ZMod.natCast_val combined
-    have h2 : (ZMod.cast combined : ZMod q) = (ZMod.chineseRemainder hcop combined).2 := by
-      simp [ZMod.chineseRemainder]
-    have h3 : (ZMod.chineseRemainder hcop combined).2 = aq := by
-      simp [combined, RingEquiv.apply_symm_apply]
-    rw [h1, h2, h3]
-  split_ifs
-  · simp only [Int.cast_sub, Int.cast_natCast]
-    have : ((p * q : ℕ) : ZMod q) = 0 := by rw [Nat.cast_mul]; simp
-    rw [this, sub_zero, val_cast]
-  · rw [Int.cast_natCast, val_cast]
+  calc
+    (combined.valMinAbs : ZMod q) =
+        ZMod.cast (combined.valMinAbs : ZMod (p * q)) :=
+          (ZMod.cast_intCast (R := ZMod q) (Nat.dvd_mul_left q p)
+            combined.valMinAbs).symm
+    _ = (ZMod.chineseRemainder hcop (combined.valMinAbs : ZMod (p * q))).2 := by
+          simp [ZMod.chineseRemainder]
+    _ = (ZMod.chineseRemainder hcop combined).2 := by rw [ZMod.coe_valMinAbs]
+    _ = aq := by simp [combined]
 
 /-! ## CRT assignment space -/
 
